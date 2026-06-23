@@ -174,7 +174,7 @@ toy scaling）。重跑：`python scripts/run_all_sims.py`。
 - **Parseval / $\Gamma_{rms}$**：[P1] Eq.(20), p.185。
 - **ring $\Gamma_{rms}$ scaling**：[P2] Eq.(16), p.794，$\Gamma_{rms}\propto N^{-3/4}$
   （[P2] Eq.(16), p.794，已核實）。
-- **ring 頻率**：[P2] Eq.(14), p.794，$f_0=1/(2N\tau_D)$。
+- **ring 頻率**：[P2] Eq.(15), p.794，$f_0=1/(2N\tau_D)$。
 - **ring 白噪 FOM / $N$-無關性**：[P2], p.795，$\mathcal{L}\vert_{1/f^2}\approx\frac{8}{3\eta}\,\frac{V_{DD}}{V_{char}}\,\frac{kT}{P}(\omega_0/\Delta\omega)^2$
   （[P2] Eq.(23), p.796 的前置係數是 $8/(3\eta)$（$\eta$ 為級延遲比例常數 Eq.14，$\approx1$）；$\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入。v2 曾誤改為 $8/(3\gamma)$ 並誤標『逐字核實』，v3 已對照原始 PDF p.796 更正）。
 

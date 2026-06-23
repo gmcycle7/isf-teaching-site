@@ -627,13 +627,13 @@ print(round(Grms, 3))     # -> 0.397
 
 **逐步解**
 
-第 1 步（a），ring 頻率（[P2] Eq.(14)）：$f_0=\dfrac1{2N\tau_D}\Rightarrow N=\dfrac1{2f_0\tau_D}$。
+第 1 步（a），ring 頻率（[P2] Eq.(15)）：$f_0=\dfrac1{2N\tau_D}\Rightarrow N=\dfrac1{2f_0\tau_D}$。
 
 $$
 N=\frac1{2\times5\times10^{9}\times20\times10^{-12}}=\frac1{0.2}=5 .
 $$
 
-第 2 步（b），$\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16)，⚠️ 常數待查；scaling 為主）。比值：
+第 2 步（b），$\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16), p.794，已核實；scaling 為主）。比值：
 
 $$
 \frac{\Gamma_{rms}(15)}{\Gamma_{rms}(5)}=\left(\frac{15}{5}\right)^{-3/2}=3^{-1.5}=0.1925 .
@@ -651,7 +651,7 @@ $$
 （$N$ 應為整數，這裡剛好整）。$\Delta\mathcal{L}$：$10\log_{10}$ 的引數是無因次比值 ✓。
 
 > **重要警語**：上面只孤立看了 $\Gamma_{rms}$。[P2] 的完整結論是——**固定 $f_0$ 與總功率 $P$ 時，
-> single-ended ring 的 phase noise / jitter 幾乎與 $N$ 無關**（見 [P2] p.795 的 FOM，⚠️ 常數待查）。
+> single-ended ring 的 phase noise / jitter 幾乎與 $N$ 無關**（見 [P2] Eq.(23), p.796 的 FOM，已核實）。
 > 因為增加 $N$ 雖降 $\Gamma_{rms}$，但同時 noise 源變多、每級擺幅/功率分配改變，互相抵消。
 > 所以 D3(b) 的「14.3 dB」是**只變一個因子的教學示意**，不是真實設計可白拿的增益。
 > 詳見 [lc_vs_ring](/06_design_insights/lc_vs_ring) 與
@@ -782,7 +782,7 @@ for st in [2e-12, 4e-12]:
 **誠實標記**
 
 - 例 C3 的 period jitter 前置常數標了 `TODO: manual verification needed`（與單邊/雙邊譜慣例有關）。
-- 例 D3 的 ring $\Gamma_{rms}\propto N^{-3/4}$ 常數待查（⚠️），且「14.3 dB」僅為孤立因子示意，
+- 例 D3 的 ring $\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16), p.794，已核實），且「14.3 dB」僅為孤立因子示意，
   非真實設計增益（toy scaling，非 transistor-level）。
 
 ## 延伸閱讀

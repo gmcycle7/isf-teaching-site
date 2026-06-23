@@ -204,8 +204,8 @@ $$
   「rms jitter vs 量測時間 log–log」概念）。
 - **相關源的另一支**：[P2] 同節指出 correlated 源（substrate/supply/$1/f$）下**標準差相加**，
   $\sigma\propto\Delta t$（斜率 1，非 1/2）。本 toy **只模擬 uncorrelated**。
-- **ring 頻率**（背景）：[P2] Eq.(14), p.794：$f_0=\dfrac{1}{2N\tau_D}$。
-- **$\Gamma_{rms}$ 標度**：[P2] Eq.(16), p.794：$\Gamma_{rms}\propto N^{-3/4}$（⚠️常數待查，
+- **ring 頻率**（背景）：[P2] Eq.(15), p.794：$f_0=\dfrac{1}{2N\tau_D}$。
+- **$\Gamma_{rms}$ 標度**：[P2] Eq.(16), p.794：$\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16), p.794 已核實，
   本 lab 只定性呼應；對照 [P2] Fig. 8 的 $\Gamma_{rms}$ vs $N$）。本 lab 兩張圖為
   **重畫的 toy 概念圖**（非從論文圖逐點複製、非 transistor-level）。
 - **與 phase noise 連結**：$\Gamma_{rms}$ 透過 [P1] Eq.(21), p.185 影響 $1/f^2$ phase noise。

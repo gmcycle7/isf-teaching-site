@@ -17,7 +17,7 @@ description: 設計章成套習題：q_max/Γrms/對稱性設計反推、ring vs
 
 - 白噪 1/f² 招牌：$\mathcal{L}\{\Delta\omega\}=10\log_{10}\!\left(\dfrac{\Gamma_{rms}^2}{q_{max}^2}\cdot\dfrac{\overline{i_n^2}/\Delta f}{4\,\Delta\omega^2}\right)$（[P1] Eq.(21), p.185）
 - 1/f³ corner：$\Delta\omega_{1/f^3}=\omega_{1/f}\cdot\dfrac{c_0^2}{2\,\Gamma_{rms}^2}$（[P1] Eq.(24), p.185）
-- ring $\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16), p.794）；ring 頻率 $f_0=\dfrac{1}{2N\tau_D}$（[P2] Eq.(14), p.794）
+- ring $\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16), p.794）；ring 頻率 $f_0=\dfrac{1}{2N\tau_D}$（[P2] Eq.(15), p.794）
 - PLL 輸出：$S_{out}=S_{ref}\lvert H_{lp}\rvert^2+S_{vco}\lvert H_{hp}\rvert^2$，$\lvert H_{lp}\rvert^2,\lvert H_{hp}\rvert^2$ 見規範 10.2
 - SerDes BER（RJ）：$\text{BER}(t)=\tfrac12\big[Q(\tfrac{UI/2-t}{\sigma_t})+Q(\tfrac{UI/2+t}{\sigma_t})\big]$，$Q(x)=\tfrac12\,\mathrm{erfc}(x/\sqrt2)$（規範 10.2）
 - rms jitter：$\sigma_t=\dfrac{1}{2\pi f_0}\sqrt{\int S_\phi df}$（規範公式 19）

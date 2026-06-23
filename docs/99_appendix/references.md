@@ -46,7 +46,7 @@ IEEE J. Solid-State Circuits, vol. 34, no. 6, pp. 790–804, Jun. 1999.
 - **本站用到**：[lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model)、
   [lc_vs_ring](/06_design_insights/lc_vs_ring)、[symmetry](/06_design_insights/symmetry)。
 - **關鍵式（已核實）**：Eq.(8) $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ p.792、Eq.(12) $\kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ p.793、
-  Eq.(14) $f_0=1/(2N\tau_D)$、Eq.(16) $\Gamma_{rms}=\sqrt{\tfrac{2\pi^2}{3\eta^3}\tfrac{1}{N^{1.5}}}$ p.794、
+  Eq.(15) $f_0=1/(2N\tau_D)$（Eq.(14) 為正規化級延遲 $\hat t_D$）、Eq.(16) $\Gamma_{rms}=\sqrt{\tfrac{2\pi^2}{3\eta^3}\tfrac{1}{N^{1.5}}}$ p.794、
   Eq.(23) FOM $\frac{8}{3\eta}\frac{kT}{P}\frac{V_{DD}}{V_{char}}(f_0/\Delta f)^2$ p.796（$\eta$ 為級延遲比例常數 Eq.(14)，$\approx 1$；$\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入。v2 曾誤改前置係數為 $8/(3\gamma)$，v3 已對照原始 PDF p.796 更正）。
 
 ### [P3] — injection locking（進階）

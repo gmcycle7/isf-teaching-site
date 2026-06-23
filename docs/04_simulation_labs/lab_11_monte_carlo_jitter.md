@@ -180,7 +180,7 @@ $\Delta N=400\to1000$ fs（每 $\times4$ 步、$\sigma$ 就 $\times2$）。
 
 - **這是 pedagogical toy model，非 transistor-level**：我們直接假設每週期一個獨立高斯增量
   $\sigma_{edge}$，沒有從 ISF + device noise 推 $\sigma_{edge}$ 的數值（那要 [P2] 的
-  $\kappa$/FOM 公式，規範公式 22–23，⚠️ 常數待查）。
+  $\kappa$/FOM 公式，規範公式 22–23，已核實（[P2] Eq.(8)/(12) p.792-793、Eq.(16) p.794、Eq.(23) p.796）)。
 - **純 RJ、增量獨立**：假設週期間 noise 不相關（白噪在週期尺度上）。真實有 $1/f$
   (flicker) 會帶來**相關**增量，使長期累積偏離單純 $\sqrt{\Delta N}$（close-in $1/f^3$，見
   [lab_07](/04_simulation_labs/lab_07_flicker_noise_upconversion)）。

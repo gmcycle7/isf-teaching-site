@@ -48,7 +48,7 @@ $$
 - $B(t)$ 是**注入/耦合矩陣**：把擾動「打到哪些狀態、打多重」。對「電流注入節點電容」這種情形，$B$ 的對應列大致是 $1/C_{node}$（把電流換成 $\dot v$）。
 - **單位檢查**：$[B\boldsymbol\xi]$ 必須是 $[\mathbf{x}]/\text{s}$。若 $\xi$ 是電流（A）、對應狀態是電容電壓（V），則該列 $\sim 1/C$（$[\text{A}]/[\text{F}]=[\text{A}]\cdot[\text{V/C}]=[\text{V/s}]$）✓。
 
-> 對照 [P1] 的語言：第 0 步的 $B(t)\boldsymbol\xi(t)$ 就是「noise 電流經節點電容變成 $\dot v$」那一步（[P1] Eq.(9), p.182 的 $\Delta V=\Delta q/C_{node}$ 的微分版）。
+> 對照 [P1] 的語言：第 0 步的 $B(t)\boldsymbol\xi(t)$ 就是「noise 電流經節點電容變成 $\dot v$」那一步（[P1] Eq.(9), p.181 的 $\Delta V=\Delta q/C_{node}$ 的微分版）。
 
 ## 第 1 步：在 limit cycle 附近線性化 → 週期係數線性系統
 

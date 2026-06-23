@@ -54,7 +54,7 @@ $$
 ring 振盪器：[P2] 給出兩條 scaling——級數越多，每級 ISF 越尖但 rms 越小（[P2] Eq.(16), p.794）：
 
 $$
-\Gamma_{rms}\propto N^{-3/4}\quad(\text{[P2] Eq.(16), p.794，已核實}),\qquad f_0=\frac{1}{2N\tau_D}\ \text{[P2] Eq.(14)}.
+\Gamma_{rms}\propto N^{-3/4}\quad(\text{[P2] Eq.(16), p.794，已核實}),\qquad f_0=\frac{1}{2N\tau_D}\ \text{[P2] Eq.(15)}.
 $$
 
 - 單看 phase noise，$N$ 從 5 → 15（$\times3$）：$\Gamma_{rms}$ 乘 $3^{-3/2}=0.192$，
@@ -176,7 +176,7 @@ $N$ 越大每級 ISF 越尖、但 rms 越小（$\Gamma_{rms}\propto N^{-3/4}$）
 - **主 scaling**：[P1] Eq.(21), p.185，$\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$。
 - **Parseval / $\Gamma_{rms}$**：[P1] Eq.(20), p.185。
 - **ring $\Gamma_{rms}$ scaling**：[P2] Eq.(16), p.794，$\Gamma_{rms}\propto N^{-3/4}$（已核實）。
-- **ring 頻率**：[P2] Eq.(14), p.794，$f_0=1/(2N\tau_D)$。
+- **ring 頻率**：[P2] Eq.(15), p.794，$f_0=1/(2N\tau_D)$。
 - **ring 白噪 FOM**：[P2] Eq.(23), p.796，$\mathcal{L}|_{1/f^2}\approx\frac{8}{3\eta}\,\frac{V_{DD}}{V_{char}}\,\frac{kT}{P}(\omega_0/\Delta\omega)^2$（$\eta$ 為級延遲比例常數 [P2] Eq.(14)，$\approx1$；$\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入）。
 - **概念圖**：重用 `white_noise_phase_noise_psd.png`（lab_06）與 `lc_vs_ring_isf_comparison.png`（lab_03）。
 

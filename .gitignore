@@ -1,0 +1,31 @@
+# Dependencies
+/node_modules
+
+# Production build
+/build
+
+# Docusaurus
+/.docusaurus
+/.cache-loader
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+*.log
+.idea/
+.vscode/
+
+# Copyrighted source: full-text dumps of the 5 IEEE papers — DO NOT publish.
+# (Curated metadata/equations in extracted/*.json are kept; raw text is not.)
+/extracted/raw_text/
+
+# The papers themselves are copyrighted and live outside this folder; never commit any PDFs.
+*.pdf
+
+# CI workflow file needs the gh "workflow" token scope to push; deploy via gh-pages branch for now.
+.github/workflows/

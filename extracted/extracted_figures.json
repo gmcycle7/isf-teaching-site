@@ -1,0 +1,497 @@
+{
+  "_about": "Registry of (a) figures we GENERATE with Python (toy/conceptual simulations) and (b) the key figures inside the source PDFs we reference. Generated figures are traceable to script, function, parameters, and the formula behind them. None of the generated figures are transistor-level; all are pedagogical toy/conceptual models.",
+  "generated_figures": [
+    {
+      "file": "limit_cycle_phase_amplitude.png",
+      "script": "simulations/lab_01_sinusoidal_oscillator.py",
+      "function": "fig_limit_cycle",
+      "parameters": {
+        "f0": 1.0,
+        "fs": 4000,
+        "mu": 0.6,
+        "start": "(1.7, 0)"
+      },
+      "formula_behind_it": "2-D state model dz/dt=w0*R(z)+mu*(1-r^2)z; tangential=phase, radial=amplitude",
+      "source_concept": "paper_001 Fig. 4(c) (limit cycle, peak vs zero-crossing injection)",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "02_foundations/oscillator_phase"
+      ]
+    },
+    {
+      "file": "waveform_with_impulse_markers.png",
+      "script": "simulations/lab_01_sinusoidal_oscillator.py",
+      "function": "fig_impulse_markers",
+      "parameters": {
+        "f0": 1.0,
+        "amp": 1.0
+      },
+      "formula_behind_it": "V(t)=cos(2 pi f0 t); markers at peak (Gamma~0) and zero crossing (|Gamma| max)",
+      "source_concept": "paper_001 Fig. 4(a),(b)",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "02_foundations/oscillator_phase",
+        "02_foundations/lti_vs_ltv"
+      ]
+    },
+    {
+      "file": "lc_waveform_and_isf.png",
+      "script": "simulations/lab_02_lc_toy_model.py",
+      "function": "main",
+      "parameters": {
+        "f0": 1.0,
+        "fs": 8000,
+        "mu": 0.3,
+        "dq/qmax": "[-0.05,0.05]"
+      },
+      "formula_behind_it": "Gamma_LC(theta)=-sin(theta); Delta phi = Gamma*Delta q/q_max",
+      "source_concept": "paper_001 Figs. 4, 6, 7(a); Eqs (10),(11)",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "04_simulation_labs/lab_02_lc_oscillator_toy_model",
+        "03_isf_core_theory/isf_definition"
+      ]
+    },
+    {
+      "file": "ring_oscillator_timing_noise_accumulation.png",
+      "script": "simulations/lab_03_ring_toy_model.py",
+      "function": "fig_accumulation",
+      "parameters": {
+        "f0": 5000000000.0,
+        "sigma_edge": "50 fs",
+        "max_lag": 500,
+        "n_trials": 2000
+      },
+      "formula_behind_it": "random walk of edge times -> sigma_dt = sigma_edge*sqrt(Delta N) (paper_002 Eq.10)",
+      "source_concept": "paper_002 Eq. (10), accumulated jitter",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "04_simulation_labs/lab_03_ring_oscillator_toy_model",
+        "06_design_insights/lc_vs_ring"
+      ]
+    },
+    {
+      "file": "lc_vs_ring_isf_comparison.png",
+      "script": "simulations/lab_03_ring_toy_model.py",
+      "function": "fig_lc_vs_ring_isf",
+      "parameters": {
+        "lc": "-sin",
+        "ring_N": [
+          5,
+          15
+        ]
+      },
+      "formula_behind_it": "Gamma_LC=-sin; ring toy triangular ISF with peak ~1/sqrt(N); Gamma_rms scaling",
+      "source_concept": "paper_001 Fig. 7; paper_002 Fig. 8 (Gamma_rms vs N)",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": true,
+      "used_in": [
+        "06_design_insights/lc_vs_ring",
+        "03_isf_core_theory/rms_isf"
+      ]
+    },
+    {
+      "file": "sinusoidal_impulse_phase_sweep.png",
+      "script": "simulations/lab_04_impulse_sweep.py",
+      "function": "fig_isf_sweep",
+      "parameters": {
+        "f0": 1.0,
+        "fs": 8000,
+        "dq/qmax": 0.001,
+        "n_points": 48,
+        "mu": 0.3
+      },
+      "formula_behind_it": "Delta phi(theta) = -sin(theta)*Delta q/q_max",
+      "source_concept": "paper_001 Eqs (10),(11); Fig. 4",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "02_foundations/lti_vs_ltv",
+        "04_simulation_labs/lab_04_impulse_injection_sweep"
+      ]
+    },
+    {
+      "file": "isf_impulse_sweep_sinusoidal.png",
+      "script": "simulations/lab_04_impulse_sweep.py",
+      "function": "fig_isf_sweep",
+      "parameters": {
+        "same as above": true
+      },
+      "formula_behind_it": "numeric ISF = Delta phi/(Delta q/q_max) vs analytic -sin(theta) (max err ~0.001)",
+      "source_concept": "validation of paper_001 ISF definition",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "03_isf_core_theory/isf_definition",
+        "04_simulation_labs/lab_04_impulse_injection_sweep"
+      ]
+    },
+    {
+      "file": "lti_vs_ltv_impulse_response.png",
+      "script": "simulations/lab_04_impulse_sweep.py",
+      "function": "fig_lti_vs_ltv",
+      "parameters": {
+        "f0": 1.0
+      },
+      "formula_behind_it": "LTI h(t-tau) vs LTV h_phi(t,tau)=Gamma(w0 tau)/q_max * u(t-tau)",
+      "source_concept": "paper_001 Sec. III (LTV nature); Fig. 3",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "02_foundations/lti_vs_ltv"
+      ]
+    },
+    {
+      "file": "isf_fourier_reconstruction.png",
+      "script": "simulations/lab_05_fourier_isf.py",
+      "function": "fig_reconstruction",
+      "parameters": {
+        "isf": "-sin+0.35 sin2+0.18 cos3+0.25",
+        "N": [
+          1,
+          2,
+          4
+        ]
+      },
+      "formula_behind_it": "Gamma(theta)=a0/2+sum a_n cos + b_n sin (Eq.12)",
+      "source_concept": "paper_001 Eq. (12)",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "03_isf_core_theory/fourier_series_of_isf",
+        "04_simulation_labs/lab_05_isf_fourier_coefficients"
+      ]
+    },
+    {
+      "file": "isf_fourier_coefficients.png",
+      "script": "simulations/lab_05_fourier_isf.py",
+      "function": "fig_coefficients",
+      "parameters": {
+        "n_harmonics": 8
+      },
+      "formula_behind_it": "c_n=sqrt(a_n^2+b_n^2); Parseval check sum c_n^2 = 2 Gamma_rms^2 (Eq.20)",
+      "source_concept": "paper_001 Eqs (12),(20)",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "03_isf_core_theory/fourier_series_of_isf",
+        "03_isf_core_theory/rms_isf"
+      ]
+    },
+    {
+      "file": "symmetric_vs_asymmetric_isf_c0.png",
+      "script": "simulations/lab_05_fourier_isf.py",
+      "function": "fig_symmetric_vs_asymmetric",
+      "parameters": {
+        "sym": "cos(theta) c0=0",
+        "asym": "cos(theta)+0.4 c0=0.8"
+      },
+      "formula_behind_it": "c_0 (DC of ISF) controls 1/f upconversion (Eq.24)",
+      "source_concept": "paper_001 Eq. (24); paper_002 symmetry results",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "03_isf_core_theory/flicker_noise_upconversion",
+        "06_design_insights/symmetry"
+      ]
+    },
+    {
+      "file": "white_noise_phase_noise_psd.png",
+      "script": "simulations/lab_06_white_noise_phase_noise.py",
+      "function": "main",
+      "parameters": {
+        "f0": 1.0,
+        "fs": 256,
+        "n": 1048576,
+        "q_max": 1.0,
+        "S_i": 0.0001,
+        "ISF": "-sin"
+      },
+      "formula_behind_it": "S_phi(f)=Gamma_rms^2 S_i/(q_max^2 (2 pi f)^2); -20 dB/dec",
+      "source_concept": "paper_001 Eq. (21) (factor-of-2 SSB note in lab)",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "03_isf_core_theory/white_noise_to_phase_noise",
+        "04_simulation_labs/lab_06_white_noise_phase_noise"
+      ]
+    },
+    {
+      "file": "flicker_upconversion_symmetric_vs_asymmetric.png",
+      "script": "simulations/lab_07_flicker_noise.py",
+      "function": "main",
+      "parameters": {
+        "f0": 1.0,
+        "fs": 256,
+        "n": 1048576,
+        "sym": "cos",
+        "asym": "cos+0.5",
+        "k_flicker": 0.0001
+      },
+      "formula_behind_it": "close-in S_phi ~ (c0/2)^2 * S_flicker/(2 pi f)^2 -> 1/f^3; symmetric suppresses it",
+      "source_concept": "paper_001 Eqs (23),(24); paper_002 symmetry",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "03_isf_core_theory/flicker_noise_upconversion",
+        "04_simulation_labs/lab_07_flicker_noise_upconversion"
+      ]
+    },
+    {
+      "file": "phase_noise_to_jitter_integration.png",
+      "script": "simulations/lab_08_jitter_integration.py",
+      "function": "main",
+      "parameters": {
+        "f0": 5000000000.0,
+        "L(1MHz)": "-100 dBc/Hz",
+        "integrate": "1-100 MHz",
+        "slope": "1/f^2"
+      },
+      "formula_behind_it": "sigma_t = (1/2 pi f0) sqrt(int 2*L(f) df); analytic 1/f^2 closed form",
+      "source_concept": "standard jitter integration; SerDes practice",
+      "toy_model": false,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "02_foundations/psd_phase_noise_jitter",
+        "04_simulation_labs/lab_08_jitter_integration",
+        "06_design_insights/serdes_clocking_connection"
+      ]
+    },
+    {
+      "file": "rf_spectrum_phase_noise_sidebands.png",
+      "script": "simulations/lab_10_rf_spectrum.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "phase noise -> RF carrier skirt",
+      "source_concept": "paper_001 Fig.8 (concept)",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "02 dsp / 04 lab_10"
+      ]
+    },
+    {
+      "file": "monte_carlo_jitter_histogram.png",
+      "script": "simulations/lab_11_monte_carlo_jitter.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "RJ gaussian, sigma~sqrt(dN)",
+      "source_concept": "paper_002 Eq.10",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "04 lab_11"
+      ]
+    },
+    {
+      "file": "serdes_eye_ber_bathtub.png",
+      "script": "simulations/lab_12_serdes_eye_ber.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "BER bathtub from RJ",
+      "source_concept": "standard SerDes",
+      "toy_model": false,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "04 lab_12 / 06 serdes"
+      ]
+    },
+    {
+      "file": "pll_cdr_jitter_transfer.png",
+      "script": "simulations/lab_13_pll_cdr_transfer.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "PLL high/low-pass noise shaping",
+      "source_concept": "standard PLL",
+      "toy_model": false,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "04 lab_13 / 06 serdes"
+      ]
+    },
+    {
+      "file": "cyclostationary_effective_isf.png",
+      "script": "simulations/lab_14_cyclostationary_isf.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "Gamma_eff=Gamma*alpha",
+      "source_concept": "paper_001 cyclostationary",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "03 effective_isf / 04 lab_14"
+      ]
+    },
+    {
+      "file": "nonlinear_oscillator_isf.png",
+      "script": "simulations/lab_15_nonlinear_isf.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "van der Pol ISF != -sin",
+      "source_concept": "external (toy)",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "03 isf_definition / 04 lab_15"
+      ]
+    },
+    {
+      "file": "leeson_vs_isf_overlay.png",
+      "script": "simulations/lab_16_leeson_vs_isf.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "Leeson vs ISF three regions",
+      "source_concept": "Leeson 1966 (external)",
+      "toy_model": false,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "99 derivation_leeson / 04 lab_16"
+      ]
+    },
+    {
+      "file": "design_tradeoff_sweeps.png",
+      "script": "simulations/lab_17_design_sweep.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "L ~ Grms^2/qmax^2",
+      "source_concept": "paper_001 Eq.21",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "04 lab_17 / 06 design"
+      ]
+    },
+    {
+      "file": "lorentzian_carrier_lineshape.png",
+      "script": "simulations/lab_18_lorentzian.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "Lorentzian; S~D/(D^2+dw^2); FWHM=D/pi",
+      "source_concept": "phase random walk -> Lorentzian lineshape",
+      "toy_model": false,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "03 lorentzian_linewidth"
+      ]
+    },
+    {
+      "file": "allan_deviation.png",
+      "script": "simulations/lab_19_allan.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "sigma_y(tau) slopes for white/flicker/RW FM",
+      "source_concept": "time-domain frequency stability",
+      "toy_model": false,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "02 allan_variance"
+      ]
+    },
+    {
+      "file": "pll_noise_budget.png",
+      "script": "simulations/lab_20_pll_budget.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "S_out=(S_ref N^2+S_cp)|Hlp|^2+S_vco|Hhp|^2",
+      "source_concept": "PLL noise budget + optimal loop BW",
+      "toy_model": false,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "06 pll_noise_budget"
+      ]
+    },
+    {
+      "file": "cross_coupled_vco_isf.png",
+      "script": "simulations/lab_21_topology_isf.py",
+      "function": "main",
+      "parameters": {},
+      "formula_behind_it": "tank ISF -sin vs tail effective ISF (c0,c2)",
+      "source_concept": "tail noise upconversion (illustrative)",
+      "toy_model": true,
+      "redrawn_from_paper_figure": false,
+      "manual_verification_needed": false,
+      "used_in": [
+        "06 real_oscillator_topologies"
+      ]
+    }
+  ],
+  "source_pdf_figures_referenced": [
+    {
+      "paper": "paper_001",
+      "figure": "Fig. 4",
+      "page": 182,
+      "manual_verification_needed": false
+    },
+    {
+      "paper": "paper_001",
+      "figure": "Fig. 6",
+      "page": 182,
+      "manual_verification_needed": false
+    },
+    {
+      "paper": "paper_001",
+      "figure": "Fig. 7",
+      "page": 183,
+      "manual_verification_needed": false
+    },
+    {
+      "paper": "paper_001",
+      "figure": "Fig. 8",
+      "page": 183,
+      "manual_verification_needed": false
+    },
+    {
+      "paper": "paper_001",
+      "figure": "Fig. 12",
+      "page": 185,
+      "manual_verification_needed": false
+    },
+    {
+      "paper": "paper_002",
+      "figure": "Fig. 8",
+      "page": 794,
+      "manual_verification_needed": false
+    },
+    {
+      "paper": "paper_002",
+      "figure": "Fig. 17",
+      "page": 800,
+      "manual_verification_needed": true
+    },
+    {
+      "paper": "paper_004",
+      "figure": "Fig. 3",
+      "page": 2128,
+      "manual_verification_needed": true
+    }
+  ]
+}

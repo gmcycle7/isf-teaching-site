@@ -1,0 +1,333 @@
+{
+  "_about": "Metadata for all PDFs found in the source folder. Equations whose exact LaTeX was read from rendered PDF pages are marked manual_verification_needed=false. Equations reconstructed from canonical knowledge or not visually re-checked are flagged true with a TODO note. The text narrative of every PDF extracted cleanly; only the math glyphs required page-image rendering.",
+  "extraction_method": "PyMuPDF (fitz) text dump + high-DPI page rendering of equation regions, read visually by the author. See scripts/extract_papers.py.",
+  "papers": [
+    {
+      "id": "paper_001",
+      "filename": "general.pdf",
+      "title": "A General Theory of Phase Noise in Electrical Oscillators",
+      "authors": ["Ali Hajimiri", "Thomas H. Lee"],
+      "year": "1998",
+      "venue": "IEEE Journal of Solid-State Circuits, vol. 33, no. 2, pp. 179-194, Feb. 1998",
+      "main_topic": "The foundational LTV (linear time-variant) impulse-sensitivity-function theory of oscillator phase noise.",
+      "key_terms": ["ISF", "impulse sensitivity function", "phase noise", "LTV", "cyclostationary noise", "q_max", "Gamma_rms", "flicker upconversion", "1/f^3 corner", "limit cycle"],
+      "important_equations": [
+        {
+          "equation_number": "(1)",
+          "page": 181,
+          "latex": "V_{out}(t) = A(t)\\, f\\!\\big(\\omega_0 t + \\phi(t)\\big)",
+          "meaning": "Output of any oscillator decomposed into instantaneous amplitude A(t) and excess phase phi(t); f is the periodic steady-state waveshape. Phase noise lives in phi(t).",
+          "depends_on": [],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(9)",
+          "page": 182,
+          "latex": "\\Delta V = \\frac{\\Delta q}{C_{node}}",
+          "meaning": "A current impulse deposits charge Delta q on the node capacitance, producing an instantaneous voltage step. This is the physical entry point of noise into the oscillator state.",
+          "depends_on": [],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(10)",
+          "page": 182,
+          "latex": "h_\\phi(t,\\tau) = \\frac{\\Gamma(\\omega_0 \\tau)}{q_{max}}\\, u(t-\\tau)",
+          "meaning": "Excess-phase impulse response. Gamma is the dimensionless, 2*pi-periodic Impulse Sensitivity Function. The unit step u(t-tau) encodes that a phase step persists forever (no restoring force on phase).",
+          "depends_on": ["(9)"],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(11)",
+          "page": 182,
+          "latex": "\\phi(t) = \\int_{-\\infty}^{\\infty} h_\\phi(t,\\tau)\\, i(\\tau)\\, d\\tau = \\frac{1}{q_{max}} \\int_{-\\infty}^{t} \\Gamma(\\omega_0 \\tau)\\, i(\\tau)\\, d\\tau",
+          "meaning": "The central LTV phase response: superposition of phase steps from all past noise current. Integration upper limit t (memory) is why phase error accumulates.",
+          "depends_on": ["(10)"],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(12)",
+          "page": 183,
+          "latex": "\\Gamma(\\omega_0 \\tau) = \\frac{c_0}{2} + \\sum_{n=1}^{\\infty} c_n \\cos(n\\omega_0\\tau + \\theta_n)",
+          "meaning": "Fourier series of the ISF. c_0 is the DC term (controls 1/f upconversion); c_n weight noise near n*omega_0 down to the carrier.",
+          "depends_on": [],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(13)",
+          "page": 183,
+          "latex": "\\phi(t) = \\frac{1}{q_{max}}\\left[\\frac{c_0}{2}\\int_{-\\infty}^{t} i(\\tau)\\,d\\tau + \\sum_{n=1}^{\\infty} c_n \\int_{-\\infty}^{t} i(\\tau)\\cos(n\\omega_0\\tau+\\theta_n)\\,d\\tau \\right]",
+          "meaning": "Phase response decomposed per ISF harmonic; each term is a mixing (down-conversion) of noise near n*omega_0 to baseband phase.",
+          "depends_on": ["(11)", "(12)"],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(15)",
+          "page": 183,
+          "latex": "\\phi(t) \\approx \\frac{I_0\\, c_0 \\sin(\\Delta\\omega\\, t)}{2 q_{max}\\, \\Delta\\omega}",
+          "meaning": "Excess phase for a small current tone i(t)=I_0 cos(Delta omega t) injected near DC; only the c_0 term responds.",
+          "depends_on": ["(13)"],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(16)/(17)",
+          "page": 183,
+          "latex": "\\phi(t) \\approx \\frac{I_0\\, c_n \\sin(\\Delta\\omega\\, t)}{2 q_{max}\\, \\Delta\\omega}",
+          "meaning": "Excess phase for a current tone near n*omega_0; the c_n harmonic of the ISF down-converts it to a slow phase modulation at Delta omega.",
+          "depends_on": ["(13)"],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(18)",
+          "page": 183,
+          "latex": "P_{SBC}(\\Delta\\omega) = 10\\log_{10}\\!\\left(\\frac{I_0\\, c_n}{4 q_{max}\\, \\Delta\\omega}\\right)^2",
+          "meaning": "Single-sideband power relative to carrier from one injected tone. Building block for the white-noise sum.",
+          "depends_on": ["(16)/(17)"],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(19)",
+          "page": 185,
+          "latex": "\\mathcal{L}\\{\\Delta\\omega\\} = 10\\log_{10}\\!\\left(\\frac{\\overline{i_n^2}/\\Delta f \\;\\sum_{n=0}^{\\infty} c_n^2}{8\\, q_{max}^2\\, \\Delta\\omega^2}\\right)",
+          "meaning": "SSB phase noise from a white current noise source, summing the contributions of all ISF harmonics.",
+          "depends_on": ["(18)"],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(20)",
+          "page": 185,
+          "latex": "\\sum_{n=0}^{\\infty} c_n^2 = \\frac{1}{\\pi}\\int_0^{2\\pi} |\\Gamma(x)|^2\\, dx = 2\\,\\Gamma_{rms}^2",
+          "meaning": "Parseval relation linking the ISF Fourier coefficients to its rms value. Lets the white-noise result be written compactly with Gamma_rms.",
+          "depends_on": ["(12)"],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(21)",
+          "page": 185,
+          "latex": "\\mathcal{L}\\{\\Delta\\omega\\} = 10\\log_{10}\\!\\left(\\frac{\\Gamma_{rms}^2}{q_{max}^2}\\cdot\\frac{\\overline{i_n^2}/\\Delta f}{4\\,\\Delta\\omega^2}\\right)",
+          "meaning": "The famous 1/f^2 phase-noise result. Phase noise scales as Gamma_rms^2/q_max^2 -> maximize signal charge swing, minimize ISF rms.",
+          "depends_on": ["(19)", "(20)"],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(22)",
+          "page": 185,
+          "latex": "\\overline{i_{n,1/f}^2} = \\overline{i_n^2}\\cdot\\frac{\\omega_{1/f}}{\\Delta\\omega}\\quad(\\Delta\\omega < \\omega_{1/f})",
+          "meaning": "Device flicker (1/f) current noise model below the device 1/f corner.",
+          "depends_on": [],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(23)",
+          "page": 185,
+          "latex": "\\mathcal{L}\\{\\Delta\\omega\\} = 10\\log_{10}\\!\\left(\\frac{c_0^2}{q_{max}^2}\\cdot\\frac{\\overline{i_n^2}/\\Delta f}{8\\,\\Delta\\omega^2}\\cdot\\frac{\\omega_{1/f}}{\\Delta\\omega}\\right)",
+          "meaning": "Phase noise in the 1/f^3 region. Only the DC ISF coefficient c_0 converts flicker noise into close-in phase noise.",
+          "depends_on": ["(22)", "(19)"],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(24)",
+          "page": 185,
+          "latex": "\\Delta\\omega_{1/f^3} = \\omega_{1/f}\\cdot\\frac{c_0^2}{2\\,\\Gamma_{rms}^2} \\approx \\omega_{1/f}\\left(\\frac{c_0}{c_1}\\right)^2",
+          "meaning": "The 1/f^3 phase-noise corner. It is NOT equal to the device 1/f corner; it is scaled by (c_0/Gamma_rms)^2, so a symmetric waveform (small c_0) pushes the 1/f^3 corner far below omega_1/f.",
+          "depends_on": ["(21)", "(23)"],
+          "manual_verification_needed": false
+        }
+      ],
+      "important_figures": [
+        {"figure_number": "Fig. 4", "page": 182, "caption": "Impulse injected at the peak vs at the zero crossing, and the effect of nonlinearity on amplitude and phase in state space (limit cycle).", "teaching_use": "Core intuition: same impulse, different injection phase -> different split between amplitude and phase perturbation. Reproduced conceptually in lab_01 / lab_02.", "manual_verification_needed": false},
+        {"figure_number": "Fig. 6", "page": 182, "caption": "Excess phase vs injected charge for a Colpitts LC oscillator and a 5-stage ring oscillator (linear for small charge).", "teaching_use": "Justifies the linear (small-signal) impulse-to-phase relation; reproduced in lab_02 panel (b).", "manual_verification_needed": false},
+        {"figure_number": "Fig. 7", "page": 183, "caption": "Waveforms and ISFs for (a) a typical LC oscillator and (b) a typical ring oscillator.", "teaching_use": "Shows the ISF shape relative to the waveform; basis for lc_vs_ring_isf_comparison.png (toy).", "manual_verification_needed": false},
+        {"figure_number": "Fig. 8", "page": 183, "caption": "Conversion of noise at integer multiples of omega_0 into phase-noise sidebands near the carrier.", "teaching_use": "The frequency-translation picture central to fourier_series_of_isf.md.", "manual_verification_needed": false},
+        {"figure_number": "Fig. 11", "page": 185, "caption": "Conversion of noise to phase fluctuations and phase-noise sidebands (the full 1/f^3, 1/f^2, flat picture).", "teaching_use": "Big-picture map of noise regions; mirrored by white_noise / flicker labs.", "manual_verification_needed": false},
+        {"figure_number": "Fig. 12", "page": 185, "caption": "PSD of i^2/f and SSB phase-noise spectrum L(Delta f) showing 1/f^3, 1/f^2 regions and noise floor.", "teaching_use": "Defines the 1/f^3 corner; basis for the flicker upconversion lab.", "manual_verification_needed": false}
+      ],
+      "main_contribution": "Established that oscillators are linear time-variant (not LTI) systems for noise, introduced the ISF Gamma(omega_0 tau) and q_max normalization, and derived closed-form 1/f^2 and 1/f^3 phase noise plus the design rules (maximize q_max, minimize Gamma_rms, enforce waveform symmetry to suppress c_0 and hence 1/f upconversion).",
+      "assumptions": [
+        "Noise is a small perturbation (linearization of the phase response).",
+        "Amplitude perturbations decay (stable limit cycle); only phase persists.",
+        "The ISF is known, periodic, and frequency-independent.",
+        "Hard-switching / large-signal periodic steady state defines the ISF."
+      ],
+      "limitations": [
+        "The 1/f^3 portion historically relied on an empirical link; the theory clarifies it is set by c_0, not simply the device 1/f corner.",
+        "Extracting the ISF for a real circuit requires simulation (transient impulse response) or the adjoint/PSS method; the closed forms are first-order.",
+        "Amplitude-to-phase (AM-PM) conversion and strong nonlinearity are not fully captured by the first-order phase-only model."
+      ]
+    },
+    {
+      "id": "paper_002",
+      "filename": "jitter_ring.pdf",
+      "title": "Jitter and Phase Noise in Ring Oscillators",
+      "authors": ["Ali Hajimiri", "Sotirios Limotyrakis", "Thomas H. Lee"],
+      "year": "1999",
+      "venue": "IEEE Journal of Solid-State Circuits, vol. 34, no. 6, pp. 790-804, Jun. 1999",
+      "main_topic": "Applying ISF theory to ring oscillators: closed-form jitter and phase noise, scaling with number of stages, and the role of waveform symmetry in 1/f upconversion.",
+      "key_terms": ["ring oscillator", "ISF", "timing jitter", "accumulated jitter", "kappa", "Gamma_rms scaling", "symmetry", "number of stages", "phase noise FOM"],
+      "important_equations": [
+        {
+          "equation_number": "(10)",
+          "page": 793,
+          "latex": "\\sigma_{\\Delta t} = \\kappa\\,\\sqrt{\\Delta t}",
+          "meaning": "Accumulated (long-term) timing jitter grows as the square root of the measurement interval Delta t — the random-walk signature of an oscillator with no absolute time reference. kappa is a per-device proportionality constant. Demonstrated in ring_oscillator_timing_noise_accumulation.png.",
+          "depends_on": [],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(11)-(12)",
+          "page": 793,
+          "latex": "\\kappa^2 \\;\\propto\\; \\frac{\\Gamma_{rms}^2}{q_{max}^2}\\cdot\\frac{\\overline{i_n^2}}{\\Delta f}",
+          "meaning": "The jitter rate constant kappa is set by the same Gamma_rms^2/q_max^2 ratio as phase noise; ties accumulated jitter to the ISF. Exact prefactor in the paper.",
+          "depends_on": ["(10)"],
+          "manual_verification_needed": true,
+          "todo": "TODO: confirm exact prefactor of Eq. (11)/(12) from PDF page 793."
+        },
+        {
+          "equation_number": "(14)",
+          "page": 794,
+          "latex": "f_0 = \\frac{1}{2 N\\, \\tau_D}",
+          "meaning": "Oscillation frequency of an N-stage ring with per-stage delay tau_D (factor 2 because a signal traverses the ring twice per period).",
+          "depends_on": [],
+          "manual_verification_needed": false
+        },
+        {
+          "equation_number": "(16)",
+          "page": 794,
+          "latex": "\\Gamma_{rms} \\approx \\frac{2\\pi}{\\sqrt{3}}\\cdot\\frac{1}{\\sqrt{N^{3}}}\\;\\;(\\text{scaling } \\Gamma_{rms}\\propto N^{-3/2})",
+          "meaning": "Approximate rms ISF of a single-ended ring vs number of stages N. Key point is the N^{-3/2} scaling; combined with more devices and lower per-stage swing it yields the famous result below.",
+          "depends_on": ["(14)"],
+          "manual_verification_needed": true,
+          "todo": "TODO: confirm exact constant in Eq. (16) from PDF page 794 (read as ~2pi/sqrt(3) * N^{-3/2})."
+        },
+        {
+          "equation_number": "(text result)",
+          "page": 795,
+          "latex": "\\mathcal{L}\\{\\Delta\\omega\\}\\big|_{1/f^2} \\;\\approx\\; \\frac{8}{3\\eta}\\cdot\\frac{kT}{P}\\cdot\\left(\\frac{\\omega_0}{\\Delta\\omega}\\right)^2",
+          "meaning": "Ring-oscillator white-noise phase noise expressed as a figure of merit: depends on kT/P and (omega_0/Delta omega)^2. A central conclusion is that for fixed f_0 and power dissipation P, single-ended ring phase noise is essentially INDEPENDENT of the number of stages N.",
+          "depends_on": ["(16)"],
+          "manual_verification_needed": true,
+          "todo": "TODO: confirm exact form/constant (8/3eta) and the per-stage noise model from PDF pages 795-796."
+        }
+      ],
+      "important_figures": [
+        {"figure_number": "Fig. 5", "page": 792, "caption": "ISF of a single-ended ring oscillator stage (sample waveform and its sensitivity).", "teaching_use": "Shows ISF energy concentrated at transitions; motivates the triangular toy ISF in lab_03.", "manual_verification_needed": true},
+        {"figure_number": "Fig. 8", "page": 794, "caption": "RMS value of the ISF for various single-ended ring oscillators versus number of stages.", "teaching_use": "Evidence for the Gamma_rms vs N scaling argument used in lc_vs_ring_isf_comparison.png.", "manual_verification_needed": false},
+        {"figure_number": "Fig. 17", "page": 800, "caption": "Phase noise versus symmetry (control) voltage for a ring oscillator, showing a minimum at the point of symmetry.", "teaching_use": "Direct experimental support for the symmetry->1/f-upconversion design rule (symmetry.md).", "manual_verification_needed": true}
+      ],
+      "main_contribution": "Extended the ISF framework to ring oscillators: closed-form expressions for jitter and phase noise, the Gamma_rms ~ N^{-3/2} scaling, the conclusion that single-ended ring phase noise/jitter at fixed power and frequency is ~independent of N, and explicit treatment of how rise/fall symmetry suppresses 1/f upconversion.",
+      "assumptions": [
+        "Same LTV/ISF small-perturbation assumptions as paper_001.",
+        "Per-stage device noise is white (plus a 1/f component handled via symmetry).",
+        "Stages are identical; delay and noise add independently per transition."
+      ],
+      "limitations": [
+        "Toy/first-order; short-channel effects and detailed device noise are approximated.",
+        "The N-independence conclusion holds under a fixed-power, fixed-frequency constraint and specific noise model.",
+        "Substrate/supply noise treated separately and qualitatively."
+      ]
+    },
+    {
+      "id": "paper_003",
+      "filename": "BHongGenTheor-I_JSSC2019_Postprint.pdf",
+      "title": "A General Theory of Injection Locking and Pulling in Electrical Oscillators—Part I: Time-Synchronous Modeling and Injection Waveform Design",
+      "authors": ["Brian Hong", "Ali Hajimiri"],
+      "year": "2019",
+      "venue": "IEEE Journal of Solid-State Circuits, vol. 54, no. 8, pp. 2109-2121, Aug. 2019",
+      "main_topic": "An ISF-based, time-synchronous model of injection locking and pulling that generalizes Adler's equation to arbitrary oscillators and arbitrary injection waveforms.",
+      "key_terms": ["injection locking", "injection pulling", "Adler's equation", "ISF", "lock range", "time-synchronous model", "injection waveform design"],
+      "important_equations": [
+        {
+          "equation_number": "(Adler, classic)",
+          "page": 2111,
+          "latex": "\\frac{d\\phi}{dt} = -\\omega_L \\sin\\phi + \\Delta\\omega_{inj}",
+          "meaning": "Classical Adler equation for the phase difference of an injection-locked oscillator; the Hong model reduces to this in the weak-injection sinusoidal limit.",
+          "depends_on": [],
+          "manual_verification_needed": true,
+          "todo": "TODO: confirm exact symbol set and equation number for Adler's equation as printed (Sec. II)."
+        },
+        {
+          "equation_number": "(generalized Adler)",
+          "page": 2113,
+          "latex": "\\frac{d\\phi}{dt} = \\Delta\\omega - \\frac{1}{q_{max}}\\,\\big\\langle \\Gamma(\\theta+\\phi)\\, i_{inj}(\\theta)\\big\\rangle",
+          "meaning": "A single first-order differential equation, built from the ISF Gamma and the injection waveform, that predicts lock range, locked phase, and mode stability for an ARBITRARY oscillator and injection shape.",
+          "depends_on": [],
+          "manual_verification_needed": true,
+          "todo": "TODO: confirm exact form of the generalized phase equation (averaging operator and sign) from PDF pages 2112-2114."
+        }
+      ],
+      "important_figures": [
+        {"figure_number": "Fig. 1-3", "page": 2110, "caption": "Time-synchronous injection model and ISF-based formulation.", "teaching_use": "Context for how the ISF generalizes beyond phase noise into injection phenomena.", "manual_verification_needed": true}
+      ],
+      "main_contribution": "Shows that the ISF — originally a phase-noise tool — also yields a fully general, topology-independent theory of injection locking/pulling, generalizing Adler's 1946 equation and enabling injection-waveform optimization of the lock range.",
+      "assumptions": [
+        "Oscillator autonomy and periodic time variance (same basis as the ISF).",
+        "Perturbation (injection) maps to phase via the ISF; amplitude handled in Part II.",
+        "Time-synchronous averaging over one period."
+      ],
+      "limitations": [
+        "Phase-only in Part I; amplitude modulation deferred to Part II (APF).",
+        "Relies on an accurately extracted ISF.",
+        "This site uses it as an advanced deep-dive, not a core teaching chapter."
+      ]
+    },
+    {
+      "id": "paper_004",
+      "filename": "BHongGenTheor-II_JSSC2019_Postprint.pdf",
+      "title": "A General Theory of Injection Locking and Pulling in Electrical Oscillators—Part II: Amplitude Modulation in LC Oscillators, Transient Behavior, and Frequency Division",
+      "authors": ["Brian Hong", "Ali Hajimiri"],
+      "year": "2019",
+      "venue": "IEEE Journal of Solid-State Circuits, vol. 54, no. 8, pp. 2122-2139, Aug. 2019",
+      "main_topic": "Introduces the Amplitude Perturbation Function (APF) — the amplitude-domain analog of the ISF — and applies the framework to amplitude modulation, transient lock behavior, and injection-locked frequency division.",
+      "key_terms": ["amplitude perturbation function", "APF", "ISF", "amplitude modulation", "injection-locked frequency divider", "ILFD", "dual-modulus prescaler", "lock characteristic"],
+      "important_equations": [
+        {
+          "equation_number": "(APF definition)",
+          "page": 2127,
+          "latex": "\\Lambda(\\phi)\\;\\text{[units: } \\mathrm{A^{-1}}\\text{]} = \\frac{\\text{area under the amplitude-deviation impulse response}}{\\cdots}",
+          "meaning": "The APF Lambda(phi) is to amplitude what the ISF Gamma is to phase: it projects an injected current impulse onto the amplitude (radial) direction of the limit cycle. Units of 1/Ampere. For an ideal LC oscillator the ISF and APF are in quadrature.",
+          "depends_on": [],
+          "manual_verification_needed": true,
+          "todo": "TODO: confirm exact APF definition and its Fourier expansion (Sec. III-D, eqs around p.2127) from the PDF."
+        }
+      ],
+      "important_figures": [
+        {"figure_number": "Fig. 3", "page": 2128, "caption": "ISF and APF of an ideal LC oscillator, the amplitude decay function, and their relationship (ISF and APF in quadrature).", "teaching_use": "Best single picture linking the phase (ISF) and amplitude (APF) sensitivities — used in phase_vs_amplitude_noise.md to motivate why amplitude noise decays.", "manual_verification_needed": true}
+      ],
+      "main_contribution": "Completes the injection framework by adding the amplitude dimension via the APF, explaining amplitude modulation in LC oscillators under injection, transient locking, and frequency division (ILFD/prescaler) design.",
+      "assumptions": [
+        "Builds on the Part I time-synchronous ISF model.",
+        "Amplitude dynamics captured to first order via the APF and an amplitude decay function.",
+        "LC-oscillator focus for the amplitude-modulation results."
+      ],
+      "limitations": [
+        "Strongly nonlinear effects beyond first-order APF are only partially captured.",
+        "Advanced/peripheral to the core ISF phase-noise teaching goal of this site.",
+        "Exact APF equations flagged for manual verification."
+      ]
+    },
+    {
+      "id": "paper_005",
+      "filename": "Hajimiri_ISCS_98.pdf",
+      "title": "Design Issues in Cross-Coupled Inverter Sense Amplifier",
+      "authors": ["Ali Hajimiri", "Raymond Heald"],
+      "year": "1998",
+      "venue": "Proc. IEEE International Symposium on Circuits and Systems (ISCAS), 1998 (4 pages)",
+      "main_topic": "Analytical design of CMOS cross-coupled-inverter sense amplifiers: regeneration speed, offset from mismatch, and a figure of merit. NOT an oscillator phase-noise / ISF paper.",
+      "key_terms": ["sense amplifier", "cross-coupled inverter", "regeneration", "offset", "mismatch", "positive feedback"],
+      "important_equations": [
+        {
+          "equation_number": "n/a",
+          "page": 1,
+          "latex": "TODO: this paper is off-topic for ISF; equations not transcribed.",
+          "meaning": "Regeneration time constant and offset-voltage expressions for a cross-coupled latch. Not used in the ISF curriculum.",
+          "depends_on": [],
+          "manual_verification_needed": true,
+          "todo": "TODO: equations not transcribed because this PDF is unrelated to ISF/phase noise. See build_report for why it is included only as a peripheral note."
+        }
+      ],
+      "important_figures": [],
+      "main_contribution": "An analytical treatment of cross-coupled-inverter sense amplifiers (speed and offset). Included here only because it was in the source folder and shares an author (Hajimiri). Its sole conceptual link to the curriculum is the cross-coupled-pair regeneration / positive-feedback mechanism that also underlies LC and latch-based oscillators.",
+      "assumptions": ["Small-signal regeneration analysis around the metastable point; mismatch-based offset model."],
+      "limitations": ["Entirely outside the ISF / phase-noise / jitter scope. Treated as a peripheral deep-dive that honestly states the mismatch and provides only a conceptual bridge (regeneration -> oscillation)."]
+    }
+  ]
+}

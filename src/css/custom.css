@@ -1,0 +1,59 @@
+/* ISF teaching site theme */
+:root {
+  --ifm-color-primary: #1f6feb;
+  --ifm-color-primary-dark: #1a63d4;
+  --ifm-color-primary-darker: #185dc8;
+  --ifm-color-primary-darkest: #144ca5;
+  --ifm-color-primary-light: #357aed;
+  --ifm-color-primary-lighter: #4a85ef;
+  --ifm-color-primary-lightest: #6f9ef2;
+  --ifm-code-font-size: 92%;
+  --ifm-font-size-base: 16px;
+  --ifm-line-height-base: 1.7;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #58a6ff;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.1);
+}
+
+/* Make KaTeX block equations scroll horizontally on small screens */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}
+
+/* Tables: keep them readable for long parameter/notation tables */
+table {
+  display: table;
+  width: 100%;
+}
+
+/* A light callout style for "物理直覺" boxes built from blockquotes */
+blockquote {
+  border-left: 4px solid var(--ifm-color-primary);
+  background: var(--ifm-color-emphasis-100);
+}
+
+/* Figures: the matplotlib plots are light-background PNGs. Put them on a clean
+   white "card" so they read well in BOTH light and dark mode (in dark mode a
+   bare white PNG looks like an awkward block; the card makes it intentional). */
+.markdown img {
+  max-width: 100%;
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+[data-theme='dark'] .markdown img {
+  box-shadow: 0 0 0 1px var(--ifm-color-emphasis-400);
+}
+/* The favicon / logo in the navbar must NOT get the white card. */
+.navbar img,
+.footer img {
+  background: none;
+  padding: 0;
+  box-shadow: none;
+}

@@ -1,0 +1,229 @@
+{
+  "_about": "Flat, cross-paper index of the equations the curriculum teaches. 'derivation_page' points at the docs page that derives it step by step. LaTeX for paper_001 was verified against rendered PDF pages; entries marked manual_verification_needed=true still need a human PDF check.",
+  "equations": [
+    {
+      "concept": "impulse charge",
+      "latex": "\\Delta q = \\int i(t)\\, dt",
+      "final_or_step": "step",
+      "source_paper": "paper_001 (general.pdf), around Eq. (9), p.182",
+      "derivation_page": "03_isf_core_theory/impulse_to_phase_shift",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "charge to voltage step",
+      "latex": "\\Delta V = \\dfrac{\\Delta q}{C_{node}}",
+      "final_or_step": "step",
+      "source_paper": "paper_001, Eq. (9), p.182",
+      "derivation_page": "03_isf_core_theory/impulse_to_phase_shift",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "impulse-to-phase (ISF definition in operational form)",
+      "latex": "\\Delta\\phi = \\dfrac{\\Gamma(\\omega_0\\tau)}{q_{max}}\\,\\Delta q",
+      "final_or_step": "final",
+      "source_paper": "paper_001, from Eq. (10)-(11), p.182",
+      "derivation_page": "03_isf_core_theory/impulse_to_phase_shift",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "excess-phase impulse response (LTV)",
+      "latex": "h_\\phi(t,\\tau) = \\dfrac{\\Gamma(\\omega_0\\tau)}{q_{max}}\\,u(t-\\tau)",
+      "final_or_step": "final",
+      "source_paper": "paper_001, Eq. (10), p.182",
+      "derivation_page": "03_isf_core_theory/isf_definition",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "LTV phase response (convolution)",
+      "latex": "\\phi(t) = \\dfrac{1}{q_{max}}\\int_{-\\infty}^{t}\\Gamma(\\omega_0\\tau)\\,i_n(\\tau)\\,d\\tau",
+      "final_or_step": "final",
+      "source_paper": "paper_001, Eq. (11), p.182",
+      "derivation_page": "03_isf_core_theory/convolution_derivation",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "ISF Fourier series",
+      "latex": "\\Gamma(\\omega_0\\tau) = \\dfrac{c_0}{2} + \\sum_{n=1}^{\\infty} c_n\\cos(n\\omega_0\\tau+\\theta_n)",
+      "final_or_step": "final",
+      "source_paper": "paper_001, Eq. (12), p.183",
+      "derivation_page": "03_isf_core_theory/fourier_series_of_isf",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "rms ISF (Parseval)",
+      "latex": "\\sum_{n=0}^{\\infty} c_n^2 = \\dfrac{1}{\\pi}\\int_0^{2\\pi}|\\Gamma(x)|^2 dx = 2\\,\\Gamma_{rms}^2",
+      "final_or_step": "final",
+      "source_paper": "paper_001, Eq. (20), p.185",
+      "derivation_page": "03_isf_core_theory/rms_isf",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "white noise phase noise (1/f^2)",
+      "latex": "\\mathcal{L}\\{\\Delta\\omega\\} = 10\\log_{10}\\!\\left(\\dfrac{\\Gamma_{rms}^2}{q_{max}^2}\\cdot\\dfrac{\\overline{i_n^2}/\\Delta f}{4\\,\\Delta\\omega^2}\\right)",
+      "final_or_step": "final",
+      "source_paper": "paper_001, Eq. (21), p.185",
+      "derivation_page": "03_isf_core_theory/white_noise_to_phase_noise",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "flicker noise upconversion (1/f^3)",
+      "latex": "\\mathcal{L}\\{\\Delta\\omega\\} = 10\\log_{10}\\!\\left(\\dfrac{c_0^2}{q_{max}^2}\\cdot\\dfrac{\\overline{i_n^2}/\\Delta f}{8\\,\\Delta\\omega^2}\\cdot\\dfrac{\\omega_{1/f}}{\\Delta\\omega}\\right)",
+      "final_or_step": "final",
+      "source_paper": "paper_001, Eq. (23), p.185",
+      "derivation_page": "03_isf_core_theory/flicker_noise_upconversion",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "1/f^3 corner",
+      "latex": "\\Delta\\omega_{1/f^3} = \\omega_{1/f}\\cdot\\dfrac{c_0^2}{2\\,\\Gamma_{rms}^2}",
+      "final_or_step": "final",
+      "source_paper": "paper_001, Eq. (24), p.185",
+      "derivation_page": "03_isf_core_theory/flicker_noise_upconversion",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "SSB phase noise vs phase PSD",
+      "latex": "\\mathcal{L}(\\Delta f) \\approx \\tfrac{1}{2} S_\\phi(\\Delta f)",
+      "final_or_step": "final",
+      "source_paper": "standard small-angle relation; consistent with paper_001 usage",
+      "derivation_page": "02_foundations/psd_phase_noise_jitter",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "phase error to timing error",
+      "latex": "\\Delta t = \\dfrac{\\Delta\\phi}{2\\pi f_0}",
+      "final_or_step": "final",
+      "source_paper": "standard; used throughout paper_002 and SerDes practice",
+      "derivation_page": "02_foundations/psd_phase_noise_jitter",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "phase variance from PSD",
+      "latex": "\\sigma_\\phi^2 = \\int_{f_1}^{f_2} S_\\phi(f)\\, df",
+      "final_or_step": "final",
+      "source_paper": "standard",
+      "derivation_page": "02_foundations/psd_phase_noise_jitter",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "rms jitter from phase variance",
+      "latex": "\\sigma_t = \\dfrac{\\sigma_\\phi}{2\\pi f_0} = \\dfrac{1}{2\\pi f_0}\\sqrt{\\int_{f_1}^{f_2} S_\\phi(f)\\, df}",
+      "final_or_step": "final",
+      "source_paper": "standard; SerDes clocking",
+      "derivation_page": "06_design_insights/serdes_clocking_connection",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "accumulated (ring) jitter random walk",
+      "latex": "\\sigma_{\\Delta t} = \\kappa\\,\\sqrt{\\Delta t}",
+      "final_or_step": "final",
+      "source_paper": "paper_002, Eq. (8), p.792 (kappa via Eq.(12), p.793)",
+      "derivation_page": "04_simulation_labs/lab_03_ring_oscillator_toy_model",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "ring frequency vs stages",
+      "latex": "f_0 = \\dfrac{1}{2 N \\tau_D}",
+      "final_or_step": "final",
+      "source_paper": "paper_002, Eq. (14), p.794",
+      "derivation_page": "06_design_insights/lc_vs_ring",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "ring rms ISF scaling",
+      "latex": "\\Gamma_{rms}=\\sqrt{\\dfrac{2\\pi^2}{3\\eta^3}\\cdot\\dfrac{1}{N^{1.5}}}\\;\\Rightarrow\\;\\Gamma_{rms}\\propto N^{-3/4}\\ (\\Gamma_{rms}^2\\propto N^{-3/2})",
+      "final_or_step": "final (verified)",
+      "source_paper": "paper_002, Eq. (16), p.794 (verified verbatim)",
+      "derivation_page": "06_design_insights/lc_vs_ring",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "ring phase noise FOM (white)",
+      "latex": "\\mathcal{L}\\{\\Delta f\\}=\\dfrac{8}{3\\gamma}\\cdot\\dfrac{kT}{P}\\cdot\\dfrac{V_{DD}}{V_{char}}\\cdot\\left(\\dfrac{f_0}{\\Delta f}\\right)^2\\quad(\\text{min at }V_T=0:\\ \\tfrac{16\\gamma}{3})",
+      "final_or_step": "final (verified)",
+      "source_paper": "paper_002, Eq. (23),(25), p.796 (verified verbatim; gamma=device noise factor, V_char characteristic voltage)",
+      "derivation_page": "06_design_insights/lc_vs_ring",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "Leeson model (comparison only)",
+      "latex": "\\mathcal{L}(\\Delta\\omega) = 10\\log_{10}\\!\\left[\\dfrac{2FkT}{P_s}\\left(1+\\left(\\dfrac{\\omega_0}{2Q\\Delta\\omega}\\right)^2\\right)\\left(1+\\dfrac{\\omega_{1/f^3}}{|\\Delta\\omega|}\\right)\\right]",
+      "final_or_step": "reference",
+      "source_paper": "Leeson (1966), Proc. IEEE 54(2):329-330, DOI 10.1109/PROC.1966.4682 (citation verified; external, not in the 5 PDFs). Discussed in paper_001 intro.",
+      "derivation_page": "01_paper_map/equation_index",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "generalized Adler / phase equation (injection)",
+      "latex": "\\frac{d\\theta}{dt}=(\\omega_0-\\omega_{inj})+\\Omega(\\theta),\\quad \\Omega(\\theta)=\\frac{1}{T_{osc}}\\int_{T_{osc}}\\tilde\\Gamma(\\omega_0 t+\\theta)\\,i_{inj}(t)\\,dt,\\ \\ \\tilde\\Gamma=\\Gamma/q_{max}",
+      "final_or_step": "final (verified)",
+      "source_paper": "paper_003 (Hong Part I 2019), Eq.(26),(30),(33), p.2113-2114 (verified verbatim); lock range omega_L=½ I_inj|Gamma~_1| (Eq.35)",
+      "derivation_page": "05_paper_deep_dives/paper_003_injection_locking_part1",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "amplitude perturbation function (APF)",
+      "latex": "\\tilde\\Lambda\\ (\\text{APF}):\\ d(t,\\phi)=e^{-t/\\tau_0},\\ \\tau_0=\\frac{2Q}{\\omega_{osc}};\\quad \\tilde\\Gamma_1=\\tfrac{1}{q_{max}}\\angle90^\\circ,\\ \\tilde\\Lambda_1=\\tfrac{\\tau_0}{q_{max}}\\angle0^\\circ\\ (\\text{quadrature})",
+      "final_or_step": "final (verified)",
+      "source_paper": "paper_004 (Hong Part II 2019), Eq.(25),(26),(27), p.2128 (verified verbatim)",
+      "derivation_page": "05_paper_deep_dives/paper_004_injection_locking_part2",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "PPV / adjoint (broader literature, NOT in the 5 PDFs)",
+      "latex": "\\dot{\\phi}(t) = v_1^T(t)\\, B(t)\\, \\xi(t)\\quad\\text{(Demir et al. PPV form)}",
+      "final_or_step": "reference",
+      "source_paper": "Demir-Mehrotra-Roychowdhury (2000), IEEE TCAS-I 47(5):655-674, DOI 10.1109/81.847872 (citation verified; external, not in the 5 PDFs).",
+      "derivation_page": "03_isf_core_theory/effective_isf",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "ring kappa (jitter rate)",
+      "latex": "\\kappa=\\dfrac{\\Gamma_{rms}}{q_{max}}\\sqrt{\\dfrac{1}{2}\\dfrac{\\overline{i_n^2}}{\\Delta f}}\\quad(\\sigma_{\\Delta t}=\\kappa\\sqrt{\\Delta t})",
+      "final_or_step": "final (verified)",
+      "source_paper": "paper_002, Eq. (12), p.793 (verified verbatim)",
+      "derivation_page": "04_simulation_labs/lab_03_ring_oscillator_toy_model",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "ring per-stage device noise",
+      "latex": "\\dfrac{\\overline{i_n^2}}{\\Delta f}=4kT\\gamma\\,g_{d0}=4kT\\gamma\\,\\mu C_{ox}\\dfrac{W}{L}\\,\\Delta V",
+      "final_or_step": "final (verified)",
+      "source_paper": "paper_002, Eq. (17),(18), p.795 (verified verbatim)",
+      "derivation_page": "06_design_insights/device_noise_mapping",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "Lorentzian carrier lineshape",
+      "latex": "S(\\Delta\\omega)\\propto\\dfrac{D}{D^2+\\Delta\\omega^2},\\quad \\Delta f_{3\\mathrm{dB}}=\\dfrac{D}{\\pi},\\quad D=\\dfrac{\\Gamma_{rms}^2}{2q_{max}^2}\\dfrac{\\overline{i_n^2}}{\\Delta f}",
+      "final_or_step": "final (verified)",
+      "source_paper": "phase random walk -> exponential carrier autocorrelation -> Lorentzian; resolves 1/f^2 divergence at Df->0. Background: Demir 2000 [E2].",
+      "derivation_page": "03_isf_core_theory/lorentzian_linewidth",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "Allan variance from PSD",
+      "latex": "\\sigma_y^2(\\tau)=2\\int_0^\\infty S_y(f)\\dfrac{\\sin^4(\\pi f\\tau)}{(\\pi f\\tau)^2}\\,df,\\quad S_y=\\dfrac{f^2}{f_0^2}S_\\phi",
+      "final_or_step": "final",
+      "source_paper": "white/flicker/RW FM -> sigma_y ~ tau^{-1/2}, tau^0, tau^{+1/2}. External: Allan 1966 [E1-ext].",
+      "derivation_page": "02_foundations/allan_variance",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "PLL output phase-noise budget",
+      "latex": "S_{out}=(S_{ref}N^2+S_{cp})\\lvert H_{lp}\\rvert^2+S_{vco}\\lvert H_{hp}\\rvert^2",
+      "final_or_step": "final",
+      "source_paper": "sum of all PLL noise sources shaped by their transfer; optimal loop BW minimizes integrated jitter.",
+      "derivation_page": "06_design_insights/pll_noise_budget",
+      "manual_verification_needed": false
+    },
+    {
+      "concept": "ISF as harmonic transfer vector (HTM)",
+      "latex": "\\text{input at } f \\to \\text{output at } f+kf_0 \\text{ with gain } c_k\\ (\\text{ISF Fourier coeff})",
+      "final_or_step": "reference",
+      "source_paper": "rigorous LTV / harmonic transfer matrix view; ISF is the phase output's HTM row. External: Zadeh 1950 [E5].",
+      "derivation_page": "99_appendix/ltv_htm",
+      "manual_verification_needed": false
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "_about": "Key teaching claims with their source paper and a note on confidence. Used to build claims_cross_reference.md. Narrative claims were read from clean PDF text; numeric/constant claims flagged where a human should re-check.",
+  "claims": [
+    {
+      "id": "C1",
+      "claim": "All oscillators are linear time-VARIANT (LTV) systems for noise, not LTI: the same noise impulse produces a different phase shift depending on WHEN in the period it is injected.",
+      "source_paper": "paper_001 (Hajimiri-Lee 1998), Sec. III",
+      "confidence": "high (read from text)",
+      "manual_verification_needed": false
+    },
+    {
+      "id": "C2",
+      "claim": "Amplitude perturbations decay back to the limit cycle (a restoring mechanism is required for stable oscillation), but PHASE perturbations persist indefinitely and accumulate.",
+      "source_paper": "paper_001, Sec. III-A; paper_004 (APF / decay function)",
+      "confidence": "high",
+      "manual_verification_needed": false
+    },
+    {
+      "id": "C3",
+      "claim": "Phase noise scales as Gamma_rms^2 / q_max^2: increase the signal charge swing q_max and reduce the rms ISF to lower 1/f^2 phase noise.",
+      "source_paper": "paper_001, Eq. (21)",
+      "confidence": "high (equation verified)",
+      "manual_verification_needed": false
+    },
+    {
+      "id": "C4",
+      "claim": "1/f device noise upconverts to close-in 1/f^3 phase noise ONLY through the DC term c_0 of the ISF; a waveform with good rise/fall symmetry has small c_0 and therefore low 1/f^3 phase noise.",
+      "source_paper": "paper_001, Eqs (23),(24); paper_002 symmetry section & Fig. 17",
+      "confidence": "high",
+      "manual_verification_needed": false
+    },
+    {
+      "id": "C5",
+      "claim": "The 1/f^3 phase-noise corner is NOT equal to the device 1/f noise corner; it equals omega_1/f * (c_0/Gamma_rms)^2 / 2, so symmetry can push it well below the device corner.",
+      "source_paper": "paper_001, Eq. (24)",
+      "confidence": "high (equation verified)",
+      "manual_verification_needed": false
+    },
+    {
+      "id": "C6",
+      "claim": "Accumulated (long-term) jitter of a free-running oscillator grows as the square root of the measurement interval: sigma_dt = kappa*sqrt(Delta t). This is the random-walk signature of having no absolute time reference.",
+      "source_paper": "paper_002, Eq. (10)",
+      "confidence": "high",
+      "manual_verification_needed": false
+    },
+    {
+      "id": "C7",
+      "claim": "For a single-ended ring oscillator at fixed center frequency and power dissipation, phase noise and jitter are essentially INDEPENDENT of the number of stages N.",
+      "source_paper": "paper_002, Sec. V",
+      "confidence": "medium (conclusion text read; exact constants flagged)",
+      "manual_verification_needed": true
+    },
+    {
+      "id": "C8",
+      "claim": "The rms ISF of a single-ended ring scales roughly as N^{-3/2}.",
+      "source_paper": "paper_002, Eq. (16)",
+      "confidence": "medium (scaling read; exact prefactor flagged)",
+      "manual_verification_needed": true
+    },
+    {
+      "id": "C9",
+      "claim": "The ISF framework reduces to previously known phase-noise models (e.g. Leeson) as special cases and naturally accommodates cyclostationary noise via an effective ISF Gamma_eff = Gamma * alpha (noise-modulating function).",
+      "source_paper": "paper_001, Abstract & cyclostationary section",
+      "confidence": "high",
+      "manual_verification_needed": false
+    },
+    {
+      "id": "C10",
+      "claim": "The same ISF that governs phase noise also governs injection locking/pulling; a single first-order (generalized Adler) equation built from the ISF predicts lock range, locked phase, and stability for arbitrary oscillators and injection waveforms.",
+      "source_paper": "paper_003 (Hong Part I 2019)",
+      "confidence": "medium (abstract & section text read; equation form flagged)",
+      "manual_verification_needed": true
+    },
+    {
+      "id": "C11",
+      "claim": "Amplitude effects under injection are captured by the Amplitude Perturbation Function (APF), the amplitude-domain analog of the ISF (units 1/Ampere); for an ideal LC oscillator the ISF and APF are in quadrature.",
+      "source_paper": "paper_004 (Hong Part II 2019), Sec. III-D",
+      "confidence": "medium",
+      "manual_verification_needed": true
+    },
+    {
+      "id": "C12",
+      "claim": "The cross-coupled-inverter sense amplifier paper is NOT about oscillator phase noise/ISF; its only conceptual link to this curriculum is the cross-coupled-pair regeneration / positive-feedback mechanism shared with latch-style and LC oscillators.",
+      "source_paper": "paper_005 (Hajimiri-Heald, ISCAS 1998)",
+      "confidence": "high (clearly off-topic by title/abstract)",
+      "manual_verification_needed": false
+    },
+    {
+      "id": "C13",
+      "claim": "PPV (perturbation projection vector), adjoint method, and Floquet theory are the rigorous mathematical foundation for the ISF; they come from the broader literature (e.g. Demir-Mehrotra-Roychowdhury 2000, Kaertner), which is NOT among the 5 downloaded PDFs. They are taught here as standard context, clearly labeled as external.",
+      "source_paper": "external (not in source folder)",
+      "confidence": "high (sourcing statement)",
+      "manual_verification_needed": true
+    }
+  ]
+}

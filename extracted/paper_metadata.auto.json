@@ -1,0 +1,49 @@
+{
+  "papers": [
+    {
+      "id": "paper_001",
+      "filename": "BHongGenTheor-II_JSSC2019_Postprint.pdf",
+      "path": "../BHongGenTheor-II_JSSC2019_Postprint.pdf",
+      "pages": 18,
+      "chars": 67104,
+      "title_guess": "IEEE JOURNAL OF SOLID-STATE CIRCUITS, VOL. 54, NO. 8, AUGUST 2019",
+      "note": "Heuristic only. See curated extracted/paper_metadata.json."
+    },
+    {
+      "id": "paper_002",
+      "filename": "BHongGenTheor-I_JSSC2019_Postprint.pdf",
+      "path": "../BHongGenTheor-I_JSSC2019_Postprint.pdf",
+      "pages": 13,
+      "chars": 61510,
+      "title_guess": "IEEE JOURNAL OF SOLID-STATE CIRCUITS, VOL. 54, NO. 8, AUGUST 2019",
+      "note": "Heuristic only. See curated extracted/paper_metadata.json."
+    },
+    {
+      "id": "paper_003",
+      "filename": "Hajimiri_ISCS_98.pdf",
+      "path": "../Hajimiri_ISCS_98.pdf",
+      "pages": 4,
+      "chars": 15591,
+      "title_guess": "DESIGN ISSUES IN CROSS-COUPLED INVERTER SErNSE AMPLIFIER",
+      "note": "Heuristic only. See curated extracted/paper_metadata.json."
+    },
+    {
+      "id": "paper_004",
+      "filename": "general.pdf",
+      "path": "../general.pdf",
+      "pages": 16,
+      "chars": 60789,
+      "title_guess": "IEEE JOURNAL OF SOLID-STATE CIRCUITS, VOL. 33, NO. 2, FEBRUARY 1998",
+      "note": "Heuristic only. See curated extracted/paper_metadata.json."
+    },
+    {
+      "id": "paper_005",
+      "filename": "jitter_ring.pdf",
+      "path": "../jitter_ring.pdf",
+      "pages": 15,
+      "chars": 50353,
+      "title_guess": "IEEE JOURNAL OF SOLID-STATE CIRCUITS, VOL. 34, NO. 6, JUNE 1999",
+      "note": "Heuristic only. See curated extracted/paper_metadata.json."
+    }
+  ]
+}

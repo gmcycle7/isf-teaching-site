@@ -49,7 +49,7 @@ $$
 $$
 
 - **$F$ 是 Leeson 的「經驗逃生口」**：它把所有沒被顯式建模的雜訊（放大器、轉換損耗、cyclostationary 效應…）塞進一個量測 fit 的數字。**這正是 ISF 後來要取代的對象**（見第 5 步對照）。
-- **那個 2 哪來**：雜訊同時擾動振幅與相位，等分到相位的是一半的雜訊功率密度——但因為單邊帶（SSB）記帳，最後寫成 $2FkT/P_s$。這個 factor-of-2 與 [P1] Eq.(21) 的 $4\Delta\omega^2$ vs 時域 $2\Delta\omega^2$ 是同一類 SSB 記帳慣例（見 [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) 的 factor-of-2 討論）。（$F$ 為經驗擬合參數、前置常數 2 屬 SSB 記帳慣例，依版本略異——這正是 ISF 後來用 $\Gamma_{rms}/q_{max}$ 取代的對象。）
+- **那個 2 哪來**：屬 Leeson 模型的記帳慣例（並非唯一寫法，依文獻而異）。物理上其實有**兩步、方向相反**的因子：(1) **AM/PM 等分**——熱雜訊同時擾動振幅與相位，相位只分到一半功率（$\times\tfrac12$）；(2) **單邊帶（SSB）記帳**把雙邊功率折算成單邊（$\times2$）。兩者相抵後，最「乾淨」的地板寫法其實是 $FkT/P_s$；本式寫成 $2FkT/P_s$，是把 SSB 慣例**顯式留在前置常數**、而未把 AM/PM 的 $\tfrac12$ 併進 $F$ 的版本。這與 [P1] Eq.(21) 的 $4\Delta\omega^2$ vs 時域 $2\Delta\omega^2$ 同屬 SSB／雙邊記帳差異（見 [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) 的 factor-of-2 討論）。（$F$ 為經驗擬合參數，前置常數依文獻略異——這正是 ISF 後來用 $\Gamma_{rms}/q_{max}$ 取代的對象。）
 - **單位檢查**：$[2FkT/P_s]=\text{J}/\text{W}=\text{J}/(\text{J/s})=\text{s}=1/\text{Hz}$ ✓（$\mathcal{L}$ 是每赫茲的相對功率，dBc/**Hz**）。
 
 ## 第 2 步：高 $Q$ tank 的窄帶濾波 → $1/f^2$ 裙帶

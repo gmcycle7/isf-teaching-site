@@ -29,7 +29,7 @@ description: 設計章成套習題：q_max/Γrms/對稱性設計反推、ring vs
 ### 習題 1（設計反推題）— $q_{max}$、$\Gamma_{rms}$ 達標組合
 
 某 5 GHz LC 振盪器目前 $\mathcal{L}(1\,\text{MHz})=-140$ dBc/Hz（套 Eq.(21)，$\Gamma_{rms}=0.7$、
-$q_{max}=1$ pC、$S_i=10^{-23}\ \text{A}^2/\text{Hz}$）。目標把它再壓低 9 dB 到 $-149$ dBc/Hz。
+$q_{max}=1$ pC、$S_i=3.2\times10^{-24}\ \text{A}^2/\text{Hz}$，代入 Eq.(21) 自洽得 $-140$）。目標把它再壓低 9 dB 到 $-149$ dBc/Hz。
 列出兩種達標方案：(a) 只動 $q_{max}$；(b) 只動 $\Gamma_{rms}$。各需多少？
 
 ### 習題 2（設計反推題）— 對稱性壓 $1/f^3$ corner

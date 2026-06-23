@@ -287,11 +287,11 @@ $|\tilde c_{\pm1}|=c_1/2$、$|\tilde c_{\pm2}|=c_2/2$。）
 相位通道完整是「ISF 加權 $\to$ 乘 $1/q_{max}$ $\to$ 積分」（見
 [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) 的 block diagram）。積分器在頻域
 對「**搬移後**的頻率 $f+kf_0$」乘 $\dfrac{1}{j2\pi(f+kf_0)}$。但我們關心的是 **carrier 附近的 phase noise**：
-落在 $f=-kf_0+\Delta f$（即「$k$ 次諧波 band 偏 $\Delta f$」）的 noise，被 $H_{-k}$ 搬到 baseband 的 $\Delta f$，
+落在 $f=-kf_0+\Delta f$（即「$k$ 次諧波 band 偏 $\Delta f$」）的 noise，被 $H_{k}$ 搬到 baseband 的 $\Delta f$（依 Step 3 的 HTM 慣例 $y=\sum_m H_m\,x(f-mf_0)$，把輸入 $-kf_0+\Delta f$ 搬到 $\Delta f$ 需 $m=k$），
 積分器在那裡乘 $\dfrac{1}{j2\pi\Delta f}$。於是「第 $k$ band 的 noise → carrier 旁 $\Delta f$ 的相位」整條鏈的增益是
 
 $$
-\frac{1}{q_{max}}\cdot \underbrace{\tilde c_{-k}}_{\text{ISF 搬移}}\cdot\underbrace{\frac{1}{j2\pi\Delta f}}_{\text{積分器}}
+\frac{1}{q_{max}}\cdot \underbrace{\tilde c_{k}}_{\text{ISF 搬移}}\cdot\underbrace{\frac{1}{j2\pi\Delta f}}_{\text{積分器}}
 \;\xrightarrow{\ |\cdot|\ }\;
 \frac{|c_k|}{2\,q_{max}}\cdot\frac{1}{2\pi\Delta f}\quad(k\ge1).
 $$
@@ -307,7 +307,7 @@ $$
 $$
 
 - **第 $k$ 個分量 $=\tilde c_k/q_{max}$**：把「離 carrier $kf_0$ 的那個 noise band」映到相位。模平方求和
-  $\sum_k|\tilde c_k|^2=\tfrac12\sum_n c_n^2=\Gamma_{rms}^2$（差個 normalization）——這就是
+  $\sum_k|\tilde c_k|^2=(c_0/2)^2+\tfrac12\sum_{n\ge1}c_n^2=\Gamma_{rms}^2$（DC 項以 $(c_0/2)^2$ 計入，與 lab_05 Parseval 修正、[P1] Eq.(20) 一致）——這就是
   [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) 用 Parseval 把 $\sum c_n^2$
   換成 $\Gamma_{rms}^2$ 的 HTM 版本：**phase noise 的總權重 = 這條轉換向量的能量**。
 - **單位檢查**：每個分量 $\tilde c_k/q_{max}$ 帶 $\text{C}^{-1}$；乘上 noise band 的電荷量（A·s/...）與

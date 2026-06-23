@@ -470,7 +470,7 @@ print(round(L1,1), round(L5,1), "dBc/Hz")               # 實算 ~ -137.7 / -130
 - **[E-Andreani]** P. Andreani, X. Wang, L. Vandi, and A. Fard, *"A Study of Phase Noise in Colpitts
   and LC-Tank CMOS Oscillators,"* IEEE J. Solid-State Circuits, vol. 40, no. 5, pp. 1107–1118, May 2005.
   （tail-noise 與 cross-coupled vs Colpitts phase noise 的權威分析；本頁 tail $c_2$ 折回與 tail filter
-  論點之依據。TODO: 卷期/頁碼如需正式引用請再核實。）
+  論點之依據。卷期/頁碼已查證（DOI 10.1109/JSSC.2005.845991）。）
 - tail filter @ $2f_0$ 的經典出處亦見 E. Hegazi, H. Sjöland, A. A. Abidi, *"A Filtering Technique to
   Lower LC Oscillator Phase Noise,"* IEEE JSSC, vol. 36, no. 12, pp. 1921–1930, Dec. 2001.
-  （**不在 5 篇 PDF 內**；TODO: 如需正式引用請再核實卷期/頁碼。）
+  （**不在 5 篇 PDF 內**；卷期/頁碼已查證。）

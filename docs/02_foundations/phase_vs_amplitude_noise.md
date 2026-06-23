@@ -181,8 +181,7 @@ $$
   quadrature（差 90°）**——[P4] Fig. 5, p.2126。
 - **AM–PM** 是振幅雜訊漏回相位的後門：$\partial\omega/\partial A\neq 0$ 時要當心。
 - 例 A：1 fC 注零交越 → 31.8 fs 永久 jitter；注波峰 → ~0 永久影響。
-- 來源：[P4]（APF / amplitude decay / quadrature，Sec. III-D、Fig. 5, p.2126，部分標
-  TODO 待核）；相位側來自 [P1] Eqs.(1),(10)。
+- 來源：[P4]（APF / amplitude decay / quadrature，Sec. III-D–E、Fig. 5, p.2126，已核實）；相位側來自 [P1] Eqs.(1),(10)。
 
 ## 延伸閱讀
 

@@ -161,9 +161,14 @@ def main():
         # shade the same band behind the stem for visual alignment
         ax_bot.axvspan(lo, hi, color=col, alpha=0.18, zorder=0)
         ax_bot.plot([xpos], [c[ci]], "o", color=col, markersize=9, zorder=6)
-        ax_bot.text(xpos, c[ci] + 0.04,
-                    fr"$c_{ci}$={c[ci]:.2f}", ha="center", va="bottom",
-                    fontsize=9, color=col, fontweight="bold", zorder=7)
+        # The c1 channel sits exactly at the carrier, where the folding
+        # arrowheads (zorder 8) converge; nudge its label to the right and
+        # raise its zorder so the arrows don't occlude the value.
+        at_carrier = abs(xpos - 1.0 * f0) < 1e-6
+        ax_bot.text(xpos * (1.04 if at_carrier else 1.0), c[ci] + 0.04,
+                    fr"$c_{ci}$={c[ci]:.2f}",
+                    ha="left" if at_carrier else "center", va="bottom",
+                    fontsize=9, color=col, fontweight="bold", zorder=9)
 
     ax_bot.set_ylim(0, max(c) * 1.45)
     ax_bot.set_xlabel(r"頻率 $f / f_0$  (下面 stem 的 $n$ 對齊 $n f_0$)")

@@ -64,10 +64,24 @@ def python_blocks(text):
     return re.findall(r'```python\n(.*?)```', text, re.S)
 
 
+def _answer_prefix(s):
+    """Marker convention is ``# -> <answer> [explanation]``. Keep only the answer
+    part: stop at the first '(' / '（' or CJK character, so numbers living inside
+    an explanatory parenthetical or comment (e.g. the "2" in "2*Gamma_rms^2", or
+    "遠小於 447.9 fs") are NOT mistaken for expected outputs."""
+    out = []
+    for ch in s:
+        if ch in '(（《「' or '一' <= ch <= '鿿':
+            break
+        out.append(ch)
+    return ''.join(out)
+
+
 def expected_from(code):
     exp = []
     for m in re.finditer(r'#\s*->\s*(.*)', code):
-        ns = [float(t) for t in EXP_NUM.findall(m.group(1)) if _f(t) is not None]
+        prefix = _answer_prefix(m.group(1))
+        ns = [float(t) for t in EXP_NUM.findall(prefix) if _f(t) is not None]
         if ns:
             exp.append((m.group(1).strip(), ns))
     return exp

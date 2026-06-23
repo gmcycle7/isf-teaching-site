@@ -340,13 +340,13 @@ $\Delta\phi_{IQ}\propto Q/m$ 的微分方程版本。
 - **[E-Andreani-QVCO]** P. Andreani, A. Bonfanti, L. Romanò, C. Samori, *"Analysis and Design of a 1.8-GHz
   CMOS LC Quadrature VCO,"* IEEE J. Solid-State Circuits, vol. 37, no. 12, pp. 1737–1747, Dec. 2002.
   （QVCO 的 coupling-strength vs phase-noise vs I/Q error 三角權衡之權威分析；本頁第 2、3 節之依據。
-  TODO: 卷期/頁碼如需正式引用請再核實。）
+  卷期/頁碼已查證。）
 - **[E-Romano-QVCO]** L. Romanò, S. Levantino, C. Samori, A. L. Lacaita, *"Multiphase LC Oscillators,"*
   IEEE Trans. Circuits Syst. I, vol. 53, no. 7, pp. 1579–1588, Jul. 2006（及相關 parallel-vs-series
-  QVCO 文獻）。（parallel vs series coupling 的 phase-noise 比較依據。TODO: 如需正式引用請再核實卷期/頁碼。）
+  QVCO 文獻）。（parallel vs series coupling 的 phase-noise 比較依據。卷期/頁碼已查證。）
 - **[E-Behbahani-PPF]** F. Behbahani, Y. Kishigami, J. Leete, A. A. Abidi, *"CMOS Mixers and Polyphase
   Filters for Large Image Rejection,"* IEEE JSSC, vol. 36, no. 6, pp. 873–887, Jun. 2001.
-  （RC-CR polyphase filter 的設計與插損／頻寬權衡依據。TODO: 卷期/頁碼如需正式引用請再核實。）
+  （RC-CR polyphase filter 的設計與插損／頻寬權衡依據。卷期/頁碼已查證。）
 - **$\div N$ 改善 $20\log_{10}N$ dB**：標準頻率合成結果（見任何 PLL／frequency synthesis 教材，
   如 Razavi *RF Microelectronics*）。**不在 5 篇 PDF 內**；其物理根據（相位被除以 $N$）與本站 [P1]
   相位定義一致。

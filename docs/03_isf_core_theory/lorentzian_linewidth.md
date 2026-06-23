@@ -370,7 +370,7 @@ Lorentzian——相對 5 GHz 載波是 $2.5\times10^{-7}$ 的相對線寬（$Q$ 
 import numpy as np
 L_dbc = -100.0                      # dBc/Hz @ 1 MHz, 1/f^2 slope
 df = 1e6
-L_lin = 10**(L_dbc/10)             # -> 1e-10 /Hz
+L_lin = 10**(L_dbc/10)             # = 1e-10 /Hz (中間值)
 S_phi = 2 * L_lin                  # L ~ S_phi/2  -> rad^2/Hz
 dw = 2*np.pi*df
 D = S_phi * dw**2 / 2              # S_phi = 2D/dw^2  -> D

@@ -109,6 +109,7 @@ g_good = effective_isf(gamma, a_good)
 grms = gamma_rms(theta, gamma)                # stationary reference
 grms_bad = gamma_rms(theta, g_bad)
 grms_good = gamma_rms(theta, g_good)
+print(f"stationary={grms:.3f} bad={grms_bad:.3f} good={grms_good:.3f}")
 # -> stationary=0.707, bad=0.395, good=0.177
 ```
 

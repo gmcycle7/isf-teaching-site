@@ -1,6 +1,6 @@
 ---
 title: Tuning line 與 supply pushing 的相位雜訊
-description: 定義 K_VCO=∂f0/∂V_tune 與 supply pushing K_push=∂f0/∂V_DD；推導 tune/supply 節點的低頻雜訊電壓如何 FM 載波得 S_φ=K_VCO²·S_v/Δω²（white→1/f²、1/f→1/f³，與 device flicker c0 機制平行）；varactor C(V) 非線性的 AM-PM；split tuning、平坦偏壓點、LDO/共模抑制等 design knobs；worked example K_VCO=50 MHz/V、100 nV/√Hz @ 1 MHz、f0=5 GHz → L=-109 dBc/Hz。
+description: 定義 K_VCO=∂f0/∂V_tune 與 supply pushing K_push=∂f0/∂V_DD；推導 tune/supply 節點的低頻雜訊電壓如何 FM 載波得 S_φ=K_VCO²·S_v/Δf²（white→1/f²、1/f→1/f³，與 device flicker c0 機制平行）；varactor C(V) 非線性的 AM-PM；split tuning、平坦偏壓點、LDO/共模抑制等 design knobs；worked example K_VCO=50 MHz/V、100 nV/√Hz @ 1 MHz、f0=5 GHz → L=-109 dBc/Hz。
 ---
 
 # Tuning line 與 supply pushing 的相位雜訊

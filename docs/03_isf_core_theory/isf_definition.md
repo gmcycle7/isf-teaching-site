@@ -194,7 +194,7 @@ print(dphi, "rad")                        # -> 0.0005 rad
 | **[P1]** Hajimiri–Lee 1998 | $\Gamma(\omega_0\tau)$ | phase noise（LTV impulse response） | **本站定義的原始出處**，Eq.(10),(11) | high（公式已核） |
 | **[P2]** Hajimiri–Limotyrakis–Lee 1999 | $\Gamma(\omega_0\tau)$ | ring oscillator 的 jitter／phase noise | 同一個 $\Gamma$；強調 $\Gamma_{rms}\propto N^{-3/4}$ scaling（[P2] Eq.(16), p.794） | high（敘述與 scaling 皆已核實） |
 | **[P3]** Hong–Hajimiri 2019 Part I | $\Gamma(\theta+\phi)$ | injection locking／pulling（廣義 Adler） | **同一個 $\Gamma$**，搬到注入脈絡：$\frac{d\phi}{dt}=\Delta\omega-\frac{1}{q_{max}}\langle\Gamma(\theta+\phi)\,i_{inj}(\theta)\rangle$（[P3] Eq.(30), p.2113；本站 $\Gamma$ 取與 [P3] 相反符號慣例，故平均項前為 $-$，數值等價） | high（已對照原始 PDF） |
-| **[P4]** Hong–Hajimiri 2019 Part II | $\Lambda(\phi)$（APF） | amplitude modulation（振幅域） | **振幅版**：把 impulse 投影到**徑向**而非切向；單位 $\text{A}^{-1}$；ideal LC 中 ISF 與 APF 正交（quadrature） | medium（定義待查） |
+| **[P4]** Hong–Hajimiri 2019 Part II | $\Lambda(\phi)$（APF） | amplitude modulation（振幅域） | **振幅版**：把 impulse 投影到**徑向**而非切向；單位 $\text{A}^{-1}$；ideal LC 中 ISF 與 APF 正交（quadrature，[P4] Eq.(26), p.2128） | ✓（APF=[P4] Eq.(19)、Fig. 5, p.2126，已核實） |
 | **[P5]** Hajimiri–Heald 1998 | — | sense amplifier | **與 ISF 無關**（sense amplifier 論文，誠實標明 mislabeled） | high（明顯離題） |
 
 > **記法陷阱**：[P3] 寫成 $\Gamma(\theta+\phi)$ 是把「注入波形相位 $\theta$」與「振盪器自身 excess phase $\phi$」相加當自變數——本質仍是同一個 $\Gamma$，只是 argument 換成「相對相位」。[P4] 的 APF $\Lambda$ 是**振幅**敏感度，與 $\Gamma$（相位敏感度）互補；在 ideal LC 兩者正交（一個 $\propto\sin$、一個 $\propto\cos$）。詳見 [paper_004_injection_locking_part2](/05_paper_deep_dives/paper_004_injection_locking_part2)。

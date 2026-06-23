@@ -292,7 +292,7 @@ print(f"{h0:.1e}", f"{adev(1e-3):.1e}")  # -> 8.0e-18  6.3e-08
 - **外部文獻（不在下載的 5 篇 PDF 內，以標準文獻補充）**：
   - **[E1] D. W. Allan, "Statistics of Atomic Frequency Standards," Proc. IEEE, vol. 54, no. 2, pp. 221–230, Feb. 1966.**（ADEV 原始提出）
   - **IEEE Std 1139**（"IEEE Standard Definitions of Physical Quantities for Fundamental Frequency and Time Metrology—Random Instabilities"）、**NIST Special Publication 1065**（W. Riley, "Handbook of Frequency Stability Analysis," 2008）——冪律斜率對照表與 overlapping ADEV 估計法的標準參考。
-  - 上述卷期/頁碼依公開標準文獻慣例引用；`TODO: 若需正式投稿可再核對 IEEE Std 1139 最新版年份與 SP1065 頁碼。`
+  - 上述為 **IEEE Std 1139-2008**（前版 1139-1999）與 **NIST SP 1065**（W. J. Riley, *Handbook of Frequency Stability Analysis*, 2008）；卷期/版本已查證。
 - 與本站頻域結果的對接：$S_\phi\sim1/f^2$（[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) 的 [P1] Eq.(21)）↔ white FM ↔ ADEV $\tau^{-1/2}$；$1/f^3$（[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion) 的 [P1] Eq.(23)）↔ flicker FM ↔ ADEV $\tau^0$ floor。
 
 ## 重點回顧

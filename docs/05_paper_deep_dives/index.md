@@ -71,7 +71,7 @@ graph TD
    $\Gamma_{rms}\propto N^{-3/4}$、以及「固定功率與頻率下 ring phase noise 幾乎與 $N$ 無關」
    的結論（已核實）。
 3. **想懂 injection 再讀 [P3]→[P4]**。[P3] 是 phase-only 的廣義 Adler 方程；[P4] 補上振幅
-   （APF）與 frequency division。這兩篇是**進階**，公式多處標 `TODO` 待對照原文。
+   （APF）與 frequency division。這兩篇是**進階**；其核心方程已對照原始 PDF 核實（[P3] 廣義 Adler Eq.(30)/(35), pp.2113–2114；[P4] APF Eq.(18)–(22)、Fig. 5, p.2126）。
 4. **[P5] 最後、且只當趣聞**。見下。
 
 ## 誠實聲明：[P5] 與 ISF 無關

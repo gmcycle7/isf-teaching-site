@@ -26,8 +26,7 @@ $H(f,t)$**（time-varying transfer function）與 **harmonic transfer matrix（H
 > matrix（HTM）** 屬於更廣的**線性時變系統理論**，**不在本站下載的 5 篇 PDF 內**。原始概念來自
 > **[E5] L. A. Zadeh, "Frequency Analysis of Variable Networks," Proc. IRE, vol. 38, no. 3,
 > pp. 291–299, Mar. 1950（DOI 10.1109/JRPROC.1950.231083）**；HTM 形式則在週期時變/RF 電路文獻
-> （如 cyclostationary、LPTV 系統分析）中標準化。**這些是外部數學框架，TODO: 補正式 [E5] citation 卷期細節
-> 至 [references](/99_appendix/references)。** 本頁只用它們「重講 ISF」，所有與 ISF 的對應都會收斂回
+> （如 cyclostationary、LPTV 系統分析）中標準化。**這些是外部數學框架；正式 [E5] citation（Zadeh 1950, Proc. IRE 38(3):291–299, DOI 10.1109/JRPROC.1950.231083）已收於 [references](/99_appendix/references)。** 本頁只用它們「重講 ISF」，所有與 ISF 的對應都會收斂回
 > [P1] Eq.(13)（在 5 篇 PDF 內、已核實）。
 
 這頁要回答四個問題：
@@ -379,7 +378,7 @@ $$
   [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv)（外部 [E2] Demir 2000）。
 - **本頁的 LTV 系統框架（Zadeh $H(f,t)$、HTM）屬外部文獻、不在 5 篇 PDF 內**：[E5] L. A. Zadeh,
   "Frequency Analysis of Variable Networks," Proc. IRE 38(3):291–299, Mar. 1950；HTM 為 LPTV/RF 文獻標準形式。
-  **TODO: 將 [E5] 正式 citation（卷期/DOI 10.1109/JRPROC.1950.231083）補入 [references](/99_appendix/references)。**
+  （[E5] Zadeh 1950 正式 citation 已收於 [references](/99_appendix/references)，DOI 10.1109/JRPROC.1950.231083。）
 
 ## 重點回顧
 

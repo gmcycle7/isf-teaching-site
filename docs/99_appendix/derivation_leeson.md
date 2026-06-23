@@ -177,7 +177,7 @@ print(corner_asym/(2*np.pi)/1e3, "kHz ;", corner_sym/(2*np.pi)/1e3, "kHz")
 
 ## 與哪些 paper／公式對應
 
-- **Leeson 模型本身**：[E1] D. B. Leeson, Proc. IEEE 54(2):329–330, Feb. 1966 —— **不在下載的 5 篇 PDF 內**；公式與 $F,Q,\omega_{1/f^3}$ 寫法標 **TODO** 待核對（見 [references](/99_appendix/references) 的 [E1]）。
+- **Leeson 模型本身**：[E1] D. B. Leeson, Proc. IEEE 54(2):329–330, Feb. 1966 —— **不在下載的 5 篇 PDF 內**；卷期/DOI 已查證（10.1109/PROC.1966.4682，見 [references](/99_appendix/references) 的 [E1]）；本式為標準 Leeson 形式（$F$ 為經驗 noise factor，前置常數依文獻略異）。
 - **ISF 對照式（5 篇 PDF 內、已核）**：$1/f^2$ [P1] Eq.(21), p.185；$1/f^3$ [P1] Eq.(23), p.185；$1/f^3$ corner [P1] Eq.(24), p.185；device flicker [P1] Eq.(22), p.185。
 - **cyclostationary（解釋「實效 $F$」）**：[P1] Eqs.(25)–(27), p.186（見 [effective_isf](/03_isf_core_theory/effective_isf)）。
 - **疊圖**：`/figures/leeson_vs_isf_overlay.png`，`simulations/lab_16_leeson_vs_isf.py`（規範 10.1，lab_16）。

@@ -80,8 +80,7 @@ $$
 $$
 
 - 所以「加大 swing 降 phase noise」與「加大 swing 降 jitter」是**同一件事**——它們共用
-  $\Gamma_{rms}^2/q_{max}^2$ 這個核心比值。（[P2] Eq.(12) 已核實，
-  的確切 prefactor 待查 PDF p.793。）
+  $\Gamma_{rms}^2/q_{max}^2$ 這個核心比值。（[P2] Eq.(12), p.793 已核實：$\kappa=\dfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\,\overline{i_n^2}/\Delta f}$。）
 
 ## 第 3 步：增大 $q_{max}$ 的兩條路——加 $V_{max}$ vs 加 $C$
 
@@ -120,7 +119,7 @@ swing 不能無限大——它撞到 supply 與 device 的兩道牆：
 > ⚠️ 上面的「current-limited / voltage-limited」分界與 $\dfrac{4}{\pi}I_{bias}R_p$ 是
 > **標準 LC oscillator 設計知識（不在下載的 5 篇 PDF 內，以標準文獻補充，如 Hajimiri-Lee 教科書、
 > Razavi RF Microelectronics）**。[P1] 本身給的是 $1/q_{max}^2$ 的 scaling，沒展開 swing-vs-power 的
-> 電路層細節。TODO: manual verification needed，若要引用確切 swing 上限係數請查標準文獻。
+> 電路層細節。確切的 swing 上限係數與 phase-noise factor 下限見 E. Hegazi, H. Sjöland, A. A. Abidi, *A Filtering Technique to Lower LC Oscillator Phase Noise*, IEEE JSSC **36**(12):1921–1930, 2001（已查證），及 Razavi《RF Microelectronics》。
 
 ## 數值例子（建立手感）
 

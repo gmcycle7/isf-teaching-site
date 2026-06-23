@@ -191,7 +191,7 @@ $\Gamma_{rms}$、Eq.(21)、Eq.(23)）原封不動照用。** cyclostationary 不
 > have inferior phase noise performance compared to a Colpitts LC oscillator."（[P1], p.186）
 
 這是「為什麼 LC 比 ring 乾淨」的兩大原因之一（另一個是 ring 每週期把儲能全耗掉）。
-量化討論見 [P2] 與 [lc_vs_ring](/06_design_insights/lc_vs_ring)（若該頁尚未建立，TODO）。
+量化討論見 [P2] 與 [lc_vs_ring](/06_design_insights/lc_vs_ring)。
 
 > **toy model 提醒**：本站後續用 $\alpha(\omega_0 t)$ 的 toy 形狀（例如把 NMF 設成導通窗）
 > 來示範 $\Gamma_{eff}=\Gamma\cdot\alpha$ 怎麼改變 $c_0$、$\Gamma_{rms}$，這些是

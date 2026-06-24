@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkisf_teaching_site=globalThis.webpackChunkisf_teaching_site||[]).push([[3674],{3674(e,i,s){s.d(i,{createTreeViewServices:()=>a.I});var a=s(5738);s(9302)}}]);

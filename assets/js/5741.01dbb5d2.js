@@ -1,0 +1,1 @@
+(globalThis.webpackChunkisf_teaching_site=globalThis.webpackChunkisf_teaching_site||[]).push([[5741],{5741(){}}]);

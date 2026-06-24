@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkisf_teaching_site=globalThis.webpackChunkisf_teaching_site||[]).push([[3872],{3872(e,a,i){i.d(a,{createRadarServices:()=>s.f});var s=i(5160);i(9302)}}]);

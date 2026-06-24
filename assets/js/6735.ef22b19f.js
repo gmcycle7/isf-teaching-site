@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkisf_teaching_site=globalThis.webpackChunkisf_teaching_site||[]).push([[6735],{6735(e,i,s){s.d(i,{createEventModelingServices:()=>a.g});var a=s(2968);s(9302)}}]);

@@ -345,8 +345,8 @@ $$
 - 載波自相關：$R_x(\tau)=\tfrac12\cos(\omega_0\tau)\,e^{-D|\tau|}$。
 - 頻譜（繞載波單邊）：$S(\Delta\omega)\propto\dfrac{D}{D^2+\Delta\omega^2}$（**Lorentzian**）。
 - 3-dB 線寬（FWHM）：$\Delta f_{3\mathrm{dB}}=\dfrac{D}{\pi}$ Hz；HWHM $=\dfrac{D}{2\pi}$ Hz。
-- 與 ISF 連結：$S_\phi=\dfrac{2D}{\Delta\omega^2}$（1/f² skirt）$\Rightarrow D=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$、
-  $\Delta f_{3\mathrm{dB}}=\dfrac{\Gamma_{rms}^2}{2\pi q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$。
+- 與 ISF 連結（**v5 更正**）：**單邊** $S_\phi=\dfrac{4D}{\Delta\omega^2}$（雙邊為 $2D/\Delta\omega^2$；1/f² skirt）$\Rightarrow D=\dfrac{\Gamma_{rms}^2}{4q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$、
+  $\Delta f_{3\mathrm{dB}}=\dfrac{\Gamma_{rms}^2}{4\pi q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$（=κ²/2π，κ²=[P2] Eq.(11) 方差成長率）。代表值 D=0.0625→19.9 mHz；真 LC D=0.125→39.8 mHz。（v3 曾誤寫 /(2q²)，把 κ² 誤當 D，線寬大 2×；v5 經 MC+解析裁決修正，見 diffusion_dictionary 與 lab_23。）
 - **關鍵教學點**：[P1] Eq.(21) 的 $1/\Delta\omega^2$ 在 $\Delta\omega\to0$ 發散是「線性化近似」假象；真實頻譜近載波轉平成 Lorentzian、總功率守恆（積分=載波功率）。
 
 **Allan variance / ADEV**：

@@ -483,7 +483,7 @@ $$
 
 **Dimension check**：核 $\lvert1-e^{-j2\pi fT}\rvert^2$ 無因次；$\int S_\phi\,(\text{核})\,df$ 得 rad²；
 除 $(2\pi f_0)^2$ 的 $(\text{rad/s})^2$… 注意這裡先得 rad² 再除 $(2\pi f_0)^2$ 得 s²，開根號得 s ✓。
-**TODO: manual verification needed**——period/cycle-to-cycle jitter 的確切前置常數（與單邊/雙邊譜慣例有關）
+**已解決（v5）**：period/cycle-to-cycle jitter 的確切前置常數已於 [jitter_kernels](/02_foundations/jitter_kernels) 從第一性推導＋Monte-Carlo 驗證（單邊 $S_\phi$ 慣例下核為 $4\sin^2$，前置 $1/\omega_0^2$；本例 27.6 fs 即該頁閉式 28.28 fs 的截帶版本）
 請對照標準文獻再確認；此處用規範第 10.2 節給的核，數值僅供量級手感。
 
 **Python 驗證**

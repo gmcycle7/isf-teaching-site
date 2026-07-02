@@ -254,6 +254,182 @@ $$
 - **cyclostationary 接口**：把 $\Gamma\to\Gamma_{eff}=\Gamma\alpha$ 即可，與本頁 $v_1$ 投影框架相容 —— [P1] Eqs.(25)–(27), p.186（見 [effective_isf](/03_isf_core_theory/effective_isf)）。
 - **本頁全部嚴格機制屬外部文獻、不在 5 篇 PDF 內**：[E2] Demir–Mehrotra–Roychowdhury 2000（PPV、$\dot\phi=v_1^TB\boldsymbol\xi$）、[E3] Kärtner 1990（白噪/$f^{-\alpha}$ 擾動分析）。正式 citation 卷期/頁碼/DOI **已查證**，詳見 [references](/99_appendix/references)（[E2]、[E3]）。
 
+## 數值驗證：親手算 monodromy 與 PPV
+
+前面六步全是定理與散文。老工程師的習慣是：**定理沒變成數字之前，先不要相信自己真的懂了**。這一節我們拿一顆 van der Pol 振盪器（$\mu=0.2$，近諧波、單位頻率——與 [lab_15](/04_simulation_labs/lab_15_nonlinear_isf) 同一顆 toy）把本頁每一個數學物件——limit cycle、$T$、monodromy $M$、Floquet multipliers、adjoint 週期解 $v_1(t)$、PPV→ISF——**逐一算出數字**，最後把 adjoint 算出的 ISF 與「一個相位一個相位打脈衝」的暴力法（lab_15 的方法）疊在同一張圖上。完整 script：`simulations/lab_25_floquet_numeric.py`。
+
+> **誠實聲明**：這是 **pedagogical toy model**（非 transistor-level）；全部使用**正規化（無因次）單位**——時間單位取「諧波極限角頻率 $=1$ rad/s」的那個秒，狀態 $x,y$ 無因次。下面凡寫 s 與 rad/s 都指這套正規化單位。Floquet/adjoint 演算法本身依 [E2] Demir 2000 的框架（外部文獻，非本站 5 篇 PDF）。
+
+### 模型與 Jacobian（一次寫清楚，後面四步共用）
+
+van der Pol 方程 $\ddot x-\mu(1-x^2)\dot x+x=0$ 寫成第 0 步的 state form：
+
+$$
+\dot{\mathbf x}=\mathbf f(\mathbf x)=\begin{pmatrix}y\\ \mu(1-x^2)\,y-x\end{pmatrix},\qquad \mathbf x=(x,y),\ \ \mu=0.2 .
+$$
+
+第 1 步需要的 Jacobian，逐項微分（$f_2=\mu(1-x^2)y-x$）：$\partial f_2/\partial x=-2\mu xy-1$、$\partial f_2/\partial y=\mu(1-x^2)$，所以
+
+$$
+A(t)=\frac{\partial\mathbf f}{\partial\mathbf x}\bigg|_{\mathbf x_s(t)}
+=\begin{pmatrix}0 & 1\\ -2\mu x_s y_s-1 & \mu(1-x_s^2)\end{pmatrix},
+\qquad A(t+T)=A(t).
+$$
+
+- **單位檢查**：正規化下 $[x]=[y]=$ 無因次、$[t]=$ s，故 $[A]=1/\text{s}$ ✓（第 1 步的一般結論）。
+- 選 $\mu=0.2$ 的理由：夠小 → 波形近正弦、ISF 應接近 $-\sin$（可對照直覺）；又不為零 → Floquet 結構非退化（$\vert\mu_2\vert$ 明顯小於 1）。
+
+### 數值步驟 1：找 limit cycle 與週期 $T$
+
+**方法**：從 $(2,0)$ 出發用 RK4（步長 $10^{-3}$ s）積 300 s——暫態以 $e^{-\mu t}$ 衰減，$\mu t=60$ 已到機器精度；然後取 Poincaré 截面「$x=0$、$y>0$（$x$ 的上升零交越）」，用 Newton 步 $\Delta t=-x/\dot x=-x/y$ 把落點修到 $\vert x\vert<10^{-13}$；連續 5 次回到截面取平均得 $T$。
+
+```python
+import numpy as np
+from simulations.lab_25_floquet_numeric import find_limit_cycle, monodromy
+
+s0, T = find_limit_cycle()            # 步驟 1：settle + Poincaré 截面 + Newton
+print(round(T, 4))                    # -> 6.2989
+print(round(2 * np.pi / T, 4))        # -> 0.9975
+
+M, states, hf = monodromy(s0, T)      # 步驟 2：dPhi/dt = A(t)Phi 積一圈
+mults = np.sort(np.linalg.eigvals(M).real)[::-1]
+print(round(float(mults[0]), 6), round(float(mults[1]), 4))  # -> 1.0 0.2828
+print(round(float(np.log(mults[1]) / T), 4))                 # -> -0.2005
+print(round(float(np.linalg.det(M)), 6))                     # -> 0.282827
+tr = 0.2 * (1 - states[:, 0] ** 2)    # tr A = mu(1 - x^2)
+print(round(float(np.exp(np.trapezoid(tr, dx=hf))), 6))      # -> 0.282827
+```
+
+**結果與交叉檢查**：$T=6.2989$ s、$\omega_0=2\pi/T=0.9975$ rad/s。Lindstedt–Poincaré 微擾展開給 van der Pol 的標準結果 $T=2\pi\,(1+\mu^2/16+O(\mu^4))$（外部文獻，非本站 5 篇 PDF：A. H. Nayfeh, *Perturbation Methods*, Wiley, New York, 1973）：代入 $\mu=0.2$ 得 $2\pi\times1.0025=6.2989$ s——與數值**四位小數一致**；等價地 $\omega_0\approx1-\mu^2/16=0.9975$ ✓。振幅 $A=\max\vert x_s\vert=2.0004$（諧波極限的著名結果 $A\to2$）。
+
+- **單位檢查**：$[T]=$ s、$[\omega_0]=$ rad/s ✓；rad 是無因次記帳單位。
+
+### 數值步驟 2：fundamental matrix 一圈 → monodromy $M$ 與 multipliers
+
+**方法**：把第 2 步的定義直接照抄成數值問題——沿著剛找到的 cycle 同時積分「狀態 + fundamental matrix」：
+
+$$
+\frac{d\Phi}{dt}=A(t)\,\Phi,\qquad \Phi(0)=I_2,\qquad M=\Phi(T),
+$$
+
+RK4、一個週期 12000 步（$A(t)$ 在每個 RK4 stage 直接用當下的 $\mathbf x_s$ 代入 Jacobian，不需要 $A(t)$ 的解析式）。
+
+**結果**（上面同一個 code block 印出）：
+
+$$
+\mu_1=1.000000,\qquad \mu_2=0.2828,
+$$
+
+$$
+\lambda_1=\frac{\ln\mu_1}{T}=1.5\times10^{-13}\ \text{1/s}\approx0,\qquad
+\lambda_2=\frac{\ln\mu_2}{T}=-0.2005\ \text{1/s}.
+$$
+
+三件事值得看三遍：
+
+1. **$\mu_1=1$ 不是我們放進去的，是算出來的**。程式從頭到尾沒有告訴它「有一個相位方向」；$\mu_1$ 偏離 1 的量（$\sim10^{-13}$）同時是第 3 步定理（切向 $\Rightarrow\lambda_1=0$）的數值證據，也是「cycle 找得夠準、$T$ 量得夠準」的自我診斷——若 settle 不足或 $T$ 錯了，$\mu_1$ 會立刻偏離 1。
+2. **$\lambda_2\approx-\mu$ 有解析對照**。用標準 averaging（Krylov–Bogoliubov；同上 Nayfeh 1973，外部文獻）：慢變振幅方程 $\dot a=g(a)=\tfrac{\mu}{2}a\,(1-a^2/4)$，在 $a=2$ 線性化：$g'(a)=\tfrac{\mu}{2}(1-3a^2/4)$，$g'(2)=\tfrac{\mu}{2}(1-3)=-\mu$。所以一階預測 $\lambda_2=-\mu=-0.2$，數值 $-0.2005$（差 0.25%，$O(\mu^3)$ 修正）✓。振幅擾動時間常數 $\tau_{amp}=1/\vert\lambda_2\vert=4.99$ s $\approx1/\mu$——這正是 [P4] Fig. 5, p.2126 的 amplitude decay function $d=e^{-t/\tau_0}$（LC 振盪器 $\tau_0=2Q/\omega_0$）在這顆 toy 上的 Floquet 嚴格版。
+3. **Abel–Liouville 交叉檢查**。行列式恆等式 $\det M=\exp\!\big(\int_0^T\operatorname{tr}A\,dt\big)$，而 $\operatorname{tr}A=\mu(1-x_s^2)$：左邊 $\mu_1\mu_2=0.282827$、右邊沿 cycle 數值積分後取指數 $=0.282827$——**六位小數一致**。兩條完全獨立的計算路徑（特徵值 vs 跡的積分）互相咬合，integrator 沒有偷走任何東西。
+
+- **單位檢查**：$\Phi,M,\mu_i$ 無因次（狀態→狀態的映射）✓；$[\lambda_i]=1/\text{s}$，$\lambda_iT$ 無因次才能放進指數 ✓。
+
+### 數值步驟 3：adjoint 往回積 → 週期左向量 $v_1(t)$
+
+**為什麼要「往回」積**：先把第 4 步的守恆式變成 map。對所有初始擾動 $\Delta\mathbf x(0)$，$\mathbf p(T)^T\Delta\mathbf x(T)=\mathbf p(0)^T\Delta\mathbf x(0)$ 且 $\Delta\mathbf x(T)=M\Delta\mathbf x(0)$，所以 $M^T\mathbf p(T)=\mathbf p(0)$——adjoint 的「一圈 map」是 $M^{-T}$，特徵值是 $1/\mu_i$：即 $1$ 與 $1/0.2828=3.54$。**正著積**，那個 3.54 模態每圈把數值雜質放大 3.54 倍，很快淹沒 $v_1$；**倒著積**，它每圈衰減 0.2828 倍，積分自動「自我清洗」收斂到週期解 $v_1(t)$——這正是 [E2] Demir 2000 的 backward-adjoint 數值流程（外部文獻）。我們從 $M^T$ 的特徵值 $=1$ 左特徵向量出發、沿 cycle 倒積一圈：
+
+$$
+\dot{\mathbf p}=-A^T(t)\,\mathbf p\quad(\text{從 }t=T\text{ 積回 }t=0).
+$$
+
+```python
+import numpy as np
+from simulations.common.isf_utils import gamma_rms
+from simulations.lab_25_floquet_numeric import ppv_pipeline
+
+res = ppv_pipeline()                       # 步驟 1-3 一次做完
+print("{:.1e}".format(res["const_err"]))   # -> 2.2e-14
+print("{:.1e}".format(res["per_err"]))     # -> 9.5e-13
+
+theta = res["theta"]
+g = res["omega0"] * res["v1"][:, 1]        # 步驟 4：Gamma/qmax = w0 * v1_y
+print(round(float(np.max(np.abs(g))), 4))  # -> 0.5011
+print(round(res["qmax_toy"], 4))           # -> 2.0442
+print(round(float(gamma_rms(theta, res["qmax_toy"] * g)), 4))   # -> 0.7258
+gn = g / np.max(np.abs(g))
+print(round(float(np.sqrt(np.mean((gn + np.sin(theta)) ** 2))), 4))  # -> 0.0555
+```
+
+**兩個機器精度級的檢查**：
+
+- **週期性**：$\Vert\mathbf p(0)-\mathbf p(T)\Vert/\Vert\mathbf p(T)\Vert=9.5\times10^{-13}$——倒積一圈確實回到自己（左 Floquet 向量、$\lambda=0$）。
+- **歸一化恆定**（第 4 步的內積守恆定理）：$\mathbf p(t)^T\dot{\mathbf x}_s(t)$ 沿整圈的最大相對偏差 $=2.2\times10^{-14}$。這個內積**理論上一個常數都不能動**；數值只剩捨入誤差。除以這個常數就完成歸一化 $v_1^T(t)\,\dot{\mathbf x}_s(t)=1$（對所有 $t$）。
+
+- **單位檢查**：歸一化條件 $v_1^T\dot{\mathbf x}_s=1$（無因次）給出 $[v_1]=\text{s}/[\mathbf x]$；於是一腳踢 $\Delta\mathbf x$ 換得的**時間相位** $\Delta\alpha=v_1^T\Delta\mathbf x$ 單位是 s ✓（第 5 步 $\alpha(t)$ 的單位）。
+
+### 數值步驟 4：$v_1$ 的分量就是 ISF——疊圖對決
+
+第 6 步說 $\Gamma(\omega_0\tau)/q_{max}=v_1^T\mathbf b$。這顆 toy 我們把脈衝踢在 $y$ 軸上（**與 lab_15 的 `impulse_dy` 完全同一個踢法**，$\mathbf b=\hat{\mathbf e}_y$），於是
+
+$$
+\frac{\Gamma(\theta)}{q_{max}}=\omega_0\,v_{1,y}(\theta),\qquad \theta=\omega_0 t\ (\text{自 }x\text{ 的上升零交越起算}).
+$$
+
+- **那個 $\omega_0$ 是單位換算，不是新物理**：$v_1$ 給的是「每單位 $\Delta q$ 換多少**秒**」（$\Delta\alpha$，s），乘 $\omega_0$ 才變「多少 **rad**」（$\Delta\phi=\omega_0\Delta\alpha$）。這正是本站在 [P2] Eq.(8), p.792（$\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$，相位 jitter）與 Eq.(12), p.793（$\kappa$ 表達式**不含** $\omega_0$）反覆強調的「時間域 vs 弧度域記帳」同一顆因子——在哪個域工作、何時乘 $\omega_0$，必須每次寫明。
+- **單位檢查**：$[\omega_0 v_{1,y}]=(\text{rad/s})\times(\text{s}/[\Delta q])=\text{rad}/[\Delta q]$ ✓——正是 [P1] Eq.(10), p.182 中 $\Gamma/q_{max}$ 的單位（每單位電荷的相位）。
+
+**諧波極限的解析對照**（$\mu\to0$ 時該長什麼樣）：純諧波 $x=A\sin\theta$、$y=\dot x=\omega_0A\cos\theta$，相位可寫 $\theta=\operatorname{atan2}(u,v)$，$u=\omega_0x$、$v=y$。用 $\partial\,\mathrm{atan2}/\partial v=-u/(u^2+v^2)$ 與 $\partial\,\mathrm{atan2}/\partial u=+v/(u^2+v^2)$，其中 $u^2+v^2=\omega_0^2A^2$：
+
+$$
+\frac{\Gamma_y(\theta)}{q_{max}}=\frac{\partial\theta}{\partial y}
+=\frac{-\omega_0A\sin\theta}{\omega_0^2A^2}=-\frac{\sin\theta}{\omega_0A},
+\qquad
+\frac{\Gamma_x(\theta)}{q_{max}}=\frac{\partial\theta}{\partial x}
+=\omega_0\cdot\frac{\omega_0A\cos\theta}{\omega_0^2A^2}=+\frac{\cos\theta}{A}.
+$$
+
+峰值預測 $1/(\omega_0A)=1/(0.9975\times2.0004)=0.5011$——數值峰值正是 $0.5011$ ✓。
+
+```python
+import numpy as np
+from simulations.lab_15_nonlinear_isf import extract_vdp_isf
+from simulations.lab_25_floquet_numeric import ppv_isf, extract_isf_impulse_axis
+
+theta, g_ppv, res = ppv_isf()              # adjoint 一次解
+th15, isf15, T15 = extract_vdp_isf(0.2)    # lab_15 暴力法：36 個相位打脈衝
+rms = np.sqrt(np.mean((np.interp(th15, theta, g_ppv) - isf15) ** 2))
+print(round(float(rms), 4))                # -> 0.0016
+
+g_ppv_x = res["omega0"] * res["v1"][:, 0]  # 同一條 v1 的 x 分量
+thx, isfx = extract_isf_impulse_axis(res["s0"], res["T"], axis=0)
+rms_x = np.sqrt(np.mean((np.interp(thx, theta, g_ppv_x) - isfx) ** 2))
+print(round(float(rms_x), 4))              # -> 0.0023
+```
+
+![lab_25 數值驗證：(a) van der Pol μ=0.2 的 limit cycle 與切向（λ₁=0 方向）；(b) 一次 adjoint 解得到的週期左向量 v₁ 兩個分量＝兩個注入軸的 ISF，x 軸踢法用獨立脈衝掃描實測驗證；(c) PPV 算出的 ISF（線）與 lab_15 打脈衝法（紅圈）疊圖，rms 差 0.0016。](/figures/floquet_ppv_numeric.png)
+
+**怎麼讀這張圖**（script：`simulations/lab_25_floquet_numeric.py`，圖 `floquet_ppv_numeric.png`）：
+
+- **(a)**：灰線是暫態（$e^{\lambda_2 t}$ 被吸進 limit cycle——$\mathrm{Re}\,\lambda_2<0$ 的可視化）；藍圈是 $\mathbf x_s(t)$；紅箭頭是切向 $\dot{\mathbf x}_s$，即 $\lambda_1=0$ 的 Floquet 主向量 $\mathbf u_1$。
+- **(b)**：**一次** adjoint 解給出整條 $v_1(t)$，它的**兩個分量同時是兩個注入軸的 ISF**——藍線（踢 $y$）貼著 $-\sin\theta/(\omega_0A)$；橘線（踢 $x$）與諧波極限 $+\cos\theta/A$（點線）有肉眼可見的偏差。這個偏差是真的物理（$\mu=0.2$ 的波形失真），不是數值誤差——證據：橘方塊是**另外做的獨立脈衝掃描**（踢 $x$ 軸、18 個相位），與橘線 rms 差只有 $0.0023$。第 4 步說的「解一次 adjoint、所有注入點的 ISF 全拿到」在此成為算出來的事實：$x$ 軸的 ISF 我們**沒有**重新解 adjoint，只是把同一條 $v_1$ 換一個分量讀出來。
+- **(c)**：招牌疊圖。藍線 = $\omega_0v_{1,y}$（adjoint 法）；紅圈 = lab_15 的打脈衝法（36 個相位、$\Delta q=0.02$）；黑虛線 = $-\sin\theta/(\omega_0A)$。**PPV vs 脈衝的 raw rms 差 $=0.0016$**（峰值的 0.3%）；歸一化後與 $-\sin\theta$ 的 rms 差 $=0.0555$——後者比前者大 30 倍，說明「偏離 $-\sin$」的部分是 $O(\mu)$ 波形失真的真實物理（兩種方法**一致地**量到它），不是誤差。
+
+**順手對回全站的 canonical 數字**：把 toy 的 $q_{max}$ 取為被踢節點的最大擺幅 $q_{max}^{\,toy}=\max\vert y_s\vert=2.0442$，去正規化的無因次 ISF $\Gamma=q_{max}^{\,toy}\cdot(\Gamma/q_{max})$ 的 rms 為 $\Gamma_{rms}=0.7258$——距真 LC 的 canonical 值 $1/\sqrt2=0.7071$（見 [rms_isf](/03_isf_core_theory/rms_isf)）只差 $+2.6\%$：近諧波振盪器的 ISF「幾乎就是」理想 LC 的 $-\sin$，偏差正是 $\mu$ 帶來的失真，與 [lab_15](/04_simulation_labs/lab_15_nonlinear_isf) 的教訓（大 $\mu$ 時 ISF 遠離 $-\sin$）銜接。
+
+### 這一節到底證明了什麼
+
+| 前六步的散文（定理） | 本節算出的數字 |
+|---|---|
+| 切向 $\Rightarrow\lambda_1=0$（第 3 步） | $\mu_1=1.000000$，$\vert\lambda_1\vert=1.5\times10^{-13}$ 1/s |
+| 振幅方向衰減 $\mathrm{Re}\,\lambda_2<0$ | $\mu_2=0.2828$，$\lambda_2=-0.2005\approx-\mu$（averaging 預測 $-0.2$） |
+| $\det M=\exp\int\operatorname{tr}A\,dt$（Liouville） | $0.282827$ vs $0.282827$（六位一致） |
+| 內積 $\mathbf p^T\Delta\mathbf x$ 守恆（第 4 步） | $v_1^T\dot{\mathbf x}_s$ 恆定到 $2.2\times10^{-14}$ |
+| $\Gamma/q_{max}=v_1^T\mathbf b$（第 6 步） | PPV vs 打脈衝 rms 差 $0.0016$（踢 $y$）、$0.0023$（踢 $x$） |
+| 「解一次 adjoint 全拿」（第 4 步實務價值） | $x$ 軸 ISF 由同一條 $v_1$ 直接讀出，免重掃 |
+
+一句話：**「PPV = ISF」在這顆 toy 上已經不是散文，是一個被算出來、可重跑驗證的事實。**[P1] 的打脈衝直覺法與 [E2] 的 adjoint 嚴格法，在同一顆振盪器上給出同一條曲線，差 0.3%。
+
+**本節數值方法的適用與失效**（誠實條款）：固定步長 RK4 + Poincaré/Newton 對這顆近諧波 toy 綽綽有餘；若 $\mu\gg1$（relaxation，波形極陡）需要自適應步長與更小心的截面選擇；若系統維度高且 $\vert\mu_2\vert\to1$（衰減極慢，例如超高 $Q$），$M$ 的特徵向量分離變差、倒積收斂變慢——商用 shooting-PSS/Pnoise 引擎處理的正是這些工程細節。此外本 toy 為加性、單點注入；cyclostationary 調變請回 [effective_isf](/03_isf_core_theory/effective_isf)。
+
 ## 重點回顧
 
 - 振盪器擾動在 limit cycle 附近 → **週期係數線性系統** $\dot{\Delta\mathbf x}=A(t)\Delta\mathbf x+B\boldsymbol\xi$，$A(t+T)=A(t)$——這就是 LTV 的根。
@@ -262,6 +438,7 @@ $$
 - **adjoint 系統** $\dot{\mathbf p}=-A^T\mathbf p$ 讓 $\mathbf p^T\Delta\mathbf x$ 守恆；其 $\lambda=0$ 解就是 **PPV $v_1(t)$**。
 - 投影得 $\boxed{\dot\phi=v_1^T(t)B(t)\boldsymbol\xi(t)}$；窄化到單節點電流注入 → $\Gamma/q_{max}=v_1^T\mathbf b$，即 **ISF 是 PPV 在注入節點的分量**（乘 $q_{max}$）。
 - 全套 Floquet/adjoint/PPV **屬 Demir 2000、Kärtner 1990 外部文獻、不在 5 篇 PDF 內**；citation（卷期/頁碼/DOI）已查證，見 references。
+- **數值驗證（lab_25，van der Pol $\mu=0.2$）**：$T=6.2989$、$\mu_1=1.000000$（$\lambda_1\approx0$）、$\mu_2=0.2828$（$\lambda_2=-0.2005\approx-\mu$）；$v_1^T\dot{\mathbf x}_s$ 恆定到 $2.2\times10^{-14}$；adjoint 算出的 ISF 與打脈衝法 rms 差 $0.0016$——「PPV = ISF」是**算出來的事實**，不只是散文。
 
 ## 延伸閱讀
 
@@ -270,5 +447,6 @@ $$
 - 對任意 noise 疊加（積分式）：[convolution_derivation](/03_isf_core_theory/convolution_derivation)
 - cyclostationary 與 effective ISF（含 PPV/adjoint 背景）：[effective_isf](/03_isf_core_theory/effective_isf)
 - LTV vs LTI 的本質差異：[lti_vs_ltv](/02_foundations/lti_vs_ltv)
+- 非線性（van der Pol）振盪器的打脈衝 ISF 萃取（本頁數值驗證的對照組）：[lab_15_nonlinear_isf](/04_simulation_labs/lab_15_nonlinear_isf)；本頁數值驗證 script：`simulations/lab_25_floquet_numeric.py`
 - 完整文獻與外部 citation（[E2]、[E3]）：[references](/99_appendix/references)
 - 另一個推導附錄（經驗模型對照）：[derivation_leeson](/99_appendix/derivation_leeson)

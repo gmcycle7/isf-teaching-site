@@ -215,6 +215,7 @@ $\Omega$ 曲線的值域（兩條水平虛線之間）。把注入波形諧波�
 - **同一個 ISF 既算 phase noise，也算 injection locking**——輸入從隨機 noise 換成確定的
   $i_{inj}$（claim C10）。
 - **廣義 Adler 方程**：$\dfrac{d\theta}{dt}=(\omega_0-\omega_{inj})+\dfrac{1}{T_{inj}}\displaystyle\int_{T_{inj}}\tilde\Gamma(\omega_{inj}t+\theta)\,i_{inj}(t)\,dt$（[P3] Eq.(30), p.2113，平均項前為 **加號**）。
+- **雜訊整形（v5 新增）**：鎖定後振盪器＝一階 PLL——自身雜訊被高通抑制、reference 雜訊低通進入，corner=ω_L cosθ_ss；完整推導與模擬見 [injection_locking_noise](/06_design_insights/injection_locking_noise)。
 - **鎖定** = 存在穩態解 / $|\omega_0-\omega_{inj}|\le\omega_L$；**lock range** = lock characteristic $\Omega(\theta)$ 的值域寬度；正弦注入時 $\omega_L=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert$（[P3] Eq.(35), p.2114）。
 - 比 Adler 強在：拓樸無關、任意波形、不對稱 lock range、可設計波形放大 lock range。
 - 本頁屬**進階**；核心公式（Eq.26、28–30、33、35）已對照 [P3] p.2113–2114 原始 PDF 核實。

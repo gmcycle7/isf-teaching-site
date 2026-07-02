@@ -1,6 +1,6 @@
 ---
 title: Lorentzian 線寬：解開 1/f² 在 Δf→0 發散的矛盾
-description: 從相位 random walk（Var[Δφ]=2D|t|）經高斯特徵函數推出載波自相關 ½cos(ω₀τ)e^{-D|τ|}，再用 Wiener-Khinchin 得 Lorentzian S∝D/(D²+Δω²) 與 3-dB 線寬 D/π，並把 1/f² 在近載波的「假發散」修正為有限峰、總功率守恆，連 ISF 的 D=Γrms²/(2qmax²)·S_i 與 [E2] Demir 2000。
+description: 從相位 random walk（Var[Δφ]=2D|t|）經高斯特徵函數推出載波自相關 ½cos(ω₀τ)e^{-D|τ|}，再用 Wiener-Khinchin 得 Lorentzian S∝D/(D²+Δω²) 與 3-dB 線寬 D/π，並把 1/f² 在近載波的「假發散」修正為有限峰、總功率守恆，連 ISF 的 D=Γrms²/(4qmax²)·S_i 與 [E2] Demir 2000。
 ---
 
 # Lorentzian 線寬：解開 1/f² 在 Δf→0 發散的矛盾
@@ -247,11 +247,10 @@ $$
 
 現在把抽象的 $D$ 接回 [P1] 的 ISF 物理量。比對「兩種寫法的近載波 $1/f^2$ skirt」即可定出 $D$。
 
-**從 Lorentzian 端**：遠端 $S_x\to D/\Delta\omega^2$。把它寫成 phase PSD（雙邊指數的相位漫步，
-phase PSD 是 $S_\phi=2D/\Delta\omega^2$，這是 Wiener 過程相位的標準頻譜）：
+**從 Lorentzian 端**：遠端 $S_x\to D/\Delta\omega^2$。把它寫成 phase PSD——Wiener 相位（$\mathrm{Var}=2D|t|$）的**雙邊** phase PSD 是 $2D/\Delta\omega^2$；本站全站用**單邊** PSD 記帳（與 [jitter_kernels](/02_foundations/jitter_kernels) 一致），故
 
 $$
-S_\phi(\Delta\omega)=\frac{2D}{\Delta\omega^2}\qquad[\text{rad}^2/\text{Hz}].
+S_\phi(\Delta\omega)=\frac{4D}{\Delta\omega^2}\qquad[\text{rad}^2/\text{Hz}]\ (\text{單邊}).
 $$
 
 **從 ISF 端**（上一頁的時域乾淨版 $S_\phi=\Gamma_{rms}^2 S_i/(q_{max}^2\Delta\omega^2)$，
@@ -264,13 +263,13 @@ $$
 **令兩者相等**（同一條 $1/\Delta\omega^2$ skirt，係數必須一致）：
 
 $$
-2D=\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{\overline{i_n^2}}{\Delta f}\quad\Longrightarrow\quad\boxed{\ D=\frac{\Gamma_{rms}^2}{2q_{max}^2}\cdot\frac{\overline{i_n^2}}{\Delta f}\ }\qquad(\textbf{規範 11.2}).
+4D=\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{\overline{i_n^2}}{\Delta f}\quad\Longrightarrow\quad\boxed{\ D=\frac{\Gamma_{rms}^2}{4q_{max}^2}\cdot\frac{\overline{i_n^2}}{\Delta f}=\frac{\kappa^2}{2}\ }\qquad(\textbf{規範 11.2，v5 更正}).
 $$
 
 代進第 3 步的線寬公式，得到**用 ISF 物理量直接算 3-dB 線寬**：
 
 $$
-\boxed{\ \Delta f_{3\mathrm{dB}}=\frac{D}{\pi}=\frac{\Gamma_{rms}^2}{2\pi\,q_{max}^2}\cdot\frac{\overline{i_n^2}}{\Delta f}\ }\qquad(\textbf{規範 11.2}).
+\boxed{\ \Delta f_{3\mathrm{dB}}=\frac{D}{\pi}=\frac{\Gamma_{rms}^2}{4\pi\,q_{max}^2}\cdot\frac{\overline{i_n^2}}{\Delta f}=\frac{\kappa^2}{2\pi}\ }\qquad(\textbf{規範 11.2，v5 更正}).
 $$
 
 - **設計訊息**：線寬 $\propto\Gamma_{rms}^2/q_{max}^2\cdot S_i$——和 [P1] Eq.(21) 的 $\mathcal{L}$
@@ -279,10 +278,7 @@ $$
   直接可量的數字。
 - **單位檢查**：$[D]=\dfrac{1}{\text{C}^2}\cdot\dfrac{\text{A}^2}{\text{Hz}}=\dfrac{\text{A}^2}{\text{A}^2\text{s}^2}\cdot\text{s}=\dfrac{1}{\text{s}}$
   （用 $\text{C}=\text{A}\cdot\text{s}$、$\text{Hz}^{-1}=\text{s}$）✓，故 $D/\pi$ 是 Hz ✓。
-- **factor-of-2 註記**：這裡用時域乾淨版（$S_\phi=\Gamma_{rms}^2S_i/(q_{max}^2\Delta\omega^2)$）對應出
-  $D=\Gamma_{rms}^2S_i/(2q_{max}^2)$。若改用 [P1] Eq.(21) 的 SSB $/4$ 慣例，$D$ 會差個常數 2——
-  這跟上一頁講的 factor-of-2 是**同一件記帳事**，不影響 scaling，只讓線寬數值差 $\times2$。
-  本頁全程用時域乾淨版，與 lab_18 一致。
+- **factor-of-2 註記（v5 更正後的乾淨版本）**：$D$ 是**物理量**（$R_x$ 的衰減率、$\kappa^2/2$），與 $\mathcal{L}$ 的記帳慣例**無關**。變的只是 $\mathcal{L}$：時域乾淨版 $\mathcal{L}=2D/\Delta\omega^2=\kappa^2/\Delta\omega^2$；[P1] Eq.(21) 的 SSB $/4$ 版 $\mathcal{L}=D/\Delta\omega^2$——那著名的 3 dB 住在 $\mathcal{L}$ 裡，不在 $D$ 裡。（v3 曾把 $\kappa^2$ 誤當 $D$ 塞進 $D/\pi$，線寬大 2×；v5 已修，MC 裁決見 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary) 與 lab_23。）本頁與 lab_18 全程一致（lab_18 直接以 $\mathrm{Var}=2D\,dt$ 生成，機制驗證不受映射影響）。
 
 ## 對應模擬圖
 
@@ -344,26 +340,26 @@ fwhm = D / np.pi                                            # 3-dB 線寬 = D/pi
 
 2. **由 $\mathcal{L}\approx\tfrac12 S_\phi$ 得 phase PSD。** $S_\phi(1\,\text{MHz})=2\mathcal{L}_{\text{lin}}=2\times10^{-10}\ \text{rad}^2/\text{Hz}$。
 
-3. **用 $1/f^2$ 形狀外推係數。** $S_\phi(\Delta\omega)=\dfrac{2D}{\Delta\omega^2}$，在 $\Delta f=1$ MHz：
+3. **用 $1/f^2$ 形狀外推係數。** 單邊 $S_\phi(\Delta\omega)=\dfrac{4D}{\Delta\omega^2}$，在 $\Delta f=1$ MHz：
    $\Delta\omega=2\pi\times10^6=6.283\times10^6$ rad/s，$\Delta\omega^2=3.948\times10^{13}$。故
 
 $$
-2D=S_\phi\cdot\Delta\omega^2=2\times10^{-10}\times3.948\times10^{13}=7.896\times10^{3}\ \text{rad}^2/\text{s}.
+4D=S_\phi\cdot\Delta\omega^2=2\times10^{-10}\times3.948\times10^{13}=7.896\times10^{3}\ \text{rad}^2/\text{s}.
 $$
 
-4. **解出 $D$。** $D=\dfrac{7.896\times10^3}{2}=3.948\times10^{3}\ \text{rad}^2/\text{s}$。
+4. **解出 $D$。** $D=\dfrac{7.896\times10^3}{4}=1.974\times10^{3}\ \text{rad}^2/\text{s}$。
 
-5. **算 3-dB 線寬。** $\Delta f_{3\mathrm{dB}}=\dfrac{D}{\pi}=\dfrac{3.948\times10^3}{3.1416}\approx1.257\times10^{3}\ \text{Hz}\approx1.26\ \text{kHz}$。
+5. **算 3-dB 線寬。** $\Delta f_{3\mathrm{dB}}=\dfrac{D}{\pi}=\dfrac{1.974\times10^3}{3.1416}\approx6.28\times10^{2}\ \text{Hz}\approx0.63\ \text{kHz}$。
 
-**結果：** $D\approx3.95\times10^{3}\ \text{rad}^2/\text{s}$，**3-dB 線寬 $\approx1.26$ kHz**。
+**結果：** $D\approx1.97\times10^{3}\ \text{rad}^2/\text{s}$，**3-dB 線寬 $\approx628$ Hz $\approx0.63$ kHz**。
 
-**手感檢查**：一顆 5 GHz、$-100$ dBc/Hz@1MHz 的振盪器，其載波其實是一條約 1.3 kHz 寬的
-Lorentzian——相對 5 GHz 載波是 $2.5\times10^{-7}$ 的相對線寬（$Q$ 等級 $\sim 4\times10^6$ 的等效）。
-量測時若解析頻寬（RBW）遠大於 1.3 kHz，你看到的是被 RBW 抹平的「尖峰」，根本看不到 Lorentzian
-轉平；要看到轉平得用 sub-kHz RBW 或 cross-correlation 法。**這就是為什麼日常 PN 圖只看到 $1/f^2$
+**手感檢查**：一顆 5 GHz、$-100$ dBc/Hz@1MHz 的振盪器，其載波其實是一條約 0.63 kHz 寬的
+Lorentzian——相對 5 GHz 載波是 $1.26\times10^{-7}$ 的相對線寬（$Q$ 等級 $\sim 8\times10^6$ 的等效）。
+量測時若解析頻寬（RBW）遠大於 0.63 kHz，你看到的是被 RBW 抹平的「尖峰」，根本看不到 Lorentzian
+轉平；要看到轉平得用 $\sim100$ Hz 級 RBW 或 cross-correlation 法。**這就是為什麼日常 PN 圖只看到 $1/f^2$
 而看不到 Lorentzian 平頂——量測解析度不夠近載波。**
 
-**Dimension check：** $[2D]=[S_\phi]\cdot[\Delta\omega^2]=\dfrac{\text{rad}^2}{\text{Hz}}\cdot\dfrac{\text{rad}^2}{\text{s}^2}$；
+**Dimension check：** $[4D]=[S_\phi]\cdot[\Delta\omega^2]=\dfrac{\text{rad}^2}{\text{Hz}}\cdot\dfrac{\text{rad}^2}{\text{s}^2}$；
 以 $\text{Hz}^{-1}=\text{s}$ 且把 rad 當無因次，$=\dfrac{1}{\text{s}}\cdot\text{s}\cdot\dfrac{1}{\text{s}^2}\cdot\text{s}=\dfrac{1}{\text{s}}$... 化簡得 $[D]=\text{rad}^2/\text{s}=1/\text{s}$，$[D/\pi]=\text{Hz}$ ✓。
 
 ```python
@@ -373,9 +369,9 @@ df = 1e6
 L_lin = 10**(L_dbc/10)             # = 1e-10 /Hz (中間值)
 S_phi = 2 * L_lin                  # L ~ S_phi/2  -> rad^2/Hz
 dw = 2*np.pi*df
-D = S_phi * dw**2 / 2              # S_phi = 2D/dw^2  -> D
+D = S_phi * dw**2 / 4              # 單邊 S_phi = 4D/dw^2  -> D
 linewidth = D / np.pi             # 3-dB linewidth [Hz]
-print(round(D), "rad^2/s ;", round(linewidth), "Hz")   # -> 3948 rad^2/s ; 1257 Hz
+print(round(D), "rad^2/s ;", round(linewidth), "Hz")   # -> 1974 rad^2/s ; 628 Hz
 ```
 
 > **例 2（由 ISF 物理量正推 $D$ 與線寬）**：用上一頁 canonical 例 B 的數字——$q_{max}=1$ pC、
@@ -383,25 +379,25 @@ print(round(D), "rad^2/s ;", round(linewidth), "Hz")   # -> 3948 rad^2/s ; 1257 
 
 **逐步代入：**
 
-1. **算 $D=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\,S_i$。**
-   $\dfrac{\Gamma_{rms}^2}{2q_{max}^2}=\dfrac{0.25}{2\times(10^{-12})^2}=\dfrac{0.25}{2\times10^{-24}}=1.25\times10^{23}\ \text{C}^{-2}$。
+1. **算 $D=\dfrac{\Gamma_{rms}^2}{4q_{max}^2}\,S_i$。**
+   $\dfrac{\Gamma_{rms}^2}{4q_{max}^2}=\dfrac{0.25}{4\times(10^{-12})^2}=\dfrac{0.25}{4\times10^{-24}}=6.25\times10^{22}\ \text{C}^{-2}$。
 
-2. 乘上 $S_i$：$D=1.25\times10^{23}\times10^{-24}=0.125\ \text{rad}^2/\text{s}$。
+2. 乘上 $S_i$：$D=6.25\times10^{22}\times10^{-24}=0.0625\ \text{rad}^2/\text{s}$。
 
-3. **線寬。** $\Delta f_{3\mathrm{dB}}=\dfrac{D}{\pi}=\dfrac{0.125}{3.1416}\approx0.0398\ \text{Hz}\approx40\ \text{mHz}$。
+3. **線寬。** $\Delta f_{3\mathrm{dB}}=\dfrac{D}{\pi}=\dfrac{0.0625}{3.1416}\approx0.0199\ \text{Hz}\approx20\ \text{mHz}$。
 
-**結果：** $D=0.125\ \text{rad}^2/\text{s}$，**3-dB 線寬 $\approx40$ mHz**。
+**結果：** $D=0.0625\ \text{rad}^2/\text{s}$，**3-dB 線寬 $\approx20$ mHz**。
 
 **手感對照**：這組「單一理想白噪源」的數字對應上一頁**時域乾淨版**的 $\mathcal{L}(1\text{MHz})\approx-145$ dBc/Hz
 （SSB $/4$ 慣例為 $-148$；本頁全程用時域 $/2$ 版，故以 $-145$ 為自洽基準）——比例 1 的 $-100$ dBc/Hz
-乾淨約 45 dB（$-100-(-145)=45$），所以線寬也窄得多（40 mHz vs 1.26 kHz，
+乾淨約 45 dB（$-100-(-145)=45$），所以線寬也窄得多（20 mHz vs 628 Hz，
 窄約 $3\times10^4$ 倍 $\approx 45$ dB 的功率比，自洽 ✓）。**驗證了「線寬與 $\mathcal{L}$ 同一組物理、
 只差包裝」**：$\mathcal{L}$ 低 45 dB $\Leftrightarrow$ $D$ 與線寬小約 $10^{4.5}$ 倍。
 
-> **與 capstone 的 $80$ mHz 對齊（$\Gamma_{rms}^2$ 包裝，非誤差）**：本例用**規範代表值**
-> $\Gamma_{rms}=0.5$（$\Gamma_{rms}^2=0.25$）得 $D=0.125\ \text{rad}^2/\text{s}$、線寬 $\approx40$ mHz；
+> **與 capstone 的 $40$ mHz 對齊（$\Gamma_{rms}^2$ 包裝，非誤差）**：本例用**規範代表值**
+> $\Gamma_{rms}=0.5$（$\Gamma_{rms}^2=0.25$）得 $D=0.0625\ \text{rad}^2/\text{s}$、線寬 $\approx20$ mHz；
 > 而 [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end) 主脊用**真・理想 LC** 的
-> $\Gamma_{rms}=1/\sqrt2$（$\Gamma_{rms}^2=0.5$，剛好兩倍）得 $D=0.25\ \text{rad}^2/\text{s}$、線寬 $\approx80$ mHz。
+> $\Gamma_{rms}=1/\sqrt2$（$\Gamma_{rms}^2=0.5$，剛好兩倍）得 $D=0.125\ \text{rad}^2/\text{s}$、線寬 $\approx40$ mHz。
 > 兩個數字都對——差的 **$2\times$ 正是 $\Gamma_{rms}^2$（$0.5$ vs $0.25$）的包裝**，不是哪一頁算錯（對應
 > capstone 站⑤的 $-145$ vs $-148$ dBc/Hz 那 3 dB 差，$10\log_{10}2=3.01$，同一件事）。本頁取代表值
 > $0.5$ 以與全站 canonical 例 B 對齊；capstone 取 $-\sin$ 的理想值 $1/\sqrt2$ 一以貫之。
@@ -411,13 +407,12 @@ print(round(D), "rad^2/s ;", round(linewidth), "Hz")   # -> 3948 rad^2/s ; 1257 
 ```python
 import numpy as np
 gamma_rms, qmax, Si = 0.5, 1e-12, 1e-24
-D = gamma_rms**2 / (2 * qmax**2) * Si      # rad^2/s
+D = gamma_rms**2 / (4 * qmax**2) * Si      # rad^2/s (v5: 4q^2)
 linewidth = D / np.pi                       # Hz
-print(D, "rad^2/s ;", round(linewidth, 4), "Hz")   # -> 0.125 rad^2/s ; 0.0398 Hz
+print(D, "rad^2/s ;", round(linewidth, 4), "Hz")   # -> 0.0625 rad^2/s ; 0.0199 Hz
 ```
 
-（兩題都用時域乾淨版 $D=\Gamma_{rms}^2S_i/(2q_{max}^2)$。若用 [P1] Eq.(21) 的 SSB $/4$ 慣例，
-$D$ 與線寬各 $\times2$——同上一頁 factor-of-2 註記，不影響 scaling。
+（兩題都用 v5 更正後的映射 $D=\Gamma_{rms}^2S_i/(4q_{max}^2)=\kappa^2/2$。$D$ 與線寬是**物理量**、與 $\mathcal{L}$ 記帳慣例無關；SSB $/2$ vs $/4$ 的 3 dB 只影響 $\mathcal{L}$——見 step-5 註記與 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)。
 完整函式庫：`simulations/common/noise_utils.py`、`simulations/lab_18_lorentzian.py`。）
 
 ## 適用與失效條件
@@ -434,7 +429,7 @@ $D$ 與線寬各 $\times2$——同上一頁 factor-of-2 註記，不影響 scal
 
 - **本頁機制（相位擴散 → 指數自相關 → Lorentzian → 線寬 $D/\pi$）屬外部文獻、不在 5 篇 PDF 內**：
   [E2] Demir–Mehrotra–Roychowdhury 2000（DOI 10.1109/81.847872，見 [references](/99_appendix/references)）。
-- **遠端 $1/f^2$ 漸近**與**$D=\Gamma_{rms}^2S_i/(2q_{max}^2)$ 的連結**接回 [P1] Eq.(21), p.185
+- **遠端 $1/f^2$ 漸近**與**$D=\Gamma_{rms}^2S_i/(4q_{max}^2)$ 的連結**接回 [P1] Eq.(21), p.185
   （見 [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)）。
 - **相位積分／random walk 的根**：[P1] Eq.(11), p.182（見
   [convolution_derivation](/03_isf_core_theory/convolution_derivation)、
@@ -449,12 +444,16 @@ $D$ 與線寬各 $\times2$——同上一頁 factor-of-2 註記，不影響 scal
 - 高斯特徵函數 $\langle e^{j\Delta\phi}\rangle=e^{-\sigma^2/2}$ → 載波自相關 $R_x(\tau)=\tfrac12\cos(\omega_0\tau)e^{-D|\tau|}$。
 - Wiener-Khinchin → **Lorentzian** $S\propto\dfrac{D}{D^2+\Delta\omega^2}$：近載波轉平（峰 $=1/D$、不發散）、
   遠端回到 $1/f^2$、**總功率守恆**（積分 $=\pi$，有限）。
-- **3-dB 線寬** $\Delta f_{3\mathrm{dB}}=\dfrac{D}{\pi}$ Hz；與 ISF 連結 $D=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$，
-  故線寬 $=\dfrac{\Gamma_{rms}^2}{2\pi q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$——和 $\mathcal{L}$ 同一組旋鈕。
-- canonical：5 GHz、$-100$ dBc/Hz@1MHz → $D\approx3.95\times10^3\ \text{rad}^2/\text{s}$、線寬 $\approx1.26$ kHz。
+- **3-dB 線寬** $\Delta f_{3\mathrm{dB}}=\dfrac{D}{\pi}$ Hz；與 ISF 連結 $D=\dfrac{\Gamma_{rms}^2}{4q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}=\dfrac{\kappa^2}{2}$，
+  故線寬 $=\dfrac{\Gamma_{rms}^2}{4\pi q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}=\dfrac{\kappa^2}{2\pi}$——和 $\mathcal{L}$ 同一組旋鈕（v5 更正映射）。
+- canonical：5 GHz、$-100$ dBc/Hz@1MHz → $D\approx1.97\times10^3\ \text{rad}^2/\text{s}$、線寬 $\approx628$ Hz；
+  代表值 ISF 例 → $D=0.0625$、線寬 $\approx20$ mHz（真 LC $D=0.125$、$\approx40$ mHz）。
 - 全套屬 [E2] Demir 2000 外部文獻、不在 5 篇 PDF 內（DOI 已查證）。
 
 ## 延伸閱讀
+
+- **[diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)**（v5）：κ↔D↔線寬↔ADEV↔S_φ 五件衣服一次對帳（本頁 D 映射的 MC 裁決出處）。
+- **[beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian)**（v5）：白噪假設失效時（1/f³）線形不再是 Lorentzian；以及「自由振盪器嚴格上沒有 S_φ」的非平穩性觀點。
 
 - 上游 $1/f^2$ 推導（本頁修正的對象）：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
 - 相位積分的根（Wiener process 來源）：[convolution_derivation](/03_isf_core_theory/convolution_derivation)

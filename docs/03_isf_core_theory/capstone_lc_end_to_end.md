@@ -278,18 +278,19 @@ $$
 [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)（連 **[E2] Demir 2000，不在 5 篇 PDF 內**）；
 這裡取規範 11.2 的結果並代數值。
 
-**相位擴散係數 $D$（rad²/s）** 由 $1/f^2$ skirt 的係數定出。把 $S_\phi=2D/\Delta\omega^2$ 與站⑤的
-$S_\phi=\dfrac{\Gamma_{rms}^2}{q_{max}^2}\dfrac{S_i}{\Delta\omega^2}$ 對齊（規範 11.2）：
+**相位擴散係數 $D$（rad²/s）** 由 $1/f^2$ skirt 的係數定出。把**單邊** $S_\phi=4D/\Delta\omega^2$
+（雙邊為 $2D/\Delta\omega^2$；規範 11.2，v5 更正）與站⑤的
+$S_\phi=\dfrac{\Gamma_{rms}^2}{q_{max}^2}\dfrac{S_i}{\Delta\omega^2}$（單邊）對齊：
 
 $$
-D=\frac{\Gamma_{rms}^2}{2\,q_{max}^2}\,\frac{\overline{i_n^2}}{\Delta f}.
+D=\frac{\Gamma_{rms}^2}{4\,q_{max}^2}\,\frac{\overline{i_n^2}}{\Delta f}=\frac{\kappa^2}{2}.
 $$
 
-**Lorentzian 頻譜與 3-dB 線寬（FWHM，全寬半高）**（規範 11.2）：
+**Lorentzian 頻譜與 3-dB 線寬（FWHM，全寬半高）**（規範 11.2，v5 更正）：
 
 $$
 S(\Delta\omega)\propto\frac{D}{D^2+\Delta\omega^2},\qquad
-\boxed{\ \Delta f_{3\mathrm{dB}}=\frac{D}{\pi}=\frac{\Gamma_{rms}^2}{2\pi\,q_{max}^2}\,\frac{\overline{i_n^2}}{\Delta f}\ }
+\boxed{\ \Delta f_{3\mathrm{dB}}=\frac{D}{\pi}=\frac{\Gamma_{rms}^2}{4\pi\,q_{max}^2}\,\frac{\overline{i_n^2}}{\Delta f}=\frac{\kappa^2}{2\pi}\ }
 $$
 
 **代 canonical 數值**（$\Gamma_{rms}^2=0.5$、$q_{max}=10^{-12}$ C、$S_i=10^{-24}$ A²/Hz）：
@@ -297,37 +298,37 @@ $$
 **步驟 1：算 $D$。**
 
 $$
-D=\frac{0.5}{2\times(10^{-12})^2}\times10^{-24}
-=\frac{0.5}{2\times10^{-24}}\times10^{-24}
-=\frac{0.5}{2}=0.25\ \text{rad}^2/\text{s}.
+D=\frac{0.5}{4\times(10^{-12})^2}\times10^{-24}
+=\frac{0.5}{4\times10^{-24}}\times10^{-24}
+=\frac{0.5}{4}=0.125\ \text{rad}^2/\text{s}.
 $$
 
 **步驟 2：算線寬。**
 
 $$
-\Delta f_{3\mathrm{dB}}=\frac{D}{\pi}=\frac{0.25}{3.1416}=0.0796\ \text{Hz}\approx80\ \text{mHz}.
+\Delta f_{3\mathrm{dB}}=\frac{D}{\pi}=\frac{0.125}{3.1416}=0.0398\ \text{Hz}\approx40\ \text{mHz}.
 $$
 
 - **Dimension check（$D$）**：$\dfrac{(\text{無因次})}{\text{C}^2}\cdot\dfrac{\text{A}^2}{\text{Hz}}
   =\dfrac{\text{A}^2\cdot\text{s}}{\text{A}^2\text{s}^2}=\dfrac{1}{\text{s}}$ ——而 $D$ 是 rad²/s，rad 無因次故 $=1/\text{s}$ ✓。
   $\Delta f_{3\mathrm{dB}}=D/\pi$：$[1/\text{s}]/(\text{無因次})=\text{Hz}$ ✓。
-- **物理意義（解矛盾）**：$1/f^2$ 只是**遠端漸近**；在 $\Delta\omega\lesssim D$（這裡 $\lesssim0.25$ rad/s）譜會**轉平成
+- **物理意義（解矛盾）**：$1/f^2$ 只是**遠端漸近**；在 $\Delta\omega\lesssim D$（這裡 $\lesssim0.125$ rad/s）譜會**轉平成
   Lorentzian 頂**，不再發散。把 Lorentzian 對全頻積分 $=$ 載波功率（守恆）。所以 [P1] Eq.(21) 的發散是「線性化假象」，
   真實譜近載波是有限高的 Lorentzian。
-- **HWHM 與 FWHM 別搞混（兩個 40/80 不矛盾）**：轉平的**半功率半寬（HWHM，half-width at half-maximum）**發生在
-  $\Delta\omega=D$，即單邊 offset $f_{\mathrm{HWHM}}=D/2\pi=0.25/6.283\approx40$ mHz；而上面方框裡的**線寬是全寬半高
-  （FWHM，full-width）** $\Delta f_{3\mathrm{dB}}=D/\pi\approx80$ mHz，正好是 HWHM 的兩倍（$\text{FWHM}=2\times\text{HWHM}$）。
-  所以「offset 約 40 mHz 開始轉平」講的是**單邊半寬**，「線寬 80 mHz」講的是**全寬**——同一個 Lorentzian、同一個 $D$，
+- **HWHM 與 FWHM 別搞混（兩個 20/40 不矛盾）**：轉平的**半功率半寬（HWHM，half-width at half-maximum）**發生在
+  $\Delta\omega=D$，即單邊 offset $f_{\mathrm{HWHM}}=D/2\pi=0.125/6.283\approx20$ mHz；而上面方框裡的**線寬是全寬半高
+  （FWHM，full-width）** $\Delta f_{3\mathrm{dB}}=D/\pi\approx40$ mHz，正好是 HWHM 的兩倍（$\text{FWHM}=2\times\text{HWHM}$）。
+  所以「offset 約 20 mHz 開始轉平」講的是**單邊半寬**，「線寬 40 mHz」講的是**全寬**——同一個 Lorentzian、同一個 $D$，
   只是半寬與全寬的差別，兩者皆對、並不衝突。
-- **手感**：80 mHz 線寬對 5 GHz 載波是 $\Delta f_{3\mathrm{dB}}/f_0\approx1.6\times10^{-11}$ ——極窄，
+- **手感**：40 mHz 線寬對 5 GHz 載波是 $\Delta f_{3\mathrm{dB}}/f_0\approx8.0\times10^{-12}$ ——極窄，
   正是高 $Q$ LC「頻譜純度高」的數字臉孔。（這是單一理想白噪源的下限；真實電路更寬。）
-- **與 [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) 的 40 mHz 對齊（2× 是 $\Gamma_{rms}^2$ 包裝，非錯誤）**：
-  本頁用**真・LC** 的 $\Gamma_{rms}=1/\sqrt2$（$\Gamma_{rms}^2=0.5$）算出 $D=0.25$ rad²/s、$\Delta f_{3\mathrm{dB}}=D/\pi\approx80$ mHz；
+- **與 [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) 的 20 mHz 對齊（2× 是 $\Gamma_{rms}^2$ 包裝，非錯誤）**：
+  本頁用**真・LC** 的 $\Gamma_{rms}=1/\sqrt2$（$\Gamma_{rms}^2=0.5$）算出 $D=0.125$ rad²/s、$\Delta f_{3\mathrm{dB}}=D/\pi\approx40$ mHz；
   而 [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) 的範例用**規範代表值** $\Gamma_{rms}=0.5$（$\Gamma_{rms}^2=0.25$）得
-  $D=0.125$ rad²/s、$\approx40$ mHz。兩頁差**正好 2 倍**，來源就是 $\Gamma_{rms}^2$ 取 $0.5$ 還是 $0.25$（$D\propto\Gamma_{rms}^2$，故線寬也 $\times2$）——
+  $D=0.0625$ rad²/s、$\approx20$ mHz。兩頁差**正好 2 倍**，來源就是 $\Gamma_{rms}^2$ 取 $0.5$ 還是 $0.25$（$D\propto\Gamma_{rms}^2$，故線寬也 $\times2$）——
   與站⑤ $-145$ vs $-148$ dBc/Hz 那 3 dB 完全同源（$10\log_{10}2$）。兩個數字都對，差別只在 $\Gamma_{rms}$ 取「理想 $-\sin$ 值」或「代表值」，**不是錯誤**。
 
-> **這一站交付**：有限線寬 $\Delta f_{3\mathrm{dB}}\approx80$ mHz，並解掉 $\Delta\omega\to0$ 發散矛盾。
+> **這一站交付**：有限線寬 $\Delta f_{3\mathrm{dB}}\approx40$ mHz（v5 依修正後映射 $D=\Gamma_{rms}^2S_i/(4q_{max}^2)$），並解掉 $\Delta\omega\to0$ 發散矛盾。
 > 站⑦的 jitter 積分**從 $f_1\gg\Delta f_{3\mathrm{dB}}$ 開始**，所以仍可安全用 $1/f^2$ skirt。
 
 ---
@@ -441,7 +442,7 @@ $$
 | ③ | ISF | $\Gamma(\theta)=-\sin\theta$ | $\vert\Gamma\vert_{\max}=1$ @ 過零 | $\Gamma$ 無因次 ✓ | [P1] Eq.(10)(11) p.182；[isf_definition](/03_isf_core_theory/isf_definition) |
 | ④ | $\Gamma_{rms}$ | $\Gamma_{rms}=\sqrt{\tfrac1{2\pi}\int\vert\Gamma\vert^2dx}$；$\;2\Gamma_{rms}^2=\sum c_n^2$ | $\Gamma_{rms}=1/\sqrt2=0.707$ | 無因次 ✓ | [P1] Eq.(20) p.185；[rms_isf](/03_isf_core_theory/rms_isf) |
 | ⑤ | phase noise | $\mathcal{L}=10\log_{10}\!\big(\tfrac{\Gamma_{rms}^2}{q_{max}^2}\tfrac{S_i}{4\Delta\omega^2}\big)$ | $-145$ dBc/Hz @ 1 MHz（規範 $-148$，差 3 dB） | 括號內 $=\text{s}=1/\text{Hz}$ ✓ | [P1] Eq.(21) p.185；[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) |
-| ⑥ | Lorentzian 線寬 | $\Delta f_{3\mathrm{dB}}=\tfrac{\Gamma_{rms}^2}{2\pi q_{max}^2}\tfrac{\overline{i_n^2}}{\Delta f}$ | $D=0.25$ rad²/s, $\Delta f_{3\mathrm{dB}}=80$ mHz | $D=1/\text{s}$, $\Delta f=\text{Hz}$ ✓ | 規範 11.2（[E2] 外部）；[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) |
+| ⑥ | Lorentzian 線寬 | $\Delta f_{3\mathrm{dB}}=\tfrac{\Gamma_{rms}^2}{4\pi q_{max}^2}\tfrac{\overline{i_n^2}}{\Delta f}=\tfrac{\kappa^2}{2\pi}$ | $D=0.125$ rad²/s, $\Delta f_{3\mathrm{dB}}=40$ mHz | $D=1/\text{s}$, $\Delta f=\text{Hz}$ ✓ | 規範 11.2 v5（[E2] 外部）；[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) |
 | ⑦ | rms jitter | $\sigma_t=\tfrac{1}{2\pi f_0}\sqrt{\int_{f_1}^{f_2}S_\phi df}$ | $\sigma_\phi=14.07$ mrad, $\sigma_t=447.9$ fs | $\text{rad}/(\text{rad/s})=\text{s}$ ✓ | 規範公式 18–19；[lab_08](/04_simulation_labs/lab_08_jitter_integration) |
 | ⑧ | BER bathtub | $\text{BER}(t)=\tfrac12[Q(\tfrac{\text{UI}/2-t}{\sigma_t})+Q(\tfrac{\text{UI}/2+t}{\sigma_t})]$ | RJ 開銷 $6.3\%$ UI @ 10 Gb/s, BER $10^{-12}$ | 比例無因次 ✓ | 規範 10.2（標準 SerDes，外部）；[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) |
 
@@ -496,7 +497,7 @@ $$
 - **一條龍八站**：LC state eqs → Floquet（$\lambda_1=0$ 相位方向）→ $\Gamma=-\sin\theta$ → $\Gamma_{rms}=1/\sqrt2$
   → [P1] Eq.(21) 得 $\mathcal{L}$ → Lorentzian 線寬 → 積分得 $\sigma_t$ → BER bathtub。
 - **每步嚴格＋數值**：$\omega_0=1/\sqrt{LC}$；$\Gamma_{rms}^2=0.5$；$\mathcal{L}=-145$ dBc/Hz（LC 真值，規範 $-148$ 差 3 dB）；
-  $D=0.25$ rad²/s、$\Delta f_{3\mathrm{dB}}=80$ mHz；$\sigma_t=447.9$ fs；BER $10^{-12}$ 下 RJ 吃 6.3% UI。
+  $D=0.125$ rad²/s、$\Delta f_{3\mathrm{dB}}=40$ mHz（v5 更正映射 $D=\kappa^2/2$）；$\sigma_t=447.9$ fs；BER $10^{-12}$ 下 RJ 吃 6.3% UI。
 - **三組相位雜訊別混**：$-145$/$-148$ 是理想單源下限、$-100$ 是真實 datasheet 水準（差 45 dB＝全部不完美）。
 - **設計旋鈕貫穿全程**：$\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$（站④⑤）一路傳到 jitter（站⑦）與 eye 開銷（站⑧）；
   phase noise 好 20 dB $\Rightarrow$ jitter ÷10 $\Rightarrow$ eye 開銷 ÷10。
@@ -549,10 +550,10 @@ print("S_phi(1MHz) =", "{:.4e}".format(S_phi))     # -> 1.2665e-14
 L_clean = 10 * np.log10(0.5 * S_phi)               # time-domain /2 convention
 print("L(1MHz)     =", round(float(L_clean), 2))   # -> -141.98
 
-# --- station 6: Lorentzian D = Grms^2/(2 q_max^2)*S_i ; Df_3dB = D/pi ---
-D = Grms2 / (2 * q_max ** 2) * S_i
-print("D           =", round(float(D), 4))         # -> 0.25
-print("Df_3dB [Hz] =", round(float(D / np.pi), 4)) # -> 0.0796
+# --- station 6: Lorentzian D = Grms^2/(4 q_max^2)*S_i ; Df_3dB = D/pi ---
+D = Grms2 / (4 * q_max ** 2) * S_i
+print("D           =", round(float(D), 4))         # -> 0.125
+print("Df_3dB [Hz] =", round(float(D / np.pi), 4)) # -> 0.0398
 
 # --- station 7: integrate L(f) over 1..100 MHz (datasheet anchor) -> sigma_t ---
 f = np.logspace(6, 8, 20001)
@@ -584,8 +585,8 @@ Gamma_rms      = 0.7071    # -> 0.7071
 Gamma_rms^2    = 0.5    # -> 0.5
 S_phi(1MHz)    = 1.2665e-14 rad^2/Hz   # -> 1.2665e-14
 L(1MHz) clean  = -141.98 dBc/Hz   # -> -141.98
-D (diffusion)  = 0.25 rad^2/s   # -> 0.25
-Df_3dB (FWHM)  = 0.0796 Hz   # -> 0.0796
+D (diffusion)  = 0.125 rad^2/s   # -> 0.125
+Df_3dB (FWHM)  = 0.0398 Hz   # -> 0.0398
 sigma_phi      = 1.4071e-02 rad   # -> 1.407e-02
 sigma_t        = 4.4790e-13 s   # -> 4.479e-13
 sigma_t [fs]   = 447.9 fs   # -> 447.9
@@ -597,9 +598,9 @@ BER(center)    = 1.0e-300    # -> 1.0e-300
 
 - **怎麼讀這串數字**：第 1–2 行是站③④（$\Gamma_{rms}=1/\sqrt2$、$\Gamma_{rms}^2=0.5$）；第 3–4 行站⑤
   （$S_\phi=1.27\times10^{-14}$ rad²/Hz，時域 $/2$ 版 $\mathcal{L}=-142$ dBc/Hz）；第 5–6 行站⑥
-  （$D=0.25$ rad²/s、線寬 $80$ mHz）；第 7–9 行站⑦（$\sigma_\phi=14.07$ mrad、$\sigma_t=447.9$ fs）；
+  （$D=0.125$ rad²/s、線寬 $40$ mHz）；第 7–9 行站⑦（$\sigma_\phi=14.07$ mrad、$\sigma_t=447.9$ fs）；
   最後四行站⑧（中央取樣 $\text{UI}/2$ 達 $111.6\,\sigma_t$，故中央 BER $\to0$；BER $10^{-12}$ 下 RJ 吃 $6.3\%$ UI）。
-- **與人手推導逐位一致**：$0.5$、$0.25$、$80$ mHz、$447.9$ fs、$6.3\%$ 全部對齊站④–⑧的人手數值，
+- **與人手推導逐位一致**：$0.5$、$0.125$、$40$ mHz、$447.9$ fs、$6.3\%$ 全部對齊站④–⑧的人手數值，
   證明「公式鏈＝程式鏈」。唯一刻意不同的是 $\mathcal{L}$：本節印時域 $/2$ 版 $-142$，站⑤印 SSB $/4$ 版 $-145$，
   差 3 dB 即 $10\log_{10}2$、同源於 factor-of-2 慣例，已在上面標清楚。
 - **這是 toy / 理想模型**：$\Gamma=-\sin\theta$ 是無耗理想 LC 的解析 ISF、白噪單源、純 RJ；真實電路

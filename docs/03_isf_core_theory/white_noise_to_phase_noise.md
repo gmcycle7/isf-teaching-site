@@ -409,7 +409,8 @@ $$
 > 的入口：那裡把「$\dot\phi$ 白 ⇒ $\phi$ 是 random walk」推到底，得出**載波自相關
 > $R_x(\tau)=\tfrac12\cos(\omega_0\tau)e^{-D|\tau|}$**，再 Wiener-Khinchin 出 **Lorentzian**——
 > 解開 $1/f^2$ 在 $\Delta\omega\to0$ 的假發散。本節算出的 $S_\phi=\Gamma_{rms}^2S_i/(q_{max}^2\Delta\omega^2)$
-> 正是那裡 $D=\Gamma_{rms}^2S_i/(2q_{max}^2)$ 的來源（$S_\phi=2D/\Delta\omega^2$）。
+> 正是那裡 $D=\Gamma_{rms}^2S_i/(4q_{max}^2)$ 的來源（本站單邊記帳 $S_\phi=4D/\Delta\omega^2$，雙邊
+> $2D/\Delta\omega^2$；v5 更正，對帳見 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)）。
 
 ## $S_\phi(f)$ 與 $\mathcal{L}(\Delta f)$ 的關係（dBc/Hz 直覺）
 

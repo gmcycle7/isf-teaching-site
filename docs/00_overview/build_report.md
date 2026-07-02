@@ -48,7 +48,7 @@ flicker 1/f³ corner、Parseval 三類項），以及兩個推導附錄（Floque
 **[P3]/[P4] injection & APF 公式也已於 v3 對照原始 PDF 逐字核實**：
 - **[P3]** Eq.(26) $\tilde\Gamma=\Gamma/q_{max}$；廣義 Adler Eq.(30),(33) $\frac{d\theta}{dt}=(\omega_0-\omega_{inj})+\Omega(\theta)$，
   $\Omega(\theta)=\frac{1}{T_{osc}}\int\tilde\Gamma(\omega_0 t+\theta)i_{inj}dt$；正弦退化 Eq.(34)、lock range Eq.(35) $\omega_L=\frac12 I_{inj}|\tilde\Gamma_1|$。
-- **[P4]** Eq.(25) amplitude decay $d(t,\phi)=e^{-t/\tau_0}$、$\tau_0=2Q/\omega_{osc}$；Eq.(26) ideal-LC 基波
+- **[P4]** amplitude decay $d(t,\phi)=e^{-t/\tau_0}$、$\tau_0=2Q/\omega_{osc}$（Sec. III-F p.2128 正文；Eq.(25) 本身是 $\Lambda=\tau_0\tilde\Lambda$）；Eq.(26) ideal-LC 基波
   $\tilde\Gamma_1=\frac{1}{q_{max}}\angle90°$、$\tilde\Lambda_1=\frac{\tau_0}{q_{max}}\angle0°$（quadrature）；Eq.(27) amplitude-corrected Adler。
 
 以下仍標 ⚠️ / `TODO`（外部文獻或次要細節，非核心 ISF/injection 物理）：
@@ -58,7 +58,7 @@ flicker 1/f³ corner、Parseval 三類項），以及兩個推導附錄（Floque
 - **[P5]**（sense amplifier，與 ISF 無關，刻意未轉錄）。
 - **[P4]** APF 的確切定義式與傅立葉展開（Sec. III-D, p.2127）；Fig. 3 子圖標題。
 - **外部文獻（不在 5 篇 PDF 內）**：Leeson 1966、Demir et al. 2000（PPV）、Kärtner 1990 ——
-  卷期／頁碼／公式記號待補正式 citation；period/cycle-to-cycle jitter 核的單邊/雙邊常數慣例。
+  卷期／頁碼／公式記號已查證；period/cycle-to-cycle jitter 核已於 **v5** 在 [jitter_kernels](/02_foundations/jitter_kernels) **自行從第一性推導＋Monte-Carlo 驗證**（不再依賴外部慣例）。
 
 **v3 audit corrections（對照原始 PDF 的稽核更正）**：ring FOM 前置係數重新訂正為 $8/(3\eta)$（min $16\gamma/(3\eta)$，見上）；**[P4]** ISF/APF 圖由 Fig. 3 更正為 Fig. 5（p.2126）；citation 頁碼更正：**[P2]** Fig.17（對稱電壓圖）p.802、**[P4]** Sec. VIII p.2135、**[P1]** Fig.4 p.181、$f_0=1/(2N\tau_D)$ 改引 Eq.(15)；TODO 關閉：**[P1]** cyclostationary $i_n(t)=i_{n0}(t)\alpha(\omega_0 t)$、$\Gamma_{eff}=\Gamma\cdot\alpha$（Sec. II-D, Eq.(25)–(27), p.186）與廣義 Adler（**[P3]** Eq.(30)/(35)）皆已核實；另修 2 個程式 bug：lab_05 的 Parseval DC 項應以 $(c_0/2)^2$ 計入、`accumulated_jitter_curve` 呼叫缺 `f0`/誤用 `max_lag` 已修正。
 
@@ -106,7 +106,7 @@ Leeson↔ISF 疊圖、設計掃描、PLL transfer、BER bathtub）為公式計�
 
 ## 10. `python scripts/run_all_sims.py` 是否成功？
 
-**成功**：**25/25 通過（20 labs + lab_22 端到端 + 4 個 `fig_*` 腳本），產生 30 張圖**到 `static/figures/`（v4 再增 4 張概念圖：impulse ΔV 分解、HTM band-folding、device-noise→ISF bands、lock characteristic Ω(θ)）。關鍵驗證：
+**成功**：**36/36 通過（29 labs + 7 個 `fig_*` 腳本），產生 41 張圖**到 `static/figures/`（v4 再增 4 張概念圖：impulse ΔV 分解、HTM band-folding、device-noise→ISF bands、lock characteristic Ω(θ)）。關鍵驗證：
 Lorentzian 模擬頻譜吻合理論、近載波轉平；Allan deviation 三種 FM 斜率精準落在 −1/2、0、+1/2；
 PLL 最佳 loop BW≈6.9 MHz、σ_t≈259 fs。另：
 數值法萃取 ISF 與理論 −sinθ 最大誤差 ~0.001；白噪 S_φ 與 1/f² 線吻合約 3 個十倍頻；
@@ -160,6 +160,23 @@ content issues / soft warnings / open TODOs / build）。v2 後品質腳本新�
 
 > **過程限制（誠實交代）**：WF-4 的平行 fix-agent 多次遇到 **Anthropic 端伺服器限流**（"not your
 > usage limit"，非帳號用量上限），故引用類與機械式修正改以 inline 直接完成並逐項驗證。
+
+## 11d. v5 理論深化波（12 項）＋一個被抓到的 factor-2
+
+**v5 新增 12 項理論單元**（8 新頁＋2 頁擴充＋9 個新 lab＋2 個 fig 腳本），每項都是「推導頁＋實跑模擬拿到數字才寫進頁面」：
+
+1. **[diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)**：κ↔D↔線寬↔ADEV↔S_φ 五件衣服一次對帳（lab_23 一次模擬、四路萃取同一個 0.125）。
+2. **[jitter_kernels](/02_foundations/jitter_kernels)**：TIE／period／cycle-to-cycle 核（4sin²、16sin⁴）第一性推導＋MC（理論/實測比 0.999–1.001）；白噪閉式精確重現 [P2] Eq.(8)。**關掉全站最後一個理論 TODO**。
+3. **Floquet/PPV 數值化**（[derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv) 擴充 + lab_25）：算 monodromy（μ₁=1.000000）、adjoint 萃取 v₁、與 impulse 法 ISF 疊圖 rms 0.0016——「PPV=ISF」從散文變成算出來的事實。
+4. **[injection_locking_noise](/06_design_insights/injection_locking_noise)**（lab_26/27）：鎖定＝一階 PLL（自身雜訊高通、reference 低通、corner=ω_L cosθ_ss）＋ pulling 的不對稱 beat 頻譜。
+5. **AM 雜訊完整譜**（[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) 擴充 + lab_28）：OU 過程 → 平頂 Lorentzian（corner=ω₀/2Q）。
+6. **[beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian)**（lab_29）：flicker 下線形偏離 Lorentzian（近 Gaussian core）＋「自由振盪器嚴格上沒有 S_φ」的非平穩性。
+7. **[adc_aperture_jitter](/06_design_insights/adc_aperture_jitter)**（lab_30）：SNR=−20log₁₀(2πf·σ_t) 推導＋447.9 fs 的 ENOB 表。
+8. **[dj_dual_dirac](/06_design_insights/dj_dual_dirac)**（lab_31）：dual-Dirac、TJ@BER、DJ_δδ≤DJ_pp 的誠實差異。
+9. **[clock_chain_budget](/06_design_insights/clock_chain_budget)**：×N/÷N/PLL/buffer 四條記帳規則＋整鏈 worked example。
+10. **[fom_limit](/06_design_insights/fom_limit)**：FOM 天花板 = 173.8−10log₁₀F_eff dB@300K（自算驗證，非記憶值）。
+
+> **v5 的 factor-2 戰果**：jitter_kernels 的 MC 交叉檢查抓到**規範 11.2 的 D 映射錯 2 倍**——v3 把方差成長率 κ²（[P2] Eq.11）誤當擴散常數 D 塞進 Δf=D/π。經 lab_23 與獨立 MC＋Lorentzian 擬合裁決（擬合 FWHM/κ²·2π=0.992），**全站修正**：D=Γ²rms·S_i/(4q²max)=κ²/2；代表值線寬 40→**19.9 mHz**、真 LC 80→**39.8 mHz**、−100 dBc/Hz 錨點 1257→**628 Hz**（lorentzian／capstone／lab_22／規範 11.2 同步更新）。scaling 與 −145/−148 dBc/Hz 均不受影響。
 
 ## 12. 下一步建議人工確認
 

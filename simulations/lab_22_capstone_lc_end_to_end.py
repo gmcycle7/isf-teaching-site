@@ -9,7 +9,7 @@ reusing the EXISTING common utilities (no re-implemented physics):
     Gamma(theta) = -sin(theta)        [isf_utils.gamma_lc_ideal]
       -> Gamma_rms = 1/sqrt(2)        [isf_utils.gamma_rms]
       -> S_phi(f) = Gamma_rms^2/q_max^2 * S_i/(2 pi f)^2     (1/f^2 skirt)
-      -> Lorentzian D = Gamma_rms^2/(2 q_max^2) * S_i,  Df_3dB = D/pi
+      -> Lorentzian D = Gamma_rms^2/(4 q_max^2) * S_i,  Df_3dB = D/pi  (v5 mapping)
       -> sigma_t  = integrate L(f) over a band   [noise_utils.integrate_rms_jitter]
       -> BER bathtub                              [serdes_utils.ber_bathtub]
 
@@ -74,13 +74,13 @@ def main():
           "dBc/Hz   # -> -141.98")
 
     # ---- station 6: Lorentzian diffusion D and 3-dB linewidth -------------
-    # D = Gamma_rms^2/(2 q_max^2) * S_i ;  Df_3dB = D/pi
-    D = Grms2 / (2 * q_max ** 2) * S_i
+    # D = Gamma_rms^2/(4 q_max^2) * S_i ;  Df_3dB = D/pi  (v5: kappa^2/2)
+    D = Grms2 / (4 * q_max ** 2) * S_i
     df_3dB = D / np.pi
     print("D (diffusion)  =", round(float(D), 4),
-          "rad^2/s   # -> 0.25")
+          "rad^2/s   # -> 0.125")
     print("Df_3dB (FWHM)  =", round(float(df_3dB), 4),
-          "Hz   # -> 0.0796")
+          "Hz   # -> 0.0398")
 
     # ---- station 7: integrate L(f) over a band -> rms jitter --------------
     # Use the canonical datasheet anchor (example C): L(1MHz)=-100 dBc/Hz,

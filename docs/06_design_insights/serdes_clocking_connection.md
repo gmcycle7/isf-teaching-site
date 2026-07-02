@@ -122,7 +122,7 @@ SerDes 量到的「jitter」其實是好幾種疊起來的，**處理方式完�
 | **cycle-to-cycle** | 相鄰週期差 $T_{k+1}-T_k$ | — | 對 PLL 穩定性敏感 |
 | **accumulated / long-term** | free-running 漂移，$\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ | random walk | open-loop 才有；CDR/PLL 鎖定後被抑制 |
 
-- **total jitter（TJ）@ BER**：$\text{TJ}=\text{DJ}_{pp}+2Q(\text{BER})\cdot\text{RJ}_{rms}$（dual-Dirac 近似）。
+- **total jitter（TJ）@ BER**：$\text{TJ}=\text{DJ}_{pp}+2Q(\text{BER})\cdot\text{RJ}_{rms}$（dual-Dirac 近似（嚴格版與 $DJ_{\delta\delta}\le DJ_{pp}$ 的差見 [dj_dual_dirac](/06_design_insights/dj_dual_dirac)））。
 - **ISF 直接管的是 RJ 與 accumulated jitter**（它們源自 phase noise）；DJ 多半是 link/pattern 問題，ISF 看不見。
 
 ## 第 6 步：CDR / PLL 對 VCO phase noise 的 high-pass filtering（關鍵）

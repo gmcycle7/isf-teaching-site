@@ -87,8 +87,9 @@ device f_{1/f}=1 MHz: corner = 0.16/(2·0.25)=0.32 → **320 kHz**. Use this on 
 number with the canonical Γrms=0.5 → 320 kHz. (exercises.md c₀=0.2 → 40 kHz is a different input — leave it.)
 
 ## C12 — Lorentzian linewidth 2× split: add cross-notes (do NOT silently differ)  [HIGH consistency]
-capstone_lc_end_to_end uses the TRUE ideal-LC Γrms=1/√2 ⇒ D=0.25 rad²/s ⇒ Δf_3dB=D/π≈**80 mHz**.
-lorentzian_linewidth example uses the representative canonical Γrms=0.5 ⇒ D=0.125 ⇒ ≈**40 mHz**.
+capstone_lc_end_to_end uses the TRUE ideal-LC Γrms=1/√2; lorentzian_linewidth uses representative Γrms=0.5.
+**v5 SUPERSEDES the numbers here**: the D mapping was itself off by 2 (κ² was used as D). Corrected: D=Γ²Si/(4q²);
+true-LC D=0.125 ⇒ 39.8 mHz; representative D=0.0625 ⇒ 19.9 mHz (MC-adjudicated, lab_23). The 2× Γrms² packaging story is unchanged.
 Add an explicit cross-note on BOTH pages (mirroring the existing −145/−148 dBc reconciliation): the 2× is the
 Γrms²=0.5-vs-0.25 packaging, not an error. ALSO in capstone fix the internal HWHM/FWHM wording: the flattening
 offset ≈ HWHM = D/2π ≈ 40 mHz while the boxed FWHM linewidth = D/π ≈ 80 mHz (state both so they don't look contradictory).

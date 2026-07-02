@@ -3,6 +3,8 @@ title: ISF 的定義
 description: 從 current impulse 到 charge、到 state 擾動、投影到 phase direction，嚴謹定義無因次的 Γ(ω₀τ)，並推導 ideal LC 的 Γ(θ)=−sin θ。
 ---
 
+import ImpulseAnimation from "@site/src/components/ImpulseAnimation";
+
 # ISF 的定義
 
 > **前置閱讀**：[oscillator_phase](/02_foundations/oscillator_phase)（limit cycle 與 excess phase 的幾何）、[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)（切向相位 vs 徑向振幅的分解）、[impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift)（電荷→電壓→相位的操作型鏈條）。
@@ -22,6 +24,12 @@ h_\phi(t,\tau)=\frac{\Gamma(\omega_0\tau)}{q_{max}}\,u(t-\tau)
 $$
 
 > **物理直覺（先講結論）**：振盪器穩態時，狀態點沿著一條封閉軌跡（limit cycle，極限環）一圈一圈轉。你拿一根手指（current impulse）去戳它一下——戳出去的位移可以拆成「沿軌跡切向」與「垂直軌跡徑向」兩個分量。**切向**那一份改變的是「轉到哪裡了」，也就是**相位**，而且因為相位沒有恢復力，這份偏移**永遠留著**；**徑向**那一份改變的是振幅，會被振盪器的 amplitude restoring（振幅恢復）機制慢慢拉回、不留痕跡。$\Gamma(\omega_0\tau)$ 就是「在相位 $\omega_0\tau$ 戳一單位電荷，有多少變成永久相位」的那個**敏感度權重**。它不是雜訊本身，是把雜訊翻譯成相位的「轉換係數」。
+
+親手戳戳看——下面的動畫就是這段直覺的互動版：
+
+<ImpulseAnimation />
+
+> **操作說明**：按「注入！」後，動畫會等軌道上的 dot 轉到你用滑桿選定的相位 $\theta_{inj}$ 才打入一坨電荷 $\Delta q$，並畫出垂直的 $\Delta V$ kick 箭頭、把它分解成切向（橘，永久）與徑向（灰，指數鬆弛）兩個分量。試試 $\theta_{inj}=0^\circ$（波峰）注入：kick 幾乎純徑向，dot 被推離環後又被拉回，與淡色 ghost（未受擾參考）幾乎不分開（$\Delta\phi\approx0$）；再試 $\theta_{inj}=90^\circ$（zero crossing）：kick 幾乎純切向，dot 從此永久落後 ghost 一段 $\Delta\phi=-\Delta q/q_{max}$（讀數 $\Gamma=-\sin 90^\circ=-1$）。把 $\Delta q/q_{max}$ 調大、多按幾次「注入！」，可以看到相位偏移不會恢復而且會**累積**——這正是 $\Gamma(\theta)=-\sin\theta$ 與 LTV 行為的全部直覺。
 
 完整的「電荷→電壓→相位」逐步推導在 [impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift)。本頁聚焦在「$\Gamma$ 是什麼」與「$\Gamma$ 的性質」，並把 ideal LC 的 $\Gamma(\theta)=-\sin\theta$ 從幾何**親手算出來**。
 

@@ -3,6 +3,8 @@ title: 設計章習題（含完整解答）
 description: 設計章成套習題：q_max/Γrms/對稱性設計反推、ring vs LC 比較、PLL 最佳 loop BW、σt→BER、tail noise 對策。每題附逐步解、單位與 dimension check、數值答案、一行 Python 驗證。
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 # 設計章習題（含完整解答）
 
 > **先備**：[tank_swing](/06_design_insights/tank_swing)、[symmetry](/06_design_insights/symmetry)、[lc_vs_ring](/06_design_insights/lc_vs_ring)、[pll_noise_budget](/06_design_insights/pll_noise_budget)、[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)（本頁題目全部用這些頁的 ISF 公式作答）｜ **其他習題**：[02 基礎章習題](/02_foundations/exercises)、[03 核心理論章習題](/03_isf_core_theory/exercises)
@@ -31,6 +33,14 @@ description: 設計章成套習題：q_max/Γrms/對稱性設計反推、ring vs
 某 5 GHz LC 振盪器目前 $\mathcal{L}(1\,\text{MHz})=-140$ dBc/Hz（套 Eq.(21)，$\Gamma_{rms}=0.7$、
 $q_{max}=1$ pC、$S_i=3.2\times10^{-24}\ \text{A}^2/\text{Hz}$，代入 Eq.(21) 自洽得 $-140$）。目標把它再壓低 9 dB 到 $-149$ dBc/Hz。
 列出兩種達標方案：(a) 只動 $q_{max}$；(b) 只動 $\Gamma_{rms}$。各需多少？
+
+<NumericQuiz
+  prompt="先自己算 (a)：只動 q_max 壓低 9 dB，需要的 q_max = ？（原 q_max = 1 pC；以 pC 作答）"
+  answer={2.82}
+  unit="pC"
+  hint="L_lin ∝ 1/q_max² → 降 9 dB 要 q_max 放大 10^(9/20) 倍。"
+  solutionNote="10^0.45 ≈ 2.818 → q_max ≈ 2.82 pC（(b) 則是 Γ_rms 壓到 ≈0.248）。詳見下方習題 1 解答。"
+/>
 
 ### 習題 2（設計反推題）— 對稱性壓 $1/f^3$ corner
 
@@ -61,6 +71,14 @@ $\Gamma_{rms}$ 降幾倍？相位雜訊（$\propto\Gamma_{rms}^2$）改善幾 dB
 同上 SerDes（UI $=40$ ps），規格要求在中心取樣 $\text{BER}\le10^{-15}$。求容許的最大 RJ $\sigma_t$（ps）。
 （提示：$\text{BER}\approx Q(\tfrac{UI/2}{\sigma_t})$，查 $Q^{-1}(10^{-15})\approx7.94$。）
 
+<NumericQuiz
+  prompt="先自己算：BER ≤ 10⁻¹⁵ 容許的最大 σ_t = ？（UI = 40 ps，Q⁻¹(10⁻¹⁵) ≈ 7.94；以 ps 作答）"
+  answer={2.52}
+  unit="ps"
+  hint="σ_t,max = (UI/2)/Q⁻¹(10⁻¹⁵) = 20 ps ÷ 7.94。"
+  solutionNote="σ_t,max ≈ 2.519 ps，即 UI ≥ 15.9 σ_t。詳見下方習題 6 解答。"
+/>
+
 ### 習題 7（對策題）— tail noise 對策（cross-coupled LC VCO）
 
 cross-coupled LC VCO 的 tail current source 的雜訊，會經 $2\times$ 上轉（落在 $2\omega_0$ 附近，
@@ -73,6 +91,14 @@ $\Gamma_{eff,rms}$、$q_{max}$）說明為什麼有效。此題為 illustrative�
 一個時鐘總 rms jitter 預算 $\sigma_{t,\text{tot}}=300$ fs（$f_0=10$ GHz）。已知近載波（ref/in-band）
 貢獻 $\sigma_{t,\text{ref}}=180$ fs。RJ 各源不相關（方差相加）。問留給 VCO（out-of-band）的
 jitter 預算 $\sigma_{t,\text{vco}}$ 最多多少 fs？對應的相位變異 $\sigma_{\phi,\text{vco}}^2$（rad²）是多少？
+
+<NumericQuiz
+  prompt="先自己算：σ_t,vco = ？（總預算 300 fs、ref 佔 180 fs，各源不相關；以 fs 作答）"
+  answer={240}
+  unit="fs"
+  hint="RJ 不相關 → 方差相加：σ_vco = √(300² − 180²) fs（不是 300 − 180）。"
+  solutionNote="√(90000 − 32400) = √57600 = 240 fs（3-4-5 直角三角形）。對應 σ_φ² ≈ 2.27×10⁻⁴ rad²，詳見下方習題 8 解答。"
+/>
 
 ---
 

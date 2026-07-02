@@ -64,8 +64,8 @@ function integrate(fGrid, S) {
 
 function Slider({label, value, unit, min, max, step, onChange, fmt}) {
   return (
-    <div style={{display: 'flex', alignItems: 'center', gap: '0.6rem', margin: '0.3rem 0'}}>
-      <label style={{flex: '0 0 11rem', fontSize: '0.9rem'}}>{label}</label>
+    <div style={{display: 'flex', alignItems: 'center', gap: '0.6rem', margin: '0.3rem 0', flexWrap: 'wrap'}}>
+      <label style={{flex: '0 1 11rem', fontSize: '0.9rem'}}>{label}</label>
       <input type="range" min={min} max={max} step={step} value={value}
              onChange={(e) => onChange(parseFloat(e.target.value))} style={{flex: 1}} />
       <span style={{flex: '0 0 8rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums'}}>

@@ -1,21 +1,28 @@
 # ISF Teaching Site — 振盪器相位雜訊與 Impulse Sensitivity Function 教學網站
 
-一個可本機啟動的靜態教學網站，把 Hajimiri–Lee 的 **Impulse Sensitivity Function (ISF)**
-相位雜訊理論，從第一原理逐步推導到 SerDes clocking 設計直覺。內容為**繁體中文**，
-保留必要英文專業詞。每條公式逐步推導、標單位、給數值、附 Python 與圖、標明論文來源。
+**🌐 線上版（不用安裝，直接看）： https://gmcycle7.github.io/isf-teaching-site/**
+
+[![Site](https://img.shields.io/badge/site-live-brightgreen)](https://gmcycle7.github.io/isf-teaching-site/)
+[![License: CC BY-NC-SA 4.0 + MIT](https://img.shields.io/badge/license-CC--BY--NC--SA%204.0%20%2B%20MIT-blue)](./LICENSE)
+[![Docusaurus](https://img.shields.io/badge/built%20with-Docusaurus%203-3ECC5F)](https://docusaurus.io)
+
+把 Hajimiri–Lee 的 **Impulse Sensitivity Function (ISF)** 相位雜訊理論，從第一原理逐步推導到
+SerDes clocking 設計直覺。**繁體中文**，保留必要英文專業詞。每條公式逐步推導、標單位、給數值、
+附 Python 與圖、標明論文出處（paper id＋式號＋頁碼，皆對照原始 PDF 渲染核實）。
+
+![social card](static/img/social-card.png)
+
+**規模**：82 頁教學、41 張重現圖、36 個可重跑模擬、6 個互動工具、120+ 個可自動驗證的數值例題
+（`scripts/verify_examples.py` 全綠）。
 
 技術棧：**Docusaurus 3 + MDX + KaTeX**（數學）＋ **Mermaid**（方塊圖）＋ Python (NumPy/SciPy/Matplotlib) 模擬。
 
+**版權**：教學內容 CC BY-NC-SA 4.0、程式碼 MIT（見 [LICENSE](./LICENSE)）。五篇來源論文版權屬
+原作者與 IEEE，本 repo **不含**論文全文或 PDF。
+
 ---
 
-## 最簡單：雙擊開啟（macOS）
-
-在 `isf-teaching-site` 的**上一層資料夾**有一個 **`Open-ISF-Site.command`**。
-**直接雙擊它**即可：它會自動啟動本機網站並用瀏覽器打開（首次會自動安裝相依套件與建置）。
-要關閉網站，把跳出來的終端機視窗關掉即可。
-
-> 註：請勿用瀏覽器直接開 `build/index.html`（`file://`）。Docusaurus 是 SPA，
-> 一定要透過本機伺服器（上面的啟動器或下面的 `npm run serve`）才能正常顯示。
+## 本機執行（開發／離線使用）
 
 ## Setup（安裝，手動方式）
 
@@ -38,7 +45,7 @@ npm run start          # 開發伺服器，預設 http://localhost:3000
 python scripts/run_all_sims.py
 ```
 
-會執行 `simulations/lab_*.py`，把所有圖輸出到 `static/figures/`（共 14 張）。
+會執行 `simulations/lab_*.py`，把所有圖輸出到 `static/figures/`（41 張）。
 
 ## Build（產生靜態網站）
 

@@ -116,6 +116,7 @@ const sidebars = {
               id: '04_simulation_labs/lab_17_design_tradeoffs',
               label: 'Lab 17 — 設計掃描進階',
             },
+            '04_simulation_labs/lab_32_mos_level1_ring',
           ],
         },
       ],

@@ -9,10 +9,11 @@ import SerdesBerExplorer from '@site/src/components/SerdesBerExplorer';
 import InjectionLockingExplorer from '@site/src/components/InjectionLockingExplorer';
 import AllanDeviationExplorer from '@site/src/components/AllanDeviationExplorer';
 import PllLoopBwExplorer from '@site/src/components/PllLoopBwExplorer';
+import IsfSandbox from '@site/src/components/IsfSandbox';
 
 # 互動工具 Interactive Tools
 
-三個拉桿式工具，把 ISF 理論變成手感。全部在瀏覽器端即時計算，離線可用。
+七個互動工具（計算器、探索器、動畫與沙盒），把 ISF 理論變成手感。全部在瀏覽器端即時計算，離線可用。
 
 ## 工具 1：相位雜訊 / jitter 計算器
 
@@ -69,6 +70,17 @@ loop 把 reference 路徑低通、把 VCO 路徑高通，輸出 $S_{out}=S_{ref}
 加大 $f_n$ 多收 in-band 參考雜訊、少收 out-of-band VCO 雜訊，故存在使積分 jitter $\sigma_t=\sqrt{\int S_{out}\,df}/(2\pi f_0)$（規範公式 19）最小的**最佳 loop BW**——拉滑桿即可找到它，對應 [pll_noise_budget](/06_design_insights/pll_noise_budget) 與 lab_20。
 
 <PllLoopBwExplorer />
+
+## 工具 7：ISF sandbox——畫波形，看 ISF 與 phase noise
+
+用三個「形狀」滑桿（上升/下降斜率比 $A=f'_{rise}/f'_{fall}$、方形度、duty）畫出你自己的週期波形，
+sandbox 即時算出 slope 近似的 ISF $\Gamma(\theta)$（[P2] Appendix 思路，非 exact PPV）、傅立葉係數
+$\vert c_n\vert$ 與 $\Gamma_{rms}$，再用 [P1] Eq.(21) 與 Eq.(24) 翻成 $\mathcal{L}(1\,\text{MHz})$ 與
+1/f³ corner。把 $A$ 從 5 拉回 1（上升/下降越對稱），會看到 $c_0\to 0$、corner 一路掉到 0——這就是
+[symmetry](/06_design_insights/symmetry) 那頁「對稱性↑ → $c_0$↓ → 1/f³ corner↓」的手感；把方形度拉高
+（edge 變陡）則是 $\Gamma_{rms}$↓ → $\mathcal{L}$↓ 的 [waveform_slope](/06_design_insights/waveform_slope) 故事。
+
+<IsfSandbox />
 
 ## 公式對照
 

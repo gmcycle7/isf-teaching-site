@@ -3,6 +3,8 @@ title: 循序學習路徑 Learning Path
 description: 九步循序學習路徑，每步含目標、要讀的頁、先備、預期收穫，並給快速與完整兩條路線。
 ---
 
+import ProgressChecklist from "@site/src/components/ProgressChecklist";
+
 # 循序學習路徑 Learning Path
 
 這頁把首頁的九個步驟展開成一條**可以照著走**的學習路徑。每一步告訴你：
@@ -18,6 +20,18 @@ description: 九步循序學習路徑，每步含目標、要讀的頁、先備�
 > **怎麼用這頁**：第一次學請走「完整路線」，每讀完一步就回來打勾。回頭複習時走
 > 「快速路線」即可。看到 `TODO:` 表示該處仍需人工對照原始 PDF；看到「toy model」
 > 表示那是**教學用簡化模型，非 transistor-level**。
+
+<ProgressChecklist items={[
+  {id: "step-1", label: "第 1 步：振盪器的「相位」到底是什麼", href: "/02_foundations/oscillator_phase"},
+  {id: "step-2", label: "第 2 步：noise 是小擾動，振盪器對它是 LTV 而非 LTI", href: "/02_foundations/lti_vs_ltv"},
+  {id: "step-3", label: "第 3 步：ISF 的操作型定義（impulse → phase）", href: "/03_isf_core_theory/impulse_to_phase_shift"},
+  {id: "step-4", label: "第 4 步：從單一 impulse 到任意 noise（卷積）", href: "/03_isf_core_theory/convolution_derivation"},
+  {id: "step-5", label: "第 5 步：白噪 → 1/f²，flicker → 1/f³", href: "/03_isf_core_theory/white_noise_to_phase_noise"},
+  {id: "step-6", label: "第 6 步：ISF 的傅立葉觀點（c₀、cₙ、upconversion）", href: "/03_isf_core_theory/fourier_series_of_isf"},
+  {id: "step-7", label: "第 7 步：模擬 lab，建立數值手感", href: "/04_simulation_labs/numerical_feeling"},
+  {id: "step-8", label: "第 8 步：設計 takeaways（symmetry、swing、slope）", href: "/06_design_insights/symmetry"},
+  {id: "step-9", label: "第 9 步：接到 SerDes clocking（jitter、eye、PLL/CDR）", href: "/02_foundations/psd_phase_noise_jitter"}
+]} />
 
 ## 先把這三頁當「字典」
 

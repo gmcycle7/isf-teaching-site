@@ -1,0 +1,22 @@
+{
+  "title": {
+    "message": "ISF Teaching Site",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "ISF −sinθ logo",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.課程目錄": {
+    "message": "Course",
+    "description": "Navbar item with label 課程目錄"
+  },
+  "item.label.Build Report": {
+    "message": "Build Report",
+    "description": "Navbar item with label Build Report"
+  },
+  "item.label.References": {
+    "message": "References",
+    "description": "Navbar item with label References"
+  }
+}

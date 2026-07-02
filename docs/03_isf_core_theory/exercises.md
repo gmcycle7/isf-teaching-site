@@ -3,6 +3,8 @@ title: 核心理論章習題（含完整解答）
 description: ISF 核心理論章成套習題：由 ISF 算 Γrms、c0→1/f³ corner、白噪→L、impulse→phase、Fourier 係數、effective ISF。每題附逐步解、單位與 dimension check、數值答案、一行 Python 驗證。
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 # 核心理論章習題（含完整解答）
 
 > **前置閱讀**：本章理論頁 [isf_definition](/03_isf_core_theory/isf_definition)、[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)、[rms_isf](/03_isf_core_theory/rms_isf)、[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)、[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)、[effective_isf](/03_isf_core_theory/effective_isf)（先讀完再做題）。
@@ -33,6 +35,14 @@ description: ISF 核心理論章成套習題：由 ISF 算 Γrms、c0→1/f³ co
 (a) 在 $\theta=3\pi/2$（$\Gamma$ 取最大值 $+1$）注入的相位步階 $\Delta\phi$（rad）與 timing error $\Delta t$（fs）。
 (b) 在波峰 $\theta=0$ 注入的 $\Delta\phi$。
 
+<NumericQuiz
+  prompt="先自己算 (a)：θ = 3π/2 注入的 timing error Δt = ？（Δq = 1 fC，q_max = 1 pC，Γ = +1，f₀ = 5 GHz；以 fs 作答）"
+  answer={31.8}
+  unit="fs"
+  hint="Δφ = Γ·Δq/q_max = 1×10⁻¹⁵/10⁻¹² = 1 mrad，再 Δt = Δφ/(2πf₀)。"
+  solutionNote="Δt = 10⁻³/(2π×5×10⁹) ≈ 3.18×10⁻¹⁴ s = 31.8 fs（canonical 例 A 的 Γ=1「滿格」版）。詳見下方習題 1 解答。"
+/>
+
 ### 習題 2（推導題 + 數值）— 由 ISF 算 $\Gamma_{rms}$
 
 某 toy ISF 是雙諧波 $\Gamma(\theta)=\cos\theta+\tfrac12\cos(2\theta)$。
@@ -44,11 +54,28 @@ description: ISF 核心理論章成套習題：由 ISF 算 Γrms、c0→1/f³ co
 $f_0=5$ GHz、$\Delta f=1$ MHz、$q_{max}=1$ pC、$\Gamma_{rms}=0.5$、$S_i=\overline{i_n^2}/\Delta f=10^{-24}\ \text{A}^2/\text{Hz}$。
 用 [P1] Eq.(21) 求 $\mathcal{L}(1\,\text{MHz})$（dBc/Hz）。
 
+<NumericQuiz
+  prompt="先自己算：L(1 MHz) = ？（Γ_rms = 0.5，q_max = 1 pC，S_i = 10⁻²⁴ A²/Hz；以 dBc/Hz 作答，記得負號）"
+  answer={-148.0}
+  tol={0.01}
+  unit="dBc/Hz"
+  hint="Eq.(21)：L = 10·log₁₀[(Γ_rms²/q_max²)·S_i/(4Δω²)]，Δω = 2π×10⁶ rad/s、Δω² ≈ 3.95×10¹³。"
+  solutionNote="括號內 = 2.5×10²³ × 6.33×10⁻³⁹ ≈ 1.58×10⁻¹⁵ → L ≈ −148.0 dBc/Hz（canonical 例 B）。詳見下方習題 3 解答。"
+/>
+
 ### 習題 4（設計反推題）— 反推所需 $q_{max}$
 
 延續習題 3 的數字，但目標規格是 $\mathcal{L}(1\,\text{MHz})=-160$ dBc/Hz（比習題 3 更乾淨）。
 其餘參數（$\Gamma_{rms}=0.5$、$S_i=10^{-24}$、$\Delta f=1$ MHz）不變，問需要把 $q_{max}$
 放大到多少？
+
+<NumericQuiz
+  prompt="先自己算：達成 −160 dBc/Hz 所需的 q_max = ？（原 q_max = 1 pC 給 −148 dBc/Hz；以 pC 作答）"
+  answer={3.98}
+  unit="pC"
+  hint="L_lin ∝ 1/q_max²；要多壓 12 dB → q_max 放大 10^(12/20) 倍。"
+  solutionNote="10^0.6 ≈ 3.98 → q_max ≈ 3.98 pC（每降 6 dB 要 q_max ×2）。詳見下方習題 4 解答。"
+/>
 
 ### 習題 5（推導題 + 數值）— $c_0\to1/f^3$ corner
 

@@ -3,6 +3,8 @@ title: 基礎章習題（含完整解答）
 description: 基礎章成套習題：phase↔jitter 換算、PSD/Parseval、LTI vs LTV、Allan 斜率判讀、Lorentzian 線寬估算。每題附逐步解、單位與 dimension check、數值答案、一行 Python 驗證。
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 # 基礎章習題（含完整解答）
 
 > 先備：[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) · [lti_vs_ltv](/02_foundations/lti_vs_ltv) ｜ 接下來：[03 核心理論章習題](/03_isf_core_theory/exercises)
@@ -33,6 +35,14 @@ description: 基礎章成套習題：phase↔jitter 換算、PSD/Parseval、LTI 
 一顆 $f_0=5$ GHz 的振盪器，某瞬間 excess phase 偏移 $\Delta\phi=5\times10^{-4}$ rad。
 求對應的 timing error $\Delta t$（fs），並把 $\Delta\phi$ 換成「度」。
 
+<NumericQuiz
+  prompt="先自己算：Δt = ？（Δφ = 5×10⁻⁴ rad，f₀ = 5 GHz；以 fs 作答）"
+  answer={15.9}
+  unit="fs"
+  hint="Δt = Δφ/(2πf₀)；分母 2πf₀ ≈ 3.14×10¹⁰ rad/s，rad ÷ (rad/s) = s。"
+  solutionNote="Δt = 5×10⁻⁴/(2π×5×10⁹) ≈ 1.59×10⁻¹⁴ s = 15.9 fs。完整逐步解（含換成度數）見下方習題 1 解答。"
+/>
+
 ### 習題 2（數值題）— rms jitter 由相位變異反推
 
 已知某時鐘的 rms phase $\sigma_\phi=14.07$ mrad（在 1→100 MHz 積分頻段內），$f_0=5$ GHz。
@@ -50,6 +60,15 @@ description: 基礎章成套習題：phase↔jitter 換算、PSD/Parseval、LTI 
 某振盪器在 offset $f$ 的單邊 phase PSD 在 $1/f^2$ 區可寫成 $S_\phi(f)=\dfrac{K}{f^2}$，
 其中 $K=10^{-4}\ \text{rad}^2\cdot\text{Hz}$（即 $S_\phi(1\,\text{Hz})=10^{-4}$）。求積分頻段
 $f_1=10^3$ Hz 到 $f_2=10^6$ Hz 的相位變異 $\sigma_\phi^2$ 與 $\sigma_\phi$（mrad）。
+
+<NumericQuiz
+  prompt="先自己算：σ_φ = ？（K = 10⁻⁴ rad²·Hz，f₁ = 10³ Hz，f₂ = 10⁶ Hz；以 mrad 作答）"
+  answer={0.316}
+  tol={0.06}
+  unit="mrad"
+  hint="σ_φ² = K(1/f₁ − 1/f₂)，由低頻端 1/f₁ 主導；最後記得開根號、換成 mrad。"
+  solutionNote="σ_φ² = 10⁻⁴×(10⁻³ − 10⁻⁶) ≈ 9.99×10⁻⁸ rad² → σ_φ ≈ 3.16×10⁻⁴ rad = 0.316 mrad。詳見下方習題 4 解答。"
+/>
 
 ### 習題 5（概念 + 推導題）— LTI vs LTV：同 impulse、不同相位
 
@@ -78,6 +97,14 @@ $-1/2$、$0$、$+1/2$。分別對應哪一種 FM 雜訊型態？並說明為何�
 (a) 求該 offset 的 $S_\phi$（rad²/Hz）。
 (b) 若在 1→10 MHz 這 1 decade 內 PSD 為 $1/f^2$（即 $S_\phi=K/f^2$，用 (a) 定 $K$），
 $f_0=5$ GHz，求此頻段 rms jitter $\sigma_t$（fs）。
+
+<NumericQuiz
+  prompt="先自己算 (b)：σ_t = ？（L(1 MHz) = −120 dBc/Hz，1/f² 積分 1→10 MHz，f₀ = 5 GHz；以 fs 作答）"
+  answer={42.7}
+  unit="fs"
+  hint="先 S_φ = 2×10^(L/10) = 2×10⁻¹² rad²/Hz，定 K = S_φ×(10⁶)²，再 σ_φ² = K(1/f₁ − 1/f₂)、σ_t = σ_φ/(2πf₀)。"
+  solutionNote="σ_φ² = 1.8×10⁻⁶ rad² → σ_φ ≈ 1.34 mrad → σ_t ≈ 42.7 fs。詳見下方習題 8 解答。"
+/>
 
 ---
 

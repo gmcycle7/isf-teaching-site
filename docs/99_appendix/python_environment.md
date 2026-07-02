@@ -211,12 +211,46 @@ print(dphi, "rad", dt * 1e15, "fs")   # -> 0.0005 rad  15.92 fs
 得到 $\Delta\phi=5\times10^{-4}$ rad、$\Delta t=15.9$ fs，與
 [impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift)（例 A）一致。
 
+---
+
+## 8. 📓 下載 Jupyter notebooks
+
+七個主線 lab 有對應的 Jupyter notebook（互動式筆記本，可一格一格執行、改參數重跑）
+可直接下載，離線把公式玩成數字與圖：
+
+| Notebook（點擊下載 .ipynb） | 內容 | 對應頁面 |
+|---|---|---|
+| [lab_01_sinusoidal_oscillator](/notebooks/lab_01_sinusoidal_oscillator.ipynb) | limit cycle、phase（切向）vs amplitude（徑向）擾動、impulse 注入時機 | [lab_01](/04_simulation_labs/lab_01_sinusoidal_oscillator) |
+| [lab_05_fourier_isf](/notebooks/lab_05_fourier_isf.ipynb) | ISF 傅立葉係數 $c_n$、Parseval 驗證、$c_0$ 與對稱性 | [lab_05](/04_simulation_labs/lab_05_isf_fourier_coefficients) |
+| [lab_06_white_noise_phase_noise](/notebooks/lab_06_white_noise_phase_noise.ipynb) | 白噪 $\to$ $1/f^2$ phase noise 端到端模擬 vs 理論線 | [lab_06](/04_simulation_labs/lab_06_white_noise_phase_noise) |
+| [lab_08_jitter_integration](/notebooks/lab_08_jitter_integration.ipynb) | $\mathcal{L}(f)$ 積分成 rms jitter（canonical 例 C） | [lab_08](/04_simulation_labs/lab_08_jitter_integration) |
+| [lab_18_lorentzian](/notebooks/lab_18_lorentzian.ipynb) | 相位 random walk $\to$ 載波 Lorentzian 線形與 3-dB 線寬 | [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) |
+| [lab_22_capstone_lc_end_to_end](/notebooks/lab_22_capstone_lc_end_to_end.ipynb) | 理想 LC 全鏈：$\Gamma\to\Gamma_{rms}\to S_\phi\to$ 線寬 $\to\sigma_t\to$ BER | [capstone](/03_isf_core_theory/capstone_lc_end_to_end) |
+| [lab_24_jitter_kernels](/notebooks/lab_24_jitter_kernels.ipynb) | TIE／period／cycle-to-cycle 三種 jitter 權重核 + Monte-Carlo 驗證 | [jitter_kernels](/02_foundations/jitter_kernels) |
+
+**怎麼跑**：notebook 會 import `simulations/common` 的模組，所以要先
+`git clone https://github.com/gmcycle7/isf-teaching-site.git`，並把下載的 .ipynb 放在
+repo 目錄樹內任何位置執行（每本 notebook 的 setup cell 會自動往上層目錄尋找
+`simulations/common` 並加入 `sys.path`）。相依套件同第 1 節的
+`pip install numpy scipy matplotlib`，再加上 `pip install jupyter` 後用
+`jupyter lab` 開啟即可。
+
+> **誠實註記**：這些 notebook 是 `scripts/make_notebooks.py` 從對應的
+> `simulations/lab_*.py` **自動產生的快照**（generated snapshot），不是手寫檔——
+> 權威版本永遠是 repo 裡的 lab script；lab 更新後執行
+> `python scripts/make_notebooks.py` 會重新產生全部 notebook。
+> 與原 script 只有兩處刻意差異：`savefig` 改成 notebook 內 inline 顯示
+> （不寫入 `static/figures/`）、路徑設定由 setup cell 自動尋找 repo root
+> （原 script 用 `__file__` 定位）。
+
 ## 重點回顧
 
 - Python 3.12 + `numpy`/`scipy`/`matplotlib`，CJK 用 `Heiti TC` 並關閉 `unicode_minus`。
 - `common/` 三模組（`isf_utils`、`noise_utils`、`oscillator_models`）放權威實作；各 lab 只擺參數。
 - `python scripts/run_all_sims.py` 一鍵重產 14 張圖到 `static/figures/`。
 - 全部是 toy model；用固定 `default_rng(seed)` 保證逐位元可重現。
+- 七個主線 lab 有可下載的 Jupyter notebook（第 8 節），由 `scripts/make_notebooks.py`
+  自動產生（generated snapshot）。
 
 ## 延伸閱讀
 

@@ -210,8 +210,8 @@ export default function AllanDeviationExplorer() {
         ))}
       </div>
 
-      <div style={{display: 'flex', alignItems: 'center', gap: '0.6rem', margin: '0.35rem 0'}}>
-        <label style={{flex: '0 0 11rem', fontSize: '0.9rem'}}>level h = 10^x</label>
+      <div style={{display: 'flex', alignItems: 'center', gap: '0.6rem', margin: '0.35rem 0', flexWrap: 'wrap'}}>
+        <label style={{flex: '0 1 11rem', fontSize: '0.9rem'}}>level h = 10^x</label>
         <input type="range" min={-26} max={-14} step={0.1} value={logLevel}
                onChange={(e) => setLogLevel(parseFloat(e.target.value))}
                style={{flex: '1 1 auto'}} />
@@ -220,8 +220,8 @@ export default function AllanDeviationExplorer() {
         </span>
       </div>
 
-      <div style={{display: 'flex', alignItems: 'center', gap: '0.6rem', margin: '0.35rem 0'}}>
-        <label style={{flex: '0 0 11rem', fontSize: '0.9rem'}}>mix（混入另兩型）</label>
+      <div style={{display: 'flex', alignItems: 'center', gap: '0.6rem', margin: '0.35rem 0', flexWrap: 'wrap'}}>
+        <label style={{flex: '0 1 11rem', fontSize: '0.9rem'}}>mix（混入另兩型）</label>
         <input type="range" min={0} max={1} step={0.01} value={mix}
                onChange={(e) => setMix(parseFloat(e.target.value))}
                style={{flex: '1 1 auto'}} />

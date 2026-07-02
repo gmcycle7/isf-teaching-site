@@ -215,8 +215,10 @@ $$
 - **與 [P2] 的對應**：[P2] p.803 由 Eq.(46)–(48)（自相關＋Khinchin 定理）導出「jitter 由
   phase spectrum 積分」的 Eq.(49)，路線與本頁路 A 完全相同（該處並註明大 offset 時
   $S_\phi$ 可用 $\mathcal{L}$ 近似——即上面對照表的第三欄）。
-  （Eq.(49)–(51) 的印刷字面本站尚未逐字核對：TODO: manual verification needed from [P2] p.803；
-  本頁公式為獨立推導，數值與 [P2] 已核實的 Eq.(8)/(11)/(12) 完全互鎖，見第 6 節。）
+  （**v5 已對照 [P2] p.803 原始 PDF 渲染逐字核實**：Eq.(48) $R_\phi(\tau)=\int_{-\infty}^{\infty}S_\phi(f)e^{j2\pi f\tau}df$——**雙邊**譜；
+  Eq.(49) $\sigma^2_{\Delta\phi}=\dfrac{8}{\omega_0^2}\int_0^\infty S_\phi(f)\sin^2(\pi f\tau)\,df$。
+  以 $S_{os}=2S_{ds}$ 換算，$\tfrac{8}{\omega_0^2}S_{ds}\sin^2=\tfrac{1}{\omega_0^2}S_{os}\cdot4\sin^2$——**與本頁單邊 $4\sin^2$ 核精確等價**，
+  正是上面「文獻 $8$ 係數版之 $S_\phi$ 為雙邊譜」推測的逐字證實。）
 - **dimension check**：核無因次；其餘同核 (a) ✓。
 
 ### 核 (c)：cycle-to-cycle——二階差分，核 $16\sin^4(\pi fT)$
@@ -381,7 +383,7 @@ $$
 $$
 
 這對應 [P2] Eq.(50), p.803（白噪特例：由 $1/f^2$ 區的 $\mathcal{L}$ 讀出 $\kappa$；
-原式字面同上方 TODO 註記）。**factor-of-2 陷阱**：這條式吃的是
+原式字面已於上方 v5 核實註記逐字轉錄）。**factor-of-2 陷阱**：這條式吃的是
 $\mathcal{L}=\tfrac12S_\phi$（時域 $/2$）慣例的數字——canonical 振盪器要代 $-145$ dBc/Hz
 得 $\kappa=0.354$ ✓；若誤代 [P1] Eq.(21) $/4$ 慣例的 $-148$，會少 $\sqrt2$（得 0.25）。
 同一顆振盪器、同一條譜，**先問清楚 dBc/Hz 是哪種記帳再代公式**。
@@ -550,7 +552,9 @@ $10^{10}$ Hz 以上尾巴（那裡核平均值 2、$1/f^2$ 譜仍有 ~5% 的變�
 - 相關（1/f）雜訊 $\sigma\propto\Delta t$：[P2] Eq.(9), p.792 與 Fig. 4。
 - jitter ← phase spectrum（自相關＋Khinchin 路線）：[P2] Eq.(46)–(49), p.803；白噪特例
   $\kappa$←$\mathcal{L}$：Eq.(50), p.803；cycle-to-cycle「based on (8)」：Eq.(51), p.803
-  （此三式字面 TODO: manual verification needed from [P2] p.803；本頁為獨立推導＋數值互鎖）。
+  （**此三式已於 v5 逐字核實**（p.803 渲染）：Eq.(49) $\sigma^2_{\Delta\phi}=\tfrac{8}{\omega_0^2}\int_0^\infty S_\phi\sin^2(\pi f\tau)df$（$S_\phi$ 依 Eq.(48) 為**雙邊**譜，故＝本頁單邊 $4\sin^2$ 核）；
+  Eq.(50) $\kappa=\tfrac{\Delta f}{f_0}\cdot10^{-\mathcal{L}\{\Delta f\}/20}$——指數的負號表示論文把 $\mathcal{L}$ 讀成「低於載波的 dB 數」（正值）；以帶號 dBc 值代入應讀 $10^{\mathcal{L}/20}=\sqrt{\mathcal{L}_{lin}}$。數值互鎖：$-100$ dBc/Hz、$\Delta f=1$ MHz、$f_0=5$ GHz → $\kappa_t=2.0\times10^{-9}\ \sqrt{\text{s}}$，與本頁第 6 節完全一致 ✓；
+  Eq.(51) $\sigma_{CTC}=\tfrac{\Delta f}{f_0^{1.5}}\cdot10^{-\mathcal{L}\{\Delta f\}/20}$——**印刷式無 $\sqrt2$**：其 $\sigma_{CTC}=\kappa\sqrt{T}$ 是「一個週期的累積」（即本頁的 $\sigma_P$）；若取「相鄰週期差」定義（本頁 $16\sin^4$ 核）則再乘 $\sqrt2$。兩種定義並存於文獻，本頁已分開命名。）
 - SSB $/4$ 慣例：[P1] Eq.(21), p.185（$-148$ dBc/Hz）；時域 $/2$ 慣例 $-145$ dBc/Hz：
   規範第 3 節 factor-of-2 註記。
 - 核的操作版與例 D：[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)；

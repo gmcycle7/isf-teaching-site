@@ -1,0 +1,58 @@
+{
+  "version.label": {
+    "message": "current",
+    "description": "The label for version current"
+  },
+  "sidebar.mainSidebar.category.00 · 課程導覽 Overview": {
+    "message": "00 · Overview",
+    "description": "The label for category 00 · 課程導覽 Overview in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.01 · 論文地圖 Paper Map": {
+    "message": "01 · Paper Map",
+    "description": "The label for category 01 · 論文地圖 Paper Map in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.02 · 基礎 Foundations": {
+    "message": "02 · Foundations",
+    "description": "The label for category 02 · 基礎 Foundations in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.03 · ISF 核心理論 Core Theory": {
+    "message": "03 · ISF Core Theory",
+    "description": "The label for category 03 · ISF 核心理論 Core Theory in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.04 · 模擬實驗 Simulation Labs": {
+    "message": "04 · Simulation Labs",
+    "description": "The label for category 04 · 模擬實驗 Simulation Labs in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.基礎手感": {
+    "message": "Numerical Feel Basics",
+    "description": "The label for category 基礎手感 in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.雜訊與抖動": {
+    "message": "Noise & Jitter",
+    "description": "The label for category 雜訊與抖動 in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.系統與進階": {
+    "message": "Systems & Advanced",
+    "description": "The label for category 系統與進階 in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.05 · 論文逐篇精讀 Paper Deep Dives": {
+    "message": "05 · Paper Deep Dives",
+    "description": "The label for category 05 · 論文逐篇精讀 Paper Deep Dives in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.06 · 設計直覺 Design Insights": {
+    "message": "06 · Design Insights",
+    "description": "The label for category 06 · 設計直覺 Design Insights in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.99 · 附錄 Appendix": {
+    "message": "99 · Appendix",
+    "description": "The label for category 99 · 附錄 Appendix in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.doc.Lab 09 — 設計取捨入門": {
+    "message": "Lab 09 — Design Trade-offs (Intro)",
+    "description": "The label for the doc item Lab 09 — 設計取捨入門 in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.doc.Lab 17 — 設計掃描進階": {
+    "message": "Lab 17 — Design Sweeps (Advanced)",
+    "description": "The label for the doc item Lab 17 — 設計掃描進階 in sidebar mainSidebar"
+  }
+}

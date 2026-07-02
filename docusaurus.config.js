@@ -29,7 +29,10 @@ module.exports = async function createConfig() {
 
     i18n: {
       defaultLocale: 'zh-Hant',
-      locales: ['zh-Hant'],
+      locales: ['zh-Hant', 'en'],
+      localeConfigs: {
+        en: {label: 'English (β)', htmlLang: 'en'},
+      },
     },
 
     markdown: {
@@ -62,6 +65,7 @@ module.exports = async function createConfig() {
             // Keep the numeric folder prefixes (00_, 01_, ...) in doc IDs and
             // URLs so the sidebar and all internal /02_foundations/... links resolve.
             numberPrefixParser: false,
+            editUrl: 'https://github.com/gmcycle7/isf-teaching-site/edit/main/',
             sidebarPath: require.resolve('./sidebars.js'),
             remarkPlugins: [math],
             rehypePlugins: [katex],
@@ -84,12 +88,17 @@ module.exports = async function createConfig() {
     themeConfig:
       /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
       ({
+        image: 'img/social-card.png',
+        metadata: [
+          {name: 'keywords', content: 'ISF, phase noise, jitter, oscillator, Hajimiri, VCO, PLL, SerDes, 相位雜訊'},
+        ],
         colorMode: {
           defaultMode: 'light',
           respectPrefersColorScheme: true,
         },
         navbar: {
           title: 'ISF Teaching Site',
+          logo: {alt: 'ISF −sinθ logo', src: 'img/logo.png'},
           items: [
             {
               type: 'docSidebar',
@@ -97,6 +106,7 @@ module.exports = async function createConfig() {
               position: 'left',
               label: '課程目錄',
             },
+            {type: 'localeDropdown', position: 'right'},
             {to: '/00_overview/build_report', label: 'Build Report', position: 'right'},
             {to: '/99_appendix/references', label: 'References', position: 'right'},
           ],

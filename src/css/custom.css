@@ -57,3 +57,14 @@ blockquote {
   padding: 0;
   box-shadow: none;
 }
+
+/* v6: mobile — long inline KaTeX scrolls inside itself instead of pushing the page */
+@media (max-width: 600px) {
+  .markdown span.katex {
+    display: inline-block;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    vertical-align: middle;
+  }
+}

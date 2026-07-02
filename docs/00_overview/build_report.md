@@ -178,6 +178,17 @@ content issues / soft warnings / open TODOs / build）。v2 後品質腳本新�
 
 > **v5 的 factor-2 戰果**：jitter_kernels 的 MC 交叉檢查抓到**規範 11.2 的 D 映射錯 2 倍**——v3 把方差成長率 κ²（[P2] Eq.11）誤當擴散常數 D 塞進 Δf=D/π。經 lab_23 與獨立 MC＋Lorentzian 擬合裁決（擬合 FWHM/κ²·2π=0.992），**全站修正**：D=Γ²rms·S_i/(4q²max)=κ²/2；代表值線寬 40→**19.9 mHz**、真 LC 80→**39.8 mHz**、−100 dBc/Hz 錨點 1257→**628 Hz**（lorentzian／capstone／lab_22／規範 11.2 同步更新）。scaling 與 −145/−148 dBc/Hz 均不受影響。
 
+## 11e. v6：互動、內容、英文版與門面（C+D 波）
+
+- **互動**：三章習題共 9 題即時作答（NumericQuiz）；isf_definition 的 **impulse→相位動畫**（切向/徑向分解、ghost 參考、Δφ 累積）；**ISF 沙盒**（拉波形→即時 c_n/Γrms/L/corner，slope 近似、正弦錨點 −145 dBc/Hz 驗證）；learning_path 進度打勾（localStorage）；7 本可下載 Jupyter notebooks（nbclient 全數執行驗證）。
+- **內容**：lab_32 **MOS Level-1 方程級 ring**（Shichman–Hodges，impulse 法萃取真 ISF；Parseval 1.7308 vs 1.7309；能量集中在 transition，符合 [P2]）；sampling/sub-sampling PLL、crystal/MEMS 參考源、**常見錯誤陳列室**（12 條全取材本站抓過的錯）。
+- **英文版 β**：en locale＋語言切換器＋UI 翻譯＋7 頁核心翻譯（其餘 fallback 中文）。
+- **門面/bug**：favicon＋logo＋og 社群卡；**手機水平捲動修復**（滑桿列 flexWrap，375px 實測歸零）；LICENSE（內容 CC BY-NC-SA 4.0／程式 MIT）；README、repo topics、editUrl。
+- **[P2] p.803 逐字核實**：Eq.(45)–(51) 轉錄；(49) 的 8 係數＝雙邊譜（與 jitter_kernels 單邊 4sin² 核精確等價）；(50) κ 數值互鎖 2.0×10⁻⁹√s；(51) 印刷無 √2（定義差異註明）。
+- **Lighthouse 基線**（線上站）：Performance 89 / Accessibility 93 / SEO 100。
+- 誠實不採用（量測後還原）：搜尋索引 zh-only（僅 −2%）、PNG 無損重編碼（+10%）。
+- 部署備註：雙語 build ~200MB，Pages 曾卡 "building" 35 分，`POST /pages/builds` 重建後 30 秒完成——大型部署卡住時用此招。
+
 ## 12. 下一步建議人工確認
 
 1. ~~用原始 PDF 核對 [P2]/[P3]/[P4] 的確切常數與方程形式~~ → **v4 已完成**（見 11c：FOM、APF、

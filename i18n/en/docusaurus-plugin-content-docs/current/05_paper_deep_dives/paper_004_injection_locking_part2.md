@@ -1,6 +1,6 @@
 ---
 title: "[P4] Injection Locking & Pulling — Part II (APF / Frequency Division)"
-description: Hong–Hajimiri 2019 Part II deep dive — APF (amplitude counterpart of the ISF, units 1/A, [P4] Eq.(18)–(22)), ISF/APF quadrature (Eq.(26)), amplitude modulation, M:N sub-/super-harmonic locking and the ILFD (Eq.(28)–(30): ω_L=½I_inj|Γ̃_N|, ÷2 rides on c2).
+description: "Hong–Hajimiri 2019 Part II deep dive — APF (amplitude counterpart of the ISF, units 1/A, [P4] Eq.(18)–(22)), ISF/APF quadrature (Eq.(26)), amplitude modulation, M:N sub-/super-harmonic locking and the ILFD (Eq.(28)–(30): ω_L=½I_inj|Γ̃_N|, ÷2 rides on c2)."
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.

@@ -19,7 +19,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 - 白噪 1/f² 招牌：$\mathcal{L}\{\Delta\omega\}=10\log_{10}\!\left(\dfrac{\Gamma_{rms}^2}{q_{max}^2}\cdot\dfrac{\overline{i_n^2}/\Delta f}{4\,\Delta\omega^2}\right)$（[P1] Eq.(21), p.185）
 - 1/f³ corner：$\Delta\omega_{1/f^3}=\omega_{1/f}\cdot\dfrac{c_0^2}{2\,\Gamma_{rms}^2}$（[P1] Eq.(24), p.185）
-- ring $\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16), p.794）；ring 頻率 $f_0=\dfrac{1}{2N\tau_D}$（[P2] Eq.(15), p.794）
+- ring $\Gamma_{rms}\propto N^{-3/2}$（[P2] Eq.(16), p.794；v7 已重核：根號只蓋常數，Γrms ∝ N^{-3/2}；正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}）；ring 頻率 $f_0=\dfrac{1}{2N\tau_D}$（[P2] Eq.(15), p.794）
 - PLL 輸出：$S_{out}=S_{ref}\lvert H_{lp}\rvert^2+S_{vco}\lvert H_{hp}\rvert^2$，$\lvert H_{lp}\rvert^2,\lvert H_{hp}\rvert^2$ 見規範 10.2
 - SerDes BER（RJ）：$\text{BER}(t)=\tfrac12\big[Q(\tfrac{UI/2-t}{\sigma_t})+Q(\tfrac{UI/2+t}{\sigma_t})\big]$，$Q(x)=\tfrac12\,\mathrm{erfc}(x/\sqrt2)$（規範 10.2）
 - rms jitter：$\sigma_t=\dfrac{1}{2\pi f_0}\sqrt{\int S_\phi df}$（規範公式 19）
@@ -50,7 +50,7 @@ $q_{max}=1$ pC、$S_i=3.2\times10^{-24}\ \text{A}^2/\text{Hz}$，代入 Eq.(21) 
 
 ### 習題 3（比較題）— ring vs LC 的 $\Gamma_{rms}$ scaling
 
-(a) 用 [P2] Eq.(16) 的 scaling $\Gamma_{rms}\propto N^{-3/4}$，問把 ring 級數從 $N=5$ 加到 $N=15$，
+(a) 用 [P2] Eq.(16) 的 scaling $\Gamma_{rms}\propto N^{-3/2}$，問把 ring 級數從 $N=5$ 加到 $N=15$，
 $\Gamma_{rms}$ 降幾倍？相位雜訊（$\propto\Gamma_{rms}^2$）改善幾 dB？
 (b) 一句話說明為何 LC 通常仍比 ring 乾淨（從 $\Gamma_{rms}$ 與 $q_{max}$ 兩個旋鈕談）。
 
@@ -184,16 +184,17 @@ print("c0 <", round(c0_max,4))                            # -> 0.0285
 <details>
 <summary><strong>習題 3 解答</strong>（ring vs LC 的 $\Gamma_{rms}$ scaling）</summary>
 
-**(a) scaling。** [P2] Eq.(16)：$\Gamma_{rms}\propto N^{-3/4}$。$N:5\to15$（$\times3$）：
+**(a) scaling。** [P2] Eq.(16)（v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；正文
+4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 $N^{-3/4}$）：$N:5\to15$（$\times3$）：
 
 $$
-\frac{\Gamma_{rms}(15)}{\Gamma_{rms}(5)}=\left(\frac{15}{5}\right)^{-3/4}=3^{-0.75}=0.4387.
+\frac{\Gamma_{rms}(15)}{\Gamma_{rms}(5)}=\left(\frac{15}{5}\right)^{-3/2}=3^{-1.5}=0.1925.
 $$
 
 相位雜訊 $\propto\Gamma_{rms}^2$，改善：
 
 $$
-\Delta\mathcal{L}=10\log_{10}\big(0.4387^2\big)=10\log_{10}(0.1924)=-7.16\ \text{dB}.
+\Delta\mathcal{L}=10\log_{10}\big(0.1925^2\big)=10\log_{10}(0.03704)=-14.31\ \text{dB}.
 $$
 
 **(b) 為何 LC 仍乾淨。** 兩個旋鈕都對 LC 有利：
@@ -203,7 +204,7 @@ $$
   $V_{DD}$ 且電容小，$q_{max}$ 通常小很多。$\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$，
   LC 在分子小、分母大兩頭佔優。
 
-**結果**：(a) $N:5\to15$ 使 $\Gamma_{rms}$ 降 $\approx0.44$ 倍、相位雜訊改善 $\approx7.2$ dB；
+**結果**：(a) $N:5\to15$ 使 $\Gamma_{rms}$ 降 $\approx0.19$ 倍、相位雜訊改善 $\approx14.3$ dB；
 (b) LC 在 $\Gamma_{rms}$（小且分散）與 $q_{max}$（高 Q 大擺幅）兩個旋鈕都優於 ring。
 
 **注意**：加 $N$ 同時降頻率（$f_0=1/(2N\tau_D)$）、增功耗；ring 的真正吸引力是面積/可調性/無電感，
@@ -213,9 +214,9 @@ $$
 
 ```python
 import numpy as np
-ratio = (15/5)**(-0.75)
+ratio = (15/5)**(-1.5)
 print("Grms ratio", round(ratio,4), "; dPN", round(10*np.log10(ratio**2),2), "dB")
-# -> Grms ratio 0.4387 ; dPN -7.16 dB
+# -> Grms ratio 0.1925 ; dPN -14.31 dB
 ```
 
 </details>
@@ -416,7 +417,7 @@ print(sigma_vco*1e15, "fs ;", sigma_phi**2, "rad^2")   # -> 240.0 fs ; 2.27e-4 r
 
 - **$q_{max}$/$\Gamma_{rms}$ 反推**：$\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$；每降 6 dB 要 $q_{max}\times2$ 或 $\Gamma_{rms}\div2$（習題 1）。
 - **對稱性**：$1/f^3$ corner $\propto c_0^2$，壓 $c_0$ 最有效（習題 2、7）。
-- **ring vs LC**：$\Gamma_{rms}\propto N^{-3/4}$；LC 在 $\Gamma_{rms}$（小/分散）與 $q_{max}$（高 Q 大擺幅）兩頭佔優（習題 3）。
+- **ring vs LC**：$\Gamma_{rms}\propto N^{-3/2}$；LC 在 $\Gamma_{rms}$（小/分散）與 $q_{max}$（高 Q 大擺幅）兩頭佔優（習題 3）。
 - **PLL 最佳 BW**：ref 低通、VCO 高通；$f_n^\*$ 在兩曲線交點，存在最小積分 jitter（習題 4）。
 - **$\sigma_t\to$BER**：bathtub $Q$ 函數；$10^{-12}$ 要 $UI/2\ge7.03\sigma_t$、$10^{-15}$ 要 $\ge7.94\sigma_t$（習題 5、6）。
 - **tail noise**：tail filter（擋 $2\omega_0$）／對稱化（壓 $c_0$）／加大 $q_{max}$ 三管齊下（習題 7）。

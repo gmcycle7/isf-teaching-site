@@ -1,4 +1,5 @@
 import React, {useId, useState} from 'react';
+import useIsEn from './useIsEn';
 
 // Reusable instant-feedback numeric quiz（即時回饋數值小測驗）。
 // Props:
@@ -29,6 +30,7 @@ export default function NumericQuiz({
   hint = '',
   solutionNote = '',
 }) {
+  const isEn = useIsEn();
   const inputId = useId();
   const [raw, setRaw] = useState('');
   const [status, setStatus] = useState('idle'); // idle | correct | wrong | invalid | revealed
@@ -60,22 +62,32 @@ export default function NumericQuiz({
   let feedback = null;
   let feedbackColor = 'var(--ifm-color-emphasis-700)';
   if (status === 'correct') {
-    feedback =
-      wrongTries === 0
-        ? '✓ 一次就答對，非常漂亮！'
-        : '✓ 答對了——修正得很好，繼續保持！';
+    feedback = isEn
+      ? (wrongTries === 0
+          ? '✓ Correct on the first try — nicely done!'
+          : '✓ Correct — good recovery, keep it up!')
+      : (wrongTries === 0
+          ? '✓ 一次就答對，非常漂亮！'
+          : '✓ 答對了——修正得很好，繼續保持！');
     feedbackColor = 'var(--ifm-color-success)';
   } else if (status === 'wrong') {
-    feedback =
-      wrongTries <= 1
-        ? '✗ 還差一點——檢查一下單位與 10 的冪次，再試一次！'
-        : '✗ 尚未命中。別氣餒，可以參考提示，或按「顯示答案」。';
+    feedback = isEn
+      ? (wrongTries <= 1
+          ? '✗ Close, but not quite — double-check the units and the power of 10, then try again!'
+          : '✗ Not there yet. Don’t worry — try the hint, or click “Show answer”.')
+      : (wrongTries <= 1
+          ? '✗ 還差一點——檢查一下單位與 10 的冪次，再試一次！'
+          : '✗ 尚未命中。別氣餒，可以參考提示，或按「顯示答案」。');
     feedbackColor = 'var(--ifm-color-danger)';
   } else if (status === 'invalid') {
-    feedback = '請輸入數字（可用科學記號，例如 15.9、1.6e-14 或 -148）。';
+    feedback = isEn
+      ? 'Please enter a number (scientific notation is fine, e.g. 15.9, 1.6e-14, or -148).'
+      : '請輸入數字（可用科學記號，例如 15.9、1.6e-14 或 -148）。';
     feedbackColor = 'var(--ifm-color-warning-darkest, var(--ifm-color-emphasis-700))';
   } else if (status === 'revealed') {
-    feedback = `參考答案：${answer} ${unit}`.trim() + '。看懂後建議再展開下方完整解答對照。';
+    feedback = isEn
+      ? `Reference answer: ${answer} ${unit}`.trim() + '. Once it makes sense, expand the full worked solution below.'
+      : `參考答案：${answer} ${unit}`.trim() + '。看懂後建議再展開下方完整解答對照。';
     feedbackColor = 'var(--ifm-color-emphasis-800)';
   }
 
@@ -99,7 +111,7 @@ export default function NumericQuiz({
   return (
     <div style={box}>
       <div style={{fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.95rem'}}>
-        小測驗（先自己算，再檢查）
+        {isEn ? 'Quick check (work it out yourself, then check)' : '小測驗（先自己算，再檢查）'}
       </div>
       <label htmlFor={inputId} style={{display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem'}}>
         {prompt}
@@ -111,8 +123,12 @@ export default function NumericQuiz({
           inputMode="decimal"
           value={raw}
           disabled={done}
-          placeholder="輸入數值"
-          aria-label={`作答欄位${unit ? `（單位 ${unit}）` : ''}`}
+          placeholder={isEn ? 'Enter a value' : '輸入數值'}
+          aria-label={
+            isEn
+              ? `Answer field${unit ? ` (unit ${unit})` : ''}`
+              : `作答欄位${unit ? `（單位 ${unit}）` : ''}`
+          }
           onChange={(e) => {
             setRaw(e.target.value);
             if (status === 'wrong' || status === 'invalid') setStatus('idle');
@@ -133,10 +149,10 @@ export default function NumericQuiz({
         />
         <span style={{flex: '0 0 auto', fontSize: '0.9rem', opacity: 0.85}}>{unit}</span>
         <button type="button" onClick={check} disabled={done} style={btn}>
-          檢查
+          {isEn ? 'Check' : '檢查'}
         </button>
         <button type="button" onClick={reveal} disabled={done} style={{...btn, opacity: done ? 0.6 : 0.85}}>
-          顯示答案
+          {isEn ? 'Show answer' : '顯示答案'}
         </button>
       </div>
       <div role="status" aria-live="polite" style={{minHeight: '1.2rem', marginTop: '0.55rem'}}>
@@ -145,7 +161,7 @@ export default function NumericQuiz({
         )}
         {showHint && (
           <div style={{fontSize: '0.85rem', marginTop: '0.3rem', color: 'var(--ifm-color-emphasis-700)'}}>
-            提示：{hint}
+            {isEn ? 'Hint: ' : '提示：'}{hint}
           </div>
         )}
         {done && solutionNote && (
@@ -155,7 +171,9 @@ export default function NumericQuiz({
         )}
       </div>
       <div style={{fontSize: '0.75rem', opacity: 0.65, marginTop: '0.4rem'}}>
-        判定：相對誤差 ±{Math.round(tol * 100)}% 內算對；可用科學記號輸入。
+        {isEn
+          ? `Graded correct within ±${Math.round(tol * 100)}% relative error; scientific notation is accepted.`
+          : `判定：相對誤差 ±${Math.round(tol * 100)}% 內算對；可用科學記號輸入。`}
       </div>
     </div>
   );

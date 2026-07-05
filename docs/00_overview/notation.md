@@ -41,7 +41,7 @@ description: 全站一致的符號、單位、與各論文之間的符號對照�
 | $\sigma_\phi$ | rms phase | rad | all | $\sigma_t=\sigma_\phi/(2\pi f_0)$ |
 | $\kappa$ | ring 累積 jitter 比例常數 | $\sqrt{\mathrm{s}}$ | [P2] | $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ |
 | $\omega_{1/f}$ | device 的 1/f noise corner | rad/s | [P1] | 注意：≠ phase noise 的 1/f³ corner |
-| $N$ | ring oscillator 級數 | — | [P2] | $\Gamma_{rms}\propto N^{-3/4}$ |
+| $N$ | ring oscillator 級數 | — | [P2] | $\Gamma_{rms}\propto N^{-3/2}$ |
 | $Q$ | tank 品質因子 | — | [P1] | 出現在 Leeson 對照 |
 | $\eta$ | ring 頻率／FOM 的比例常數 | — | [P2] | $f_0=1/(2N\tau_D)$ |
 

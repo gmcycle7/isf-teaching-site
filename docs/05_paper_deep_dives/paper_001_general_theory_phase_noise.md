@@ -284,7 +284,7 @@ corner。對稱性把 close-in noise 推走了 200 倍頻率。完整推導見
 ## Relationship to other papers
 
 - **[P2]** 把這頁的 ISF 套到 ring oscillator：用同一個 $\Gamma_{rms}^2/q_{max}^2$ 比例導出
-  jitter $\kappa$，並研究 $\Gamma_{rms}\propto N^{-3/4}$ scaling（claim C8）。
+  jitter $\kappa$，並研究 $\Gamma_{rms}\propto N^{-3/2}$ scaling（claim C8）。
 - **[P3]/[P4]** 把同一個 ISF 從「隨機 noise」延伸到「確定注入」：[P3] 用 $\Gamma$ 寫出廣義
   Adler 方程（claim C10），[P4] 補上振幅版的 APF（claim C11）。
 - **[P5]** 與本頁**無關**（sense amplifier，claim C12）；唯一概念橋樑是 regeneration／正回授。

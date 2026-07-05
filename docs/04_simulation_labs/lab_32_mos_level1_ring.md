@@ -280,10 +280,15 @@ $\Gamma$ 只動 0.1%；週期 spread $10^{-8}$ ps。數字可信。
   transition 起步處 ✓；但 lobe 是寬平頂而非窄三角——三角近似在大 $N$（transition 佔比小）
   時才漸趨準確。
 - **頻率**：[P2] Eq.(15), p.794：$f_0=1/(2N\tau_D)$，本 lab 反推 $\tau_D=136.03$ ps。
-- **$\Gamma_{rms}$**：實測 $\Gamma_{rms}=0.9303$；[P2] Eq.(16), p.794 取 $\eta=1$、$N=3$
-  給 $1.1253$——同數量級（差 $-17\%$，$\eta$ 未擬合本電路）。**單一 $N$ 無法驗證
-  $\Gamma_{rms}\propto N^{-3/4}$ 標度**；要驗證得掃 $N=3,5,7,\dots$ 重跑（本 script 的
-  向量化導數支援任意級數，掃 $N$ 留作延伸練習）。
+- **$\Gamma_{rms}$**：[P2] Eq.(16), p.794 的正確讀法是根號**只蓋常數**：
+  $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}$
+  （$\eta=0.75$ 時 $\approx4/N^{1.5}$，即 [P2] Fig.8 的實線）。$N=3$ 代入：
+  $\eta=1$ 給 $0.4937$，$\eta=0.75$ 錨給 $0.760$。實測 $\Gamma_{rms}=0.9303$
+  比 $\eta=1$ 參考**高 88%**、比 $\eta=0.75$ 錨**高 22%**——同數量級但沒有一個
+  $\eta$ 能精準對上（$\eta$ 未擬合本電路，且 $N=3$ 時 triode/saturation 混合、
+  對稱反相器的實際波形本來就偏離論文推導用的三角/指數近似）。**單一 $N$ 無法驗證
+  $\Gamma_{rms}\propto N^{-3/2}$ 標度**，只能拿來做量級核對（ballpark）；要驗證得掃
+  $N=3,5,7,\dots$ 重跑（本 script 的向量化導數支援任意級數，掃 $N$ 留作延伸練習）。
 - **往 phase noise 的下一步**（本 lab 沒做）：把量到的 $\Gamma_{rms}$、$c_0$ 代入
   [P1] Eq.(21)（$1/f^2$）與 Eq.(23)(24)（$1/f^3$）還需要 device 雜訊 PSD
   $\overline{i_n^2}/\Delta f$ 與 cyclostationary 加權（[effective_isf](/03_isf_core_theory/effective_isf)）。
@@ -304,7 +309,7 @@ $\Gamma$ 只動 0.1%；週期 spread $10^{-8}$ ps。數字可信。
 - **完全沒有雜訊模型**：本 lab 是 deterministic 的——它萃取 **ISF 本身**，不產生
   phase noise。thermal（$4kT\gamma g_m$）與 flicker 源、以及它們的 cyclostationary
   調變都不在此層。
-- **單一 $N$、單一 corner**：不驗證 $N^{-3/4}$、不看 PVT。
+- **單一 $N$、單一 corner**：不驗證 $N^{-3/2}$、不看 PVT。
 - **數值**：固定步長一階 Euler（收斂性已實測 $1.22\times10^{-5}$）；注入相位量化
   $\le0.011^\circ$；門檻交越用線性內插。
 
@@ -316,7 +321,8 @@ $\Gamma$ 只動 0.1%；週期 spread $10^{-8}$ ps。數字可信。
   正葉繞上升緣（$+1.128$）、負葉繞下降緣（$-1.132$）、峰值 $1.1734$ 在**上升緣前 $45^\circ$**。
 - [P2] 簽名成立：58.7% 的 $\Gamma^2$ 能量在 40.7% 的 transition 窗內；$N=3$ 的 lobe
   是寬平頂，三角近似（[P2] Fig. 6）要大 $N$ 才漸準。
-- $\Gamma_{rms}=0.9303$（[P2] Eq.(16) $\eta=1$ 給 1.1253，同數量級）；$c_0=0.0014\approx0$
+- $\Gamma_{rms}=0.9303$（[P2] Eq.(16), $N^{-3/2}$ 標度：$\eta=1$ 給 0.4937、$\eta=0.75$
+  錨給 0.760——同數量級、ballpark，$\eta$ 未擬合、單一 $N$ 不驗證標度）；$c_0=0.0014\approx0$
   來自 $\beta_n=\beta_p$ 的對稱設計 ⇒ $1/f^3$ 上轉弱（[P1] Eq.(23)(24)）。
 - 這層萃取的是 **ISF 本身**；到 phase noise 還缺雜訊源與 cyclostationary 加權。
 

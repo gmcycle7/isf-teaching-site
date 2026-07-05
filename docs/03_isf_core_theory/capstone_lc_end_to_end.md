@@ -196,8 +196,8 @@ $$
 
 - **dimension check**：$\Gamma$ 無因次 → $\Gamma_{rms}$ 無因次 ✓。
 - **物理意義**：$\Gamma_{rms}$ 越小、振盪器把 noise 翻成相位的「平均效率」越低 → phase noise 越好。
-  $-\sin$ 的 $\Gamma_{rms}=0.707$ 是 LC 的招牌值；ring 因為敏感度集中在 transition、且 $\Gamma_{rms}\propto N^{-3/4}$
-  （[P2] Eq.(16)）可被級數壓低，但 LC 的高 $Q$ 通常仍勝出（見 [lc_vs_ring](/06_design_insights/lc_vs_ring)）。
+  $-\sin$ 的 $\Gamma_{rms}=0.707$ 是 LC 的招牌值；ring 因為敏感度集中在 transition、且 $\Gamma_{rms}\propto N^{-3/2}$
+  （[P2] Eq.(16), p.794，根號只蓋常數；正文 4/N^{1.5}@η=0.75 印證）可被級數壓低，但 LC 的高 $Q$ 通常仍勝出（見 [lc_vs_ring](/06_design_insights/lc_vs_ring)）。
 
 > **這一站交付**：$\Gamma_{rms}=1/\sqrt2$。它是站⑤公式裡唯一的 ISF 輸入。
 

@@ -131,9 +131,9 @@
     },
     {
       "concept": "ring rms ISF scaling",
-      "latex": "\\Gamma_{rms}=\\sqrt{\\dfrac{2\\pi^2}{3\\eta^3}\\cdot\\dfrac{1}{N^{1.5}}}\\;\\Rightarrow\\;\\Gamma_{rms}\\propto N^{-3/4}\\ (\\Gamma_{rms}^2\\propto N^{-3/2})",
+      "latex": "\\Gamma_{rms}=\\sqrt{\\dfrac{2\\pi^2}{3\\eta^3}}\\;\\dfrac{1}{N^{1.5}}\\;\\Rightarrow\\;\\Gamma_{rms}\\propto N^{-3/2}\\ (\\Gamma_{rms}^2\\propto N^{-3})",
       "final_or_step": "final (verified)",
-      "source_paper": "paper_002, Eq. (16), p.794 (verified verbatim)",
+      "source_paper": "paper_002, Eq. (16), p.794 (v7 re-verified: radical covers only the constant; body text states 1/N^{1.5} dependence, eta=0.75 anchor Gamma_rms ~= 4/N^{1.5} matches [P2] Fig.8 solid line, and App.B Eq.(52)+(54) algebra independently gives N^-3 for Gamma_rms^2. v3 had misread the radical scope and incorrectly 'corrected' this to N^-3/4.)",
       "derivation_page": "06_design_insights/lc_vs_ring",
       "manual_verification_needed": false
     },

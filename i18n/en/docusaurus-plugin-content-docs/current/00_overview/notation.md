@@ -45,7 +45,7 @@ If you encounter a different convention in one of the papers, come back here to 
 | $\sigma_\phi$ | rms phase | rad | all | $\sigma_t=\sigma_\phi/(2\pi f_0)$ |
 | $\kappa$ | proportionality constant of ring accumulated jitter | $\sqrt{\mathrm{s}}$ | [P2] | $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ |
 | $\omega_{1/f}$ | the device's 1/f-noise corner | rad/s | [P1] | note: ≠ the phase-noise 1/f³ corner |
-| $N$ | number of ring-oscillator stages | — | [P2] | $\Gamma_{rms}\propto N^{-3/4}$ |
+| $N$ | number of ring-oscillator stages | — | [P2] | $\Gamma_{rms}\propto N^{-3/2}$ |
 | $Q$ | tank quality factor | — | [P1] | appears in the Leeson comparison |
 | $\eta$ | proportionality constant in the ring frequency / FOM | — | [P2] | $f_0=1/(2N\tau_D)$ |
 

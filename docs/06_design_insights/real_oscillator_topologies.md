@@ -365,7 +365,7 @@ $$
 > 估 $\Gamma_{rms}$，再算 $1/f^2$ 區的 $\mathcal{L}(\Delta f=1\text{MHz})$（單級貢獻量級）。
 
 **鏈條第 1 環（slope → ISF）**：三角 toy，$N=5$。由 [P2] Eq.(16) 的 scaling（見規範第 3 節）
-$\Gamma_{rms}\propto N^{-3/4}$；對 $N=5$ 的三角 toy，數值上取 $\Gamma_{rms}\approx0.30$（toy 量級；
+$\Gamma_{rms}\propto N^{-3/2}$；對 $N=5$ 的三角 toy，數值上取 $\Gamma_{rms}\approx0.30$（toy 量級；
 `gamma_rms(theta, gamma_triangular(theta, 5))` 實算約 $0.26$，本例取 $0.30$ 做整數量級估計）。
 
 **鏈條第 2 環（ISF → close-in PN，[P1] Eq.(21)）**：在 $\Delta f=1$ MHz：
@@ -385,7 +385,7 @@ $$
 **結果**：單級 $\approx-136$ dBc/Hz、5 級總和 $\approx-129$ dBc/Hz @ 1 MHz（量級）。
 
 - **手感**：比 (a) 的 LC VCO（$\Gamma_{rms}=0.707$、單源 $\sim-148$ dBc/Hz）差很多——但注意 ring 的
-  $\Gamma_{rms}$ 已被 $N^{-3/4}$ 壓低了，**真正吃虧的是多級疊加 + 無 tank 蓄能**（這裡只示範了多級疊加的
+  $\Gamma_{rms}$ 已被 $N^{-3/2}$ 壓低了，**真正吃虧的是多級疊加 + 無 tank 蓄能**（這裡只示範了多級疊加的
   $+7$ dB）。
 - **Dimension check**：同 [P1] Eq.(21)，括號內化簡為 $\text{s}$（per-Hz）✓。
 
@@ -405,7 +405,7 @@ print(round(L1,1), round(L5,1), "dBc/Hz")               # 實算 ~ -137.7 / -130
 
 > **設計旋鈕（CMOS ring stage）**：
 > 1. **陡 transition（大 slew rate）**→ 局部 $\Gamma$ 小、transition 窗窄 → 降 $\Gamma_{rms}$。
-> 2. **加級數 $N$**→ $\Gamma_{rms}\propto N^{-3/4}$ 降（但功耗、面積、每級疊加 noise 上升，需權衡）。
+> 2. **加級數 $N$**→ $\Gamma_{rms}\propto N^{-3/2}$ 降（但功耗、面積、每級疊加 noise 上升，需權衡）。
 > 3. **對稱上升/下降沿**（NMOS/PMOS 對稱）→ 壓 $c_0$、抑制 flicker 上轉（見 [symmetry](/06_design_insights/symmetry)）。
 > 4. ring 沒有 tank 蓄能、cyclostationary 又幫不上忙 → 同 $q_{max}$ 下 close-in 天生比 LC 差。
 

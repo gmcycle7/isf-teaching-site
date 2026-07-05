@@ -40,7 +40,7 @@ transitions, dual-lobe shape (positive lobe at the rising edge -- extra
 charge advances the phase; negative lobe at the falling edge -- extra charge
 delays it), ~0 while the node sits at a rail (the driving inverter's low
 output resistance swallows the charge).  Compare with [P2] Fig. 5 / Fig. 6,
-p.793 (triangular approximation) and Eq.(16), p.794 (Gamma_rms ~ N^-3/4;
+p.793 (triangular approximation) and Eq.(16), p.794 (Gamma_rms ~ N^-3/2;
 single N here, so scaling itself is NOT tested).
 
 Figure
@@ -327,8 +327,9 @@ def main():
     print("Gamma_rms =", round(g_rms, 4))
     # -> 0.9303（量測值）
     print("[P2] Eq.(16) with eta=1, N=3 -> Gamma_rms =",
-          round(float(np.sqrt(2 * np.pi ** 2 / 3.0 / 3 ** 1.5)), 4))
-    # -> 1.1253（公式參考值，同數量級；eta 未擬合，單一 N 不驗證 N^-3/4 標度）
+          round(float(np.sqrt(2 * np.pi ** 2 / 3.0) * 3 ** -1.5), 4))
+    # -> 0.4937（公式參考值，根號只蓋常數 2*pi^2/(3*eta^3)，N^-1.5 在根號外；
+    #    eta 未擬合，單一 N 不驗證 N^-3/2 標度）
     print("c0 =", round(float(a0), 4), "; c1 =", round(float(c[1]), 4),
           "; c2 =", round(float(c[2]), 4), "; c3 =", round(float(c[3]), 4))
     # -> c0=0.0014 接近 0（上升/下降對稱 -> 1/f 上轉弱, [P1] Eq.(23)(24)）;

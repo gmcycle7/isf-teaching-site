@@ -1,6 +1,6 @@
 ---
 title: rms ISF 與 Parseval 關係
-description: 由 Parseval 推 Σcₙ²=(1/π)∫|Γ|²dx=2Γrms²；解釋 Γrms 如何決定 1/f² phase noise、DC factor 的慣例，以及 ring 的 Γrms∝N^(−3/2)。
+description: 由 Parseval 推 Σcₙ²=(1/π)∫|Γ|²dx=2Γrms²；解釋 Γrms 如何決定 1/f² phase noise、DC factor 的慣例，以及 ring 的 Γrms∝N^(−3/2)（Γrms²∝N^(−3)）。
 ---
 
 # rms ISF 與 Parseval 關係
@@ -247,23 +247,27 @@ $\Gamma_{rms}$ 越小。
 - **toy model 註記**：本站 `gamma_triangular` 是「能量集中在 transition」的 pedagogical toy ISF，
   **非 transistor-level**萃取結果（見 `isf_utils.py` docstring）。
 
-## ring 的 $\Gamma_{rms}\propto N^{-3/4}$ scaling
+## ring 的 $\Gamma_{rms}\propto N^{-3/2}$ scaling
 
 [P2] 把上面的觀察量化為一條 scaling law（[P2] Eq.(16), p.794）：
 
 $$
-\Gamma_{rms}\propto N^{-3/4}
+\Gamma_{rms}\propto N^{-3/2}
 $$
 
 - **直覺**：級數 $N$ 增加時，(i) 每級 transition 變陡、ISF 脈衝變窄（rms 降），(ii) 每週期內
-  transition 次數增加但被週期長度稀釋。綜合給出 $\Gamma_{rms}^2\propto N^{-3/2}$（即 $\Gamma_{rms}\propto N^{-3/4}$）。
-- **完整式（已核實，對照原始 PDF p.794）**：[P2] Eq.(16) 為
+  transition 次數增加但被週期長度稀釋。綜合給出 $\Gamma_{rms}^2\propto N^{-3}$（即 $\Gamma_{rms}\propto N^{-3/2}$）。
+- **完整式**：[P2] Eq.(16) 為
 
   $$
-  \Gamma_{rms}=\sqrt{\frac{2\pi^2}{3\eta^3}\cdot\frac{1}{N^{1.5}}}=\sqrt{\frac{2\pi^2}{3\eta^3}}\,N^{-3/4},
+  \Gamma_{rms}=\sqrt{\frac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}},
   $$
 
-  其中 $\eta$ 為級延遲比例常數（[P2] Eq.(14)，$\eta\approx1$，非 $\gamma$）。根號涵蓋整個 $1/N^{1.5}$，故開根號後 $\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16), p.794，已核實）。
+  其中 $\eta$ 為級延遲比例常數（[P2] Eq.(14)，$\eta\approx1$，非 $\gamma$）；根號**只蓋常數** $2\pi^2/(3\eta^3)$，
+  $1/N^{1.5}$ 在根號外，故 $\Gamma_{rms}\propto N^{-3/2}$
+  （$\eta=0.75$ 時 $\approx4/N^{1.5}$，即 [P2] Fig.8 的實線；[P2] Eq.(16), p.794，v7 已重核：正文
+  「$1/N^{1.5}$ dependence of $\Gamma_{rms}$」一句、$\eta=0.75$ 數值錨、App.B Eq.(52)+(54) 獨立代數
+  三者一致指向 $N^{-3/2}$。v3 稽核曾把根號範圍看錯、誤改為 $N^{-3/4}$ 並誤標「已核實」，此為誤讀，非公式與文字不一致——v7 已修回）。
 - **重要結論**：[P2] 進一步指出，在**固定 $f_0$ 與功率 $P$** 的約束下，single-ended
   ring 的 $1/f^2$ phase noise／jitter **幾乎與級數 $N$ 無關**（[P2] Sec.V，Eq.(23)/(25), p.796，
   $\mathcal{L}\big|_{1/f^2}\approx\dfrac{8}{3\eta}\,\dfrac{V_{DD}}{V_{char}}\,\dfrac{kT}{P}(\omega_0/\Delta\omega)^2$）。
@@ -332,7 +336,7 @@ $$
 \ \Rightarrow\ \Gamma_{rms}=\frac{1}{\sqrt{15}}\approx0.258.
 $$
 
-**結果**：$\Gamma_{rms}\approx0.258$，**遠小於 LC 的 0.707**——和「ring 把敏感度擠進窄 transition、能量被攤平、$\Gamma_{rms}$ 隨 $N$ 變小」的物理一致（呼應 $\Gamma_{rms}\propto N^{-3/4}$ 的趨勢；此處 toy 的 $N$ 依賴是 $1/\sqrt N$，非真實 scaling）。
+**結果**：$\Gamma_{rms}\approx0.258$，**遠小於 LC 的 0.707**——和「ring 把敏感度擠進窄 transition、能量被攤平、$\Gamma_{rms}$ 隨 $N$ 變小」的物理一致（呼應 $\Gamma_{rms}\propto N^{-3/2}$ 的趨勢；此處 toy 的 $N$ 依賴是 $1/\sqrt N$，非真實 scaling）。
 
 **dimension check**：$P$ 無因次（ISF 無因次）→ $\Gamma_{rms}$ 無因次 ✓。
 
@@ -375,7 +379,8 @@ print(lhs, rhs)                        # -> ~0.1333 , 0.1333  (諧波越多越�
 - $\Gamma_{rms}$ 把「逐 band 折回」收成一個形狀指標；它（與 $q_{max}$）決定 $1/f^2$ phase noise：$\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$（[P1] Eq.(21)）。
 - **DC factor 慣例**：$c_0$ 是係數、DC 值是 $c_0/2$；Parseval 求和裡 $n=0$ 項貢獻 $c_0^2/2$（不是 $c_0^2$）。照抄規範式子即可。
 - 理想 LC：$\Gamma_{rms}=1/\sqrt2\approx0.707$；canonical 例 B 用 $\Gamma_{rms}=0.5$ 得 $\mathcal{L}(1\text{MHz})\approx-148$ dBc/Hz。
-- ring：$\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16)，已核實）。
+- ring：$\Gamma_{rms}\propto N^{-3/2}$（[P2] Eq.(16), p.794；根號只蓋常數，$\eta=0.75$ 時 $\approx4/N^{1.5}$，
+  與正文、App.B 三重一致；v3 曾誤讀根號範圍為 $N^{-3/4}$，v7 已修回）。
 
 ## 延伸閱讀
 

@@ -22,7 +22,7 @@ ring 級數 $N$，看 phase noise $\mathcal{L}$ 與 rms jitter $\sigma_t$ 怎麼
 
 - 把 [P1] Eq.(21) 讀成 scaling law，建立 $q_{max}$、$\Gamma_{rms}$、$N$ 的設計直覺。
 - 用 canonical 數值算出「動一個旋鈕賺幾 dB / 幾 fs」。
-- 看懂 ring 振盪器 $N$ 的雙面性（$\Gamma_{rms}\propto N^{-3/4}$，但功率/面積也漲）。
+- 看懂 ring 振盪器 $N$ 的雙面性（$\Gamma_{rms}\propto N^{-3/2}$，但功率/面積也漲）。
 - 把 scaling 結論連到各 design insight 頁。
 
 ## 2. 數學模型
@@ -54,7 +54,7 @@ $$
 ring 振盪器：[P2] 給出兩條 scaling——級數越多，每級 ISF 越尖但 rms 越小（[P2] Eq.(16), p.794）：
 
 $$
-\Gamma_{rms}\propto N^{-3/4}\quad(\text{[P2] Eq.(16), p.794，已核實}),\qquad f_0=\frac{1}{2N\tau_D}\ \text{[P2] Eq.(15)}.
+\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}\quad(\text{[P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，}\Gamma_{rms}\propto N^{-3/2}\text{；η=0.75 時 ≈ 4/}N^{1.5}\text{，即 [P2] Fig.8 的實線）}),\qquad f_0=\frac{1}{2N\tau_D}\ \text{[P2] Eq.(15)}.
 $$
 
 - 單看 phase noise，$N$ 從 5 → 15（$\times3$）：$\Gamma_{rms}$ 乘 $3^{-3/2}=0.192$，
@@ -95,7 +95,7 @@ base = L_dbc(Grms=0.5, qmax=1e-12, Si=Si, df=df)   # -148.0 dBc/Hz
 print("baseline           :", round(base, 1), "dBc/Hz")
 print("q_max x2           :", round(L_dbc(0.5, 2e-12, Si, df) - base, 1), "dB")  # -6.0
 print("Gamma_rms /2       :", round(L_dbc(0.25, 1e-12, Si, df) - base, 1), "dB") # -6.0
-# ring N: Gamma_rms ~ N^-3/4 ([P2] Eq.(16), p.794, verified); show isolated scaling
+# ring N: Gamma_rms ~ N^-1.5 ([P2] Eq.(16), p.794, re-verified v7: sqrt covers only the constant); show isolated scaling
 for N in (5, 15, 45):
     rel = (N / 5.0) ** -1.5
     print(f"N={N:2d} Gamma_rms rel={rel:.3f}  dL={20*math.log10(rel):+.1f} dB")
@@ -147,7 +147,7 @@ $S_i=10^{-24}$、5 GHz @ 1 MHz）為 $0$ dB 參考。$\sigma_t\propto\Gamma_{rms
 | $q_{max}\times2$（$\to2$ pC） | $-6.0$ dB | $\times0.5$ | $-20\log_{10}q_{max}$；訊號電荷大、雜訊相對小 |
 | $q_{max}\times0.5$（$\to0.5$ pC） | $+6.0$ dB | $\times2$ | 同上反向 |
 | $\Gamma_{rms}\times0.5$（$\to0.25$） | $-6.0$ dB | $\times0.5$ | $+20\log_{10}\Gamma_{rms}$；波形對雜訊不敏感 |
-| ring $N:5\to15$（$\times3$） | $-14.3$ dB | $\times0.192$ | $\Gamma_{rms}\propto N^{-3/4}$（孤立看，[P2] Eq.(16), p.794 已核實） |
+| ring $N:5\to15$（$\times3$） | $-14.3$ dB | $\times0.192$ | $\Gamma_{rms}\propto N^{-3/2}$（孤立看，[P2] Eq.(16), p.794，v7 已重核） |
 | ring $N:5\to45$（$\times9$） | $-28.6$ dB | $\times0.037$ | 同上；但功率/面積/$f_0$ 也一起變 |
 
 **口算示範**：$q_{max}$ 從 1 pC 加倍到 2 pC，$\mathcal{L}$ 改變
@@ -163,7 +163,7 @@ $\Gamma_{rms}$（或改 $q_{max}$）時，整條 $1/f^2$ 線只是**上下平移
 ![白噪 → 1/f²；改 Γ_rms 或 q_max 只平移整條線、不改斜率](/figures/white_noise_phase_noise_psd.png)
 
 **圖二：LC vs ring 的 ISF 形狀與 $N$。** lab_03 的對比圖：ring 的 ISF 敏感度集中在 transition，
-$N$ 越大每級 ISF 越尖、但 rms 越小（$\Gamma_{rms}\propto N^{-3/4}$）。這解釋了 scaling 表
+$N$ 越大每級 ISF 越尖、但 rms 越小（$\Gamma_{rms}\propto N^{-3/2}$）。這解釋了 scaling 表
 旋鈕 3 的來源，也提醒這是孤立 scaling。
 
 ![LC（-sin）與 ring（triangular）ISF 對比，N 越大 rms 越小](/figures/lc_vs_ring_isf_comparison.png)
@@ -175,7 +175,8 @@ $N$ 越大每級 ISF 越尖、但 rms 越小（$\Gamma_{rms}\propto N^{-3/4}$）
 
 - **主 scaling**：[P1] Eq.(21), p.185，$\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$。
 - **Parseval / $\Gamma_{rms}$**：[P1] Eq.(20), p.185。
-- **ring $\Gamma_{rms}$ scaling**：[P2] Eq.(16), p.794，$\Gamma_{rms}\propto N^{-3/4}$（已核實）。
+- **ring $\Gamma_{rms}$ scaling**：[P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；
+  正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}）。
 - **ring 頻率**：[P2] Eq.(15), p.794，$f_0=1/(2N\tau_D)$。
 - **ring 白噪 FOM**：[P2] Eq.(23), p.796，$\mathcal{L}|_{1/f^2}\approx\frac{8}{3\eta}\,\frac{V_{DD}}{V_{char}}\,\frac{kT}{P}(\omega_0/\Delta\omega)^2$（$\eta$ 為級延遲比例常數 [P2] Eq.(14)，$\approx1$；$\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入）。
 - **概念圖**：重用 `white_noise_phase_noise_psd.png`（lab_06）與 `lc_vs_ring_isf_comparison.png`（lab_03）。
@@ -184,8 +185,9 @@ $N$ 越大每級 ISF 越尖、但 rms 越小（$\Gamma_{rms}\propto N^{-3/4}$）
 
 - **toy scaling，非 transistor-level**：scaling 假設「只動一個旋鈕、其他完全不變」。
   真實電路裡 $q_{max}$、$\Gamma_{rms}$、$N$、功率、面積、$f_0$ 彼此**耦合**，不能孤立調。
-- **ring $N$ scaling 已核實**：$\Gamma_{rms}\propto N^{-3/4}$ 的比例常數為 [P2] Eq.(16), p.794
-  $\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot N^{-3/4}$（$\eta\approx1$，已核實）；級數變多也改
+- **ring $N$ scaling**（[P2] Eq.(16), p.794，v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；
+  正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}）：
+  $\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot\dfrac{1}{N^{1.5}}$（$\eta\approx1$）；級數變多也改
   $f_0=1/(2N\tau_D)$、功率與面積，淨 phase noise/jitter 要看完整 FOM，不能只看 $\Gamma_{rms}$。
 - **單一白噪源**：忽略多源、cyclostationary（$\Gamma_{eff}=\Gamma\cdot\alpha$）、flicker 上轉
   （$1/f^3$，見 [lab_07](/04_simulation_labs/lab_07_flicker_noise_upconversion)）。close-in 區此表不適用。
@@ -198,7 +200,7 @@ $N$ 越大每級 ISF 越尖、但 rms 越小（$\Gamma_{rms}\propto N^{-3/4}$）
 
 - $1/f^2$ phase noise $\propto\Gamma_{rms}^2/q_{max}^2$；jitter $\propto\Gamma_{rms}/q_{max}$。
 - $q_{max}$ 加倍或 $\Gamma_{rms}$ 減半 → phase noise $-6$ dB、jitter 減半（$20\log_{10}$）。
-- ring $N$ 孤立看 $\Gamma_{rms}\propto N^{-3/4}$（$N\times3\to-14.3$ dB），但 $f_0$/功率/面積同時變，是 toy scaling。
+- ring $N$ 孤立看 $\Gamma_{rms}\propto N^{-3/2}$（$N\times3\to-14.3$ dB），但 $f_0$/功率/面積同時變，是 toy scaling。
 - 基準數字：$q_{max}=1$ pC、$\Gamma_{rms}=0.5$、5 GHz @ 1 MHz、$S_i=10^{-24}$ → $\mathcal{L}=-148.0$ dBc/Hz。
 
 ## 延伸閱讀

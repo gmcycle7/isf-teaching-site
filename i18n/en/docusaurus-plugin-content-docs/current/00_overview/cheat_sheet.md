@@ -26,7 +26,7 @@ one page. Every entry links back to its full derivation page.
 | rms jitter | $\sigma_t=\dfrac{1}{2\pi f_0}\sqrt{\displaystyle\int_{f_1}^{f_2}S_\phi\,df}$ | [serdes](/06_design_insights/serdes_clocking_connection) |
 | Accumulated jitter | $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$, $\kappa=\dfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ | [P2] Eq.(8)(12) |
 | Ring frequency | $f_0=\dfrac{1}{2N\tau_D}$ | [P2] Eq.(15) |
-| Ring $\Gamma_{rms}$ | $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}\dfrac{1}{N^{1.5}}}\Rightarrow\Gamma_{rms}\propto N^{-3/4}$ | [P2] Eq.(16) |
+| Ring $\Gamma_{rms}$ | $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}\Rightarrow\Gamma_{rms}\propto N^{-3/2}$ (at $\eta=0.75$, $\approx4/N^{1.5}$, the solid line in [P2] Fig.8; the radical covers only the constant) | [P2] Eq.(16) |
 | Ring FOM | $\mathcal{L}=\dfrac{8}{3\eta}\dfrac{kT}{P}\dfrac{V_{DD}}{V_{char}}\Big(\dfrac{f_0}{\Delta f}\Big)^2$ (no $N$!) | [P2] Eq.(23) |
 | Generalized Adler | $\dfrac{d\theta}{dt}=(\omega_0-\omega_{inj})+\Omega(\theta)$, $\Omega=\langle\tilde\Gamma\,i_{inj}\rangle$ | [P3] Eq.(30)(33) |
 | APF / amplitude decay | $\tau_0=\dfrac{2Q}{\omega_{osc}}$, $\tilde\Lambda_1=\dfrac{\tau_0}{q_{max}}\angle0°$ (in quadrature with the ISF) | [P4] Eq.(25)(26) |

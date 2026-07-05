@@ -122,7 +122,8 @@
 19. **rms jitter**：`$$\sigma_t=\frac{1}{2\pi f_0}\sqrt{\int_{f_1}^{f_2}S_\phi(f)\,df}$$`
 20. **ring 累積 jitter** [P2] Eq.(8), p.792（κ 由 Eq.(12), p.793）：`$$\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$$` ✓已核實
 21. **ring 頻率** [P2] Eq.(15), p.794：`$$f_0=\frac{1}{2N\tau_D}$$`（Eq.(14) 定義正規化級延遲 $\hat t_D=\eta/f'_{max}$；週期關係 $2\pi=2N\hat t_D$ 推得本式為 Eq.(15)）
-22. **ring Γrms** [P2] Eq.(16), p.794 ✓已核實：`$$\Gamma_{rms}=\sqrt{\tfrac{2\pi^2}{3\eta^3}\tfrac{1}{N^{1.5}}}\Rightarrow\Gamma_{rms}\propto N^{-3/4}$$`
+22. **ring Γrms** [P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，Γrms ∝ N^{-3/2}；正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}）：`$$\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}\Rightarrow\Gamma_{rms}\propto N^{-3/2}\ (\Gamma_{rms}^2\propto N^{-3})$$`
+    （η=0.75 時 ≈ 4/N^{1.5}，即 [P2] Fig.8 的實線；根號只含常數）
 23. **ring 白噪 FOM** [P2] Eq.(23), p.796 ✓已核實（前置係數 v3 已對照 PDF p.796 更正為 8/(3η)）：`$$\mathcal{L}=\frac{8}{3\eta}\frac{kT}{P}\frac{V_{DD}}{V_{char}}\Big(\frac{f_0}{\Delta f}\Big)^2$$`（η=級延遲比例常數 Eq.(14)，≈1；γ 僅透過 $V_{char}=\Delta V/\gamma$ 進入；min at V_T=0: $\frac{16\gamma}{3\eta}$）
 
 > **重要的 factor-of-2 教學註記**：用時域「白噪×ISF→積分」乾淨推導會得到
@@ -304,7 +305,7 @@ $$
 $$
 \mathcal{L}(\Delta\omega)=10\log_{10}\!\left[\frac{2FkT}{P_s}\left(1+\Big(\frac{\omega_0}{2Q\Delta\omega}\Big)^2\right)\left(1+\frac{\omega_{1/f^3}}{\lvert\Delta\omega\rvert}\right)\right]
 $$
-**ring**：$f_0=\dfrac{1}{2N\tau_D}$；$\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16)，⚠️ 常數待查）。
+**ring**：$f_0=\dfrac{1}{2N\tau_D}$；$\Gamma_{rms}\propto N^{-3/2}$（[P2] Eq.(16), p.794；根號只蓋常數，η=0.75 時 ≈4/N^{1.5}）。
 **Floquet/PPV（外部文獻）**：$\dot\phi(t)=v_1^{T}(t)B(t)\xi(t)$，ISF $=q_{max}\cdot$（PPV 在注入節點的分量）。標明非 5 篇 PDF。
 
 ### 10.3 新增頁面（要新建）

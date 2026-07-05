@@ -111,7 +111,7 @@ Ring oscillator（環形振盪器）的波形不是正弦，而是接近方波�
 **快 transition（陡邊緣）為什麼好**，有兩個互相加強的理由：
 
 1. **縮短危險視窗**：transition 越快，device「全開、邊緣穿越」的時間視窗越窄，noise 被
-   收集進相位的「曝光時間」越短 → $\Gamma_{rms}$ 下降（ring 的 $\Gamma_{rms}\propto N^{-3/4}$ 趨勢也與
+   收集進相位的「曝光時間」越短 → $\Gamma_{rms}$ 下降（ring 的 $\Gamma_{rms}\propto N^{-3/2}$ 趨勢也與
    每級 transition 變陡有關，見 [lc_vs_ring](/06_design_insights/lc_vs_ring)）。
 2. **提高 threshold-crossing 抗擾**：邊緣越陡，$\Delta t=\Delta V/\dot V$ 越小——同樣電壓 noise
    造成的 timing 抖動越小。這是 SerDes data path 上「快 slew rate → 小 jitter」的同一條道理

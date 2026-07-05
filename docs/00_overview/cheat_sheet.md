@@ -23,7 +23,7 @@ description: 一頁速查：核心公式、canonical 數值、單位換算、設
 | rms jitter | $\sigma_t=\dfrac{1}{2\pi f_0}\sqrt{\displaystyle\int_{f_1}^{f_2}S_\phi\,df}$ | [serdes](/06_design_insights/serdes_clocking_connection) |
 | 累積 jitter | $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$，$\kappa=\dfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ | [P2] Eq.(8)(12) |
 | ring 頻率 | $f_0=\dfrac{1}{2N\tau_D}$ | [P2] Eq.(15) |
-| ring $\Gamma_{rms}$ | $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}\dfrac{1}{N^{1.5}}}\Rightarrow\Gamma_{rms}\propto N^{-3/4}$ | [P2] Eq.(16) |
+| ring $\Gamma_{rms}$ | $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}\Rightarrow\Gamma_{rms}\propto N^{-3/2}$（$\eta=0.75$ 時 $\approx4/N^{1.5}$，即 [P2] Fig.8 實線；根號只含常數） | [P2] Eq.(16) |
 | ring FOM | $\mathcal{L}=\dfrac{8}{3\eta}\dfrac{kT}{P}\dfrac{V_{DD}}{V_{char}}\Big(\dfrac{f_0}{\Delta f}\Big)^2$（無 $N$！） | [P2] Eq.(23) |
 | 廣義 Adler | $\dfrac{d\theta}{dt}=(\omega_0-\omega_{inj})+\Omega(\theta)$，$\Omega=\langle\tilde\Gamma\,i_{inj}\rangle$ | [P3] Eq.(30)(33) |
 | APF / 振幅衰減 | $\tau_0=\dfrac{2Q}{\omega_{osc}}$，$\tilde\Lambda_1=\dfrac{\tau_0}{q_{max}}\angle0°$（與 ISF quadrature） | [P4] Eq.(25)(26) |

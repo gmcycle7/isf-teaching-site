@@ -62,7 +62,7 @@ description: ISF 相關術語的中英對照，每個給一句中文直覺定義
 
 | 英文 | 中文 | 一句話直覺 | 出處頁 |
 |---|---|---|---|
-| **ring oscillator** | 環形振盪器 | $N$ 級反相器串成環；ISF 集中在 transition、$\Gamma_{rms}\propto N^{-3/4}$。 | [lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model) |
+| **ring oscillator** | 環形振盪器 | $N$ 級反相器串成環；ISF 集中在 transition、$\Gamma_{rms}\propto N^{-3/2}$。 | [lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model) |
 | **LC oscillator** | LC 振盪器 | tank 諧振、波形近正弦；理想 ISF $=-\sin\theta$。 | [lab_02](/04_simulation_labs/lab_02_lc_oscillator_toy_model) |
 | **accumulated jitter** | 累積（長期）jitter | 開環振盪器無絕對時間參考，誤差像隨機漫步 $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ 成長。 | [lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model) |
 | **injection locking / pulling** | 注入鎖定／拉扯 | 外部訊號注入把振盪器頻率「拉」向它；同一個 ISF 也主宰這現象（廣義 Adler）。 | [paper_003_injection_locking_part1](/05_paper_deep_dives/paper_003_injection_locking_part1) |

@@ -622,7 +622,7 @@ print(round(Grms, 3))     # -> 0.397
 ### 例 D3：ring 級數 $N$ 的選擇（頻率 vs ISF）
 
 > **題目**：要做 $f_0=5$ GHz single-ended ring。（a）若每級延遲 $\tau_D=20$ ps，需幾級 $N$？
-> （b）若把級數從 $N=5$ 增到 $N=15$（同時調 $\tau_D$ 維持 $f_0$），用 $\Gamma_{rms}\propto N^{-3/4}$
+> （b）若把級數從 $N=5$ 增到 $N=15$（同時調 $\tau_D$ 維持 $f_0$），用 $\Gamma_{rms}\propto N^{-3/2}$
 > 估 phase noise 改變幾 dB（只看 $\Gamma_{rms}$ 這個因子）？
 
 **逐步解**
@@ -633,7 +633,7 @@ $$
 N=\frac1{2\times5\times10^{9}\times20\times10^{-12}}=\frac1{0.2}=5 .
 $$
 
-第 2 步（b），$\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16), p.794，已核實；scaling 為主）。比值：
+第 2 步（b），$\Gamma_{rms}\propto N^{-3/2}$（[P2] Eq.(16), p.794，v7 已重核：根號只蓋常數，正文 $4/N^{1.5}$@$\eta=0.75$ 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 $N^{-3/4}$；scaling 為主）。比值：
 
 $$
 \frac{\Gamma_{rms}(15)}{\Gamma_{rms}(5)}=\left(\frac{15}{5}\right)^{-3/2}=3^{-1.5}=0.1925 .
@@ -782,8 +782,10 @@ for st in [2e-12, 4e-12]:
 **誠實標記**
 
 - 例 C3 的 period jitter 前置常數標了 `TODO: manual verification needed`（與單邊/雙邊譜慣例有關）。
-- 例 D3 的 ring $\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16), p.794，已核實），且「14.3 dB」僅為孤立因子示意，
-  非真實設計增益（toy scaling，非 transistor-level）。
+- 例 D3 的 ring $\Gamma_{rms}\propto N^{-3/2}$（[P2] Eq.(16), p.794；v7 已重核：根號只蓋常數；正文 $4/N^{1.5}$@$\eta=0.75$
+  與 App.B Eq.(55) 三重驗證；v3 曾誤讀為 $N^{-3/4}$）。「14.3 dB」是 $N=5\to15$ 時 $\Gamma_{rms}^2$ 比值
+  $(15/5)^{-3}=1/27$ 換算成 dB 的正確結果（$10\log_{10}(1/27)=-14.3$ dB），但仍僅為孤立因子示意，
+  非真實設計增益（toy scaling，非 transistor-level；見 D3 警語段的 FOM N-independence）。
 
 ## 延伸閱讀
 

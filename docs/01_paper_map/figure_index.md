@@ -53,7 +53,7 @@ description: 每張生成圖追溯到 script、function、參數、背後公式�
 | Fig. 7 | [P1] | 183 | (a) LC、(b) ring 的波形與 ISF 形狀；`lc_vs_ring_isf_comparison.png` 的依據 | No |
 | Fig. 8 | [P1] | 183 | $n\omega_0$ 附近 noise 被降頻搬到 carrier 形成 sideband（傅立葉降頻圖） | No |
 | Fig. 12 | [P1] | 185 | $\overline{i^2}/f$ 的 PSD 與 SSB $\mathcal{L}(\Delta f)$，顯示 $1/f^3$、$1/f^2$、noise floor 三段並定義 $1/f^3$ corner | No |
-| Fig. 8 | [P2] `jitter_ring.pdf` | 794 | 單端 ring 的 $\Gamma_{rms}$ 隨級數 $N$ 變化；$\Gamma_{rms}\propto N^{-3/4}$ 的證據 | No |
+| Fig. 8 | [P2] `jitter_ring.pdf` | 794 | 單端 ring 的 $\Gamma_{rms}$ 隨級數 $N$ 變化；實線為 [P2] Eq.(16) 於 $\eta=0.75$ 時的 $4/N^{1.5}$，即 $\Gamma_{rms}\propto N^{-3/2}$ 的證據 | No |
 | Fig. 17 | [P2] | 802 | ring phase noise 對對稱（控制）電壓的關係，最小值在對稱點；支持「對稱 → 壓 $1/f$ 上轉」設計法則 | No |
 | Fig. 5 | [P4] `BHongGenTheor-II…` | 2126 | 理想 LC 的 ISF 與 APF、振幅衰減函數及兩者**正交**關係；phase_vs_amplitude_noise 用它說明「為何振幅 noise 衰減」 | No |
 

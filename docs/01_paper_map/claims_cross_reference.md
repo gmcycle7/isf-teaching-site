@@ -25,7 +25,7 @@ description: C1–C13 教學主張的來源論文、信心、是否需人工確�
 | **C5** $1/f^3$ corner **不等於** device 的 $1/f$ corner：$\Delta\omega_{1/f^3}=\omega_{1/f}\,c_0^2/(2\Gamma_{rms}^2)$，故對稱性可把它壓到 device corner 以下。 | [P1] Eq.(24) | high (equation verified) | No | [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)、[symmetry](/06_design_insights/symmetry)、[equation_index](/01_paper_map/equation_index) |
 | **C6** 自由振盪器累積 jitter 隨量測區間開根號成長 $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$——無絕對時間參考的隨機漫步特徵。 | [P2] (paper_002) Eq.(8), p.792 | high | No | [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)、[lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model)、[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) |
 | **C7** 固定中心頻率與功率耗損下，單端 ring 的 phase noise／jitter 基本上**與級數 $N$ 無關**。 | [P2] Sec. V, Eq.(23)/(25), p.796 | high (equation verified)（$N$ 無關已核實；唯 FOM 前置係數 $8/(3\eta)$ 屬細節） | No | [lc_vs_ring](/06_design_insights/lc_vs_ring)、[lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model) |
-| **C8** 單端 ring 的 rms ISF 約 $\Gamma_{rms}\propto N^{-3/4}$。 | [P2] Eq.(16), p.794 | high (equation verified) | No | [rms_isf](/03_isf_core_theory/rms_isf)、[lc_vs_ring](/06_design_insights/lc_vs_ring)、[lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model) |
+| **C8** 單端 ring 的 rms ISF 約 $\Gamma_{rms}\propto N^{-3/2}$。 | [P2] Eq.(16), p.794 | high (equation verified) | No | [rms_isf](/03_isf_core_theory/rms_isf)、[lc_vs_ring](/06_design_insights/lc_vs_ring)、[lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model) |
 | **C9** ISF 框架把既有 phase-noise 模型（如 Leeson）納為特例，並透過 effective ISF $\Gamma_{eff}=\Gamma\cdot\alpha$ 自然容納 cyclostationary noise。 | [P1] Abstract 與 cyclostationary 節 | high | No | [effective_isf](/03_isf_core_theory/effective_isf)、[paper_summary_table](/01_paper_map/paper_summary_table)、[equation_index](/01_paper_map/equation_index) |
 | **C10** 決定 phase noise 的同一個 ISF 也決定 injection locking/pulling；單一一階（廣義 Adler）方程預測 lock range、locked phase、穩定性。 | [P3] (Hong Part I, 2019) Eq.(30), p.2113／Eq.(35), p.2114 | high (equation verified) | No | [paper_003_injection_locking_part1](/05_paper_deep_dives/paper_003_injection_locking_part1)、[equation_index](/01_paper_map/equation_index) |
 | **C11** 注入下的振幅效應由 **APF**（amplitude perturbation function，ISF 的振幅版類比，單位 $\mathrm{A^{-1}}$）描述；理想 LC 中 ISF 與 APF **正交**。 | [P4] (Hong Part II, 2019) Fig.5, p.2126；正交性 Eq.(26), p.2128 | high (equation verified) | No | [paper_004_injection_locking_part2](/05_paper_deep_dives/paper_004_injection_locking_part2)、[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) |
@@ -55,8 +55,9 @@ description: C1–C13 教學主張的來源論文、信心、是否需人工確�
   模型下，已對照 [P2] Sec. V、Eq.(23)/(25)、p.796 核實。FOM 前置係數為
   $\frac{8}{3\eta}\,\frac{V_{DD}}{V_{char}}\,\frac{kT}{P}$（$\eta$ 為級延遲比例常數 Eq.(14)，$\approx1$；$\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入）。
   唯一仍需逐字確認者僅此前置係數本身；$N$ 無關的結論已穩固核實。
-- **C8**：$\Gamma_{rms}\propto N^{-3/4}$ 的 scaling 與前置係數均已核實：[P2] Eq.(16), p.794 給出
-  $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\,N^{-3/4}$（$\eta\approx1$）。已對照原始 PDF 核實。
+- **C8**：[P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；正文 $4/N^{1.5}$@$\eta=0.75$ 與
+  App.B Eq.(55) 三重驗證。v3 曾誤讀為 $N^{-3/4}$）。閉式為
+  $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}$（$\eta=0.75$ 時 $\approx 4/N^{1.5}$，即 [P2] Fig.8 的實線）。
 - **C10**：廣義 Adler 方程已對照 [P3] 核實：時間平均式 $d\theta/dt=\omega_0-\omega_{inj}+\frac{1}{T_{inj}}\int\tilde\Gamma(\omega_{inj}t+\theta)\,i_{inj}\,dt$ = Eq.(30), p.2113（原文為 **加號**），鎖定範圍 $\omega_L=\tfrac12 I_{inj}\vert\tilde\Gamma_1\vert$ = Eq.(35), p.2114。
   （若站內某些頁面平均項前寫 **減號**，係本站 $\Gamma$ 取與 [P3] 相反的符號慣例，數值等價。）
 - **C11**：APF 已對照 [P4] 核實：分解 $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$ = Eq.(18)、定義 $\Delta(\phi):=\int_0^\infty D\,d\tau$（單位 $\mathrm{A^{-1}}$）= Eq.(19)，皆於 p.2126；ISF／APF 正交於理想 LC = Eq.(26), p.2128。

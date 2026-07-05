@@ -1,0 +1,80 @@
+---
+title: Interactive Calculator
+description: Drag the sliders and watch in real time how q_max, Γrms, S_i, and f0 change the phase noise L and the rms jitter.
+---
+
+import PhaseNoiseCalculator from '@site/src/components/PhaseNoiseCalculator';
+import IsfFourierExplorer from '@site/src/components/IsfFourierExplorer';
+import SerdesBerExplorer from '@site/src/components/SerdesBerExplorer';
+import InjectionLockingExplorer from '@site/src/components/InjectionLockingExplorer';
+import AllanDeviationExplorer from '@site/src/components/AllanDeviationExplorer';
+import PllLoopBwExplorer from '@site/src/components/PllLoopBwExplorer';
+import IsfSandbox from '@site/src/components/IsfSandbox';
+
+# Interactive Tools
+
+> **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
+
+Seven interactive tools (calculators, explorers, animations, and a sandbox) that turn ISF theory into intuition. Everything computes live in the browser and works offline.
+
+## Tool 1: phase noise / jitter calculator
+
+Turn [ISF theory](/03_isf_core_theory/white_noise_to_phase_noise) into feel: drag the sliders below and watch in real time how the **single-sideband phase noise** $\mathcal{L}$ (dBc/Hz) and the **rms timing jitter** $\sigma_t$ (fs) change with the design parameters. Underneath are [P1] Eq.(21) and the 1/f² jitter integral.
+
+<PhaseNoiseCalculator />
+
+## How to play your way to intuition
+
+- **Double `q_max`**: $\mathcal{L}$ should drop $6$ dB ($\mathcal{L}\propto 1/q_{max}^2$) — see [tank_swing](/06_design_insights/tank_swing).
+- **Halve `Γ_rms`**: $\mathcal{L}$ also drops $6$ dB ($\mathcal{L}\propto\Gamma_{rms}^2$) — see [symmetry](/06_design_insights/symmetry), [waveform_slope](/06_design_insights/waveform_slope).
+- **Pull the lower integration limit `f₁` down**: $\sigma_t$ grows — because 1/f² jitter is **dominated by the lower limit** (see Example C in [numerical_feeling](/04_simulation_labs/numerical_feeling)).
+- **Raise `f₀`**: at the same $\sigma_\phi$, $\sigma_t=\sigma_\phi/(2\pi f_0)$ shrinks — but do not forget that higher-frequency circuits usually carry more noise too.
+
+## Tool 2: ISF Fourier explorer
+
+Tune the ISF Fourier coefficients $c_0$–$c_3$ and watch in real time the waveform $\Gamma(\theta)$, $\Gamma_{rms}$, and the **1/f³ corner ratio $c_0^2/(2\Gamma_{rms}^2)$** ([P1] Eq.24). Pull $c_0$ to 0 (symmetric waveform) and the corner approaches 0 — this is the mechanism that suppresses close-in flicker.
+
+<IsfFourierExplorer />
+
+## Tool 3: SerDes BER bathtub explorer
+
+Take the rms jitter $\sigma_t$ obtained by integrating the oscillator phase noise, together with the UI (inverse baud rate), and look at the **eye opening** and the **BER bathtub**. As $\sigma_t$ grows or the UI shrinks, the eye opening at BER $=10^{-12}$ narrows.
+
+<SerdesBerExplorer />
+
+## Tool 4: injection-locking explorer
+
+**Injection locking** (an external signal pulling the oscillator frequency onto itself) has a range set by the ISF fundamental: drag `I_inj`, the detuning `Δω`, and the normalized ISF fundamental $\vert\tilde\Gamma_1\vert$ to see the lock range $\omega_L=\tfrac12\,I_{inj}\,\vert\tilde\Gamma_1\vert$ ([P3] Eq.(35)) and the phase dynamics $d\theta/dt=\Delta\omega-\omega_L\sin\theta$ (the Adler equation — external literature, not among the five source PDFs). When $\vert\Delta\omega\vert\le\omega_L$, $\Omega(\theta)=\omega_L\sin\theta$ intersects the horizontal line $\Delta\omega$ and the system locks at a fixed point $\theta^*$; once the detuning exceeds the envelope it unlocks, leaving a residual beat frequency $\Omega_{beat}=\sqrt{\Delta\omega^2-\omega_L^2}$.
+
+<InjectionLockingExplorer />
+
+## Tool 5: Allan deviation explorer
+
+**Allan deviation** (the two-sample standard deviation that measures long-term time-domain frequency stability) $\sigma_y(\tau)$ translates the same oscillator's noise into a curve versus averaging time $\tau$: pick the dominant FM noise type (white / flicker / random-walk FM) and its strength, and watch the log-log slope fall on the $\tau^{-1/2}$, $\tau^{0}$, $\tau^{+1/2}$ segments in real time. Underneath is the exact closed form of $\sigma_y^2(\tau)=2\int_0^\infty S_y(f)\,\sin^4(\pi f\tau)/(\pi f\tau)^2\,df$ (with $S_y(f)=(f^2/f_0^2)\,S_\phi(f)$) for pure power-law processes, matching the [slope table in spec 11.2](/02_foundations/allan_variance) and lab_19.
+
+<AllanDeviationExplorer />
+
+## Tool 6: PLL loop-bandwidth explorer
+
+The **loop bandwidth** (the cutoff frequency up to which the loop can track the input phase) $f_n$ of a **PLL** (phase-locked loop) sets the noise budget: the loop low-passes the reference path and high-passes the VCO path, giving the output $S_{out}=S_{ref}\vert H_{lp}\vert^2+S_{vco}\vert H_{hp}\vert^2$ (spec 10.2). Increasing $f_n$ admits more in-band reference noise and less out-of-band VCO noise, so there exists an **optimum loop BW** that minimizes the integrated jitter $\sigma_t=\sqrt{\int S_{out}\,df}/(2\pi f_0)$ (spec formula 19) — drag the slider to find it. Matches [pll_noise_budget](/06_design_insights/pll_noise_budget) and lab_20.
+
+<PllLoopBwExplorer />
+
+## Tool 7: ISF sandbox — draw a waveform, see the ISF and the phase noise
+
+Use three "shape" sliders (rise/fall slope ratio $A=f'_{rise}/f'_{fall}$, squareness, duty) to draw your own periodic waveform; the sandbox instantly computes the slope-approximation ISF $\Gamma(\theta)$ ([P2] Appendix approach, not the exact PPV), the Fourier coefficients $\vert c_n\vert$ and $\Gamma_{rms}$, then translates them via [P1] Eq.(21) and Eq.(24) into $\mathcal{L}(1\,\text{MHz})$ and the 1/f³ corner. Pull $A$ from 5 back to 1 (more symmetric rise/fall) and watch $c_0\to 0$ with the corner falling all the way to 0 — the hands-on feel of "symmetry↑ → $c_0$↓ → 1/f³ corner↓" from the [symmetry](/06_design_insights/symmetry) page; crank the squareness up (steeper edges) and you get the $\Gamma_{rms}$↓ → $\mathcal{L}$↓ story of [waveform_slope](/06_design_insights/waveform_slope).
+
+<IsfSandbox />
+
+## Formula reference
+
+$$
+\mathcal{L}(\Delta f)=10\log_{10}\!\left(\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{S_i}{4\,(2\pi\Delta f)^2}\right),
+\qquad
+\sigma_t=\frac{1}{2\pi f_0}\sqrt{2\,L_{\text{lin}}\,f_{ref}^2\left(\frac{1}{f_1}-\frac{1}{f_2}\right)}
+$$
+
+where $S_i=\overline{i_n^2}/\Delta f$ and $L_{\text{lin}}=10^{\mathcal{L}/10}$. This is a **single-source, 1/f²-skirt toy model**
+(not transistor-level): real oscillators have multiple noise sources, cyclostationarity, flicker (1/f³), and a noise floor.
+Full derivations in [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) and
+[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter).

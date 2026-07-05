@@ -68,7 +68,7 @@ graph TD
    （拉大 $q_{max}$、壓小 $\Gamma_{rms}$、靠 symmetry 壓 $c_0$）。沒讀懂它，後面都讀不動。
 2. **再讀 [P2]**（[paper_002](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring)）。
    把 [P1] 套到 ring：accumulated jitter $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$、
-   $\Gamma_{rms}\propto N^{-3/4}$、以及「固定功率與頻率下 ring phase noise 幾乎與 $N$ 無關」
+   $\Gamma_{rms}\propto N^{-3/2}$、以及「固定功率與頻率下 ring phase noise 幾乎與 $N$ 無關」
    的結論（已核實）。
 3. **想懂 injection 再讀 [P3]→[P4]**。[P3] 是 phase-only 的廣義 Adler 方程；[P4] 補上振幅
    （APF）與 frequency division。這兩篇是**進階**；其核心方程已對照原始 PDF 核實（[P3] 廣義 Adler Eq.(30)/(35), pp.2113–2114；[P4] APF Eq.(18)–(22)、Fig. 5, p.2126）。

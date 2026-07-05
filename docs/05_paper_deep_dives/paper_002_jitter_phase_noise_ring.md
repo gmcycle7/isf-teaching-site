@@ -1,6 +1,6 @@
 ---
 title: "[P2] Jitter and Phase Noise in Ring Oscillators"
-description: Hajimiri–Limotyrakis–Lee 1999 精讀：accumulated jitter、Γrms∝N^(-3/4)、N-independence（已核實）、symmetry 與 Fig.17。
+description: Hajimiri–Limotyrakis–Lee 1999 精讀：accumulated jitter、Γrms∝N^(-3/2)、N-independence（已核實）、symmetry 與 Fig.17。
 ---
 
 # Jitter and Phase Noise in Ring Oscillators
@@ -10,7 +10,7 @@ description: Hajimiri–Limotyrakis–Lee 1999 精讀：accumulated jitter、Γr
 [P2] 把 [P1] 的 ISF 框架**套到 ring oscillator（環形振盪器）**。它回答三個非常實際的問題：
 （1）自由振盪的 ring 的 long-term jitter 怎麼隨時間長大？（2）級數 $N$ 對 phase noise 有什麼
 影響？（3）為什麼波形對稱性能壓低 close-in noise？答案分別是 $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$、
-$\Gamma_{rms}\propto N^{-3/4}$（與「固定功率與頻率下幾乎與 $N$ 無關」），以及 Fig. 17 的對稱性實驗。
+$\Gamma_{rms}\propto N^{-3/2}$（與「固定功率與頻率下幾乎與 $N$ 無關」），以及 Fig. 17 的對稱性實驗。
 
 ## Citation
 
@@ -21,7 +21,7 @@ $\Gamma_{rms}\propto N^{-3/4}$（與「固定功率與頻率下幾乎與 $N$ 無
 ## One-sentence contribution
 
 把 [P1] 的 ISF 用到 ring oscillator，得到 jitter 與 phase noise 的封閉式、
-$\Gamma_{rms}\propto N^{-3/4}$ 的 scaling、以及「固定 $f_0$ 與功率時 single-ended ring 的
+$\Gamma_{rms}\propto N^{-3/2}$ 的 scaling、以及「固定 $f_0$ 與功率時 single-ended ring 的
 phase noise／jitter 幾乎與級數 $N$ 無關」這個反直覺結論（claim C7, C8）。
 
 ## Why this paper matters
@@ -133,24 +133,31 @@ $\tau_D=1/(2\times5\times5\times10^9)=2\times10^{-11}\ \text{s}=20$ ps。級數�
 又要維持 5 GHz，每級延遲就得砍半到 10 ps——這正是「固定頻率時 $N$↑ 必須讓每級更快、擺幅更
 小」的由來，連到下面的 N-independence。
 
-### Eq.(16)：rms ISF 隨級數的 scaling（已對照原始 PDF 核實 ✓）
+### Eq.(16)：rms ISF 隨級數的 scaling（v7 已重核 ✓）
 
-**Original formula**（[P2] Eq.(16), p.794，已用高解析度渲染逐字確認）：
+**Original formula**（[P2] Eq.(16), p.794，根號只蓋常數項）：
 
 $$
-\Gamma_{rms}=\sqrt{\frac{2\pi^2}{3\eta^3}\cdot\frac{1}{N^{1.5}}}
+\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}
 $$
 
-其中 $\eta$ 是頻率比例常數（Eq.(14)–(15)：$\hat t_D=\eta/f_{max}$、$2\pi=2N\eta/f_{max}$）。
+其中 $\eta$ 是頻率比例常數（Eq.(14)–(15)：$\hat t_D=\eta/f_{max}$、$2\pi=2N\eta/f_{max}$）；
+$\eta=0.75$ 時 $\sqrt{2\pi^2/(3\times0.75^3)}\approx3.95\approx4$，即 $\Gamma_{rms}\approx4/N^{1.5}$，
+就是 [P2] Fig. 8 的實線——根號只含常數，$1/N^{1.5}$ 在根號外。
 
-**Meaning**：把根號內的 $1/N^{1.5}$ 開根號後得 **$\Gamma_{rms}\propto N^{-3/4}$**（即 $\Gamma_{rms}^2\propto N^{-3/2}$）。
+**Meaning**：**$\Gamma_{rms}\propto N^{-3/2}$**（即 $\Gamma_{rms}^2\propto N^{-3}$）。
 直覺：級數越多，每個 transition 在 $2\pi$ 週期裡佔的「敏感時間窗」越窄、尖峰越矮，rms 自然變小。
 
-> **Formula-vs-prose 註記（重要，已核實）**：[P2] p.794 的**印刷公式**根號同時涵蓋
-> $2\pi^2/(3\eta^3)$ 與 $1/N^{1.5}$ 兩項（已逐字確認），所以嚴格依公式 $\Gamma_{rms}\propto N^{-3/4}$。
-> 但同頁**文字**寫「the $1/N^{1.5}$ dependence of $\Gamma_{rms}$」，許多二手文獻也引用為
-> $\Gamma_{rms}\propto N^{-3/2}$——那個 $N^{-3/2}$ 其實是**根號內項（即 $\Gamma_{rms}^2$）**的指數。
-> 這是論文本身「公式 vs 文字」的小不一致；下方的 N-independence 結論不依賴於怎麼解讀此指數。
+> **[P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；正文
+> $4/N^{1.5}$@$\eta=0.75$ 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 $N^{-3/4}$）**：
+> 三重證據——(1) 正文（p.794，Eq.16 下一段）明寫「the $1/N^{1.5}$ dependence of $\Gamma_{rms}$」；
+> (2) $\eta=0.75$ 數值錨：正文「solid line = $\Gamma_{rms}\approx4/N^{1.5}$, obtained from (16)
+> for $\eta=0.75$」，且 $\sqrt{2\pi^2/(3\times0.75^3)}=3.95\approx4$ ✓（若 $N^{1.5}$ 在根號內
+> 會得 $4/N^{0.75}$，與正文矛盾）；(3) App.B Eq.(52)+(54)（p.803）獨立代數：
+> $\Gamma_{rms}^2=(1/3\pi)(1/f'_{rise})^3(1+A^3)$、$2\pi=\eta N(1+A)/f'_{rise}$，
+> 代入整理得 $\Gamma_{rms}^2=(2\pi^2/3\eta^3)\cdot[4(1+A^3)/(1+A)^3]\cdot N^{-3}$；$A=1$ 時中括號
+> 為 1，故 $\Gamma_{rms}^2\propto N^{-3}\Rightarrow\Gamma_{rms}\propto N^{-3/2}$ ✓。三者一致指向
+> $N^{-3/2}$；並無「公式 vs 文字」不一致——是先前對根號範圍的誤讀。
 
 ### Eq.(23)：ring 白噪 phase noise FOM 與 N-independence（前置係數已更正為 8/(3η) 並核實）
 
@@ -181,9 +188,9 @@ single-ended ring 的 phase noise 與級數 $N$ 無關。**
 
 | 論文圖 | 頁 | 內容 | 本站對應 | 註 |
 |---|---|---|---|---|
-| Fig. 5 | 793 | 同頻、不同級數 $N$（3/5/15）的 ISF 疊圖 | scaling 直覺（$\Gamma_{rms}\propto N^{-3/4}$） | ✓ |
+| Fig. 5 | 793 | 同頻、不同級數 $N$（3/5/15）的 ISF 疊圖 | scaling 直覺（$\Gamma_{rms}\propto N^{-3/2}$） | ✓ |
 | Fig. 6 | 793 | single-ended ring 單級的近似波形與 ISF（能量集中在 transition） | toy 三角 ISF（lab_03） | ✓ |
-| Fig. 8 | 794 | 不同級數 ring 的 rms ISF vs $N$ | `lc_vs_ring_isf_comparison.png` 的 scaling 論證 | — |
+| Fig. 8 | 794 | 不同級數 ring 的 rms ISF vs $N$，實線為 Eq.(16) 在 $\eta=0.75$ 時的 $\Gamma_{rms}\approx4/N^{1.5}$ | `lc_vs_ring_isf_comparison.png` 的 scaling 論證 | ✓ |
 | **Fig. 17** | 802 | phase noise vs symmetry（控制）電壓，在對稱點有**極小值** | symmetry 設計法則的直接實驗佐證 | ✓ |
 
 **Fig. 17 是 symmetry 法則的鐵證**：把控制電壓掃過，調到 PMOS 上拉電流 = NMOS 下拉電流、
@@ -240,7 +247,8 @@ SerDes 觀點見 [serdes_clocking_connection](/06_design_insights/serdes_clockin
 
 - **accumulated jitter $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$**：自由振盪器的隨機漫步指紋（[P2] Eq.(8), p.792）。
 - $\kappa$ 由**和 phase noise 同一個 $\Gamma_{rms}^2/q_{max}^2$** 決定（[P2] Eq.16/23，已核實）。
-- **$\Gamma_{rms}\propto N^{-3/4}$**（[P2] Eq.(16), p.794，已核實）；但固定 $f_0$、$P$ 下 phase noise
+- **$\Gamma_{rms}\propto N^{-3/2}$**（[P2] Eq.(16), p.794，v7 已重核：根號只蓋常數，正文 $4/N^{1.5}$@$\eta=0.75$
+  與 App.B Eq.(55) 三重驗證）；但固定 $f_0$、$P$ 下 phase noise
   **幾乎與 $N$ 無關**（[P2] Eq.(23) 無 $N$，claim C7，已核實）。
 - **Fig. 17**：對稱點 phase noise 有碗底——symmetry 法則的鐵證（claim C4）。
 - ring 比 LC 好整合，但 phase noise 通常較差；本頁告訴你旋鈕在哪。

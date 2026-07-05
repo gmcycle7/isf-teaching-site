@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import useIsEn from './useIsEn';
 
 // "畫波形 → 看 ISF 與 phase noise" sandbox.
 //
@@ -123,6 +124,7 @@ function polyline(arr, ymax) {
 }
 
 export default function IsfSandbox() {
+  const isEn = useIsEn();
   const [A, setA] = useState(1.0);        // f'_rise / f'_fall
   const [sq, setSq] = useState(0.0);      // squareness 0..1
   const [duty, setDuty] = useState(0.5);  // 0.3..0.7
@@ -170,14 +172,16 @@ export default function IsfSandbox() {
   return (
     <div style={box}>
       <div style={{fontWeight: 600, marginBottom: '0.5rem'}}>
-        ISF sandbox：畫波形 → 看 ISF 與 phase noise
+        {isEn
+          ? 'ISF sandbox: draw a waveform → see the ISF and phase noise'
+          : 'ISF sandbox：畫波形 → 看 ISF 與 phase noise'}
       </div>
 
-      <Row label="斜率比 A = f′rise/f′fall" value={A} unit="" min={0.2} max={5} step={0.05}
+      <Row label={isEn ? 'Slope ratio A = f′rise/f′fall' : '斜率比 A = f′rise/f′fall'} value={A} unit="" min={0.2} max={5} step={0.05}
            onChange={setA} fmt={(v) => v.toFixed(2)} />
-      <Row label="方形度（0=正弦，1=近方波）" value={sq} unit="" min={0} max={1} step={0.01}
+      <Row label={isEn ? 'Squareness (0=sine, 1=near-square)' : '方形度（0=正弦，1=近方波）'} value={sq} unit="" min={0} max={1} step={0.01}
            onChange={setSq} fmt={(v) => v.toFixed(2)} />
-      <Row label="duty（V＞0 佔比）" value={duty} unit="" min={0.3} max={0.7} step={0.01}
+      <Row label={isEn ? 'Duty (fraction with V>0)' : 'duty（V＞0 佔比）'} value={duty} unit="" min={0.3} max={0.7} step={0.01}
            onChange={setDuty} fmt={(v) => v.toFixed(2)} />
       <Row label="f₀" value={f0GHz} unit="GHz" min={1} max={10} step={0.1}
            onChange={setF0} fmt={(v) => v.toFixed(1)} />
@@ -190,12 +194,14 @@ export default function IsfSandbox() {
         <line x1={PADX} y1={PADY} x2={PADX} y2={PH - PADY} stroke={axis} strokeWidth="1" />
         <line x1={xZC} y1={PADY} x2={xZC} y2={PH - PADY} stroke={axis} strokeWidth="1" strokeDasharray="4 4" />
         <polyline points={polyline(V, 1.15)} fill="none" stroke="var(--ifm-color-primary)" strokeWidth="2" />
-        <text x={PADX + 4} y={PADY + 2} fontSize="11" fill={axis}>V(θ)（normalized，振幅 1）</text>
+        <text x={PADX + 4} y={PADY + 2} fontSize="11" fill={axis}>{isEn ? 'V(θ) (normalized, amplitude 1)' : 'V(θ)（normalized，振幅 1）'}</text>
         <text x={W - PADX} y={PH / 2 + 14} fontSize="11" fill={axis} textAnchor="end">θ = 2π</text>
-        <text x={xZC + 4} y={PH - PADY - 4} fontSize="10" fill={axis}>fall ZC</text>
+        <text x={xZC + 4} y={PH - PADY - 4} fontSize="10" fill={axis}>{isEn ? 'fall ZC' : 'fall ZC'}</text>
       </svg>
       <div style={{...small, margin: '0.15rem 0 0.5rem'}}>
-        一個週期 T = 1/f₀ = {Tps.toFixed(1)} ps；最陡 edge 的 slew ≈ (dV/dθ)·ω₀ = {slewVns.toFixed(1)} V/ns（振幅 1 V）。
+        {isEn
+          ? `One period T = 1/f₀ = ${Tps.toFixed(1)} ps; the steepest edge's slew ≈ (dV/dθ)·ω₀ = ${slewVns.toFixed(1)} V/ns (amplitude 1 V).`
+          : `一個週期 T = 1/f₀ = ${Tps.toFixed(1)} ps；最陡 edge 的 slew ≈ (dV/dθ)·ω₀ = ${slewVns.toFixed(1)} V/ns（振幅 1 V）。`}
       </div>
 
       {/* ISF Γ(θ) */}
@@ -204,12 +210,22 @@ export default function IsfSandbox() {
         <line x1={PADX} y1={PADY} x2={PADX} y2={PH - PADY} stroke={axis} strokeWidth="1" />
         <line x1={xZC} y1={PADY} x2={xZC} y2={PH - PADY} stroke={axis} strokeWidth="1" strokeDasharray="4 4" />
         <polyline points={polyline(gam, gmax)} fill="none" stroke="var(--ifm-color-danger, #e5534b)" strokeWidth="2" />
-        <text x={PADX + 4} y={PADY + 2} fontSize="11" fill={axis}>Γ(θ)　max = {gmax === 0 ? '0' : (gmax / 1.12).toFixed(2)}</text>
+        <text x={PADX + 4} y={PADY + 2} fontSize="11" fill={axis}>{isEn ? 'Γ(θ)  max = ' : 'Γ(θ)　max = '}{gmax === 0 ? '0' : (gmax / 1.12).toFixed(2)}</text>
         <text x={W - PADX} y={PH / 2 + 14} fontSize="11" fill={axis} textAnchor="end">θ = 2π</text>
       </svg>
       <div style={{...small, margin: '0.15rem 0 0.5rem'}}>
-        ISF 為 <b>slope 近似（[P2] Appendix 思路），非 exact PPV</b>：Γ(θ) = −V′(θ)/f′²_max，
-        上升沿與下降沿各用自己的最大斜率歸一（單一全域歸一會讓 c₀ 恆為 0）。
+        {isEn ? (
+          <>
+            The ISF is a <b>slope approximation ([P2] Appendix approach), not an exact PPV</b>:
+            Γ(θ) = −V′(θ)/f′²_max, with the rising and falling edges each normalized by their own
+            maximum slope (a single global normalization would force c₀ to be identically 0).
+          </>
+        ) : (
+          <>
+            ISF 為 <b>slope 近似（[P2] Appendix 思路），非 exact PPV</b>：Γ(θ) = −V′(θ)/f′²_max，
+            上升沿與下降沿各用自己的最大斜率歸一（單一全域歸一會讓 c₀ 恆為 0）。
+          </>
+        )}
       </div>
 
       {/* |c_n| bars */}
@@ -242,7 +258,7 @@ export default function IsfSandbox() {
           <div style={{fontSize: '1.25rem', fontWeight: 700}}>{grms.toFixed(3)}</div>
         </div>
         <div style={card}>
-          <div style={small}>c₀（含正負號）</div>
+          <div style={small}>{isEn ? 'c₀ (signed)' : 'c₀（含正負號）'}</div>
           <div style={{fontSize: '1.25rem', fontWeight: 700}}>{c0.toFixed(3)}</div>
         </div>
         <div style={card}>
@@ -258,12 +274,26 @@ export default function IsfSandbox() {
       </div>
 
       <div style={{...small, marginTop: '0.7rem'}}>
-        模型：512 點數值計算。L(1 MHz) 用 [P1] Eq.(21)（SSB /4 記帳），固定 S_i = 10⁻²⁴ A²/Hz；
-        1/f³ corner = c₀²/(2Γ_rms²)·f₁/f，f₁/f = 1 MHz（[P1] Eq.(24)）。f₀ 只換算時間刻度與 slew
-        （固定 offset 下 Eq.(21) 不顯含 f₀）。
-        <b>錨點（已數值驗證）</b>：正弦設定（A=1、方形度 0、duty 0.5、q_max=1 pC）→
-        Γ_rms = 0.707、|c₁| = 1.000、c₀ ≈ 0、corner = 0、L(1 MHz) = −145.0 dBc/Hz
-        （例B 的 −148.0 dBc/Hz 對應 Γ_rms = 0.5；0.707 比 0.5 高 3.0 dB）。
+        {isEn ? (
+          <>
+            Model: 512-point numerical computation. L(1 MHz) uses [P1] Eq.(21) (SSB /4 convention)
+            with a fixed S_i = 10⁻²⁴ A²/Hz; 1/f³ corner = c₀²/(2Γ_rms²)·f₁/f, f₁/f = 1 MHz ([P1]
+            Eq.(24)). f₀ only rescales the time axis and the slew (at a fixed offset, Eq.(21) has
+            no explicit f₀ dependence).
+            <b> Anchor point (numerically verified)</b>: sine setting (A=1, squareness 0, duty 0.5,
+            q_max=1 pC) → Γ_rms = 0.707, |c₁| = 1.000, c₀ ≈ 0, corner = 0, L(1 MHz) = −145.0 dBc/Hz
+            (Example B's −148.0 dBc/Hz corresponds to Γ_rms = 0.5; 0.707 is 3.0 dB higher than 0.5).
+          </>
+        ) : (
+          <>
+            模型：512 點數值計算。L(1 MHz) 用 [P1] Eq.(21)（SSB /4 記帳），固定 S_i = 10⁻²⁴ A²/Hz；
+            1/f³ corner = c₀²/(2Γ_rms²)·f₁/f，f₁/f = 1 MHz（[P1] Eq.(24)）。f₀ 只換算時間刻度與 slew
+            （固定 offset 下 Eq.(21) 不顯含 f₀）。
+            <b>錨點（已數值驗證）</b>：正弦設定（A=1、方形度 0、duty 0.5、q_max=1 pC）→
+            Γ_rms = 0.707、|c₁| = 1.000、c₀ ≈ 0、corner = 0、L(1 MHz) = −145.0 dBc/Hz
+            （例B 的 −148.0 dBc/Hz 對應 Γ_rms = 0.5；0.707 比 0.5 高 3.0 dB）。
+          </>
+        )}
       </div>
     </div>
   );

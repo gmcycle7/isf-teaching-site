@@ -200,7 +200,7 @@ print(dphi, "rad")                        # -> 0.0005 rad
 | 來源 | 符號／物件 | 脈絡 | 與本站 $\Gamma$ 的關係 | 信心 |
 |---|---|---|---|---|
 | **[P1]** Hajimiri–Lee 1998 | $\Gamma(\omega_0\tau)$ | phase noise（LTV impulse response） | **本站定義的原始出處**，Eq.(10),(11) | high（公式已核） |
-| **[P2]** Hajimiri–Limotyrakis–Lee 1999 | $\Gamma(\omega_0\tau)$ | ring oscillator 的 jitter／phase noise | 同一個 $\Gamma$；強調 $\Gamma_{rms}\propto N^{-3/4}$ scaling（[P2] Eq.(16), p.794） | high（敘述與 scaling 皆已核實） |
+| **[P2]** Hajimiri–Limotyrakis–Lee 1999 | $\Gamma(\omega_0\tau)$ | ring oscillator 的 jitter／phase noise | 同一個 $\Gamma$；強調 $\Gamma_{rms}\propto N^{-3/2}$ scaling（[P2] Eq.(16), p.794，v7 已重核：根號只蓋常數，正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}） | high（敘述與 scaling 皆已核實） |
 | **[P3]** Hong–Hajimiri 2019 Part I | $\Gamma(\theta+\phi)$ | injection locking／pulling（廣義 Adler） | **同一個 $\Gamma$**，搬到注入脈絡：$\frac{d\phi}{dt}=\Delta\omega-\frac{1}{q_{max}}\langle\Gamma(\theta+\phi)\,i_{inj}(\theta)\rangle$（[P3] Eq.(30), p.2113；本站 $\Gamma$ 取與 [P3] 相反符號慣例，故平均項前為 $-$，數值等價） | high（已對照原始 PDF） |
 | **[P4]** Hong–Hajimiri 2019 Part II | $\Lambda(\phi)$（APF） | amplitude modulation（振幅域） | **振幅版**：把 impulse 投影到**徑向**而非切向；單位 $\text{A}^{-1}$；ideal LC 中 ISF 與 APF 正交（quadrature，[P4] Eq.(26), p.2128） | ✓（APF=[P4] Eq.(19)、Fig. 5, p.2126，已核實） |
 | **[P5]** Hajimiri–Heald 1998 | — | sense amplifier | **與 ISF 無關**（sense amplifier 論文，誠實標明 mislabeled） | high（明顯離題） |

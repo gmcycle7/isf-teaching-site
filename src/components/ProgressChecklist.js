@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import Link from '@docusaurus/Link';
+import useIsEn from './useIsEn';
 
 // localStorage-persisted course progress checklist.
 // Props: items = [{id, label, href}]
@@ -40,6 +41,7 @@ function writeStore(state) {
 }
 
 export default function ProgressChecklist({items = []}) {
+  const isEn = useIsEn();
   const [checked, setChecked] = useState({});
 
   // Hydrate from localStorage after mount (SSR guard).
@@ -111,7 +113,7 @@ export default function ProgressChecklist({items = []}) {
   return (
     <div style={box}>
       <div style={headerRow}>
-        <div style={{fontWeight: 600, flex: '0 1 auto'}}>課程進度 Progress</div>
+        <div style={{fontWeight: 600, flex: '0 1 auto'}}>{isEn ? 'Course Progress' : '課程進度 Progress'}</div>
         <div
           style={{
             display: 'flex',
@@ -127,10 +129,10 @@ export default function ProgressChecklist({items = []}) {
               opacity: 0.85,
             }}
           >
-            <b>{doneCount}</b>/{total} 完成
+            <b>{doneCount}</b>/{total} {isEn ? 'done' : '完成'}
           </span>
           <button type="button" style={clearBtn} onClick={clearAll}>
-            全部清除
+            {isEn ? 'Clear all' : '全部清除'}
           </button>
         </div>
       </div>
@@ -141,7 +143,7 @@ export default function ProgressChecklist({items = []}) {
         aria-valuemin={0}
         aria-valuemax={total}
         aria-valuenow={doneCount}
-        aria-label={'課程進度 ' + doneCount + '/' + total}
+        aria-label={(isEn ? 'Course progress ' : '課程進度 ') + doneCount + '/' + total}
       >
         <div style={barInner} />
       </div>
@@ -200,8 +202,17 @@ export default function ProgressChecklist({items = []}) {
       </ul>
 
       <div style={{fontSize: '0.75rem', opacity: 0.65, marginTop: '0.55rem'}}>
-        進度存在瀏覽器 localStorage（key <code>isf-progress-v1</code>），
-        只在這台裝置、這個瀏覽器有效。
+        {isEn ? (
+          <>
+            Progress is stored in the browser's localStorage (key <code>isf-progress-v1</code>),
+            and only applies on this device and this browser.
+          </>
+        ) : (
+          <>
+            進度存在瀏覽器 localStorage（key <code>isf-progress-v1</code>），
+            只在這台裝置、這個瀏覽器有效。
+          </>
+        )}
       </div>
     </div>
   );

@@ -156,7 +156,7 @@ below; when stuck, return to these four pages first):
 
 - **What to achieve**: translate the formulas into **design knobs** — increase
   $q_{max}$, lower $\Gamma_{rms}$, enforce waveform symmetry to suppress $c_0$; and
-  understand the ring result $\Gamma_{rms}\propto N^{-3/4}$ and "at fixed power and
+  understand the ring result $\Gamma_{rms}\propto N^{-3/2}$ and "at fixed power and
   frequency, ring phase noise is almost independent of the number of stages $N$"
   (claims **C7/C8**).
 - **Pages to read**: [symmetry](/06_design_insights/symmetry) →

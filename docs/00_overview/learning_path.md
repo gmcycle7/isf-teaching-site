@@ -131,7 +131,7 @@ import ProgressChecklist from "@site/src/components/ProgressChecklist";
 ## 第 8 步：設計 takeaways（symmetry、swing、slope） {#step-8}
 
 - **要達成什麼**：把公式翻成**設計旋鈕**——拉大 $q_{max}$、壓低 $\Gamma_{rms}$、
-  強制波形對稱以壓 $c_0$；並理解 ring 的 $\Gamma_{rms}\propto N^{-3/4}$ 與
+  強制波形對稱以壓 $c_0$；並理解 ring 的 $\Gamma_{rms}\propto N^{-3/2}$ 與
   「固定功率/頻率下 ring phase noise 幾乎與級數 $N$ 無關」（claim **C7/C8**）。
 - **讀哪幾頁**：[symmetry](/06_design_insights/symmetry) →
   [lc_vs_ring](/06_design_insights/lc_vs_ring)。

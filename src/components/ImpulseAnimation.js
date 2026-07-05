@@ -1,4 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
+import useIsEn from './useIsEn';
 
 // ImpulseAnimation — 「在 limit cycle 上打一下看相位」核心概念動畫。
 //
@@ -59,6 +60,7 @@ function Arrow({x1, y1, x2, y2, color, opacity = 1, width = 2.4}) {
 }
 
 export default function ImpulseAnimation() {
+  const isEn = useIsEn();
   const [running, setRunning] = useState(true);
   const [thetaInjDeg, setThetaInjDeg] = useState(90);   // 注入相位（度）
   const [eps, setEps] = useState(0.15);                 // Δq/q_max
@@ -162,12 +164,19 @@ export default function ImpulseAnimation() {
   }
 
   // 四個定位標籤
-  const marks = [
-    {deg: 0, lines: ['θ=0°（波峰）'], x: CX, y: 34, anchor: 'middle'},
-    {deg: 90, lines: ['θ=90°', '零交越（降）'], x: CX + RPX + 8, y: CY - 4, anchor: 'start'},
-    {deg: 180, lines: ['θ=180°（波谷）'], x: CX, y: CY + RPX + 24, anchor: 'middle'},
-    {deg: 270, lines: ['θ=270°', '零交越（升）'], x: CX - RPX - 8, y: CY - 4, anchor: 'end'},
-  ];
+  const marks = isEn
+    ? [
+        {deg: 0, lines: ['θ=0° (peak)'], x: CX, y: 34, anchor: 'middle'},
+        {deg: 90, lines: ['θ=90°', 'zero crossing (falling)'], x: CX + RPX + 8, y: CY - 4, anchor: 'start'},
+        {deg: 180, lines: ['θ=180° (trough)'], x: CX, y: CY + RPX + 24, anchor: 'middle'},
+        {deg: 270, lines: ['θ=270°', 'zero crossing (rising)'], x: CX - RPX - 8, y: CY - 4, anchor: 'end'},
+      ]
+    : [
+        {deg: 0, lines: ['θ=0°（波峰）'], x: CX, y: 34, anchor: 'middle'},
+        {deg: 90, lines: ['θ=90°', '零交越（降）'], x: CX + RPX + 8, y: CY - 4, anchor: 'start'},
+        {deg: 180, lines: ['θ=180°（波谷）'], x: CX, y: CY + RPX + 24, anchor: 'middle'},
+        {deg: 270, lines: ['θ=270°', '零交越（升）'], x: CX - RPX - 8, y: CY - 4, anchor: 'end'},
+      ];
 
   // 注入事件的三支箭頭（kick／切向／徑向），錨在注入點
   const k = RPX * GAIN;
@@ -222,7 +231,9 @@ export default function ImpulseAnimation() {
   return (
     <div style={box}>
       <div style={{fontWeight: 600, marginBottom: '0.5rem'}}>
-        Limit cycle 上「打一下看相位」互動動畫（ideal LC toy model）
+        {isEn
+          ? 'Interactive "kick the limit cycle and watch the phase" animation (ideal LC toy model)'
+          : 'Limit cycle 上「打一下看相位」互動動畫（ideal LC toy model）'}
       </div>
 
       <svg viewBox="0 0 460 400" role="img"
@@ -287,30 +298,49 @@ export default function ImpulseAnimation() {
 
       {/* 圖例 */}
       <div style={{fontSize: '0.78rem', opacity: 0.85, margin: '0.5rem 0 0.6rem', lineHeight: 1.9}}>
-        <span style={legendItem}><span style={dotSwatch('var(--ifm-color-primary)')} />實際 dot（受擾）</span>
-        <span style={legendItem}><span style={dotSwatch('var(--ifm-color-emphasis-500)', 0.45)} />ghost（未受擾參考）</span>
-        <span style={legendItem}><span style={{color: 'var(--ifm-color-primary)'}}>▲</span>θ_inj 注入點</span>
-        <span style={legendItem}><span style={swatch(COL_KICK)} />ΔV kick（沿垂直電壓軸）</span>
-        <span style={legendItem}><span style={swatch(COL_TAN)} />切向分量／Δφ 弧（永久）</span>
-        <span style={legendItem}><span style={swatch('var(--ifm-color-emphasis-600)')} />徑向分量（振幅，指數鬆弛）</span>
+        {isEn ? (
+          <>
+            <span style={legendItem}><span style={dotSwatch('var(--ifm-color-primary)')} />actual dot (perturbed)</span>
+            <span style={legendItem}><span style={dotSwatch('var(--ifm-color-emphasis-500)', 0.45)} />ghost (unperturbed reference)</span>
+            <span style={legendItem}><span style={{color: 'var(--ifm-color-primary)'}}>▲</span>θ_inj injection point</span>
+            <span style={legendItem}><span style={swatch(COL_KICK)} />ΔV kick (along vertical voltage axis)</span>
+            <span style={legendItem}><span style={swatch(COL_TAN)} />tangential component / Δφ arc (permanent)</span>
+            <span style={legendItem}><span style={swatch('var(--ifm-color-emphasis-600)')} />radial component (amplitude, exponential relaxation)</span>
+          </>
+        ) : (
+          <>
+            <span style={legendItem}><span style={dotSwatch('var(--ifm-color-primary)')} />實際 dot（受擾）</span>
+            <span style={legendItem}><span style={dotSwatch('var(--ifm-color-emphasis-500)', 0.45)} />ghost（未受擾參考）</span>
+            <span style={legendItem}><span style={{color: 'var(--ifm-color-primary)'}}>▲</span>θ_inj 注入點</span>
+            <span style={legendItem}><span style={swatch(COL_KICK)} />ΔV kick（沿垂直電壓軸）</span>
+            <span style={legendItem}><span style={swatch(COL_TAN)} />切向分量／Δφ 弧（永久）</span>
+            <span style={legendItem}><span style={swatch('var(--ifm-color-emphasis-600)')} />徑向分量（振幅，指數鬆弛）</span>
+          </>
+        )}
       </div>
 
       {/* 控制列 */}
-      <Row label="注入相位 θ_inj" value={thetaInjDeg} unit="°" min={0} max={360} step={1}
+      <Row label={isEn ? 'Injection phase θ_inj' : '注入相位 θ_inj'} value={thetaInjDeg} unit="°" min={0} max={360} step={1}
            onChange={setThetaInjDeg} fmt={(v) => v.toFixed(0)} />
-      <Row label="電荷比 Δq/q_max" value={eps} unit="" min={0.02} max={0.3} step={0.01}
+      <Row label={isEn ? 'Charge ratio Δq/q_max' : '電荷比 Δq/q_max'} value={eps} unit="" min={0.02} max={0.3} step={0.01}
            onChange={setEps} fmt={(v) => v.toFixed(2)} />
       <div style={{display: 'flex', gap: '0.6rem', flexWrap: 'wrap', margin: '0.6rem 0'}}>
-        <button type="button" style={btnPrimary} onClick={inject}>注入！</button>
-        <button type="button" style={btn} onClick={toggleRun}>{running ? '暫停' : '播放'}</button>
-        <button type="button" style={btn} onClick={reset}>重設</button>
+        <button type="button" style={btnPrimary} onClick={inject}>{isEn ? 'Inject!' : '注入！'}</button>
+        <button type="button" style={btn} onClick={toggleRun}>{running ? (isEn ? 'Pause' : '暫停') : (isEn ? 'Play' : '播放')}</button>
+        <button type="button" style={btn} onClick={reset}>{isEn ? 'Reset' : '重設'}</button>
       </div>
       <div style={{fontSize: '0.82rem', opacity: 0.8, minHeight: '1.3em'}}>
-        {s.armed
-          ? `已排定注入：等 dot 轉到 θ_inj = ${thetaInjDeg}° 時打入 Δq（Γ = ${gammaLive.toFixed(3)}）`
-          : lastInj
-            ? `上次注入 @ θ = ${lastInj.deg}°：Γ = ${lastInj.gamma.toFixed(3)}，Δφ = ${lastInj.dphi.toFixed(4)} rad（永久保留）`
-            : '按「注入！」，dot 轉到 θ_inj 時會打入一坨電荷 Δq。'}
+        {isEn
+          ? (s.armed
+              ? `Injection armed: Δq will fire when the dot reaches θ_inj = ${thetaInjDeg}° (Γ = ${gammaLive.toFixed(3)})`
+              : lastInj
+                ? `Last injection @ θ = ${lastInj.deg}°: Γ = ${lastInj.gamma.toFixed(3)}, Δφ = ${lastInj.dphi.toFixed(4)} rad (kept permanently)`
+                : 'Click "Inject!" — a packet of charge Δq fires once the dot reaches θ_inj.')
+          : (s.armed
+              ? `已排定注入：等 dot 轉到 θ_inj = ${thetaInjDeg}° 時打入 Δq（Γ = ${gammaLive.toFixed(3)}）`
+              : lastInj
+                ? `上次注入 @ θ = ${lastInj.deg}°：Γ = ${lastInj.gamma.toFixed(3)}，Δφ = ${lastInj.dphi.toFixed(4)} rad（永久保留）`
+                : '按「注入！」，dot 轉到 θ_inj 時會打入一坨電荷 Δq。')}
       </div>
 
       {/* 即時讀數 */}
@@ -318,25 +348,38 @@ export default function ImpulseAnimation() {
         <div style={card}>
           <div style={{fontSize: '0.8rem', opacity: 0.7}}>Γ(θ_inj) = −sin(θ_inj)</div>
           <div style={{fontSize: '1.3rem', fontWeight: 700}}>{gammaLive.toFixed(3)}</div>
-          <div style={{fontSize: '0.8rem'}}>無因次</div>
+          <div style={{fontSize: '0.8rem'}}>{isEn ? 'dimensionless' : '無因次'}</div>
         </div>
         <div style={card}>
-          <div style={{fontSize: '0.8rem', opacity: 0.7}}>Δφ = Γ·Δq/q_max（本次預測）</div>
+          <div style={{fontSize: '0.8rem', opacity: 0.7}}>{isEn ? 'Δφ = Γ·Δq/q_max (this prediction)' : 'Δφ = Γ·Δq/q_max（本次預測）'}</div>
           <div style={{fontSize: '1.3rem', fontWeight: 700}}>{dphiLive.toFixed(4)}</div>
-          <div style={{fontSize: '0.8rem'}}>rad（{(dphiLive / DEG).toFixed(2)}°）</div>
+          <div style={{fontSize: '0.8rem'}}>rad ({(dphiLive / DEG).toFixed(2)}°)</div>
         </div>
         <div style={card}>
-          <div style={{fontSize: '0.8rem', opacity: 0.7}}>累積 Δφ（dot − ghost）</div>
+          <div style={{fontSize: '0.8rem', opacity: 0.7}}>{isEn ? 'Accumulated Δφ (dot − ghost)' : '累積 Δφ（dot − ghost）'}</div>
           <div style={{fontSize: '1.3rem', fontWeight: 700}}>{s.phi.toFixed(4)}</div>
-          <div style={{fontSize: '0.8rem'}}>rad（{(s.phi / DEG).toFixed(2)}°）</div>
+          <div style={{fontSize: '0.8rem'}}>rad ({(s.phi / DEG).toFixed(2)}°)</div>
         </div>
       </div>
 
       <div style={{fontSize: '0.78rem', opacity: 0.7, marginTop: '0.7rem'}}>
-        模型：ideal LC 的 unit-circle limit cycle（pedagogical toy model，非 transistor-level）。
-        Δφ = Γ(θ_inj)·Δq/q_max、Γ(θ) = −sinθ（本頁 Step A–D 推導；[P1] Eqs.(10),(11), p.182）。
-        負 Δφ = 相位落後（lag）、正 Δφ = 超前（lead）。徑向（振幅）分量以時間常數 ≈ 0.55 圈
-        的指數鬆弛示意（2 圈後殘餘 ≈ 2.6%）；三支箭頭同以 1.6× 視覺放大，分解幾何仍正確。
+        {isEn ? (
+          <>
+            Model: the unit-circle limit cycle of an ideal LC (a pedagogical toy model, not
+            transistor-level). Δφ = Γ(θ_inj)·Δq/q_max, Γ(θ) = −sinθ (derived in Steps A–D on this
+            page; [P1] Eqs.(10),(11), p.182). Negative Δφ = phase lag, positive Δφ = phase lead.
+            The radial (amplitude) component is shown relaxing exponentially with time constant
+            ≈ 0.55 cycles (≈ 2.6% remaining after 2 cycles); all three arrows share the same 1.6×
+            visual magnification, so the decomposition geometry stays correct.
+          </>
+        ) : (
+          <>
+            模型：ideal LC 的 unit-circle limit cycle（pedagogical toy model，非 transistor-level）。
+            Δφ = Γ(θ_inj)·Δq/q_max、Γ(θ) = −sinθ（本頁 Step A–D 推導；[P1] Eqs.(10),(11), p.182）。
+            負 Δφ = 相位落後（lag）、正 Δφ = 超前（lead）。徑向（振幅）分量以時間常數 ≈ 0.55 圈
+            的指數鬆弛示意（2 圈後殘餘 ≈ 2.6%）；三支箭頭同以 1.6× 視覺放大，分解幾何仍正確。
+          </>
+        )}
       </div>
     </div>
   );

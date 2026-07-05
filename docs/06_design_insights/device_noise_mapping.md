@@ -143,13 +143,13 @@ design knob 按「動哪個量」分類：
 |---|---|
 | 波形對稱（rise/fall 匹配）→ 降 $c_0$ | 加大 voltage swing $V_{max}$ |
 | 快 transition（陡邊緣）→ 降 $\Gamma_{rms}$ | 提高 tank $Q$／$R_p$（同電流更大 swing） |
-| ring 級數 $N\uparrow$ → $\Gamma_{rms}\propto N^{-3/4}$（見下） | 加大節點電容 $C$（會綁 $f_0$，慎用） |
+| ring 級數 $N\uparrow$ → $\Gamma_{rms}\propto N^{-3/2}$（見下） | 加大節點電容 $C$（會綁 $f_0$，慎用） |
 | 對稱負載、差動 → 降偶次諧波、降 $c_0$ | differential → 有效 swing ×2 |
 | 把 device 導通窗 $\alpha$ 對準低 $\Gamma$ 相位（cyclostationary）→ 降 effective $\Gamma_{rms}$、$c_0$ | 把 bias 推到 headroom 上限（current/voltage limited） |
 | 降 device $\omega_{1/f}$（大面積、PMOS）→ 降 1/f³ 高度（不改 $c_0$） | — |
 
-> ring 的 $\Gamma_{rms}\propto N^{-3/4}$ 來自 [P2] Eq.(16), p.794（已核實）：
-> $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\cdot N^{-3/4}$（$\eta\approx1$ 為級延遲比例常數），且在固定 $f_0$、固定功率下 ring phase noise 大致
+> ring 的 $\Gamma_{rms}\propto N^{-3/2}$ 來自 [P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，Γrms ∝ N^{-3/2}；正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}）：
+> $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\cdot\dfrac{1}{N^{1.5}}$（$\eta\approx1$ 為級延遲比例常數），且在固定 $f_0$、固定功率下 ring phase noise 大致
 > **與 $N$ 無關**（device 數目隨 $N$ 增加抵銷了 $\Gamma_{rms}$ 下降）——見 [lc_vs_ring](/06_design_insights/lc_vs_ring)。
 
 ## 數值例子（建立手感）
@@ -276,7 +276,7 @@ print(round(ratio,2), round(L_1f3,1))   # -> 3.2  -123.0  (ratio>1 => flicker do
 - ISF 諧波是收音頻道：**$c_0$ 收 flicker → 1/f³**；**$c_1,c_2,\dots$ 收 white → 1/f²**（經 Parseval 收成 $\Gamma_{rms}$）。
 - 真正起作用的是 **effective ISF $\Gamma_{eff}=\Gamma\cdot\alpha$**（cyclostationary）；對稱的裸 $\Gamma$ 可能因不對稱 $\alpha$ 又長出 $c_0$。
 - 兩個獨立槓桿：改 $\Gamma_{rms}$/$c_0$（波形對稱、快邊緣、差動、$\alpha$ 對齊）vs 改 $q_{max}$（swing、$Q$、differential）。
-- ring $\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16), p.794，已核實）；固定 $f_0$/功率下 phase noise ~與 $N$ 無關。
+- ring $\Gamma_{rms}\propto N^{-3/2}$（[P2] Eq.(16), p.794，v7 已重核：根號只蓋常數）；固定 $f_0$/功率下 phase noise ~與 $N$ 無關。
 
 ## 延伸閱讀
 

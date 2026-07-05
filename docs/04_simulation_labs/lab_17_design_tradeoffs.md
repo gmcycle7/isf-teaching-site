@@ -15,7 +15,7 @@ $\mathcal{L}$ 怎麼動。圖上你會親眼看到「$-20$ dB/decade」的直線
 
 > **物理直覺（先講結論）**：$1/f^2$ phase noise $\propto\Gamma_{rms}^2/q_{max}^2$。
 > 兩個旋鈕都進 $20\log_{10}$：$q_{max}$ 加倍 → $-6$ dB；$\Gamma_{rms}$ 減半 → $-6$ dB。
-> ring 的 $N$ 比較陰險：增級雖讓 $\Gamma_{rms}\propto N^{-3/4}$ 變小，但每節 $q_{max}$ 變小、
+> ring 的 $N$ 比較陰險：增級雖讓 $\Gamma_{rms}\propto N^{-3/2}$ 變小，但每節 $q_{max}$ 變小、
 > 吵的 device 變多，**三者在固定 $f_0$／功率下大致抵消**，淨 phase noise 幾乎與 $N$ 無關。
 
 ## 1. 教學目標
@@ -23,7 +23,7 @@ $\mathcal{L}$ 怎麼動。圖上你會親眼看到「$-20$ dB/decade」的直線
 - 把 [P1] Eq.(21) 的 $\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$ 畫成三條設計曲線。
 - 在 $q_{max}$ 曲線上量化「$-20$ dB/decade」與「$2\times$ swing $\to-6$ dB」。
 - 在 $\Gamma_{rms}$ 曲線上看「對稱波形／低 $\Gamma_{rms}\to$ PN↓」。
-- 在 ring $N$ 曲線上看 $N$-無關性的由來（[P2] Eq.(16), p.794，已核實）。
+- 在 ring $N$ 曲線上看 $N$-無關性的由來（[P2] Eq.(16), p.794，v7 已重核：$\Gamma_{rms}\propto N^{-3/2}$）。
 - 把曲線連回 [lab_09](/04_simulation_labs/lab_09_design_tradeoffs) 與第 06 章 design insight 頁。
 
 ## 2. 數學模型
@@ -45,10 +45,11 @@ $$
 - **旋鈕 2（$\Gamma_{rms}$）**：$+20\log_{10}\Gamma_{rms}$ → $\Gamma_{rms}$ 減半 → $-6$ dB；
   本 lab 用 linear 橫軸，曲線是 $20\log_{10}\Gamma_{rms}$ 的對數型上升。
 
-**ring 的 $N$**（[P2] Eq.(16), p.794，已核實）：增級同時動三件事，三者在固定 $f_0$／功率下相互抵消：
+**ring 的 $N$**（[P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；
+正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}））：增級同時動三件事，三者在固定 $f_0$／功率下相互抵消：
 
 $$
-\Gamma_{rms}\propto N^{-3/4}\ \text{[P2] Eq.(16)},\qquad q_{max}\propto N^{-1}\ (\text{每節擺幅變小}),\qquad \overline{i_n^2}\propto N\ (\text{device 變多}).
+\Gamma_{rms}\propto N^{-3/2}\ \text{[P2] Eq.(16)},\qquad q_{max}\propto N^{-1}\ (\text{每節擺幅變小}),\qquad \overline{i_n^2}\propto N\ (\text{device 變多}).
 $$
 
 代入 $\Gamma_{rms}^2/q_{max}^2\cdot\overline{i_n^2}$：
@@ -74,7 +75,7 @@ flowchart LR
     D --> D1["Γrms ∝ N^-3/2"]
     D --> D2["qmax ∝ N^-1"]
     D --> D3["i_n² ∝ N"]
-    D1 --> E["淨 ∝ N⁰ → 與 N 無關（[P2] Eq.(16), p.794，已核實）"]
+    D1 --> E["淨 ∝ N⁰ → 與 N 無關（[P2] Eq.(16), p.794，v7 已重核：Γrms∝N^-3/2）"]
     D2 --> E
     D3 --> E
 ```
@@ -115,13 +116,13 @@ print(round(L_N[0], 1), round(L_N[-1], 1))
 
 - **`L_dbc` 與 lab_08 的差別**：lab_08 從量到的 $\mathcal{L}$ **積分**出 jitter；這裡反向用
   Eq.(21) **產生** $\mathcal{L}$ 再掃旋鈕。兩頁互為正反操作（同 lab_09 的說明）。
-- **(c) 的三個 scaling 是 illustrative**：$\Gamma_{rms}\propto N^{-3/4}$ 的常數與每節 $q_{max}$、
+- **(c) 的三個 scaling 是 illustrative**：$\Gamma_{rms}\propto N^{-3/2}$ 的常數與每節 $q_{max}$、
   device 數的指數都是 toy 假設，目的是把「為何 $N$ 大致抵消」具體畫出來。
 
 ## 5. 完整 script path
 
 `simulations/lab_17_design_sweep.py`（`main()` 畫三個子圖；`L_dbc` 為 [P1] Eq.(21) 的 dBc/Hz
-封裝；(c) 用 $\Gamma_{rms}\propto N^{-3/4}$、$q_{max}\propto N^{-1}$、$\overline{i_n^2}\propto N$ 的
+封裝；(c) 用 $\Gamma_{rms}\propto N^{-3/2}$、$q_{max}\propto N^{-1}$、$\overline{i_n^2}\propto N$ 的
 toy scaling）。重跑：`python scripts/run_all_sims.py`。
 
 > 註：此頁檔名為 `lab_17_design_tradeoffs.md`（對齊 sidebar 命名慣例），對應的 script 是
@@ -172,8 +173,8 @@ toy scaling）。重跑：`python scripts/run_all_sims.py`。
 
 - **主 scaling**：[P1] Eq.(21), p.185，$\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$。
 - **Parseval / $\Gamma_{rms}$**：[P1] Eq.(20), p.185。
-- **ring $\Gamma_{rms}$ scaling**：[P2] Eq.(16), p.794，$\Gamma_{rms}\propto N^{-3/4}$
-  （[P2] Eq.(16), p.794，已核實）。
+- **ring $\Gamma_{rms}$ scaling**：[P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；
+  正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}）。
 - **ring 頻率**：[P2] Eq.(15), p.794，$f_0=1/(2N\tau_D)$。
 - **ring 白噪 FOM / $N$-無關性**：[P2], p.795，$\mathcal{L}\vert_{1/f^2}\approx\frac{8}{3\eta}\,\frac{V_{DD}}{V_{char}}\,\frac{kT}{P}(\omega_0/\Delta\omega)^2$
   （[P2] Eq.(23), p.796 的前置係數是 $8/(3\eta)$（$\eta$ 為級延遲比例常數 Eq.14，$\approx1$）；$\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入。v2 曾誤改為 $8/(3\gamma)$ 並誤標『逐字核實』，v3 已對照原始 PDF p.796 更正）。
@@ -182,7 +183,7 @@ toy scaling）。重跑：`python scripts/run_all_sims.py`。
 
 - **toy scaling，非 transistor-level**：(a)(b) 假設「只動一個旋鈕、其他完全不變」；真實電路
   $q_{max}$、$\Gamma_{rms}$、$N$、功率、面積、$f_0$ 彼此耦合，不能孤立調。
-- **ring (c) 的三個指數是 illustrative**：$\Gamma_{rms}\propto N^{-3/4}$、$q_{max}\propto N^{-1}$、
+- **ring (c) 的三個指數是 illustrative**：$\Gamma_{rms}\propto N^{-3/2}$、$q_{max}\propto N^{-1}$、
   $\overline{i_n^2}\propto N$ 都是 toy 假設以演示抵消；確切常數標 `TODO: manual verification
   needed from [P2] page 794–796`。$N$ 改變也改 $f_0=1/(2N\tau_D)$（除非縮 $\tau_D$），本圖未一併呈現。
 - **只看 $1/f^2$ 區、固定 offset**：在 $1$ MHz 評估；close-in $1/f^3$ 由 $c_0$ 與積分下限主導，
@@ -197,7 +198,7 @@ toy scaling）。重跑：`python scripts/run_all_sims.py`。
 
 - $q_{max}$ 曲線：$-20$ dB/decade；**$2\times$ swing $\to-6$ dB**（基準 $-128$ → $-134$ dBc/Hz）。
 - $\Gamma_{rms}$ 曲線：$20\log_{10}\Gamma_{rms}$，減半 $\to-6$ dB；對稱波形／低敏感度有回報。
-- ring $N$ 曲線：幾乎水平——$\Gamma_{rms}^2/q_{max}^2\cdot\overline{i_n^2}\propto N^0$，**phase noise 與 $N$ 無關**（[P2] Eq.(16), p.794，已核實）。
+- ring $N$ 曲線：幾乎水平——$\Gamma_{rms}^2/q_{max}^2\cdot\overline{i_n^2}\propto N^0$，**phase noise 與 $N$ 無關**（[P2] Eq.(16), p.794，v7 已重核：$\Gamma_{rms}\propto N^{-3/2}$）。
 - 基準：$q_{max}=1$ pC、$\Gamma_{rms}=0.5$、$\overline{i_n^2}/\Delta f=10^{-22}$、$1$ MHz $\to\mathcal{L}=-128.0$ dBc/Hz。
 
 ## 延伸閱讀

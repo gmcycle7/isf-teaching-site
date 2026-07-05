@@ -70,7 +70,7 @@ $$
 \Gamma_{ring}^{toy}(\theta)\propto\frac{1}{\sqrt N}\times(\text{每半週期一個三角脈衝}).
 $$
 
-這呼應 [P2] 主張的 $\Gamma_{rms}\propto N^{-3/4}$ 標度趨勢（越多級、每級對總相位影響越小）。
+這呼應 [P2] 主張的 $\Gamma_{rms}\propto N^{-3/2}$ 標度趨勢（越多級、每級對總相位影響越小）。
 
 > **toy model 聲明**：兩部分都是 pedagogical toy model，**非 transistor-level**。隨機漫步用
 > 抽象的 per-edge 高斯擾動（不是從 device thermal noise 算出來的）；三角 ISF 只是「能量集中在
@@ -182,7 +182,7 @@ def fig_lc_vs_ring_isf():
 - 藍線是 LC 的 $-\sin\theta$，平滑、$\Gamma_{rms}=0.707$。紅線（N=5）與綠線（N=15）是 ring 的
   toy 三角 ISF：**能量集中在 transition**（每半週期一個尖峰），且**峰越來越矮**。
 - 讀出的 $\Gamma_{rms}$：LC $=0.707$、ring N=5 $=0.258$、ring N=15 $=0.149$。**級數 $N$ 越大、
-  $\Gamma_{rms}$ 越小**——這定性地呼應 [P2] 的 $\Gamma_{rms}\propto N^{-3/4}$ 趨勢（更多級，
+  $\Gamma_{rms}$ 越小**——這定性地呼應 [P2] 的 $\Gamma_{rms}\propto N^{-3/2}$ 趨勢（更多級，
   每級對總相位的權重被攤薄）。因為 $1/f^2$ phase noise $\propto\Gamma_{rms}^2/q_{max}^2$
   （[P1] Eq.(21)），這解釋了「設計上 ring 的級數/功耗如何影響相位雜訊」（見
   [lc_vs_ring](/06_design_insights/lc_vs_ring)）。
@@ -205,7 +205,8 @@ $$
 - **相關源的另一支**：[P2] 同節指出 correlated 源（substrate/supply/$1/f$）下**標準差相加**，
   $\sigma\propto\Delta t$（斜率 1，非 1/2）。本 toy **只模擬 uncorrelated**。
 - **ring 頻率**（背景）：[P2] Eq.(15), p.794：$f_0=\dfrac{1}{2N\tau_D}$。
-- **$\Gamma_{rms}$ 標度**：[P2] Eq.(16), p.794：$\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.(16), p.794 已核實，
+- **$\Gamma_{rms}$ 標度**：[P2] Eq.(16), p.794：$\Gamma_{rms}\propto N^{-3/2}$（[P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，
+  $\Gamma_{rms}\propto N^{-3/2}$；正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}），
   本 lab 只定性呼應；對照 [P2] Fig. 8 的 $\Gamma_{rms}$ vs $N$）。本 lab 兩張圖為
   **重畫的 toy 概念圖**（非從論文圖逐點複製、非 transistor-level）。
 - **與 phase noise 連結**：$\Gamma_{rms}$ 透過 [P1] Eq.(21), p.185 影響 $1/f^2$ phase noise。
@@ -225,7 +226,7 @@ $$
   noise + $\Gamma$ + $q_{max}$ 算出來的（那要 [P1] Eq.(21) 與真實 ISF）。
 - **correlated noise 的不同標度**：substrate/supply/$1/f$ 造成 $\sigma\propto\Delta t$（斜率 1），
   本模型**完全不含**這支；真實 ring 兩種趨勢都會出現（[P2] Sec. III）。
-- **精確的 $\Gamma_{rms}\propto N^{-3/4}$ 常數**與真實 ring ISF 形狀：三角波只是示意，
+- **精確的 $\Gamma_{rms}\propto N^{-3/2}$ 常數**與真實 ring ISF 形狀：三角波只是示意，
   真實 ISF 要靠 transient/adjoint 萃取（相關的 PPV/adjoint/Floquet **不在下載的 5 篇 PDF 內**，
   以標準文獻補充，見 [effective_isf](/03_isf_core_theory/effective_isf)）。
 - **flicker（$1/f$）upconversion 與 cyclostationary**：本 lab 的 per-edge 擾動是純白、對稱，
@@ -240,5 +241,5 @@ $$
   斜率 $1/2$，50 fs/拍 → 500 拍 ≈ 1.12 ps。
 - correlated noise 則 $\sigma\propto\Delta t$（本 toy 不含）。
 - ring ISF 集中在 transition、峰高 $\sim1/\sqrt N$；$\Gamma_{rms}$（LC 0.707 → ring N=5 0.258
-  → N=15 0.149）隨 $N$ 下降，呼應 $\Gamma_{rms}\propto N^{-3/4}$。
+  → N=15 0.149）隨 $N$ 下降，呼應 $\Gamma_{rms}\propto N^{-3/2}$。
 - 來源：[P2] Eq.(8),(14),(16)、Sec. III、Fig. 3,4,8；連結 [P1] Eq.(21)。

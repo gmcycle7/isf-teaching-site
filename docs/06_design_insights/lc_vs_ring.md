@@ -5,7 +5,7 @@ description: 用 ISF 框架逐項比較 LC 與 ring：波形、amplitude restora
 
 # 從 ISF 看 LC vs ring oscillator
 
-> **先備**：[tank_swing](/06_design_insights/tank_swing)（$\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$ 與 swing 槓桿）、[tank_Q_and_energy_restoration](/02_foundations/tank_Q_and_energy_restoration)（LC「高 $Q$ 儲能」到底買到什麼、ring 為何無此優勢）、[rms_isf](/03_isf_core_theory/rms_isf)（$\Gamma_{rms}$ 與 Parseval、ring 的 $N^{-3/4}$ scaling）｜ **接下來**：[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)、[varactor_tuning_supply_pushing](/06_design_insights/varactor_tuning_supply_pushing)
+> **先備**：[tank_swing](/06_design_insights/tank_swing)（$\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$ 與 swing 槓桿）、[tank_Q_and_energy_restoration](/02_foundations/tank_Q_and_energy_restoration)（LC「高 $Q$ 儲能」到底買到什麼、ring 為何無此優勢）、[rms_isf](/03_isf_core_theory/rms_isf)（$\Gamma_{rms}$ 與 Parseval、ring 的 $N^{-3/2}$ scaling）｜ **接下來**：[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)、[varactor_tuning_supply_pushing](/06_design_insights/varactor_tuning_supply_pushing)
 
 這頁把 ISF 當成一支**統一的尺**，逐項量 LC 與 ring 兩種振盪器的差別。重點不是「誰比較好」
 （各有用途），而是**ISF 框架讓我們看見什麼、看不見什麼**。我們會先建一個誠實標明的 toy model，
@@ -40,7 +40,7 @@ description: 用 ISF 框架逐項比較 LC 與 ring：波形、amplitude restora
 | 儲能（tank energy） | 高（$L$、$C$ 來回交換） | 幾乎無儲能 | 高儲能→大 $q_{max}$→低 phase noise |
 | noisy device 數目 | 少（1～2 個主動 device） | 多（$N$ 級，每級都漏雜訊） | noise 源越多、貢獻越多（但每級 swing 較小） |
 | 相位敏感度分佈 | 分散整個週期 | 集中在 transition 視窗 | $\Gamma_{eff}=\Gamma\cdot\alpha$ 集中 |
-| $\Gamma_{rms}$ | $0.5$（$-\sin$ 的 rms） | $\Gamma_{rms}\propto N^{-3/4}$（[P2] Eq.16，已核實） | [P2] Eq.(16) |
+| $\Gamma_{rms}$ | $0.5$（$-\sin$ 的 rms） | $\Gamma_{rms}\propto N^{-3/2}$（[P2] Eq.16） | [P2] Eq.(16) |
 | jitter accumulation | 慢（高 $Q$ 抗漂移） | 快（無 reference，random walk） | $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ |
 | 典型 phase noise | 低（好 10～30 dB） | 高 | $\propto\Gamma_{rms}^2/q_{max}^2$ |
 | 面積／可調性／多相位 | 大（spiral inductor）、調諧範圍窄 | 小、寬調諧、天生多相位輸出 | （非 ISF 量，但設計常衡量） |
@@ -75,16 +75,17 @@ $$
 - **單位檢查**：$1/(N\cdot[\text{s}])=[\text{Hz}]$ ✓。
 - **設計含意**：固定 $f_0$ 下，$N$ 越大每級延遲 $\tau_D$ 越小（每級要更快、更陡 transition）。
 
-**(b) ring $\Gamma_{rms}$ scaling**（[P2] Eq.(16), p.794，已對照原始 PDF 逐字核實 ✓）：
+**(b) ring $\Gamma_{rms}$ scaling**（[P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，Γrms ∝ N^{-3/2}；正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}））：
 
 $$
-\Gamma_{rms}=\sqrt{\frac{2\pi^2}{3\eta^3}\cdot\frac{1}{N^{1.5}}}\;\Rightarrow\;\Gamma_{rms}\propto N^{-3/4}\quad(\Gamma_{rms}^2\propto N^{-3/2})
+\Gamma_{rms}=\sqrt{\frac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}\;\Rightarrow\;\Gamma_{rms}\propto N^{-3/2}\quad(\Gamma_{rms}^2\propto N^{-3})
 $$
 
 - 直覺：級數越多，每個 transition 佔週期的「敏感視窗」越窄、單級 ISF 峰值越矮，rms 隨之下降。
-- **Formula-vs-prose 註記（已核實）**：論文的印刷公式根號同時涵蓋 $2\pi^2/(3\eta^3)$ 與 $1/N^{1.5}$，
-  所以嚴格依公式 $\Gamma_{rms}\propto N^{-3/4}$；其文字與許多二手文獻常引用「$\Gamma_{rms}\propto N^{-3/2}$」，
-  那個指數其實是**根號內項（$\Gamma_{rms}^2$）**的。逐字公式與完整討論見
+- **根號範圍註記**：印刷公式的根號**只蓋常數** $2\pi^2/(3\eta^3)$，$1/N^{1.5}$ 在根號外，故
+  $\Gamma_{rms}\propto N^{-3/2}$；$\eta=0.75$ 時 $\sqrt{2\pi^2/(3\cdot0.75^3)}\approx3.95$，即論文正文
+  「solid line = $\Gamma_{rms}\approx4/N^{1.5}$」（[P2] Fig. 8），與正文「the $1/N^{1.5}$ dependence of
+  $\Gamma_{rms}$」及 App.B Eq.(52)+(54) 的獨立代數三方一致。逐字公式與完整討論見
   [paper_002 deep-dive](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring)。
 
 **(c) ring 白噪 phase noise FOM**（[P2] Eq.(23), p.796，已對照原始 PDF 核實 ✓）：
@@ -192,9 +193,9 @@ vals = {N: L_ring_fom(4.0e-21, 1e-3, 5e9, 1e6) for N in (3, 5, 15)}
 print({N: round(v,1) for N,v in vals.items()})    # -> {3: -91.0, 5: -91.0, 15: -91.0}
 ```
 
-N-independence 在這裡是「Eq.(23) 裡根本沒有 $N$」的直接後果——**不需要**靠任何因子相消的論證
-（事實上用正確的 $\Gamma_{rms}\propto N^{-3/4}$ 去湊 $\Gamma_{rms}^2/q_{max}^2\cdot N$ 並**不會**乾淨地相消成 $N^0$；
-N-independence 來自 [P2] 完整模型，已內含在 Eq.(23)）。
+N-independence 在這裡是「Eq.(23) 裡根本沒有 $N$」的直接後果；toy 指數也對得上——
+$\Gamma_{rms}^2\propto N^{-3}$（Eq.16）、$q_{max}\propto N^{-1}$（固定 $P$、$f_0$ 下由 Eq.(21)）、noise 源數 $\times N$，
+故 $\Gamma_{rms}^2/q_{max}^2\cdot N\propto N^{-3+2+1}=N^0$，與 Eq.(23) 一致（推演見 [lab_17](/04_simulation_labs/lab_17_design_tradeoffs)）。
 
 > **例 2（LC vs ring：同數量級條件下 LC 好多少？）**
 > 用 [P1] Eq.(21) 算一個代表性 LC 數字，和上面 ring 的 $-91.0$ dBc/Hz 並排比較。取 canonical
@@ -224,14 +225,14 @@ def L_lc(Grms, qmax, Si, f0, df):                 # [P1] Eq.(21)
 print(round(L_lc(0.5, 1e-12, 1e-24, 5e9, 1e6), 1))   # -> -148.0
 ```
 
-> 以上 [P2] 常數（前置係數 $8/(3\eta)$、$\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)\cdot N^{-1.5}}$、Eq.(23) FOM）皆已對照原始 PDF 核實；唯一穩固且設計可直接用的是
+> 以上 [P2] 常數（前置係數 $8/(3\eta)$、$\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot N^{-1.5}$、Eq.(23) FOM）皆已對照原始 PDF 核實；唯一穩固且設計可直接用的是
 > **N-independence 這個定性結論**與 $N^0$ 的指數相消。完整 script：`simulations/lab_03_ring_toy_model.py`。
 
 ## 重點回顧
 
 - LC：正弦波形、$\Gamma=-\sin$、高 $Q$ 儲能、大 $q_{max}$、少 device、低 phase noise、慢 jitter 累積。
-- ring：方波、ISF 集中於 transition、無儲能、$N$ 個 noise 源、$\Gamma_{rms}\propto N^{-3/4}$、快 random-walk jitter。
-- [P2] 三公式：$f_0=1/(2N\tau_D)$（Eq.15）、$\Gamma_{rms}\propto N^{-3/4}$（Eq.16，已核實）、FOM $\frac{8}{3\eta}\,\frac{V_{DD}}{V_{char}}\,\frac{kT}{P}(\omega_0/\Delta\omega)^2$（Eq.23，前置係數 $8/(3\eta)$，已核實）。
+- ring：方波、ISF 集中於 transition、無儲能、$N$ 個 noise 源、$\Gamma_{rms}\propto N^{-3/2}$、快 random-walk jitter。
+- [P2] 三公式：$f_0=1/(2N\tau_D)$（Eq.15）、$\Gamma_{rms}\propto N^{-3/2}$（Eq.16，v7 已重核：根號只蓋常數）、FOM $\frac{8}{3\eta}\,\frac{V_{DD}}{V_{char}}\,\frac{kT}{P}(\omega_0/\Delta\omega)^2$（Eq.23，前置係數 $8/(3\eta)$，已核實）。
 - **N-independence**：固定 $f_0$/功率下 ring phase noise ~與 $N$ 無關（各 $N$ 因子相消）；選 $N$ 看調諧/多相位/面積。
 - ISF 看得見相位敏感度分佈與 scaling；看不見絕對 $Q$、強非線性、耦合、確切常數。
 

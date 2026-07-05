@@ -36,9 +36,12 @@ flicker 1/f³ corner、Parseval 三類項），以及兩個推導附錄（Floque
 
 ## 4. 哪些公式需要 manual verification？
 
-**[P2] ring 常數已於 v3 對照原始 PDF（高解析度渲染）逐字核實並更正**：
-- Eq.(16)：$\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)\cdot N^{-1.5}}$ ⇒ $\Gamma_{rms}\propto N^{-3/4}$（$\Gamma_{rms}^2\propto N^{-3/2}$）。
-  更正了先前誤寫的「$\Gamma_{rms}\propto N^{-3/2}$」與猜測常數「$2\pi/\sqrt3$」，並加註論文「公式 vs 文字」的不一致。
+**[P2] ring 常數已於 v3 對照原始 PDF（高解析度渲染）逐字核實並更正，並於 v7 就 Eq.(16) 的根號範圍再次重核**：
+- Eq.(16)：$\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot\dfrac{1}{N^{1.5}}$ ⇒ $\Gamma_{rms}\propto N^{-3/2}$（$\Gamma_{rms}^2\propto N^{-3}$；根號只蓋常數 $2\pi^2/(3\eta^3)$，$N^{-1.5}$ 在根號外）。
+  [P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；正文「$1/N^{1.5}$ dependence of $\Gamma_{rms}$」、$\eta=0.75$ 時正文給出的 $\approx4/N^{1.5}$ 錨點（即 [P2] Fig.8 的實線）與 App.B Eq.(52)+(54) 的獨立代數三重驗證）。
+  **誠實歷史**：v1 原寫 $\Gamma_{rms}\propto N^{-3/2}$（正確）；v3 稽核誤把根號範圍看錯，「更正」成
+  $N^{-3/4}$ 並誤標「已核實」——與 FOM $8/(3\gamma)$ 事件同型的誤讀；v7 對照論文正文、$\eta=0.75$
+  數值錨與 App.B 三重交叉驗證後**修回** $N^{-3/2}$ 並記錄本次事件。
 - Eq.(23) FOM：$\mathcal{L}\approx\frac{8}{3\eta}\frac{kT}{P}\frac{V_{DD}}{V_{char}}(f_0/\Delta f)^2$。
   前置係數是 $8/(3\eta)$（$\eta$ 為級延遲比例常數 Eq.(14)，$\approx 1$）；$\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入，並補回漏掉的 $V_{DD}/V_{char}$ 因子；$V_T=0$ 下限 Eq.(25) $\frac{16\gamma}{3\eta}$。
   （v2 曾誤改為 $8/(3\gamma)$ 並誤標「逐字核實」，v3 已對照原始 PDF p.796 更正。）
@@ -188,6 +191,19 @@ content issues / soft warnings / open TODOs / build）。v2 後品質腳本新�
 - **Lighthouse 基線**（線上站）：Performance 89 / Accessibility 93 / SEO 100。
 - 誠實不採用（量測後還原）：搜尋索引 zh-only（僅 −2%）、PNG 無損重編碼（+10%）。
 - 部署備註：雙語 build ~200MB，Pages 曾卡 "building" 35 分，`POST /pages/builds` 重建後 30 秒完成——大型部署卡住時用此招。
+
+## 11f. v7：[P2] Eq.(16) ring $\Gamma_{rms}$ 的 N-scaling 重核（根號範圍誤讀修正）
+
+**裁決**（三重證據鎖死，對照 p.794/p.803 高倍渲染親驗）：[P2] Eq.(16) 的正確讀法是根號**只蓋常數**，
+即 $\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot(1/N^{1.5})$，故 $\Gamma_{rms}\propto N^{-3/2}$（而非 v3 誤改的
+$N^{-3/4}$）。三重證據：(1) 論文正文明言「$1/N^{1.5}$ dependence of $\Gamma_{rms}$」；(2) $\eta=0.75$
+數值錨——正文給出 solid line $\approx4/N^{1.5}$，代入 $\sqrt{2\pi^2/(3\cdot0.75^3)}=3.95\approx4$ ✓（若
+$N^{1.5}$ 在根號內則得 $4/N^{0.75}$，與正文矛盾）；(3) App.B Eq.(52)+(54) 獨立代數推出
+$\Gamma_{rms}^2\propto N^{-3}$，與 $N^{-3/2}$ 一致。**歷史**：v1 原寫 $N^{-3/2}$（正確），v3 稽核把根號
+範圍看錯、誤改為 $N^{-3/4}$ 並誤標「已核實」，v7 對照原文修回並記錄本次事件（與 FOM $8/(3\gamma)$
+誤讀事件同型）。全站受影響頁面（real_oscillator_topologies、waveform_slope、references 等）已同步
+修正指數與相關數值（如 $N{=}5\to15$ 的比例由 $0.4387$／$-7.16$ dB 改為 $0.1925$／$-14.31$ dB）；
+Eq.(23) FOM 的 N-independence、$8/(3\eta)$、$\kappa$、Eq.(15) $f_0$、Eq.(17)/(18)/(21) 均不受影響。
 
 ## 12. 下一步建議人工確認
 

@@ -41,12 +41,15 @@ IEEE J. Solid-State Circuits, vol. 34, no. 6, pp. 790–804, Jun. 1999.
 （檔案 `jitter_ring.pdf`，`paper_002`）
 
 - **一句話貢獻**：把 ISF 框架套到 ring oscillator，給出 jitter／phase noise 封閉式、
-  $\Gamma_{rms}\propto N^{-3/4}$ scaling，以及「固定功率與頻率下 single-ended ring 相位雜訊
+  $\Gamma_{rms}\propto N^{-3/2}$ scaling，以及「固定功率與頻率下 single-ended ring 相位雜訊
   幾乎與級數 $N$ 無關」的結論。
 - **本站用到**：[lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model)、
   [lc_vs_ring](/06_design_insights/lc_vs_ring)、[symmetry](/06_design_insights/symmetry)。
 - **關鍵式（已核實）**：Eq.(8) $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ p.792、Eq.(12) $\kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ p.793、
-  Eq.(15) $f_0=1/(2N\tau_D)$（Eq.(14) 為正規化級延遲 $\hat t_D$）、Eq.(16) $\Gamma_{rms}=\sqrt{\tfrac{2\pi^2}{3\eta^3}\tfrac{1}{N^{1.5}}}$ p.794、
+  Eq.(15) $f_0=1/(2N\tau_D)$（Eq.(14) 為正規化級延遲 $\hat t_D$）、
+  Eq.(16) $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}$ p.794
+  （v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；正文 $4/N^{1.5}$@$\eta=0.75$ 與 App.B Eq.(55) 三重驗證，
+  $\eta=0.75$ 時 $\approx4/N^{1.5}$ 即 [P2] Fig.8 的實線；v3 曾誤讀為 $N^{-3/4}$）、
   Eq.(23) FOM $\frac{8}{3\eta}\frac{kT}{P}\frac{V_{DD}}{V_{char}}(f_0/\Delta f)^2$ p.796（$\eta$ 為級延遲比例常數 Eq.(14)，$\approx 1$；$\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入。v2 曾誤改前置係數為 $8/(3\gamma)$，v3 已對照原始 PDF p.796 更正）。
 
 ### [P3] — injection locking（進階）
@@ -168,7 +171,7 @@ pp. 291–299, Mar. 1950. **DOI: 10.1109/JRPROC.1950.231083**。
 ## D. 待人工核對 TODO 清單
 
 經 v3/v4 稽核後，**[P1] 全部、[P2] ring 常數（Eq.8/12/14/16/17/21/23，其中 Eq.(23) 前置係數於 v3 由誤寫的
-$8/(3\gamma)$ 更正為 $8/(3\eta)$ 並重新核實）、[P3] 廣義 Adler（Eq.26/30/33/34/35）、
+$8/(3\gamma)$ 更正為 $8/(3\eta)$ 並重新核實；Eq.(16) 於 v7 重核，見下表）、[P3] 廣義 Adler（Eq.26/30/33/34/35）、
 [P4] APF（正確編號為 Eq.(18)–(22) + Fig.5, p.2126；ideal-LC quadrature Eq.(26), p.2128）皆已對照原始
 PDF 渲染逐字核實**；外部文獻 **[E1]–[E5] 的卷期/頁碼/DOI 已用網路查證**，設計類外部引用
 （Hegazi-Sjöland-Abidi JSSC 2001、Andreani JSSC 2002/2005、Romanò TCAS-I 2006、Behbahani JSSC 2001）
@@ -176,6 +179,7 @@ PDF 渲染逐字核實**；外部文獻 **[E1]–[E5] 的卷期/頁碼/DOI 已�
 
 | 項目 | 內容 | 出處 | 性質 |
 |---|---|---|---|
+| 已重核（v7） | [P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；正文 $4/N^{1.5}$@$\eta=0.75$ 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 $N^{-3/4}$） | p.794 | 已修正（曾誤讀根號範圍） |
 | 已核實 | [P2] Fig.17（phase noise vs 對稱電壓，y 軸 = $1/f^3$ corner frequency，於對稱點急降） | p.802 | 次要（圖細節，已核實） |
 | `TODO` | [P4] dual-modulus prescaler 的級數分配細節 | Sec. VIII, p.2135 | 次要（進階電路） |
 | 註記 | [E1]–[E4] 論文**內部**公式只作背景、未逐字重推（卷期/DOI 已查證） | 外部 | 背景 |

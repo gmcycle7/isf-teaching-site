@@ -3,6 +3,8 @@ title: DJ 與 dual-Dirac 模型
 description: RJ（無界高斯，來自 phase noise）與 DJ（有界：ISI、duty-cycle distortion、電源 spur）的分解；dual-Dirac 模型逐步推導：Q 函數尾巴積分、bathtub 由 jitter CDF 導出、TJ(BER)=DJ_δδ+2Q·σ 與 Q(1e-12)=7.03；並誠實講清楚為什麼 DJ_δδ ≤ DJ_pp 是「故意低報」才讓外插準確。附 lab_31 數值驗證。
 ---
 
+import DualDiracFitter from "@site/src/components/DualDiracFitter";
+
 # DJ 與 dual-Dirac 模型：TJ@BER 的業界標準工具
 
 > **先備**：[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)（RJ/DJ/TJ 初登場、eye 與 BER）、[lab_12](/04_simulation_labs/lab_12_serdes_eye_ber)（RJ-only bathtub）、[lab_08](/04_simulation_labs/lab_08_jitter_integration)（$\sigma_t$ 從 phase noise 積分而來）｜ **接下來**：[exercises](/06_design_insights/exercises)、[lab_13](/04_simulation_labs/lab_13_pll_cdr_transfer)
@@ -337,6 +339,15 @@ eye opening @1e-12: composite 82.77 ps vs dual-Dirac 82.76 ps
   灰點線是「Dirac 硬放 $\pm A$」的悲觀預測，落在真實曲線**下方**（同一 $x$ 給更大的尾巴機率）。
 - **(c) bathtub**：藍（精確）與紅虛（dual-Dirac 外插）在 $10^{-12}$ 幾乎重合（開口差 0.01 ps）
   ——模型的本職；綠點線（RJ-only、無 DJ）開口寬得多：**DJ 平移壁、RJ 定斜率**。
+
+**互動：親手擬合一次。** 下面的小工具讓你直接操控 RJ σ 與弦波 DJ 幅度 $A$（合成母體，
+seeded PRNG，$N=20{,}000$），並在兩個 BER decade 擬合窗（淺：$[10^{-3},10^{-6}]$；深：
+$[10^{-6},10^{-9}]$）之間切換，即時看到 $\mathrm{DJ}_{\delta\delta}$、$\sigma_{fit}$、
+兩者的差 $\Delta=\mathrm{DJ}_{pp}-\mathrm{DJ}_{\delta\delta}$，以及 $\mathrm{TJ}@10^{-12}$
+外插值如何隨擬合深度移動——這正是第 7 步「擬合越深、$\mathrm{DJ}_{\delta\delta}$
+越逼近但不超過 $\mathrm{DJ}_{pp}$」的量化版本，換成你自己選的 $\sigma,A$ 也成立。
+
+<DualDiracFitter />
 
 一行式驗證（引用 lab_31 的真實函式；跑一次約數秒）：
 

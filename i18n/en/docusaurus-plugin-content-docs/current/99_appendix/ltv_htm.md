@@ -5,6 +5,8 @@ description: Starting from signals-and-systems convolution/LTI, we derive the LT
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
+import HtmFoldingExplorer from "@site/src/components/HtmFoldingExplorer";
+
 # Rigorous LTV framework: Zadeh's time-varying transfer function and the harmonic transfer matrix
 
 > **Prerequisites**: [lti_vs_ltv](/02_foundations/lti_vs_ltv) (intuition for LTV vs. LTI), [convolution_derivation](/03_isf_core_theory/convolution_derivation) ([P1] Eq.(11)'s LTV convolution), [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) (ISF Fourier coefficients $c_n$) | **Next**: [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv) (the PPV/Floquet face of the same ISF)
@@ -189,6 +191,29 @@ the **Toeplitz heatmap** of $[\mathbf H]_{m,k}=H_{m-k}$, constant along each dia
 *(Figure: `simulations/fig_htm_bandfold.py`. This is an illustrative teaching figure, not a transistor-level extraction. Left-panel arrow gains
 $|\tilde c_0|=c_0/2$, $|\tilde c_{\pm1}|=c_1/2$, $|\tilde c_{\pm2}|=c_2/2$ correspond exactly to
 $H_k^{(\Gamma)}=\tilde c_k$ proven in Step 4; the sum of squared folding gains $\sum_k|\tilde c_k|^2=\Gamma_{rms}^2$ is Step 5's Parseval relation.)*
+
+Try it with your own hands — the interactive version below turns the static "single input band, fixed ISF"
+picture above into a **draggable $f_{in}$ with a tunable ISF**: drag the slider to sweep the input tone
+$f_{in}$ from 0 to $3f_0$, and the widget instantly finds the harmonic $k\cdot f_0$ nearest to $f_{in}$ and
+draws the arrow that folds it down to baseband offset $\Delta f=|f_{in}-k f_0|$; the arrow's height/label is
+exactly the folding gain $|\tilde c_k|$ ($k=0$ gives $c_0/2$, $k\ge1$ gives $c_k/2$) — a literal, live
+rendering of the boxed result above and Step 4's $H_k^{(\Gamma)}=\tilde c_k$. Three preset buttons switch the
+ISF waveform (ideal LC has only $c_1$; asymmetric matches this page's pedagogical ISF figure; square-ish
+makes the odd harmonics $c_1,c_3$ dominant), and four sliders let you tune $c_0$–$c_3$ freely. The readout
+cards show the **dominant harmonic $k^*$**, the **baseband offset $\Delta f$**, the **fold gain
+$|\tilde c_{k^*}|$**, the **$\sum|c_k/2|^2$ over the relevant terms** (the baseband phase-noise weight), and
+the **integrator $1/(2\pi\Delta f)$** (reading out Step 5's $1/\Delta\omega$ integrator gain too, with
+$I_0/q_{max}=1$ normalized).
+
+<HtmFoldingExplorer />
+
+> **Anchor case (try this)**: switch to the **ideal LC** preset ($\Gamma=-\sin\theta$, only $c_1\neq0$).
+> Sweep $f_{in}$ across the whole 0–$3f_0$ window and you will see nonzero folding arrows **only while
+> $f_{in}$ passes near $f_0$** — the DC, $2f_0$, and $3f_0$ bands all have zero gain, because the ideal
+> LC's ISF has only a fundamental component. The $\sum|c_k/2|^2$ readout likewise collapses to the single
+> $c_1/2=0.5$ term ($|c_1/2|^2=0.25$). This is direct visual evidence for "an LC oscillator barely folds
+> noise that isn't near an integer multiple of $f_0$"; switch to the asymmetric or square-ish preset and
+> nonzero arrows appear at the DC/higher-harmonic bands as well.
 
 ---
 

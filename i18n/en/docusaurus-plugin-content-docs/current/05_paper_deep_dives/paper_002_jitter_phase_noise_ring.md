@@ -206,6 +206,87 @@ quadrature needs, and other considerations.
 > accordingly corrected to $16\gamma/(3\eta)$. $\gamma$ (noise coefficient) and $\eta$ (frequency
 > proportionality constant, Eq.14) are different quantities — do not confuse them.
 
+### Eq.(31)–(35): differential-ring phase noise — with an explicit $N$ (verified ✓)
+
+**Original formulas** ([P2] Sec. V-B, p.796, verified verbatim against a render of the original PDF):
+
+Power (Eq.(31)) and frequency (Eq.(32)):
+
+$$
+P=N\,I_{tail}\,V_{DD}
+\qquad\qquad
+f_0=\frac{1}{2Nt_D}\approx\frac{1}{2\eta N t_r}\approx\frac{I_{tail}}{2\eta N q_{max}}
+$$
+
+Noise on each single-ended node (Eq.(33); two shares — differential transistor + load resistor
+$R_L$ — with $V_{char}=(V_{GS}-V_T)/\gamma$ for a balanced long-channel stage, $E_cL/\gamma$
+short-channel):
+
+$$
+\frac{\overline{i_n^2}}{\Delta f}=\left(\frac{\overline{i_n^2}}{\Delta f}\right)_{N}+\left(\frac{\overline{i_n^2}}{\Delta f}\right)_{Load}=4kT\,I_{tail}\left(\frac{1}{V_{char}}+\frac{1}{R_L I_{tail}}\right)
+$$
+
+The ring has $2N$ nodes (two outputs per stage), and the total phase noise is $2N$ times the
+single-source value (p.796, verbatim: "The phase noise and jitter due to all $2N$ noise sources is
+$2N$ times the value given by (6) and (12)." — this 2 is a **node count**, not the SSB convention's
+2). Combined with the $\Gamma_{rms}$ of Eq.(16), it collapses into (Eq.(34)/(35); $\mathcal{L}$ is
+the paper's $L\{\Delta f\}$):
+
+$$
+\mathcal{L}_{min}\{\Delta f\}=\frac{8}{3\eta}\cdot N\cdot\frac{kT}{P}\cdot\left(\frac{V_{DD}}{V_{char}}+\frac{V_{DD}}{R_L I_{tail}}\right)\cdot\frac{f_0^2}{\Delta f^2}
+$$
+
+$$
+\kappa_{min}=\sqrt{\frac{8}{3\eta}}\cdot\sqrt{N\cdot\frac{kT}{P}\cdot\left(\frac{V_{DD}}{V_{char}}+\frac{V_{DD}}{R_L I_{tail}}\right)}
+$$
+
+The paper states verbatim that both are "valid in both long- and short-channel regimes of operation
+with the right choice of $V_{char}$"; a bipolar differential ring's shot + load noise (Eq.(36),
+p.797) folds back into **the same two equations** with $V_{char}=4kT/q_e$.
+
+**Meaning**: only two differences from single-ended Eq.(23) — **an explicit $N$**, and an extra
+load share $V_{DD}/(R_L I_{tail})$ in the bracket. At fixed $f_0$ and $P$, a differential ring's
+phase noise **degrades with $N$** ($\Delta\mathcal{L}=10\log_{10}(N_2/N_1)$; for jitter,
+$\kappa_{min}\propto\sqrt N$) — the lost other half of N-independence.
+
+**Why the $N$ appears** (exponent bookkeeping, fixed $P$, $f_0$, fixed swing): $P=NI_{tail}V_{DD}$
+is a **static** bookkeeping (unlike Eq.(21), it is not tied to $f_0$), so fixed $P$ forces
+$I_{tail}\propto1/N$; Eq.(32) then forces $q_{max}=I_{tail}/(2\eta Nf_0)\propto1/N^2$ (p.797,
+verbatim: "…reduce the swing, and hence $q_{max}$, by a factor of $1/N^2$"). Hence
+$2N\cdot\Gamma_{rms}^2\cdot S_i/q_{max}^2\propto N\cdot N^{-3}\cdot N^{-1}\cdot N^{4}=N^{+1}$.
+Full term-by-term table and worked example:
+[lc_vs_ring Step 2b](/06_design_insights/lc_vs_ring).
+
+> **[P2]'s conclusion sentence (pp.796–797, verbatim)**: "Note that, in contrast with the
+> single-ended ring oscillator, a differential oscillator does exhibit a phase noise and jitter
+> dependency on the number of stages, with the phase noise degrading as the number of stages
+> increases for a given frequency and power dissipation."
+
+**Numerical example**: $f_0=5$ GHz, $\Delta f=1$ MHz, $kT=4.0\times10^{-21}$ J, $P=1$ mW,
+$\eta\approx1$, $V_{DD}/V_{char}=3$, $V_{DD}/(R_LI_{tail})=2$ (fixed swing): $N=4$ gives
+$-82.7$ dBc/Hz, $N=12$ gives $-78.0$ dBc/Hz, $\Delta\mathcal{L}=10\log_{10}3=+4.77$ dB; and
+$\kappa_{min}$ grows by $\times\sqrt3\approx1.732$. (The absolute values inherit [P2]'s SSB
+bookkeeping, the same family as the 4 in the denominator of [P1] Eq.(21); the time-domain $/2$
+convention shifts everything by $+3$ dB. $\Delta\mathcal{L}$ is a difference, **identical under
+both conventions**.)
+
+**Python verification**:
+
+```python
+import numpy as np
+def L_ring_diff(N, kT, P, f0, df, eta=1.0, vdd_vchar=3.0, vdd_swing=2.0):  # [P2] Eq.(34)
+    return 10*np.log10(8/(3*eta) * N * (kT/P) * (vdd_vchar + vdd_swing) * (f0/df)**2)
+L4  = L_ring_diff(4,  4.0e-21, 1e-3, 5e9, 1e6)
+L12 = L_ring_diff(12, 4.0e-21, 1e-3, 5e9, 1e6)
+print(round(L4,1), round(L12,1), round(L12-L4,2))   # -> -82.7 -78.0 4.77
+```
+
+**One-line design rule**: single-ended = $N$-free (Eq.23); differential = **fewest stages wins**
+(Eq.34, $+3.01$ dB per doubling) — the lower bound on $N$ is set by phase margin /
+quadrature / multiphase needs, so do not add more. Tail-source noise near $f_0$ "surprisingly"
+does not enter the phase noise (p.796); what enters is its low-frequency noise (the symmetry path)
+and its noise near even harmonics (filterable with an LC).
+
 ## Key figures
 
 | Paper figure | Page | Content | Site counterpart | Note |
@@ -213,6 +294,7 @@ quadrature needs, and other considerations.
 | Fig. 5 | 793 | Overlaid ISFs at the same frequency for different stage counts $N$ (3/5/15) | scaling intuition ($\Gamma_{rms}\propto N^{-3/2}$) | ✓ |
 | Fig. 6 | 793 | Approximate waveform and ISF of one single-ended ring stage (energy concentrated at the transition) | toy triangular ISF (lab_03) | ✓ |
 | Fig. 8 | 794 | rms ISF vs $N$ for rings of different stage counts; the solid line is Eq.(16) at $\eta=0.75$, $\Gamma_{rms}\approx4/N^{1.5}$ | scaling argument for `lc_vs_ring_isf_comparison.png` | ✓ |
+| Fig. 9 | 795 | rms ISF vs $N$ for **differential** rings under three constraint scenarios (fixed power/fixed swing, fixed power/fixed $R_L$, fixed tail current/fixed $R_L$) | empirical support that Eq.(16)'s scaling carries over to differential rings (a premise of the Eq.(34) derivation) | ✓ |
 | **Fig. 17** | 802 | phase noise vs the symmetry (control) voltage, with a **minimum** at the symmetric point | direct experimental support for the symmetry design rule | ✓ |
 
 **Fig. 17 is the smoking gun for the symmetry rule**: sweep the control voltage; at the point where
@@ -230,9 +312,10 @@ model — **not transistor-level**:
 
 - **Jitter and phase noise share one origin**: lowering $\Gamma_{rms}^2/q_{max}^2$ lowers both; do
   not treat long-term jitter and close-in phase noise as two separate problems.
-- **Adding stages is not a phase-noise cure**: at fixed $f_0$, $P$ the phase noise is nearly
-  independent of $N$ (conclusion verified); the real reasons to add stages are quadrature/multi-phase
-  outputs, tuning range, and phase margin.
+- **Adding stages is not a phase-noise cure**: for single-ended rings at fixed $f_0$, $P$ the phase
+  noise is nearly independent of $N$ (conclusion verified); **differential rings want even fewer
+  stages** — Eq.(34) contains an explicit $N$, costing $+3.01$ dB per doubling at fixed $f_0$, $P$.
+  The real reasons to add stages are quadrature/multi-phase outputs, tuning range, and phase margin.
 - **Symmetry is the master knob for close-in noise**: tune the rise/fall to be symmetric (e.g. the
   control voltage of Fig. 17) to suppress $c_0$ and push the 1/f³ corner far out. Differential
   rings are usually more symmetric than single-ended ones.
@@ -247,7 +330,7 @@ the SerDes view is in [serdes_clocking_connection](/06_design_insights/serdes_cl
 Per paper_metadata (paper_002.limitations):
 
 - Toy/first-order: short-channel effects and detailed device noise are approximate.
-- **The N-independence conclusion** holds only at fixed power, fixed frequency, and for the specific noise model ([P2] Sec.V, Eq.(23)/(25), p.796, verified, claim C7).
+- **The N-independence conclusion** holds only for **single-ended** rings, at fixed power, fixed frequency, and for the specific noise model ([P2] Sec.V, Eq.(23)/(25), p.796, verified, claim C7); a differential ring instead contains an explicit $N$ (Eq.(34), p.796, verified).
 - Substrate/supply noise is treated separately and qualitatively.
 
 ## Relationship to other papers
@@ -276,5 +359,8 @@ Per paper_metadata (paper_002.limitations):
 - **$\Gamma_{rms}\propto N^{-3/2}$** ([P2] Eq.(16), p.794, re-verified in v7: the radical covers only the
   constant, triple-confirmed by the prose's $4/N^{1.5}$@$\eta=0.75$ and App.B Eq.(55)); yet at fixed $f_0$, $P$ the phase noise is
   **nearly independent of $N$** (no $N$ in [P2] Eq.(23), claim C7, verified).
+- **Differential rings are the opposite**: [P2] Eq.(34), p.796 contains an explicit $N$
+  ($q_{max}\propto1/N^2$, verbatim on p.797); at fixed $f_0$, $P$ the phase noise degrades as
+  $10\log_{10}N$ ($N=4\to12$ costs $+4.77$ dB); differential designs use the fewest necessary stages.
 - **Fig. 17**: the phase-noise bowl bottom at the symmetric point — the smoking gun for the symmetry rule (claim C4).
 - Rings integrate better than LC but usually have worse phase noise; this page shows where the knobs are.

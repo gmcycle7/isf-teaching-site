@@ -36,6 +36,12 @@ This page answers two questions:
 > the white-noise version has a 50 Hz linewidth and the flicker version 3.1 kHz — **a dBc/Hz number at one offset does not determine the linewidth at all;
 > the noise "color" does**. This is the main event of the lab_29 numerical demo.
 
+> **Try it**: the [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) page embeds an
+> interactive explorer — a slider for the same $\mathcal{L}(10\,\text{kHz})$ spec, a white FM / flicker FM
+> toggle, and a spectrum-analyzer RBW slider — so you can see this page's "same spec, 100× difference in
+> linewidth" conclusion first-hand, plus how too-wide an RBW smears away the flattening / near-Gaussian
+> shoulder.
+
 ---
 
 ## Part A: the $1/f^3$ lineshape of flicker FM

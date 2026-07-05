@@ -12,8 +12,8 @@ description: Hong–Hajimiri 2019 Part I 精讀：ISF-based time-synchronous mod
 方程**（廣義 Adler 方程）就能預測 lock range（鎖定範圍）、鎖定相位與穩定性，對**任意**振盪器
 拓樸與**任意**注入波形都成立——並由此導出「怎麼設計注入波形把 lock range 做到最大」。
 
-> **本頁定位**：進階 deep-dive，**不是核心教學章節**。核心公式（廣義 Adler Eq.(26)、(28)–(30)、
-> (33)、(35)）已對照 [P3] 原始 PDF 核實。先確定你已讀懂 [P1] 的 ISF（[paper_001](/05_paper_deep_dives/paper_001_general_theory_phase_noise)）再讀這裡。
+> **本頁定位**：進階 deep-dive，**不是核心教學章節**。核心公式（脈衝列 Eq.(19)–(23)、廣義 Adler
+> Eq.(26)、(28)–(30)、(33)、(35)）已對照 [P3] 原始 PDF 核實。先確定你已讀懂 [P1] 的 ISF（[paper_001](/05_paper_deep_dives/paper_001_general_theory_phase_noise)）再讀這裡。
 
 ## Citation
 
@@ -92,7 +92,217 @@ $$
 下降（高 $Q$ 的 LC 比較「固執」、不容易被拉走）。
 
 > **註**：經典 Adler 為標準結果（[P3] Sec. III, p.2111 回顧 Adler [20]）；本頁採通用簡化記法。
-> 下一節的**廣義 Adler** 已對照原始 PDF 逐字核實。
+> 下一節的**脈衝列思想實驗**與其後的**廣義 Adler** 皆已對照原始 PDF 逐字核實。
+
+### 脈衝列鎖定（locking to an impulse train）——零微積分版的 Adler（[P3] Sec. IV, p.2112，已核實 ✓）
+
+在經典 Adler（Sec. III）與 time-synchronous model（Sec. V）之間，[P3] 安插了一個純算術的思想實驗
+（Sec. IV *Locking to an Impulse Train*, p.2112）：讓 ideal LC 振盪器吃一列電流脈衝。它的價值是
+**一滴微積分都不用**——只靠「一根 impulse ＝ 一個相位 kick」的離散記帳，就把 lock range 算到與
+經典 Adler 的 Eq.(18) 一字不差。而「一根 impulse ＝ 一個 kick」正是你在
+[isf_definition](/03_isf_core_theory/isf_definition) 玩過的互動動畫 **ImpulseAnimation**：按一次「注入！」＝吃一個
+
+$$
+\Delta\phi=\Gamma(\theta)\,\frac{\Delta q}{q_{max}}
+$$
+
+這一節只是把「手動按一次」換成「每 $T_{inj}$ 秒自動按一次」——同一套物理，變成週期性事件。
+（動畫沿電壓軸打 $\Delta V=\Delta q/C$、[P3] Fig. 3 沿電荷軸打 $q_{inj}$，因 $V=q/C$ 是同一件事。）
+
+**Setup（[P3] Fig. 3(a), p.2112）**：ideal 並聯 LC（$C$、$L$、$R_P$、$-G_m$），注入電流為週期脈衝列
+
+$$
+i_{inj}(t)=\pm\,q_{inj}\sum_{n=-\infty}^{\infty}\delta(t-nT_{inj}),\qquad T_{inj}\equiv\frac{2\pi}{\omega_{inj}}
+$$
+
+（[P3] 約定 $q_{inj}\ge0$；正負號對應 Fig. 3(b) 加速、Fig. 3(c) 減速）。每根脈衝把固定電荷
+$q_{inj}$ [C] 一次倒進電容。關鍵安排：脈衝打在電容電荷 $q(t)$ 的 zero crossing 上——把電容電壓
+「從零交越的一側搬到對稱的另一側」（[P3] 原文 "moving the capacitor voltage to the opposite side
+of the zero-crossing"），state-space 圓上從 $q=-q_{inj}/2$ 水平搬到 $q=+q_{inj}/2$，兩端都落在
+**同一個圓**上，所以振幅永遠不動、只有相位跳（"the amplitude remains perpetually unaffected",
+p.2112）——正是 [P1]／lab_02 的「ZC 注入＝純相位跳」。
+
+**Step 1｜每根脈衝的 kick（[P3] Eq.(19), p.2112）**：小注入（$q_{inj}\ll q_{max}$）時
+
+$$
+\Delta\phi=\pm\frac{q_{inj}}{q_{max}}\qquad[\text{rad}]
+$$
+
+這是 [P1] 操作型定義 $\Delta\phi=\Gamma(\theta)\,\Delta q/q_{max}$ 在 $\Gamma=-\sin\theta$、脈衝打在
+$\theta=\mp\pi/2$（$q$ 的 zero crossing、$\lvert\Gamma\rvert=1$ 的最敏感點）的特例。
+Dimension check：$\tilde\Gamma=\Gamma/q_{max}$ 單位 rad/C（[P3] 寫 1/Coulomb；rad 無因次），
+乘上 $q_{inj}$ [C] 得 rad ✓。
+
+精確幾何（[P3] footnote 9, p.2112）：圓上兩點被水平弦長 $q_{inj}$ 相連，$q_{inj}=2q_{max}\sin(\Delta\phi/2)$，故
+
+$$
+\Delta\phi=\pm2\sin^{-1}\!\left[\frac{q_{inj}}{2q_{max}}\right]
+$$
+
+小注入時 $2\sin^{-1}\!\big(\tfrac{q_{inj}}{2q_{max}}\big)\approx q_{inj}/q_{max}$ 退回 Eq.(19)；
+極端 $q_{inj}=2q_{max}$（弦＝直徑）時 $\Delta T=\mp T_0/2$，即 $\Delta\omega=+\omega_0$（週期砍半）
+或 $-\omega_0/3$（週期變 1.5 倍）——footnote 9 特別點名：**就連 ideal LC，這個思想實驗的強注入
+「lock range」都不對稱**。這預告了廣義 Adler 的不對稱 lock range 不是病態、是常態。
+
+**Step 2｜kick → 頻率移動（[P3] Eq.(20)–(21), p.2112）**：每個週期吃同一個 kick，等效於週期被改寫：
+
+$$
+\frac{\Delta\phi}{2\pi}=-\frac{\Delta T}{T_0}=\frac{\Delta\omega}{\omega_{inj}}
+$$
+
+（相位往前跳 $\Delta\phi>0$ ⇒ 週期變短 $\Delta T<0$ ⇒ 頻率變高）。平均頻率移動為
+
+$$
+\Delta\omega=\frac{\Delta\phi}{T_{inj}}=\pm\frac{1}{T_{inj}}\frac{q_{inj}}{q_{max}}\qquad[\text{rad/s}]
+$$
+
+Dimension check：rad ÷ s ＝ rad/s ✓。這已是 lock range 的雛形：**一列脈衝每週期最多能把振盪器
+搬走 $q_{inj}/(q_{max}T_{inj})$ 的角頻率**。
+
+**Step 3｜離散映射、固定點、lock range**（本站把 Sec. IV 的文字敘述寫成顯式映射）：
+
+脈衝不一定打在最敏感點——鎖定時它會自己找位置。令 $\theta_n$ ＝ 第 $n$ 根脈衝抵達瞬間振盪器的
+相對相位（就是下一節座標 $\theta=\phi-\omega_{inj}t$ 在 $t=nT_{inj}$ 的取樣）。兩根脈衝之間振盪器
+自由跑、相位差以 detuning 漂移；脈衝瞬間吃一個 ISF kick：
+
+$$
+\theta_{n+1}=\theta_n+\underbrace{(\omega_0-\omega_{inj})\,T_{inj}}_{\text{每週期漂移 [rad]}}+\underbrace{\Gamma(\theta_n)\,\frac{q_{inj}}{q_{max}}}_{\text{每脈衝 kick [rad]}}
+$$
+
+其中每週期漂移 $(\omega_0-\omega_{inj})T_{inj}=2\pi\dfrac{\omega_0-\omega_{inj}}{\omega_{inj}}\approx2\pi\dfrac{\omega_0-\omega_{inj}}{\omega_0}$ [rad]（小 detuning）。
+**鎖定＝映射的固定點** $\theta_{n+1}=\theta_n=\theta^\*$：
+
+$$
+(\omega_{inj}-\omega_0)\,T_{inj}=\Gamma(\theta^\*)\,\frac{q_{inj}}{q_{max}}
+$$
+
+左邊是「每週期欠的相位」，右邊是「每根脈衝補的相位」——**每週期的 kick 恰好抵銷 detuning 漂移**。
+這就是 [P3] Sec. IV 的原話：存在一個 $T_{inj}$ 使「下一根脈衝永遠打在波形的同一個位置」
+（"the next impulse always occurs at the same place on the waveform", p.2112）。固定點存在的條件＝
+右邊供應得起左邊：
+
+$$
+\lvert\omega_{inj}-\omega_0\rvert\le\frac{q_{inj}}{q_{max}\,T_{inj}}\,\max_\theta\lvert\Gamma(\theta)\rvert
+$$
+
+ideal LC 的 $\max\lvert\Gamma\rvert=1$，正是 Step 2 的極值——**lock range ＝ 每週期最大 kick ÷ $T_{inj}$**。
+
+穩定性（本站補充；論文未寫離散版）：把映射在 $\theta^\*$ 線性化，
+$\delta\theta_{n+1}=\big[1+\tfrac{q_{inj}}{q_{max}}\Gamma'(\theta^\*)\big]\delta\theta_n$，穩定需乘子
+絕對值小於 1，即 $-2<\tfrac{q_{inj}}{q_{max}}\Gamma'(\theta^\*)<0$。弱注入下退化成
+$\Gamma'(\theta^\*)<0$——和下一節連續版「$d\Omega/d\theta<0$ 才穩」同一句話；離散版還多說了一件
+連續平均看不到的事：kick 強到 $\tfrac{q_{inj}}{q_{max}}\lvert\Gamma'(\theta^\*)\rvert\ge2$ 會過度修正、
+$\theta_n$ 來回振盪（映射失穩）——但強注入本來就超出本節與 time-averaging 的適用範圍（見 [P4]）。
+
+**Step 4｜代回 Adler——一字不差（[P3] Eq.(22)–(23), p.2112）**：Sec. IV 收尾的「curiously」時刻。
+tank 損耗與能量回填機制的平衡給出
+
+$$
+\omega_0\,q_{max}=Q\,I_{osc}
+$$
+
+（[P3] Eq.(22)，$Q$ 依 Eq.(16), p.2111；check：(rad/s)·C ＝ A ✓）。脈衝列的**基波振幅**（[P3] Eq.(23)）：
+
+$$
+I_{inj}=\frac{2q_{inj}}{T_{inj}}
+$$
+
+> **這個 2 是誰？** 面積 $q_{inj}$、週期 $T_{inj}$ 的 δ 列，傅立葉級數為
+> $\frac{q_{inj}}{T_{inj}}\big[1+2\sum_{n\ge1}\cos(n\omega_{inj}t)\big]$：每個諧波（含基波）的振幅都是
+> DC 的 2 倍。這是「實數傅立葉級數」的 2，與本站在 phase-noise 各頁一路標記的 SSB 記帳 $/4$
+> （例 B 的 $-148$ dBc/Hz）vs 時域記帳 $/2$（$-145$）**無關**。
+
+把 Eq.(23)（$q_{inj}=I_{inj}T_{inj}/2$）與 Eq.(22)（$q_{max}=QI_{osc}/\omega_0$）代入 Step 2 的極值：
+
+$$
+\lvert\Delta\omega\rvert_{max}=\frac{1}{T_{inj}}\frac{q_{inj}}{q_{max}}=\frac{I_{inj}}{2\,q_{max}}=\frac{\omega_0}{2Q}\frac{I_{inj}}{I_{osc}}
+$$
+
+＝經典 Adler 的半 lock range（Eq.(18), p.2111）。[P3] 原文用 "curiously yields an (absolute)
+frequency shift exactly equal to Adler's lock range" 描述這個巧合。再對第三本帳：ideal LC 的
+$\Gamma=-\sin$ 基波振幅為 1、$\lvert\tilde\Gamma_1\rvert=1/q_{max}$，下一節廣義 Adler 的 Eq.(35) 給
+$\omega_L=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert=I_{inj}/(2q_{max})$——**離散算術、經典 Adler、
+廣義 Adler 三條路算出同一個數**。（Eq.(35) 的 $\tfrac12$ 是「單音×ISF 基波、$\cos^2$ 平均＝$\tfrac12$」
+的平均因子；Adler 的 $\omega_0/2Q$ 那個 2 來自 tank 相位斜率 $d\varphi/d\omega\approx2Q/\omega_0$；
+都與 SSB 的 2/4 記帳無關。）
+
+**Step 5｜連續極限＝廣義 Adler Eq.(30)（零微積分橋的另一端）**：把脈衝列餵進下一節的
+time-averaged 方程（[P3] Eq.(30), p.2113）。一個平均窗 $T_{inj}$ 內恰好一根 δ
+（在 $t=nT_{inj}$，此時 $\tilde\Gamma$ 的引數 $\omega_{inj}t+\theta=2\pi n+\theta\equiv\theta$）：
+
+$$
+\frac{1}{T_{inj}}\int_{T_{inj}}\tilde\Gamma(\omega_{inj}t+\theta)\,i_{inj}(t)\,dt
+=\frac{q_{inj}}{T_{inj}}\,\tilde\Gamma(\theta)
+\;\Longrightarrow\;
+\frac{d\theta}{dt}=(\omega_0-\omega_{inj})+\frac{q_{inj}}{T_{inj}}\,\tilde\Gamma(\theta)
+$$
+
+而 Step 3 的映射兩邊除以 $T_{inj}$：
+
+$$
+\frac{\theta_{n+1}-\theta_n}{T_{inj}}=(\omega_0-\omega_{inj})+\frac{q_{inj}}{T_{inj}}\,\tilde\Gamma(\theta_n)
+$$
+
+每週期淨變化 $\ll2\pi$ 時左邊就是 $d\theta/dt$——**離散記帳與 Eq.(30) 是同一條方程**。對脈衝列而言，
+Eq.(30) 那個嚇人的平均積分只做了一件事：把那一根 kick 挑出來。反過來讀更有價值：任意注入波形的
+Eq.(30) ＝「把連續的 $i_{inj}$ 切成無限多根小脈衝，每根照 ImpulseAnimation 記一筆
+$d\phi=\tilde\Gamma\,i_{inj}\,dt$，再每週期平均」——這就是從動畫到 Adler 的零微積分橋。
+順帶一提：脈衝列的 lock characteristic $\Omega(\theta)=\frac{q_{inj}}{T_{inj}}\tilde\Gamma(\theta)$
+**就是 ISF 自己的縮放**——因為 δ 列的所有諧波等重（$\lvert I_{inj,n}\rvert=2q_{inj}/T_{inj}$ 對所有
+$n\ge1$），把 ISF 的每個諧波等權重激發（對照 [P3] Fig. 6「注入諧波被 ISF 諧波濾波」的圖像）。
+
+**Worked example（canonical $\Gamma=-\sin\theta$）**：$q_{max}=1$ pC、$f_0=5$ GHz（例 A 的振盪器）、
+$q_{inj}=10$ fC（$q_{max}$ 的 1%）、$f_{inj}=5.005$ GHz（detuning $+5$ MHz）、$T_{inj}=1/f_{inj}=199.8$ ps。
+
+1. **每脈衝 kick 預算**：$\lvert\Delta\phi\rvert_{max}=q_{inj}/q_{max}=10^{-14}/10^{-12}=0.01$ rad。
+   精確式 $2\sin^{-1}(0.005)=0.0100000417$ rad，差 $4\times10^{-6}$——線性化極好。
+2. **每週期漂移**：$(\omega_0-\omega_{inj})T_{inj}=2\pi\times(-5\times10^{6}\ \text{Hz})\times199.8\ \text{ps}=-6.277\times10^{-3}$ rad
+   （check：Hz × s 無因次、乘 $2\pi$ 得 rad ✓）。
+3. **鎖得住嗎**：$6.277\ \text{mrad}<10\ \text{mrad}$ ✓。固定點：$-\sin\theta^\*\times0.01=+6.277\times10^{-3}$
+   ⇒ $\sin\theta^\*=-0.6277$ ⇒ $\theta^\*=-0.679$ rad $=-38.9^\circ$
+   （另一解 $\theta=-\pi+0.679=-2.463$ rad 因 $\Gamma'(\theta)>0$ 不穩定）。
+4. **半 lock range**：$f_L=\dfrac{q_{inj}}{q_{max}T_{inj}}\cdot\dfrac{1}{2\pi}=\dfrac{0.01\times5.005\times10^{9}}{2\pi}=7.97$ MHz；
+   detuning 5 MHz 在範圍內 ✓。
+5. **Adler 對帳**：$I_{inj}=2q_{inj}/T_{inj}=100.1\ \mu\text{A}$、
+   $\omega_L=I_{inj}/(2q_{max})=5.005\times10^{7}$ rad/s $=2\pi\times7.97$ MHz——同一個數。
+6. **收斂手感**：乘子 $1-0.01\cos\theta^\*=0.9922$，$1/e$ 收斂約 128 個週期（$\approx25.7$ ns）——
+   弱注入的鎖定是「幾百個週期」的慢動態，這也正是把 $\theta$ 當慢變數做 time-averaging 的正當性。
+
+```python
+import numpy as np
+
+q_max, q_inj = 1e-12, 10e-15      # C
+f0, f_inj = 5e9, 5.005e9          # Hz
+T_inj = 1/f_inj                   # s
+drift = 2*np.pi*(f0 - f_inj)*T_inj            # rad per period
+print(q_inj/q_max)                            # -> 0.01
+print(drift)                                  # -> -0.0062769083987808056
+theta = 0.0
+for n in range(3000):             # discrete map
+    theta += drift + (-np.sin(theta))*q_inj/q_max
+print(theta, np.degrees(theta))               # -> -0.6785833433413406 -38.879961621335696
+print((q_inj/(q_max*T_inj))/(2*np.pi)/1e6)    # -> 7.965704901749362
+I_inj = 2*q_inj/T_inj
+print(I_inj, I_inj/(2*q_max))                 # -> 0.0001001 50050000.0
+print(1 - (q_inj/q_max)*np.cos(theta))        # -> 0.9922153727798411
+print(1/((q_inj/q_max)*np.cos(theta)))        # -> 128.45830271877517
+```
+
+（3000 步只是保守收斂；固定點 $\theta^\*$、lock range 與 Adler 對帳全部與手算一致。）
+
+**適用與失效條件**：
+
+- **小注入**：kick 線性化要 $q_{inj}\ll q_{max}$；大注入改用 footnote 9 的精確式（本身就不對稱）。
+- **慢相位**：每週期淨相位變化 $\ll2\pi$ rad，映射→ODE 的連續極限（也是 Eq.(30) time-averaging 的前提）才成立。
+- **振幅假設**：「振幅永遠不動」只對 ideal LC＋跨零點電荷 kick 成立；一般振盪器靠振幅回復機制拉回
+  limit cycle——那是 Part II APF 的主題（[P4]）。
+- **Subharmonic**：脈衝也可以每 $M$ 個週期打一根（[P3] footnote 7, p.2112）——同一套算術、
+  漂移改成累積 $M$ 個週期，這就是 subharmonic locking 的離散圖像。
+- **超強 kick**：乘子出界（$\tfrac{q_{inj}}{q_{max}}\lvert\Gamma'\rvert\ge2$）時離散映射失穩——平均化 ODE 看不到這件事。
+
+> **已核實**：Sec. IV 的 Eq.(19)、(20)、(21)、(22)、(23) 與 footnote 7（subharmonic）、footnote 9
+> （精確 kick、$\Delta\omega=+\omega_0$ vs $-\omega_0/3$ 的強注入不對稱）皆已對照 [P3] p.2112 原始
+> PDF 渲染逐字確認；經典 Adler 的 Eq.(15)/(18) 與 $Q$ 的 Eq.(16) 在 p.2111。
 
 ### 廣義 Adler 方程 / lock characteristic（本篇核心，已對照原始 PDF 核實 ✓）
 
@@ -215,10 +425,14 @@ $\Omega$ 曲線的值域（兩條水平虛線之間）。把注入波形諧波�
 - **同一個 ISF 既算 phase noise，也算 injection locking**——輸入從隨機 noise 換成確定的
   $i_{inj}$（claim C10）。
 - **廣義 Adler 方程**：$\dfrac{d\theta}{dt}=(\omega_0-\omega_{inj})+\dfrac{1}{T_{inj}}\displaystyle\int_{T_{inj}}\tilde\Gamma(\omega_{inj}t+\theta)\,i_{inj}(t)\,dt$（[P3] Eq.(30), p.2113，平均項前為 **加號**）。
+- **脈衝列思想實驗（[P3] Sec. IV, p.2112）**：每脈衝 kick $\Delta\phi=\pm q_{inj}/q_{max}$（Eq.(19)）；
+  每週期 kick 抵銷 detuning 漂移＝鎖定；最大頻移 $\pm q_{inj}/(q_{max}T_{inj})$（Eq.(21)）經
+  $\omega_0q_{max}=QI_{osc}$（Eq.(22)）與 $I_{inj}=2q_{inj}/T_{inj}$（Eq.(23)）改寫後與 Adler lock
+  range Eq.(18) 一字不差——ImpulseAnimation 的一格 kick 週期化，就是 injection locking。
 - **雜訊整形（v5 新增）**：鎖定後振盪器＝一階 PLL——自身雜訊被高通抑制、reference 雜訊低通進入，corner=ω_L cosθ_ss；完整推導與模擬見 [injection_locking_noise](/06_design_insights/injection_locking_noise)。
 - **鎖定** = 存在穩態解 / $|\omega_0-\omega_{inj}|\le\omega_L$；**lock range** = lock characteristic $\Omega(\theta)$ 的值域寬度；正弦注入時 $\omega_L=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert$（[P3] Eq.(35), p.2114）。
 - 比 Adler 強在：拓樸無關、任意波形、不對稱 lock range、可設計波形放大 lock range。
-- 本頁屬**進階**；核心公式（Eq.26、28–30、33、35）已對照 [P3] p.2113–2114 原始 PDF 核實。
+- 本頁屬**進階**；核心公式（Eq.19–23、26、28–30、33、35）已對照 [P3] p.2112–2114 原始 PDF 核實。
 
 ## 延伸閱讀
 

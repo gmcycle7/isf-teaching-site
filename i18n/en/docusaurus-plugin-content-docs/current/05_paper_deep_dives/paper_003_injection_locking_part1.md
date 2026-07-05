@@ -16,7 +16,7 @@ Core result: a **single first-order differential equation** written in terms of 
 for **any** oscillator topology and **any** injection waveform — and from it follows a recipe
 for designing the injection waveform that maximizes the lock range.
 
-> **Scope of this page**: advanced deep-dive, **not a core teaching chapter**. The core equations (generalized Adler Eq.(26), (28)–(30),
+> **Scope of this page**: advanced deep-dive, **not a core teaching chapter**. The core equations (impulse-train Eq.(19)–(23), generalized Adler Eq.(26), (28)–(30),
 > (33), (35)) have been verified against the original [P3] PDF. Make sure you have digested the ISF from [P1] ([paper_001](/05_paper_deep_dives/paper_001_general_theory_phase_noise)) before reading this.
 
 ## Citation
@@ -101,14 +101,243 @@ or in frequency, $f_L=\omega_L/2\pi\approx25$ MHz. Intuition: the lock range gro
 strength and shrinks inversely with $Q$ (a high-$Q$ LC is more "stubborn" — harder to pull away).
 
 > **Note**: the classical Adler result is standard ([P3] Sec. III, p.2111 reviews Adler [20]); this page uses generic simplified notation.
-> The **generalized Adler** in the next section has been verified verbatim against the original PDF.
+> The **impulse-train thought experiment** in the next section and the **generalized Adler** after it have both been verified verbatim against the original PDF.
+
+### Locking to an impulse train — Adler with zero calculus ([P3] Sec. IV, p.2112, verified ✓)
+
+Between classical Adler (Sec. III) and the time-synchronous model (Sec. V), [P3] inserts a purely
+arithmetic thought experiment (Sec. IV *Locking to an Impulse Train*, p.2112): feed an ideal LC
+oscillator a train of current impulses. Its value: **not a drop of calculus is needed** — using only
+the discrete bookkeeping "one impulse = one phase kick," it reproduces the lock range of classical
+Adler's Eq.(18) to the letter. And "one impulse = one kick" is exactly the interactive animation
+**ImpulseAnimation** you played with on [isf_definition](/03_isf_core_theory/isf_definition): one press of "Inject!" = one
+
+$$
+\Delta\phi=\Gamma(\theta)\,\frac{\Delta q}{q_{max}}
+$$
+
+This section merely replaces "press once by hand" with "press automatically every $T_{inj}$ seconds" —
+the same physics, made periodic. (The animation kicks along the voltage axis with $\Delta V=\Delta q/C$;
+[P3] Fig. 3 kicks along the charge axis with $q_{inj}$ — the same thing, since $V=q/C$.)
+
+**Setup ([P3] Fig. 3(a), p.2112)**: an ideal parallel LC ($C$, $L$, $R_P$, $-G_m$) with a periodic impulse-train injection current
+
+$$
+i_{inj}(t)=\pm\,q_{inj}\sum_{n=-\infty}^{\infty}\delta(t-nT_{inj}),\qquad T_{inj}\equiv\frac{2\pi}{\omega_{inj}}
+$$
+
+([P3] adopts the convention $q_{inj}\ge0$; the sign selects Fig. 3(b), speeding up, or Fig. 3(c),
+slowing down). Each impulse dumps a fixed charge $q_{inj}$ [C] onto the capacitor in one shot. The key
+arrangement: the impulse lands at the zero crossing of the capacitor charge $q(t)$ — it moves the
+capacitor voltage "to the opposite side of the zero-crossing" ([P3]'s words: "moving the capacitor
+voltage to the opposite side of the zero-crossing"), shifting the state-space point horizontally from
+$q=-q_{inj}/2$ to $q=+q_{inj}/2$. Both endpoints lie on **the same circle**, so the amplitude never
+moves and only the phase jumps ("the amplitude remains perpetually unaffected", p.2112) — exactly the
+"ZC injection = pure phase jump" of [P1] / lab_02.
+
+**Step 1 | The kick per impulse ([P3] Eq.(19), p.2112)**: for small injections ($q_{inj}\ll q_{max}$)
+
+$$
+\Delta\phi=\pm\frac{q_{inj}}{q_{max}}\qquad[\text{rad}]
+$$
+
+This is the operational definition of [P1], $\Delta\phi=\Gamma(\theta)\,\Delta q/q_{max}$, specialized
+to $\Gamma=-\sin\theta$ with the impulse landing at $\theta=\mp\pi/2$ (the zero crossing of $q$, the
+most sensitive point where $\lvert\Gamma\rvert=1$).
+Dimension check: $\tilde\Gamma=\Gamma/q_{max}$ has units of rad/C ([P3] writes 1/Coulomb; rad is
+dimensionless), times $q_{inj}$ [C] gives rad ✓.
+
+Exact geometry ([P3] footnote 9, p.2112): two points on the circle joined by a horizontal chord of length $q_{inj}$, with $q_{inj}=2q_{max}\sin(\Delta\phi/2)$, hence
+
+$$
+\Delta\phi=\pm2\sin^{-1}\!\left[\frac{q_{inj}}{2q_{max}}\right]
+$$
+
+For small injections $2\sin^{-1}\!\big(\tfrac{q_{inj}}{2q_{max}}\big)\approx q_{inj}/q_{max}$, recovering Eq.(19);
+in the extreme $q_{inj}=2q_{max}$ (chord = diameter), $\Delta T=\mp T_0/2$, i.e., $\Delta\omega=+\omega_0$
+(period halved) or $-\omega_0/3$ (period stretched to 1.5×) — footnote 9 points this out explicitly:
+**even for an ideal LC, the strong-injection "lock range" of this thought experiment is asymmetric**.
+This foreshadows that the asymmetric lock range of the generalized Adler equation is not pathological — it is the norm.
+
+**Step 2 | Kick → frequency shift ([P3] Eq.(20)–(21), p.2112)**: eating the same kick every period is equivalent to rewriting the period:
+
+$$
+\frac{\Delta\phi}{2\pi}=-\frac{\Delta T}{T_0}=\frac{\Delta\omega}{\omega_{inj}}
+$$
+
+(a forward phase jump $\Delta\phi>0$ ⇒ shorter period $\Delta T<0$ ⇒ higher frequency). The average frequency shift is
+
+$$
+\Delta\omega=\frac{\Delta\phi}{T_{inj}}=\pm\frac{1}{T_{inj}}\frac{q_{inj}}{q_{max}}\qquad[\text{rad/s}]
+$$
+
+Dimension check: rad ÷ s = rad/s ✓. This is already the embryo of the lock range: **an impulse train
+can move the oscillator by at most $q_{inj}/(q_{max}T_{inj})$ of angular frequency per period**.
+
+**Step 3 | Discrete map, fixed point, lock range** (this site writes [P3] Sec. IV's verbal narrative as an explicit map):
+
+The impulse need not land at the most sensitive point — under lock it finds its own position. Let
+$\theta_n$ = the oscillator's relative phase at the instant the $n$-th impulse arrives (i.e., the
+next section's coordinate $\theta=\phi-\omega_{inj}t$ sampled at $t=nT_{inj}$). Between impulses the
+oscillator free-runs and the phase difference drifts with the detuning; at each impulse it eats one ISF kick:
+
+$$
+\theta_{n+1}=\theta_n+\underbrace{(\omega_0-\omega_{inj})\,T_{inj}}_{\text{drift per period [rad]}}+\underbrace{\Gamma(\theta_n)\,\frac{q_{inj}}{q_{max}}}_{\text{kick per impulse [rad]}}
+$$
+
+where the drift per period is $(\omega_0-\omega_{inj})T_{inj}=2\pi\dfrac{\omega_0-\omega_{inj}}{\omega_{inj}}\approx2\pi\dfrac{\omega_0-\omega_{inj}}{\omega_0}$ [rad] (small detuning).
+**Locking = a fixed point of the map**, $\theta_{n+1}=\theta_n=\theta^\*$:
+
+$$
+(\omega_{inj}-\omega_0)\,T_{inj}=\Gamma(\theta^\*)\,\frac{q_{inj}}{q_{max}}
+$$
+
+The left side is "the phase owed per period," the right side is "the phase repaid per impulse" —
+**the per-period kick exactly cancels the detuning drift**. This is [P3] Sec. IV's own words: there
+exists a $T_{inj}$ such that "the next impulse always occurs at the same place on the waveform" (p.2112).
+The condition for a fixed point to exist = the right side can supply the left:
+
+$$
+\lvert\omega_{inj}-\omega_0\rvert\le\frac{q_{inj}}{q_{max}\,T_{inj}}\,\max_\theta\lvert\Gamma(\theta)\rvert
+$$
+
+For the ideal LC, $\max\lvert\Gamma\rvert=1$ — exactly the extremum of Step 2. **Lock range = maximum kick per period ÷ $T_{inj}$**.
+
+Stability (this site's addition; the paper does not write the discrete version): linearize the map at
+$\theta^\*$, $\delta\theta_{n+1}=\big[1+\tfrac{q_{inj}}{q_{max}}\Gamma'(\theta^\*)\big]\delta\theta_n$;
+stability requires the multiplier's absolute value to be less than 1, i.e.,
+$-2<\tfrac{q_{inj}}{q_{max}}\Gamma'(\theta^\*)<0$. Under weak injection this reduces to
+$\Gamma'(\theta^\*)<0$ — the same statement as the continuous version's "stable only if $d\Omega/d\theta<0$"
+in the next section; but the discrete version also reveals something the continuous average cannot see:
+a kick strong enough that $\tfrac{q_{inj}}{q_{max}}\lvert\Gamma'(\theta^\*)\rvert\ge2$ overcorrects and
+$\theta_n$ oscillates back and forth (map instability) — though strong injection lies outside the scope
+of this section and of time-averaging anyway (see [P4]).
+
+**Step 4 | Substitute back into Adler — to the letter ([P3] Eq.(22)–(23), p.2112)**: the "curiously"
+moment that closes Sec. IV. The balance between the tank loss and the energy-restoration mechanism gives
+
+$$
+\omega_0\,q_{max}=Q\,I_{osc}
+$$
+
+([P3] Eq.(22), with $Q$ per Eq.(16), p.2111; check: (rad/s)·C = A ✓). The **fundamental amplitude** of the impulse train ([P3] Eq.(23)):
+
+$$
+I_{inj}=\frac{2q_{inj}}{T_{inj}}
+$$
+
+> **Whose 2 is this?** A δ train of area $q_{inj}$ and period $T_{inj}$ has the Fourier series
+> $\frac{q_{inj}}{T_{inj}}\big[1+2\sum_{n\ge1}\cos(n\omega_{inj}t)\big]$: every harmonic (including the
+> fundamental) has twice the DC amplitude. This is the 2 of a "real Fourier series," and has **nothing**
+> to do with the SSB bookkeeping $/4$ (Example B's $-148$ dBc/Hz) vs the time-domain bookkeeping $/2$
+> ($-145$) flagged throughout the phase-noise pages of this site.
+
+Substituting Eq.(23) ($q_{inj}=I_{inj}T_{inj}/2$) and Eq.(22) ($q_{max}=QI_{osc}/\omega_0$) into the extremum of Step 2:
+
+$$
+\lvert\Delta\omega\rvert_{max}=\frac{1}{T_{inj}}\frac{q_{inj}}{q_{max}}=\frac{I_{inj}}{2\,q_{max}}=\frac{\omega_0}{2Q}\frac{I_{inj}}{I_{osc}}
+$$
+
+= classical Adler's half lock range (Eq.(18), p.2111). [P3] describes this coincidence as "curiously
+yields an (absolute) frequency shift exactly equal to Adler's lock range." Now balance a third ledger:
+the ideal LC's $\Gamma=-\sin$ has fundamental amplitude 1, so $\lvert\tilde\Gamma_1\rvert=1/q_{max}$,
+and the next section's generalized Adler Eq.(35) gives
+$\omega_L=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert=I_{inj}/(2q_{max})$ — **discrete arithmetic,
+classical Adler, and generalized Adler compute the same number by three routes**. (The $\tfrac12$ in
+Eq.(35) is the averaging factor "single tone × ISF fundamental, average of $\cos^2$ = $\tfrac12$";
+the 2 in Adler's $\omega_0/2Q$ comes from the tank phase slope $d\varphi/d\omega\approx2Q/\omega_0$;
+neither has anything to do with the SSB 2/4 bookkeeping.)
+
+**Step 5 | The continuum limit = generalized Adler Eq.(30) (the other end of the zero-calculus bridge)**:
+feed the impulse train into the next section's time-averaged equation ([P3] Eq.(30), p.2113). One
+averaging window $T_{inj}$ contains exactly one δ (at $t=nT_{inj}$, where the argument of $\tilde\Gamma$
+is $\omega_{inj}t+\theta=2\pi n+\theta\equiv\theta$):
+
+$$
+\frac{1}{T_{inj}}\int_{T_{inj}}\tilde\Gamma(\omega_{inj}t+\theta)\,i_{inj}(t)\,dt
+=\frac{q_{inj}}{T_{inj}}\,\tilde\Gamma(\theta)
+\;\Longrightarrow\;
+\frac{d\theta}{dt}=(\omega_0-\omega_{inj})+\frac{q_{inj}}{T_{inj}}\,\tilde\Gamma(\theta)
+$$
+
+Meanwhile, divide both sides of Step 3's map by $T_{inj}$:
+
+$$
+\frac{\theta_{n+1}-\theta_n}{T_{inj}}=(\omega_0-\omega_{inj})+\frac{q_{inj}}{T_{inj}}\,\tilde\Gamma(\theta_n)
+$$
+
+When the net change per period is $\ll2\pi$, the left side becomes $d\theta/dt$ — **the discrete
+bookkeeping and Eq.(30) are the same equation**. For an impulse train, the intimidating averaging
+integral of Eq.(30) does exactly one thing: it picks out that one kick. Reading it the other way is
+even more valuable: Eq.(30) for an arbitrary injection waveform = "slice the continuous $i_{inj}$ into
+infinitely many small impulses, log each one ImpulseAnimation-style as $d\phi=\tilde\Gamma\,i_{inj}\,dt$,
+then average over each period" — this is the zero-calculus bridge from the animation to Adler.
+Incidentally, the impulse train's lock characteristic $\Omega(\theta)=\frac{q_{inj}}{T_{inj}}\tilde\Gamma(\theta)$
+**is a scaled copy of the ISF itself** — because all harmonics of a δ train have equal weight
+($\lvert I_{inj,n}\rvert=2q_{inj}/T_{inj}$ for all $n\ge1$), every ISF harmonic is excited with equal
+weight (compare the picture of [P3] Fig. 6, "injection harmonics filtered by ISF harmonics").
+
+**Worked example (canonical $\Gamma=-\sin\theta$)**: $q_{max}=1$ pC, $f_0=5$ GHz (the oscillator of
+Example A), $q_{inj}=10$ fC (1% of $q_{max}$), $f_{inj}=5.005$ GHz (detuning $+5$ MHz), $T_{inj}=1/f_{inj}=199.8$ ps.
+
+1. **Kick budget per impulse**: $\lvert\Delta\phi\rvert_{max}=q_{inj}/q_{max}=10^{-14}/10^{-12}=0.01$ rad.
+   The exact formula gives $2\sin^{-1}(0.005)=0.0100000417$ rad, a difference of $4\times10^{-6}$ — the linearization is excellent.
+2. **Drift per period**: $(\omega_0-\omega_{inj})T_{inj}=2\pi\times(-5\times10^{6}\ \text{Hz})\times199.8\ \text{ps}=-6.277\times10^{-3}$ rad
+   (check: Hz × s is dimensionless, times $2\pi$ gives rad ✓).
+3. **Does it lock?** $6.277\ \text{mrad}<10\ \text{mrad}$ ✓. Fixed point: $-\sin\theta^\*\times0.01=+6.277\times10^{-3}$
+   ⇒ $\sin\theta^\*=-0.6277$ ⇒ $\theta^\*=-0.679$ rad $=-38.9^\circ$
+   (the other solution $\theta=-\pi+0.679=-2.463$ rad is unstable because $\Gamma'(\theta)>0$).
+4. **Half lock range**: $f_L=\dfrac{q_{inj}}{q_{max}T_{inj}}\cdot\dfrac{1}{2\pi}=\dfrac{0.01\times5.005\times10^{9}}{2\pi}=7.97$ MHz;
+   the 5 MHz detuning is inside the range ✓.
+5. **Adler cross-check**: $I_{inj}=2q_{inj}/T_{inj}=100.1\ \mu\text{A}$,
+   $\omega_L=I_{inj}/(2q_{max})=5.005\times10^{7}$ rad/s $=2\pi\times7.97$ MHz — the same number.
+6. **Feel for the convergence**: multiplier $1-0.01\cos\theta^\*=0.9922$, so $1/e$ convergence takes
+   about 128 periods ($\approx25.7$ ns) — weak-injection locking is a "hundreds of periods" slow
+   dynamic, which is precisely what justifies treating $\theta$ as a slow variable in the time-averaging.
+
+```python
+import numpy as np
+
+q_max, q_inj = 1e-12, 10e-15      # C
+f0, f_inj = 5e9, 5.005e9          # Hz
+T_inj = 1/f_inj                   # s
+drift = 2*np.pi*(f0 - f_inj)*T_inj            # rad per period
+print(q_inj/q_max)                            # -> 0.01
+print(drift)                                  # -> -0.0062769083987808056
+theta = 0.0
+for n in range(3000):             # discrete map
+    theta += drift + (-np.sin(theta))*q_inj/q_max
+print(theta, np.degrees(theta))               # -> -0.6785833433413406 -38.879961621335696
+print((q_inj/(q_max*T_inj))/(2*np.pi)/1e6)    # -> 7.965704901749362
+I_inj = 2*q_inj/T_inj
+print(I_inj, I_inj/(2*q_max))                 # -> 0.0001001 50050000.0
+print(1 - (q_inj/q_max)*np.cos(theta))        # -> 0.9922153727798411
+print(1/((q_inj/q_max)*np.cos(theta)))        # -> 128.45830271877517
+```
+
+(The 3000 steps are just conservative convergence; the fixed point $\theta^\*$, the lock range, and the Adler cross-check all agree with the hand calculation.)
+
+**Applicability and failure conditions**:
+
+- **Small injection**: linearizing the kick requires $q_{inj}\ll q_{max}$; for large injections use the exact formula of footnote 9 (which is itself asymmetric).
+- **Slow phase**: the net phase change per period must be $\ll2\pi$ rad for the map→ODE continuum limit (also the premise of Eq.(30)'s time-averaging) to hold.
+- **Amplitude assumption**: "the amplitude never moves" holds only for an ideal LC with a charge kick across the zero crossing; a general oscillator relies on its amplitude-restoration mechanism to pull back to the
+  limit cycle — that is the subject of Part II's APF ([P4]).
+- **Subharmonic**: the impulse may also land once every $M$ periods ([P3] footnote 7, p.2112) — the same arithmetic
+  with the drift accumulated over $M$ periods; this is the discrete picture of subharmonic locking.
+- **Very strong kicks**: when the multiplier leaves the unit interval ($\tfrac{q_{inj}}{q_{max}}\lvert\Gamma'\rvert\ge2$) the discrete map goes unstable — the averaged ODE cannot see this.
+
+> **Verified**: Sec. IV's Eq.(19), (20), (21), (22), (23) plus footnote 7 (subharmonic) and footnote 9
+> (exact kick; the strong-injection asymmetry $\Delta\omega=+\omega_0$ vs $-\omega_0/3$) have all been
+> confirmed verbatim against the rendered original [P3] PDF, p.2112; classical Adler's Eq.(15)/(18) and
+> the $Q$ of Eq.(16) are on p.2111.
 
 ### Generalized Adler equation / lock characteristic (core of this paper, verified against the original PDF ✓)
 
 [P3] first converts Hajimiri's **dimensionless** ISF $\Gamma$ into a **unit-bearing** version ([P3] Eq.(26), p.2113):
 
 $$
-\tilde\Gamma(x)\equiv\frac{\Gamma(x)}{q_{max}}\qquad[\text{單位 rad/C}]
+\tilde\Gamma(x)\equiv\frac{\Gamma(x)}{q_{max}}\qquad[\text{units: rad/C}]
 $$
 
 Then the instantaneous phase kick of the injection current, and the change of coordinates to the relative phase $\theta=\phi-\omega_{inj}t$ ([P3] Eq.(28)–(29), p.2113):
@@ -226,10 +455,14 @@ Per paper_metadata (paper_003.limitations):
 - **The same ISF computes both phase noise and injection locking** — the input changes from random noise to a deterministic
   $i_{inj}$ (claim C10).
 - **Generalized Adler equation**: $\dfrac{d\theta}{dt}=(\omega_0-\omega_{inj})+\dfrac{1}{T_{inj}}\displaystyle\int_{T_{inj}}\tilde\Gamma(\omega_{inj}t+\theta)\,i_{inj}(t)\,dt$ ([P3] Eq.(30), p.2113, with a **plus sign** in front of the averaged term).
+- **Impulse-train thought experiment ([P3] Sec. IV, p.2112)**: kick per impulse $\Delta\phi=\pm q_{inj}/q_{max}$ (Eq.(19));
+  locking = the per-period kick cancels the detuning drift; the maximum frequency shift $\pm q_{inj}/(q_{max}T_{inj})$ (Eq.(21)),
+  rewritten via $\omega_0q_{max}=QI_{osc}$ (Eq.(22)) and $I_{inj}=2q_{inj}/T_{inj}$ (Eq.(23)), matches Adler's lock
+  range Eq.(18) to the letter — one ImpulseAnimation kick, made periodic, is injection locking.
 - **Noise shaping (new in v5)**: once locked, the oscillator = a first-order PLL — its own noise is high-pass suppressed while reference noise enters low-pass, with corner=ω_L cosθ_ss; full derivation and simulation in [injection_locking_noise](/06_design_insights/injection_locking_noise).
 - **Locking** = existence of a steady-state solution / $|\omega_0-\omega_{inj}|\le\omega_L$; **lock range** = the width of the range of the lock characteristic $\Omega(\theta)$; for sinusoidal injection $\omega_L=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert$ ([P3] Eq.(35), p.2114).
 - Stronger than Adler in: topology independence, arbitrary waveforms, asymmetric lock range, and designable waveforms that enlarge the lock range.
-- This page is **advanced**; the core equations (Eq.26, 28–30, 33, 35) have been verified against the original [P3] PDF, p.2113–2114.
+- This page is **advanced**; the core equations (Eq.19–23, 26, 28–30, 33, 35) have been verified against the original [P3] PDF, p.2112–2114.
 
 ## Further reading
 

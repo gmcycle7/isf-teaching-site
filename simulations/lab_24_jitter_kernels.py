@@ -35,10 +35,18 @@ Part 3: numerical kernel integrals vs closed forms (white FM + flicker 1/f^3
 Part 4: canonical example-C spectrum (-100 dBc/Hz @ 1 MHz, 1/f^2):
         TIE 447.9 fs, period jitter closed form 28.3 fs, and the
         band-truncated 27.6 fs of worked_examples 例 C3.
+Part 5: two-regime jitter growth sigma(dt) = sqrt(kappa^2*dt + zeta^2*dt^2)
+        ([P2] Fig.16 p.802; Eq.(8)/(9) p.792). White FM + flicker FM
+        synthesized as per-period phase increments over 2^24 periods;
+        sigma(dt) measured across 5 decades of dt; the two slopes (0.5 and
+        ~1) fitted; corner dt_c = kappa^2/zeta^2 compared with the
+        self-consistent log-corrected theory and mapped to the frequency-
+        domain 1/f^3 corner via dt_c = 1/(2*bracket*f_{1/f^3}).
 
-Figure
-------
+Figures
+-------
   static/figures/jitter_kernels_mc.png
+  static/figures/jitter_two_regime.png
 """
 import os
 import sys
@@ -50,7 +58,8 @@ import matplotlib.pyplot as plt
 
 from plot_utils import savefig
 from isf_utils import gamma_lc_ideal
-from noise_utils import white_noise, leeson_one_over_f2, integrate_rms_jitter
+from noise_utils import (white_noise, flicker_noise, estimate_psd,
+                         leeson_one_over_f2, integrate_rms_jitter)
 
 try:
     from numpy import trapezoid as _trapz
@@ -221,6 +230,190 @@ def part4_example_c():
 
 
 # ----------------------------------------------------------------------------
+# Part 5: two-regime growth sigma(dt)=sqrt(kappa^2*dt + zeta^2*dt^2)
+#         ([P2] Fig.16 p.802; Eq.(8) sigma=kappa*sqrt(dt), Eq.(9) sigma=zeta*dt)
+# ----------------------------------------------------------------------------
+EULER_GAMMA = 0.5772156649015329
+
+
+def _bracket(dt, f_l):
+    """Log bracket of the flicker-FM closed form: 3/2 - gamma - ln(2*pi*dt*f_l)."""
+    return 1.5 - EULER_GAMMA - np.log(2 * np.pi * dt * f_l)
+
+
+def part5_two_regime(n_periods=2 ** 24):
+    print("Part 5  two-regime growth: white + flicker FM ([P2] Fig.16, Eq.(8)/(9))")
+    fs = 1.0 / T                                  # edge sampling rate [Hz]
+    t_rec = n_periods * T                         # record length [s]
+    f_l = 1.0 / t_rec                             # lowest synthesized freq [Hz]
+
+    # -- target flicker level: S_phi = b3/f^3 with spectral corner b3/b2 = 1 MHz
+    b2 = KAPPA2 / (2 * np.pi ** 2)                # S_phi = b2/f^2 [rad^2*Hz]
+    f3_corner = 1e6                               # target f_{1/f^3} [Hz]
+    b3 = b2 * f3_corner                           # [rad^2*Hz^2]
+    # per-period phase increments d_k: S_d(f) = 4*pi^2*b3*T^2 / f  [rad^2/Hz];
+    # flicker_noise() delivers S = (2/fs)*k_flicker/f  =>  k = 2*pi^2*b3*T^2*fs
+    k_flick = 2 * np.pi ** 2 * b3 * T ** 2 * fs
+
+    d_fl = flicker_noise(n_periods, fs=fs, k_flicker=k_flick, rng=RNG)
+    d_fl -= d_fl.mean()          # remove average-frequency error (finite record)
+
+    # -- calibrate the actually synthesized flicker level (do not trust nominal)
+    fw, Sw = estimate_psd(d_fl, fs, nperseg=2 ** 15)
+    band = (fw > 1e6) & (fw < 1e9)
+    b_d = float(np.median(Sw[band] * fw[band]))   # S_d = b_d/f  [rad^2]
+    b3_cal = b_d / (4 * np.pi ** 2 * T ** 2)      # calibrated b3 [rad^2*Hz^2]
+    print(f"  flicker calibration: S_d*f = {b_d:.3e} rad^2 "
+          f"(nominal {4 * np.pi ** 2 * b3 * T ** 2:.3e})")
+    print(f"  b3(calibrated) = {b3_cal:.3e} rad^2*Hz^2 ; "
+          f"f_1/f3 = b3/b2 = {b3_cal / b2:.3e} Hz")
+    print(f"  record 2^24 periods = {t_rec:.2e} s ; f_l = 1/T_rec = {f_l:.1f} Hz")
+
+    # -- combined walk: independent white FM + flicker FM increments
+    d_w = RNG.normal(0.0, KAPPA * np.sqrt(T), n_periods)
+    phi = np.concatenate(([0.0], np.cumsum(d_w + d_fl)))
+
+    Ns = np.unique(np.round(np.geomspace(1, 1e5, 41)).astype(int))
+    dts = Ns * T
+    sig_t = np.array([rms(phi[N:] - phi[:-N]) for N in Ns]) / W0   # [s]
+
+    # -- fit the two slopes on the log-log curve
+    m_w = Ns <= 32          # dt << dt_c/10 : white region
+    m_f = Ns >= 3200        # dt >> 10*dt_c : flicker region
+    pw = np.polyfit(np.log10(dts[m_w]), np.log10(sig_t[m_w]), 1)
+    pf = np.polyfit(np.log10(dts[m_f]), np.log10(sig_t[m_f]), 1)
+    print(f"  fitted slope, white   region (N<=32)   = {pw[0]:.3f} (theory 0.5)")
+    print(f"  fitted slope, flicker region (N>=3200) = {pf[0]:.3f} "
+          f"(clean zeta*dt would be 1.0; log-corrected < 1, see below)")
+
+    # -- corner: MC (intersection of the two fitted lines) vs theory
+    x_c = (pf[1] - pw[1]) / (pw[0] - pf[0])
+    dt_c_mc = 10 ** x_c
+    dt_c = 1e-8
+    for _ in range(60):      # self-consistent: dt_c = kappa^2 / zeta_eff^2(dt_c)
+        dt_c = KAPPA2 / (4 * np.pi ** 2 * b3_cal * _bracket(dt_c, f_l))
+    print(f"  corner MC  (fit intersection)  dt_c = {dt_c_mc:.2e} s "
+          f"(N_c = {dt_c_mc / T:.0f} periods)")
+    print(f"  corner theory (self-consistent) dt_c = {dt_c:.2e} s "
+          f"(N_c = {dt_c / T:.0f}) ; ratio MC/theory = {dt_c_mc / dt_c:.2f}")
+    br_c = _bracket(dt_c, f_l)
+    print(f"  dt_c * f_1/f3 = {dt_c * b3_cal / b2:.4f} ; "
+          f"1/(2*bracket) = {1 / (2 * br_c):.4f} (bracket = {br_c:.2f})")
+
+    # -- exact expected curve: kappa^2*N*T + discrete-bin flicker sum
+    kbins = np.arange(1, n_periods // 2 + 1)
+    fb = kbins * f_l
+    Sd = b_d / fb
+    s1 = np.sin(np.pi * fb * T) ** 2
+    var_fl = np.empty(Ns.size)
+    for i, N in enumerate(Ns):
+        w = np.sin(np.pi * fb * N * T) ** 2 / s1   # |sum of N increments|^2
+        var_fl[i] = np.sum(Sd * w) * f_l
+    sig_exact = np.sqrt(KAPPA2 * dts + var_fl) / W0
+
+    pw_ex = np.polyfit(np.log10(dts[m_w]), np.log10(sig_exact[m_w]), 1)
+    pf_ex = np.polyfit(np.log10(dts[m_f]), np.log10(sig_exact[m_f]), 1)
+    print(f"  exact-curve slopes over the same windows = "
+          f"{pw_ex[0]:.3f} / {pf_ex[0]:.3f} (MC deviations from 0.5/1.0 are "
+          f"physics, not noise)")
+
+    i_chk = int(np.argmin(np.abs(Ns - 10_000)))
+    var_log = 4 * np.pi ** 2 * b3_cal * dts[i_chk] ** 2 * _bracket(dts[i_chk], f_l)
+    var_log2 = 4 * np.pi ** 2 * b3_cal * dts[i_chk] ** 2 \
+        * _bracket(dts[i_chk], f_l / 2)
+    print(f"  exact bin-sum vs log closed form at N={Ns[i_chk]}: "
+          f"ratio = {var_fl[i_chk] / var_log:.3f} (f_l=1/T_rec) ; "
+          f"{var_fl[i_chk] / var_log2:.3f} (half-bin f_l/2)")
+    print(f"  MC vs exact curve at N={Ns[i_chk]}: "
+          f"ratio = {sig_t[i_chk] / sig_exact[i_chk]:.3f}")
+
+    # -- why the paper's clean slope-1 fit is fine on hardware: local slope
+    #    1 - 1/(2*bracket) with a measurement-length f_l (~1 Hz)
+    sl_hw = 1 - 1 / (2 * _bracket(1e-7, 1.0))
+    print(f"  hardware-f_l check: local flicker slope at dt=1e-7 s, f_l=1 Hz "
+          f"= {sl_hw:.3f}")
+
+    # -- [P2] Fig.16 oscillator 12 numbers (kappa/zeta read off the paper)
+    kappa_p, zeta_p, f0_p = 6.18e-9, 2.5e-5, 2.8e9   # [sqrt(s)], [-], [Hz]
+    dt_cp = (kappa_p / zeta_p) ** 2
+    br_p = _bracket(dt_cp, 1.0)
+    fc_p = 1.0 / (2 * br_p * dt_cp)
+    print(f"  [P2] Fig.16 osc-12: kappa=6.18e-9 sqrt(s), zeta=2.5e-5 -> "
+          f"dt_c = kappa^2/zeta^2 = {dt_cp:.2e} s = {dt_cp * f0_p:.0f} periods")
+    print(f"  implied f_1/f3 = 1/(2*bracket*dt_c) = {fc_p:.2e} Hz "
+          f"(f_l=1 Hz, bracket={br_p:.1f})")
+
+    return dict(Ns=Ns, dts=dts, sig_t=sig_t, sig_exact=sig_exact,
+                b3_cal=b3_cal, f_l=f_l, dt_c=dt_c, dt_c_mc=dt_c_mc,
+                pw=pw, pf=pf, kappa_p=kappa_p, zeta_p=zeta_p, dt_cp=dt_cp,
+                br_p=br_p)
+
+
+def make_figure_two_regime(r):
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.4))
+    dts, sig_t, sig_ex = r["dts"], r["sig_t"], r["sig_exact"]
+    dt_c, f_l, b3_cal = r["dt_c"], r["f_l"], r["b3_cal"]
+
+    # (a) canonical-oscillator MC, like [P2] Fig.16
+    ax = axes[0]
+    ax.loglog(dts, sig_t * 1e15, "+", ms=9, mew=1.6, color="k", label="MC 量測")
+    sig_w = KAPPA * np.sqrt(dts) / W0
+    zeta_c = np.sqrt(4 * np.pi ** 2 * b3_cal * _bracket(dt_c, f_l))   # [rad/s]
+    sig_z = zeta_c * dts / W0
+    sig_zlog = np.sqrt(4 * np.pi ** 2 * b3_cal * dts ** 2
+                       * _bracket(dts, f_l)) / W0
+    ax.loglog(dts, sig_w * 1e15, "-", color="tab:blue", lw=1.4,
+              label=r"$\kappa\sqrt{\Delta t}$（斜率 1/2）")
+    ax.loglog(dts, sig_z * 1e15, "-", color="tab:red", lw=1.4,
+              label=r"$\zeta\Delta t$（斜率 1，$\zeta$ 取角點值）")
+    ax.loglog(dts, sig_zlog * 1e15, "--", color="tab:red", lw=1.2,
+              label=r"log 修正 flicker（斜率 $1-\frac{1}{2[\cdot]}$）")
+    ax.loglog(dts, np.sqrt(sig_w ** 2 + sig_zlog ** 2) * 1e15, ":",
+              color="tab:green", lw=1.8,
+              label=r"$\sqrt{\kappa^2\Delta t+\zeta_{\rm eff}^2\Delta t^2}$")
+    ax.loglog(dts, sig_ex * 1e15, "-", color="0.55", lw=0.9,
+              label="exact（離散 bin 和）")
+    ax.axvline(dt_c, color="0.4", ls="-.", lw=1.0)
+    ax.annotate(fr"$\Delta t_c$={dt_c * 1e9:.0f} ns", (dt_c, 2e-1),
+                textcoords="offset points", xytext=(4, 0), fontsize=9)
+    ax.set_xlabel(r"$\Delta t$ [s]")
+    ax.set_ylabel(r"$\sigma_{\Delta t}$ [fs]")
+    ax.set_title(r"(a) canonical 5 GHz：白噪+flicker FM，斜率 "
+                 f"{r['pw'][0]:.2f}→{r['pf'][0]:.2f}")
+    ax.legend(fontsize=7.5, loc="upper left")
+
+    # (b) replot of [P2] Fig.16 asymptotes (oscillator 12, 2.8 GHz)
+    ax = axes[1]
+    kp, zp, dt_cp, br_p = r["kappa_p"], r["zeta_p"], r["dt_cp"], r["br_p"]
+    dtg = np.geomspace(5e-10, 2e-6, 400)
+    ax.loglog(dtg, kp * np.sqrt(dtg), "-", color="tab:blue", lw=1.4,
+              label=r"$\kappa\sqrt{\Delta t}$, $\kappa$=6.18e-9 $\sqrt{\rm s}$")
+    ax.loglog(dtg, zp * dtg, "-", color="tab:red", lw=1.4,
+              label=r"$\zeta\Delta t$, $\zeta$=2.5e-5")
+    ax.loglog(dtg, np.sqrt(kp ** 2 * dtg + zp ** 2 * dtg ** 2), ":",
+              color="tab:green", lw=2.0,
+              label=r"$\sqrt{\kappa^2\Delta t+\zeta^2\Delta t^2}$")
+    b3_p = zp ** 2 / (4 * np.pi ** 2 * br_p)      # zeta_eff(dt_cp)=zp @ f_l=1 Hz
+    ax.loglog(dtg, np.sqrt(kp ** 2 * dtg + 4 * np.pi ** 2 * b3_p * dtg ** 2
+                           * _bracket(dtg, 1.0)), "--", color="0.45", lw=1.1,
+              label=r"log 修正版（$f_l$=1 Hz）幾乎重合")
+    ax.axvline(dt_cp, color="0.4", ls="-.", lw=1.0)
+    ax.annotate(fr"$\Delta t_c=\kappa^2/\zeta^2$={dt_cp * 1e9:.0f} ns",
+                (dt_cp, 2e-13), textcoords="offset points", xytext=(4, 0),
+                fontsize=9)
+    ax.set_xlabel(r"$\Delta t$ [s]")
+    ax.set_ylabel(r"$\sigma_{\Delta t}$ [s]")
+    ax.set_ylim(5e-14, 3e-10)
+    ax.set_title("(b) [P2] Fig.16（osc 12, 2.8 GHz）之 κ/ζ 漸近線重繪")
+    ax.legend(fontsize=7.5, loc="upper left")
+
+    fig.suptitle(r"lab_24 Part 5：兩段式 jitter 成長 "
+                 r"$\sigma(\Delta t)=\sqrt{\kappa^2\Delta t+\zeta^2\Delta t^2}$"
+                 "（[P2] Fig.16, Eq.(8)/(9)）", y=1.02)
+    savefig(fig, "jitter_two_regime.png")
+
+
+# ----------------------------------------------------------------------------
 # Figure
 # ----------------------------------------------------------------------------
 def make_figure(Ns, sig_mc, sig_th, d, c2c):
@@ -286,7 +479,9 @@ def main():
     Ns, sig_mc, sig_th, d, c2c = part2_random_walk()
     part3_kernel_integrals()
     part4_example_c()
+    r5 = part5_two_regime()
     make_figure(Ns, sig_mc, sig_th, d, c2c)
+    make_figure_two_regime(r5)
 
 
 if __name__ == "__main__":

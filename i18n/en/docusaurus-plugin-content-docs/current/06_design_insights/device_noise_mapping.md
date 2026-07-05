@@ -314,3 +314,4 @@ print(round(ratio,2), round(L_1f3,1))   # -> 3.2  -123.0  (ratio>1 => flicker do
 - Flicker → 1/f³: [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
 - $\Gamma_{rms}$ and Parseval: [rms_isf](/03_isf_core_theory/rms_isf)
 - $q_{max}$ lever: [tank_swing](/06_design_insights/tank_swing); symmetry: [symmetry](/06_design_insights/symmetry)
+- Correlated supply/substrate noise shuts down $N-1$ channels of this map at once, leaving only DC and $k\cdot N\cdot f_0$ ([P2] Eqs.(37)–(38) selection rule): [lab_34_correlated_supply](/04_simulation_labs/lab_34_correlated_supply)

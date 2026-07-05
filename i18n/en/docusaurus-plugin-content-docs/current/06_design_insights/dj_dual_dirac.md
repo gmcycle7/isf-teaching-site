@@ -5,6 +5,8 @@ description: "Decomposition into RJ (unbounded Gaussian, from phase noise) and D
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
+import DualDiracFitter from "@site/src/components/DualDiracFitter";
+
 # DJ and the Dual-Dirac Model: The Industry-Standard Tool for TJ@BER
 
 > **Prerequisites**: [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) (first appearance of RJ/DJ/TJ, eye and BER), [lab_12](/04_simulation_labs/lab_12_serdes_eye_ber) (RJ-only bathtub), [lab_08](/04_simulation_labs/lab_08_jitter_integration) ($\sigma_t$ integrated from phase noise) | **Next**: [exercises](/06_design_insights/exercises), [lab_13](/04_simulation_labs/lab_13_pll_cdr_transfer)
@@ -339,6 +341,16 @@ eye opening @1e-12: composite 82.77 ps vs dual-Dirac 82.76 ps
   the gray dotted line is the pessimistic prediction with "Diracs forced at $\pm A$", lying **below** the true curve (a larger tail probability at the same $x$).
 - **(c) bathtub**: blue (exact) and red dashed (dual-Dirac extrapolation) nearly coincide at $10^{-12}$ (0.01 ps difference in opening)
   — the model doing its proper job; the green dotted line (RJ-only, no DJ) opens far wider: **DJ shifts the walls, RJ sets the slope**.
+
+**Interactive: fit one yourself.** The widget below lets you directly control the RJ σ and the sinusoidal
+DJ amplitude $A$ (synthesized population, seeded PRNG, $N=20{,}000$), and switch between two BER-decade fit
+windows (shallow: $[10^{-3},10^{-6}]$; deep: $[10^{-6},10^{-9}]$) to watch $\mathrm{DJ}_{\delta\delta}$,
+$\sigma_{fit}$, their difference $\Delta=\mathrm{DJ}_{pp}-\mathrm{DJ}_{\delta\delta}$, and the extrapolated
+$\mathrm{TJ}@10^{-12}$ move in real time as the fit depth changes — this is the quantitative version of
+Step 7's "the deeper the fit, the closer $\mathrm{DJ}_{\delta\delta}$ gets to (but never exceeds)
+$\mathrm{DJ}_{pp}$", and it holds for whatever $\sigma,A$ you pick yourself.
+
+<DualDiracFitter />
 
 One-liner verification (uses lab_31's real functions; a run takes a few seconds):
 

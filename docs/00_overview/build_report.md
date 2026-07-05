@@ -205,6 +205,17 @@ $\Gamma_{rms}^2\propto N^{-3}$，與 $N^{-3/2}$ 一致。**歷史**：v1 原寫 
 修正指數與相關數值（如 $N{=}5\to15$ 的比例由 $0.4387$／$-7.16$ dB 改為 $0.1925$／$-14.31$ dB）；
 Eq.(23) FOM 的 N-independence、$8/(3\eta)$、$\kappa$、Eq.(15) $f_0$、Eq.(17)/(18)/(21) 均不受影響。
 
+## 11g. v8：增補三波（A/B/C/D 全做）
+
+**23 個單元全數完成**（困難→fable、機械/互動→sonnet；每單元同步寫入英文版）：
+
+- **論文 verbatim（7）**：App.B 非對稱 ISF 閉式 Eq.(52)–(57)（lab_33，閉式 vs 數值 1.6e-9；corner∝1/N 新設計律；另抓到 [P1] Eq.24 vs [P2] Eq.7 的 DC 記帳 2× 差，兩頁誠實雙列）；[P1] 附錄三種 ISF 算法 Eq.(31)–(38)（三法對決；誠實揭露閉式法 O(μ) isochron-shear 誤差）；差動 ring 隨 N 變差（Eq.31–35, p.796）；[P3] 最佳注入波形 Eq.(43)–(45)（Cauchy–Schwarz，lab_39）；相關供電 N·f₀ 選擇律 Eq.(37)–(38)（lab_34）；[P4] M:N 次諧波鎖定 Eq.(28)–(30)（lab_37；c₂=0 不能 ÷2）；[P3] impulse-train 鎖定 Eq.(19)–(23)。
+- **推導/例題（5）**：Flicker ADEV floor＝√(2ln2·h₋₁)（∫sin⁴u/u³=ln2 嚴格證＋lab_19 驗絕對值）；[P2] Fig.16 兩段式 jitter（lab_24 Part 5；**發現論文印刷勘誤 ζ=2.5e5 應為 2.5e-5**，6× 放大驗證後誠實標注）；PLL peaking 閉式（ζ=0.707→2.09 dB @0.786fₙ）＋fractional-N ΔΣ 第三項；[P1] Sec.V 真矽 ring 全數字重演（**發現論文 p.191 "58.8 fF" 量綱勘誤應為 fC**）；大角度 Bessel 邊帶梯＋多源 superposition 例題。
+- **互動（8 新 widget，全部雙語）**：AsymmetricIsfExplorer（2646 組合掃描 0 NaN）、AdlerWashboard（washboard 位能＋cycle-slip 計數）、PullingSpectrumExplorer（內建 radix-2 FFT，ω_b 誤差 0.59%@r=1.5）、HtmFoldingExplorer、DualDiracFitter、EffectiveIsfExplorer、LineshapeExplorer（RBW 抹平）、AdevLiveExplorer（有限資料誤差棒）。
+- **新模擬（6）**：lab_33 非對稱 corner、lab_34 相關供電選擇律、lab_35 cross-correlation 量測（floor∝1/√M）、lab_36 鎖定捕獲＋Kramers 逃逸、lab_38 K_push 第一性（2.936 GHz/V，FM 邊帶比 1.002）、lab_39 最佳注入。
+
+站點規模：**90 頁×2 語系、52 圖、45 個模擬、20 個互動元件、144 個可驗證例題（133 自動通過、0 錯）**。
+
 ## 12. 下一步建議人工確認
 
 1. ~~用原始 PDF 核對 [P2]/[P3]/[P4] 的確切常數與方程形式~~ → **v4 已完成**（見 11c：FOM、APF、

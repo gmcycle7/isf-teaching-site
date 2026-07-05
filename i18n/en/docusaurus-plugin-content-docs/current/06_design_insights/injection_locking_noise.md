@@ -1,7 +1,10 @@
 ---
 title: Noise shaping under injection locking and the injection-pulling spectrum
-description: From [P3]'s generalized Adler (Eq.30, plus-sign convention), degenerate to classical Adler, linearize to get a first-order PLL — self-noise high-pass (corner ω_c=√(ω_L²−Δω²)=[P3] Eq.40's pull-in frequency), reference-noise low-pass, suppression vanishing at the lock edge; then solve the unlocked quasi-lock case, deriving step by step the beat frequency ω_b=√(Δω²−ω_L²) ([P4] Eq.34) and the one-sided asymmetric sideband comb. Two SDE/ODE simulations cross-checked term by term. Advanced page.
+description: From [P3]'s generalized Adler (Eq.30, plus-sign convention), degenerate to classical Adler, linearize to get a first-order PLL — self-noise high-pass (corner ω_c=√(ω_L²−Δω²)=[P3] Eq.40's pull-in frequency), reference-noise low-pass, suppression vanishing at the lock edge; then solve the unlocked quasi-lock case, deriving step by step the beat frequency ω_b=√(Δω²−ω_L²) ([P4] Eq.34) and the one-sided asymmetric sideband comb. The final section follows [P3] Sec. VI and uses Cauchy–Schwarz to derive the optimal injection waveform and the lock-range ceiling ω*_L=I_rms·Γ̃_rms at fixed I_rms (Eq.43–45). Three simulations cross-checked term by term. Advanced page.
 ---
+
+import AdlerWashboard from "@site/src/components/AdlerWashboard";
+import PullingSpectrumExplorer from "@site/src/components/PullingSpectrumExplorer";
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
@@ -112,6 +115,21 @@ $d\hat\theta/dt=\Omega'(\theta_0)\hat\theta$; stable ⟺ $\Omega'(\theta_0)\lt0$
 $\Omega'(\theta)=-\omega_L\cos\theta$, so **the stable branch is $\cos\theta_{ss}\gt0$**, i.e. the
 principal value $\theta_{ss}=\arcsin(\Delta\omega/\omega_L)\in(-\pi/2,\pi/2)$; the other solution is
 unstable.
+
+**Mechanical analogy: the tilted washboard.** The classical Adler equation
+$d\theta/dt=\Delta\omega-\omega_L\sin\theta$ is exactly the equation of motion of a ball rolling
+under **overdamped** dynamics (inertia negligible, velocity proportional to force) in the potential
+$U(\theta)=-\Delta\omega\cdot\theta-\omega_L\cos\theta$ — overdamped particles obey
+$d\theta/dt=-dU/d\theta$, and substituting confirms $-dU/d\theta=\Delta\omega-\omega_L\sin\theta$ ✓.
+$U(\theta)$ is a "cosine corrugation" riding on a linear ramp: the ramp's slope is set by
+$\Delta\omega$, the corrugation depth by $\omega_L$ — hence "tilted washboard." When
+$r\equiv\Delta\omega/\omega_L\lt1$ the ramp is not steep enough to wash out the corrugation, so local
+dips (wells) remain and the ball falls into one and stops — this is exactly the geometric meaning of
+$\theta_{ss}$ above. When $r\gt1$ the ramp overwhelms the corrugation, the wells vanish entirely, and
+the ball never stops rolling — corresponding to the pulling case in Part B below. The animation below
+turns this intuition into something you can drive interactively and watch cycle slips happen live:
+
+<AdlerWashboard />
 
 ### Step 2: putting noise in and linearizing
 
@@ -436,6 +454,14 @@ $100-80=20$ kHz) — **this is exactly where the name "pulling" comes from**. De
 footnote 18, p.2116): unless $\omega_{inj}$ happens to be an integer multiple of $\omega_b$, $V(t)$
 itself is **not** a periodic signal — pulling fundamentally destroys the oscillator's periodicity.
 
+The interactive widget below integrates the Adler ODE right in your browser (RK2), takes an FFT of
+$V(t)=\cos(\omega_{inj}t+\theta(t))$, and lets you slide $r=\Delta\omega/\omega_L$ from locked into
+pulling with your own hands, watching the spectrum morph from "a single tone" into "a one-sided comb";
+the measured $\omega_b$ is compared live against the closed form $\sqrt{\Delta\omega^2-\omega_L^2}$
+derived above:
+
+<PullingSpectrumExplorer />
+
 ### Step 4: why is it "one-sided"?
 
 **Physical argument.** The instantaneous frequency is
@@ -520,6 +546,241 @@ dashed line = free-running at 1.100 MHz (**no line there anymore** — it's been
 
 ---
 
+## Injection waveform design: the ceiling on the lock range ([P3] Sec. VI, Cauchy–Schwarz)
+
+One of Part A's conclusions is that $\omega_L$ is not just "the range within which you can lock" —
+it is also the ceiling on the noise-suppression bandwidth ($\omega_c\le\omega_L$). So "for the same
+injection power, how far can $\omega_L$ be pushed" is a real-money design question. [P3] Sec. VI
+(pp. 2119–2120) gives an answer clean enough to memorize; this section re-derives it step by step,
+following the paper, and verifies it numerically on three ISFs.
+
+> **Physical intuition (conclusion first)**: the ISF is the dashboard showing "how persuadable the
+> oscillator is right now." A fixed current budget should be **spent entirely at the phases where
+> $\lvert\tilde\Gamma\rvert$ is large** (where the node voltage transitions are steepest and the phase
+> is easiest to push), and not a cent at the phases where $\tilde\Gamma\approx0$. A sinusoidal
+> injection cannot do this — it is forced to spread its money uniformly across the whole period. The
+> optimum is to "shape the injection waveform like the ISF itself" ([P3] Fig. 18, p.2118's concept
+> cartoon).
+
+### Step 0: define "how big" the injection is — why rms?
+
+To compare waveforms of different **shapes**, you first need a common measuring stick for "equally
+big." A multi-harmonic waveform has no unique "amplitude," so [P3] uses the **rms injection
+current** ([P3] Eq.(43), p.2119, verbatim):
+
+$$
+I_{rms}\equiv\sqrt{\langle i_{inj}^2\rangle}:=\sqrt{\frac{1}{T_{inj}}\int_{T_{inj}}i_{inj}(t)^2\,dt}\ .
+$$
+
+Units: $\sqrt{\text{A}^2}=\text{A}$ ✓. Why is rms the right proxy for "power"? [P3] p.2119 +
+Fig. 17: a practical injection circuit is usually a differential pair commutating a static tail
+current $I_{bias}$; the instantaneous $\lvert i_{inj}\rvert$ is capped by the tail current, so
+$I_{rms}\le I_{bias}$, and the injection circuit's average power consumption is at least
+$I_{rms}V_{DD}$ — **fixing $I_{rms}$ ≈ fixing the floor of the injection circuit's power**, and it
+is well-defined for any waveform.
+
+### The three-step derivation: inner product → Cauchy–Schwarz → equality condition
+
+**Step 1: the lock range is the extremum of an inner product.** The starting point is again the
+verified lock characteristic ([P3] Eq.(33), p.2114):
+
+$$
+\Omega(\theta)=\frac{1}{T_{inj}}\int_{T_{inj}}\tilde\Gamma(\omega_{inj}t+\theta)\,i_{inj}(t)\,dt .
+$$
+
+At fixed $\theta$ this is precisely the **time-averaged inner product** of two periodic signals,
+$\langle u,v\rangle=\frac{1}{T}\int_T uv\,dt$, with $u_\theta(t)=\tilde\Gamma(\omega_{inj}t+\theta)$
+[rad/C] and $v(t)=i_{inj}(t)$ [A]. The lock condition (the generalization of Part A's Step 1; the
+steady state of [P3] Eq.(38)) is that $\Delta\omega$ falls within the range of $\Omega$: **the
+upper/lower lock edges are $\max_\theta\Omega$ and $\min_\theta\Omega$**. So "make the lock range
+big" = "make the extrema of this inner product big" — the circuit problem has become a functional
+inequality.
+
+**Step 2: the Cauchy–Schwarz bound.** For every $\theta$ and every waveform (the integral form of
+Cauchy–Schwarz: $\lvert\langle u,v\rangle\rvert\le\lVert u\rVert\,\lVert v\rVert$):
+
+$$
+\lvert\Omega(\theta)\rvert\;\le\;\underbrace{\sqrt{\tfrac{1}{T_{inj}}\!\int_{T_{inj}}\!\tilde\Gamma^2(\omega_{inj}t+\theta)\,dt}}_{=\ \tilde\Gamma_{rms}\ \text{(independent of }\theta\text{)}}\cdot\underbrace{\sqrt{\tfrac{1}{T_{inj}}\!\int_{T_{inj}}\!i_{inj}^2(t)\,dt}}_{=\ I_{rms}\ \text{(Eq.(43))}}
+$$
+
+The first factor is independent of $\theta$: one injection period sweeps the entire $2\pi$ of
+$\tilde\Gamma$ exactly once, and a mean square does not care at which phase the sweep starts.
+Units: $\text{rad/C}\times\text{A}=\text{rad/s}$ ✓. Therefore, **no matter what shape you give the
+waveform**, the lock range can never exceed ([P3] Eq.(45), p.2120, verbatim)
+
+$$
+\omega_L^*=I_{rms}\tilde\Gamma_{rms}\ .
+$$
+
+**Step 3: the equality condition — the waveform = the shape of the ISF.** Cauchy–Schwarz holds with
+equality ⟺ the two "vectors" are parallel: $i_{inj}(t)=\lambda\,\tilde\Gamma(\omega_{inj}t+\text{const})$.
+Normalizing the size of $\lambda$ to the given $I_{rms}$ via Eq.(43) gives the optimal injection
+waveform ([P3] Eq.(44), p.2119, verbatim; $x=\omega_{inj}t$ is the linear injection phase):
+
+$$
+i_{inj,0}^{*}(x)=\pm\frac{I_{rms}}{\tilde\Gamma_{rms}}\,\tilde\Gamma(x)\ .
+$$
+
+Three key points:
+
+- With the **+** sign, $\Omega(\theta)$ becomes the ISF's autocorrelation
+  $\times\,I_{rms}/\tilde\Gamma_{rms}$, reaching $+I_{rms}\tilde\Gamma_{rms}$ at the aligned point —
+  **optimizing the upper lock edge**; the **−** sign likewise optimizes the lower edge ([P3] p.2120
+  states it explicitly: the positive solution for the upper edge, the negative for the lower).
+  **One waveform cannot push both edges to the ceiling simultaneously** — see the numbers in
+  Check 2 below.
+- **No manual alignment needed**: $\theta$ is the oscillator's own degree of freedom; the locking
+  mechanism adjusts it onto the stable branch satisfying $\Delta\omega=\Omega(\theta)$. Waveform
+  design only needs the shape right — the phase is found by the physics itself.
+- **Factor bookkeeping**: Eq.(45) contains **no** 2 and no 4 — both sides are rms quantities. The
+  $\tfrac12$ in the classical sinusoidal result $\omega_L=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert$
+  ([P3] Eq.(35)) is the projection integral $\langle\cos^2\rangle=\tfrac12$, with $I_{inj}$ a
+  **peak** value; rewritten in rms ($I_{rms}=I_{inj}/\sqrt2$) it reads
+  $\omega_{L,sine}=I_{rms}\lvert\tilde\Gamma_1\rvert/\sqrt2$. All of these $\sqrt2$'s and $2$'s are
+  peak↔rms conversions and projection constants — nothing to do with the SSB $/2$, $/4$
+  bookkeeping conventions.
+
+### Check 1: pure-sine ISF — a sinusoidal injection is "already" optimal (the ratio must be 1)
+
+The ideal LC's $\tilde\Gamma(x)=-\sin(x)/q_{max}$ is itself a single-tone sinusoid, so the waveform
+"shaped like the ISF" is a sine — the theorem predicts a sinusoidal injection already sits at the
+ceiling. Compute both sides (the true-LC $\Gamma_{rms}=1/\sqrt2$ branch, not the representative
+value 0.5):
+
+$$
+\omega_{L,sine}=\frac{I_{rms}\lvert\tilde\Gamma_1\rvert}{\sqrt2}=\frac{I_{rms}}{\sqrt2\,q_{max}},\qquad
+\omega_L^*=I_{rms}\tilde\Gamma_{rms}=\frac{I_{rms}}{\sqrt2\,q_{max}}\quad\Rightarrow\quad\text{ratio}=1 .
+$$
+
+Numbers (reusing Part A's canonical case: $q_{max}=1$ pC, peak $62.83\ \mu$A i.e.
+$I_{rms}=44.43\ \mu$A): $\omega_L^*=4.443\times10^{-5}\times0.7071/10^{-12}=3.14\times10^7$ rad/s →
+$f_L^*=5.000$ MHz, identical to Part A's sinusoidal lock range. Dimension check:
+A × rad/C = (C/s)(rad/C) = rad/s ✓. (The simulation prints f_L sine = 5.0000 MHz,
+f_L matched = 5.0000 MHz, gain = 1.0000.)
+
+**Teaching point**: this is no coincidence — it is forced by "the ISF has only one harmonic." The
+only thing a sinusoidal injection can buy is $\tilde\Gamma_1$, and a pure-sine ISF keeps all of its
+rms in $\tilde\Gamma_1$. For waveform design to "make money," the ISF must hide energy where a sine
+cannot reach: DC ($c_0$) or higher harmonics. The next two checks demonstrate one of each.
+
+### Check 2: asymmetric toy ISF — matched injection profits at DC (and only on one edge)
+
+The site toy $\Gamma(\theta)=\cos\theta+0.3$ ($\alpha=0.3$, DC value $c_0/2=0.3$):
+$\Gamma_{rms}=\sqrt{\alpha^2+\tfrac12}=0.7681$, $c_1=1$. Closed-form gain:
+
+$$
+G=\frac{\omega_L^*}{\omega_{L,sine}}=\frac{I_{rms}\Gamma_{rms}/q_{max}}{I_{rms}\,c_1/(\sqrt2\,q_{max})}=\frac{\sqrt2\,\Gamma_{rms}}{c_1}=\sqrt{1+2\alpha^2}=1.0863 .
+$$
+
+(Simulation: gain = 1.0863, $f_L$ from 5.0000 → 5.4314 MHz.) The matched waveform is just the shape
+of $\cos+\alpha$ — **the extra DC share of the current** couples to the ISF's $c_0$, something a
+zero-mean sine can never buy. But note the one-sidedness (the $\pm$ choice): in units of
+$I_{rms}/q_{max}$, the simulation prints matched(+) upper/lower edges $=+0.7681$/$-0.5338$, versus
+the sine's $\pm0.7071$ — **the upper edge gains 8.6% while the lower edge loses 24%**; for the lower
+edge, switch to the $-$ sign. The DC injection shifts the whole lock characteristic upward — exactly
+the mechanism by which "the upper and lower lock edges can have the same sign," as the caption of
+[P3] Fig. 10 notes.
+
+### Check 3: ring-style narrow-pulse ISF — gain $\approx\sqrt{\eta N/3}$, ≈ ×2 at 17 stages
+
+A ring's ISF energy concentrates at the transitions. As a toy, use the [P2] App.B triangular-pulse
+construction ($A=1$, symmetric rise/fall): two opposite-sign triangular pulses, height $h=1/f'$,
+half-width $w=1/f'$ rad, with $f'=\eta N/\pi$ (from [P2] Eq.(54), p.803 with $A=1$). Sanity check:
+this construction's $\Gamma_{rms}$ lands exactly back on [P2] Eq.(55) ($A=1$): the simulation prints
+0.05634 = the closed form $\sqrt{2\pi^2/3\eta^3}/N^{1.5}=$ 0.05634 ✓.
+
+The narrow-pulse closed-form gain (three lines): a single pulse of area $hw$ gives
+$c_1\approx 2hw/\pi$ (the two opposite-sign pulses sit $\pi$ apart, so their projections onto
+$\sin$ add with the same sign); $\Gamma_{rms}^2=\tfrac{1}{2\pi}\cdot2\cdot\tfrac23h^2w=\tfrac{2h^2w}{3\pi}$; substituting $h=w=1/f'$, $f'=\eta N/\pi$:
+
+$$
+G=\frac{\sqrt2\,\Gamma_{rms}}{c_1}\approx\sqrt{\frac{2\cdot\frac{2h^2w}{3\pi}}{\frac{4h^2w^2}{\pi^2}}}=\sqrt{\frac{\pi}{3w}}=\sqrt{\frac{\eta N}{3}}\ .
+$$
+
+$N=17$, $\eta=0.75$: $G=\sqrt{4.25}=2.0616$ (full numerical simulation 2.0720; the 0.5% difference
+is the $\mathrm{sinc}^2$ correction for the pulses' finite width). With units attached: for the same
+$I_{rms}=44.43\ \mu$A and $q_{max}=1$ pC, sine 192.3 kHz → matched 398.4 kHz.
+
+**This ×2 is not the toy congratulating itself**: [P3] Fig. 19 (p.2119) runs transistor-level
+simulations of a 17-stage single-ended ring — injecting pulses shaped close to the ISF
+(Fig. 19(b), not a strict ISF replica), and p.2120 states verbatim: *"the lock range is almost
+doubled compared to a sinusoidal injection of the same power."* The toy's
+$\sqrt{\eta N/3}\approx2.06$ agrees with the real circuit's "almost doubled" at the level of the
+factor 2, not the decimals (the real ISF's details differ). **The gain is $\propto\sqrt N$**: more
+stages → transitions occupy a smaller fraction of the phase → the sine wastes more — long rings are
+where waveform design pays off the most.
+
+An honest toy footnote: the site's cruder `gamma_triangular` toy is $\pi$-periodic (the rising and
+falling triangles repeat perfectly symmetrically), so it has even harmonics only — the simulation
+prints its $c_1=0.000000$, $c_2=0.3625$: **a fundamental-frequency sine cannot lock it at all**
+(effectively only superharmonic injection would work). This is a toy artifact (a real ring's rising
+and falling edges are never so symmetric that only even harmonics survive), but it demonstrates the
+same lesson in the most extreme way: **a sine can only buy $c_1$; if the ISF puts no energy in
+$c_1$, the money is wasted**.
+
+### lab_33: numerical verification + figure
+
+Model: on a 4096-point phase grid, write the periodic average of [P3] Eq.(33) as a circular
+correlation; for each of the three ISFs compute the lock characteristic under a sinusoidal and a
+matched injection (same $I_{rms}$); the extrema are the lock edges.
+
+Core code (full script: `simulations/lab_39_optimal_injection.py`):
+
+```python
+def lock_characteristic(gt, i_wave):                  # [P3] Eq.(33): circular correlation
+    Gf, If = np.fft.rfft(gt), np.fft.rfft(i_wave)
+    return np.fft.irfft(np.conj(If) * Gf, gt.size) / gt.size   # Ω(θ) [rad/s]
+
+i_sine = np.sqrt(2)*I_RMS*np.cos(X)                   # sine of the same I_rms
+i_star = (I_RMS/gt_rms) * gt_p                        # [P3] Eq.(44), + sign
+wl_sine = lock_characteristic(gt_p, i_sine).max()     # upper lock edge [rad/s]
+wl_star = lock_characteristic(gt_p, i_star).max()     # should touch I_rms·Γ̃_rms
+```
+
+Verified output numbers (`PYTHONPATH=. python3 simulations/lab_39_optimal_injection.py`):
+
+```python
+print(fL_sine_LC, fL_matched_LC)      # -> 5.0000 MHz, 5.0000 MHz pure-sine ISF: sine already optimal (gain = 1.0000)
+print(gain_asym)                      # -> 1.0863 cos+0.3 matched gain = analytic sqrt(1+2α²)=1.0863
+print(edges_asym)                     # -> +0.7681/-0.5338 matched(+) upper/lower edges (units of I_rms/q_max; sine ±0.7071)
+print(gamma_rms_ring)                 # -> 0.05634 = [P2] Eq.(55) closed form 0.05634 (construction sanity check)
+print(fL_sine_ring, fL_matched_ring)  # -> 0.1923 MHz, 0.3984 MHz N=17 ring toy, same I_rms=44.43 μA
+print(gain_ring)                      # -> 2.0720 closed form sqrt(ηN/3)=2.0616 (0.5% difference = sinc² correction)
+print(matched_over_bound)             # -> 1.0000 the matched injection exactly touches the Cauchy–Schwarz bound (all three cases)
+print(c1_site_triangular)             # -> 0.000000 the site toy gamma_triangular is π-periodic: a fundamental sine cannot lock it (artifact)
+```
+
+![Injection waveform design: left, the matched injection (narrow pulses, same shape as the ISF) versus a sinusoidal injection under the same I_rms budget; right, their lock characteristics — the matched injection exactly touches the Cauchy–Schwarz bound ±I_rms·Γ̃_rms, gain ×2.07](/figures/optimal_injection_lock_range.png)
+
+**How to read this figure**: (a) the two waveforms have exactly the same rms (both 44.43 μA); the
+only difference is **where the money goes** — the matched injection (red) concentrates the current
+into narrow pulses shaped like the ISF, while the sine (blue dashed) spends most of its current in
+the dead zone where $\tilde\Gamma\approx0$; (b) the corresponding lock characteristics: the extrema
+are the lock edges, and the red curve exactly touches the dotted theoretical bound
+$\pm I_{rms}\tilde\Gamma_{rms}/2\pi=\pm398$ kHz, while the sine only reaches 192 kHz — the same
+power, ×2.07 the lock range (and Part A's noise-suppression-bandwidth ceiling
+$\omega_c\le\omega_L$ scales by ×2.07 along with it).
+
+### Conditions for validity and failure modes (this section)
+
+| Condition | When it holds | What happens when it fails |
+|---|---|---|
+| Weak-injection linearity ([P3] Eq.(36)–(37): $I_{inj}\ll I_{max}=\omega_0 q_{max}$) | Eq.(33) linear in $i_{inj}$; the Cauchy–Schwarz argument holds | Strong injection: $\Omega$ departs from the linear prediction; [P3] Fig. 19's simulations use $I_{rms}$ beyond $I_{max}=0.72$ mA and still roughly agree (the Sec. V-H observation) |
+| "Size" measured by $I_{rms}$ (Eq.(43)) | Optimum = Eq.(44), ceiling = Eq.(45) | Change the constraint and the optimum changes: if the **peak** current is limited, $\lvert i_{inj}\rvert\le I_{pk}$, the optimum becomes the square-like $i=I_{pk}\,\mathrm{sign}(\tilde\Gamma)$ with ceiling $I_{pk}\langle\lvert\tilde\Gamma\rvert\rangle$ (this site's extension, not in [P3]) |
+| The injector can generate the waveform | Full $G$ collected | Narrow pulses need bandwidth up to $\sim N$ harmonics: at $f_0=5$ GHz, a 17-stage pulse needs spectral content out to ~85 GHz — in practice the pulses are widened and $G$ degrades smoothly along the ISF autocorrelation (no cliff) |
+| ISF known and stable | Waveform can be designed offline | The ISF must come from simulation ([P3] Sec. V-H's impulse-response method) or closed forms ([P2] App.B); when PVT drifts the ISF, $G$ is discounted, but the locked phase $\theta_{ss}$ re-aligns automatically |
+| The goal is the **maximum** lock range | All of this section | Sometimes you want to **minimize** it (multiple oscillators interfering, reducing coupling) — the same framework run in reverse ([P3] p.2120 closing explicitly flags this direction) |
+
+**Three design sentences**: (i) for LC (near-sine ISF), don't bother — a sinusoidal injection is
+already at the ceiling (exactly gain 1.0000 for a pure sine; the residual gain for near-sine ISFs
+is second-order small); (ii) ring/relaxation (pulse-type ISFs) benefit the most from waveform
+design, with gain $\approx\sqrt{\eta N/3}$ growing as the square root of the stage count;
+(iii) this gain simultaneously scales Part A's $\omega_c$ — **at the same power the
+noise-suppression-bandwidth ceiling also gains ×G**, which is the number SerDes ILO deskew actually
+cares about.
+
+---
+
 ## Design knobs (rolling both parts into an actionable checklist)
 
 1. **Push $\Delta\omega$ to the center of the lock range**: the noise-suppression bandwidth
@@ -528,7 +789,9 @@ dashed line = free-running at 1.100 MHz (**no line there anymore** — it's been
 2. **Two ways to increase $\omega_L$** ([P3] Eq.(35): $\omega_L=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert$):
    raise the injection current (at the cost of power and spurs), or use **waveform design** to align
    injection harmonics with ISF harmonics ([P3] Sec. VI's injection waveform design — effectively a free
-   boost to $\omega_L$ and $\omega_c$). Ceiling to watch: $I_{inj}\ll I_{max}=\omega_0 q_{max}$
+   boost to $\omega_L$ and $\omega_c$; for the quantitative ceiling and the optimal waveform see the
+   "Injection waveform design" section above: $\omega_L^*=I_{rms}\tilde\Gamma_{rms}$, with gain
+   $\approx\sqrt{\eta N/3}$ for ring-type ISFs). Ceiling to watch: $I_{inj}\ll I_{max}=\omega_0 q_{max}$
    ([P3] Eq.(36)–(37)).
 3. **Leave edge margin**: the plateau penalty is $1/\cos^2\theta_{ss}$.
    $\lvert\Delta\omega\rvert/\omega_L=0.5$ only costs $+1.2$ dB; $0.95$ costs $+10.1$ dB. Budget for
@@ -584,11 +847,22 @@ dashed line = free-running at 1.100 MHz (**no line there anymore** — it's been
   noise-suppression corner; outside lock, $\sqrt{\Delta\omega^2-\omega_L^2}$ = the spur comb spacing.
   In design, you want one of them large (wide suppression) and the other either large or zero
   (spur far away, or locked out entirely).
+- **The ceiling of waveform design**: at fixed $I_{rms}$ (= the proxy for injection power,
+  [P3] Eq.(43)), the Cauchy–Schwarz ceiling of the lock range is
+  $\omega_L^*=I_{rms}\tilde\Gamma_{rms}$ ([P3] Eq.(45)), with equality ⟺
+  $i_{inj}\propto\tilde\Gamma$ (Eq.(44), the $\pm$ selecting the upper/lower edge). Pure-sine ISF:
+  a sine is already optimal (gain = 1.0000); ring-type pulse ISF: $G\approx\sqrt{\eta N/3}$, ×2.07
+  at $N=17$ — the same order as [P3] Fig. 19's "almost doubled."
 
 ## Further reading
+- **[lab_36_lock_acquisition](/04_simulation_labs/lab_36_lock_acquisition)** (v8): lock-acquisition transients, critical slowing, and noise-induced cycle slips (SDE experiments).
 
 - Source and verification of the generalized Adler and lock characteristic:
   [paper_003](/05_paper_deep_dives/paper_003_injection_locking_part1) ([P3] Eq.(26)/(30)/(33)/(35)/(38)–(40))
+- Original source of the optimal injection waveform and the rms constraint: [P3] Sec. VI,
+  Eq.(43)–(45), pp.2119–2120 (Fig. 17: rms = power proxy; Fig. 18: concept cartoon; Fig. 19: the ×2
+  demonstration on a 17-stage ring); triangular-pulse ring-ISF construction: [P2] App.B
+  Eq.(52)–(55), p.803
 - Original source of the closed-form beat frequency and pulled spectrum (with APF correction):
   [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2) ([P4] Eq.(31)–(34), p.2130; Fig. 14)
 - Mutual injection = two coupled Adler equations (QVCO's $90^\circ$ and 3 dB bookkeeping):

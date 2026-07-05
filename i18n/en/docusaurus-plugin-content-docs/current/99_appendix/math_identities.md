@@ -329,6 +329,177 @@ no longer growing without bound). Corresponds to claim C6.
 
 ---
 
+## 9. Large-angle PM: the Bessel sideband ladder and where the small-angle approximation fails
+
+**One line**: Section 6's small-angle PM result ($\mathcal{L}\approx\frac12 S_\phi$) is only the first-order approximation
+of "large-angle phase modulation" valid for $\beta\ll1$; the full solution is an infinite ladder of Bessel sidebands, with
+the carrier and each sideband having amplitude $J_0(\beta)$ and $J_n(\beta)$ respectively. This section builds the full
+ladder and **quantifies** exactly when the small-angle approximation starts to break down.
+
+### 9.1 The Jacobi–Anger expansion (external literature, not in this site's 5 PDFs)
+
+For any real $\beta$ (the modulation index) and angle $\Omega t$, the **Jacobi–Anger expansion** (a standard special-function
+identity, e.g. Abramowitz & Stegun 9.1.42; **external literature, not in this site's 5 PDFs**):
+
+$$
+e^{j\beta\sin\Omega t}=\sum_{n=-\infty}^{\infty}J_n(\beta)\,e^{jn\Omega t}
+$$
+
+where $J_n(\beta)$ is the Bessel function of the first kind, order $n$. **Why it holds (one-line provenance)**: $e^{j\beta\sin\Omega t}$
+is $2\pi$-periodic in $\Omega t$; expanding it in a Fourier series, the integral defining its coefficients
+$\frac{1}{2\pi}\int_{-\pi}^{\pi}e^{j(\beta\sin x-nx)}dx$ is exactly one of the standard integral representations of $J_n(\beta)$
+— that integral representation itself is not re-derived here, only its result is cited.
+
+**Properties** (used below): $J_{-n}(\beta)=(-1)^n J_n(\beta)$ (symmetric for even $n$, antisymmetric for odd $n$), and the
+Bessel **Parseval-like identity**:
+
+$$
+\sum_{n=-\infty}^{\infty}J_n(\beta)^2=1\qquad(\forall\beta)
+$$
+
+This can later be used to check "the sideband ladder's total power is conserved" — a complete analogy to the Parseval
+relation for the ISF's Fourier coefficients in Section 1.
+
+### 9.2 The sideband ladder for single-tone PM
+
+Consider a carrier phase-modulated by a single audio tone $\Omega$ (writing Section 6's $\phi(t)=\phi_p\sin\Omega t$ as
+$\phi(t)=\beta\sin\Omega t$, where $\beta$ is the modulation index, i.e. the peak phase deviation, units rad):
+
+$$
+V(t)=\cos\!\big(\omega_0 t+\beta\sin\Omega t\big)
+$$
+
+Writing this as $\mathrm{Re}\{e^{j\omega_0 t}\,e^{j\beta\sin\Omega t}\}$ and substituting the Jacobi–Anger expansion:
+
+$$
+V(t)=\mathrm{Re}\left\{e^{j\omega_0 t}\sum_{n=-\infty}^{\infty}J_n(\beta)e^{jn\Omega t}\right\}
+=\sum_{n=-\infty}^{\infty}J_n(\beta)\cos\big((\omega_0+n\Omega)t\big)
+$$
+
+This is the full **Bessel sideband ladder**:
+
+- **Carrier** ($n=0$): amplitude $J_0(\beta)$, located at $\omega_0$.
+- **$n$-th sideband** ($n=\pm1,\pm2,\dots$): amplitude $J_n(\beta)$, located at $\omega_0+n\Omega$.
+- Because $J_{-n}=(-1)^nJ_n$, the upper and lower sidebands have equal magnitude ($|J_{-n}|=|J_n|$), differing only in sign (phase).
+
+**Unit check**: $\beta=\phi_p$ is the peak phase, arising from the integral $\int\phi(t)$, with units rad; $\Omega t$ and
+$\omega_0 t$ are both dimensionless phase angles (rad), and $J_n(\beta)$ itself is dimensionless (an amplitude ratio), so
+substituting into $\cos(\cdot)$ raises no unit issue; $V(t)$ has the same units as the original $\cos(\omega_0t+\phi(t))$
+(normalized amplitude) ✓.
+
+### 9.3 The small-$\beta$ limit: recovering Section 6's small-angle approximation
+
+**Small-argument expansion of the Bessel functions** (standard external-literature result):
+
+$$
+J_0(\beta)\approx1-\frac{\beta^2}{4},\qquad J_1(\beta)\approx\frac{\beta}{2}\qquad(\beta\ll1)
+$$
+
+Substituting back into the sideband ladder: the carrier amplitude $J_0(\beta)\approx1-\beta^2/4\approx1$ (barely attenuated
+at first order), and the first-sideband amplitude $J_1(\beta)\approx\beta/2$. The **single-sideband relative power**:
+
+$$
+\mathcal{L}(\Delta f)\approx J_1(\beta)^2\approx\left(\frac{\beta}{2}\right)^2
+$$
+
+This is exactly Section 6's small-angle PM result $\mathcal{L}\approx\left(\frac{\phi_p}{2}\right)^2=\frac12 S_\phi$
+($\beta=\phi_p$ is the peak phase, $S_\phi=\phi_p^2/2$ is its power) — **the Bessel sideband ladder automatically converges
+to the small-angle PM formula as $\beta\ll1$**; the two are the first-order and full versions of the same thing. The
+higher-order sidebands $J_2(\beta)\approx\beta^2/4,\,J_3(\beta)\approx\beta^3/48,\dots$ vanish rapidly as $\beta\ll1$
+($J_n(\beta)\sim(\beta/2)^n/n!$), which is why it is reasonable for the small-angle approximation to keep only the
+first-order sideband.
+
+### 9.4 Failure boundary: where does the small-angle approximation err by 1 dB?
+
+The small-angle approximation replaces $J_1(\beta)$ with the first-order term $\beta/2$; as $\beta$ grows, this
+approximation drifts from the true value. Define the error (comparing the **amplitude ratio** of the two, in dB):
+
+$$
+\text{err}_{\text{dB}}(\beta)=20\log_{10}\!\left(\frac{J_1(\beta)}{\beta/2}\right)
+$$
+
+($\text{err}_{\text{dB}}\to0$ as $\beta\to0$; as $\beta$ grows, $J_1$'s growth slows, the ratio drops below 1, and
+$\text{err}_{\text{dB}}<0$, i.e. the small-angle approximation **overestimates** the sideband.) Solving numerically for
+$\text{err}_{\text{dB}}(\beta)=-1$ dB (root-finding `scipy.optimize.brentq` on `scipy.special.jv`, see the Python block below):
+
+$$
+\beta_{1\text{dB}}\approx0.950\ \text{rad}\quad(\approx54.5^\circ)
+$$
+
+**In plain terms**: as long as the peak phase deviation $\beta\lesssim0.95$ rad, the small-angle approximation
+$\mathcal{L}\approx(\beta/2)^2$ is accurate to within 1 dB; beyond this range (e.g. wideband FM, large-index PM, or an
+integration bandwidth wide enough that $\sigma_\phi$ approaches 1 rad), the full Bessel sideband ladder must be used —
+the small-angle formula no longer applies. This echoes Section 6's qualitative statement that it "holds only for
+$\sigma_\phi\ll1$ rad," now with a **quantitative** boundary.
+
+### 9.5 Carrier-suppression null and Carson bandwidth (external literature, not in this site's 5 PDFs)
+
+**Carrier suppression**: as $\beta$ grows to the first root of $J_0(\beta)=0$, the carrier vanishes completely and all
+power is transferred to the sidebands — a classic phenomenon in FM/PM systems:
+
+$$
+J_0(\beta)=0\text{'s first root: }\beta=2.405\quad(\text{numerical solution, see the Python block below: }J_0(2.405)\approx-9\times10^{-5}\approx0)
+$$
+
+**Carson's bandwidth rule** (external literature, an engineering rule of thumb, not in this site's 5 PDFs): in practice the
+sideband ladder has infinitely many terms, but $J_n(\beta)$ decays rapidly to negligible size once $n>\beta+1$, so an
+effective bandwidth is defined ($f_m=\Omega/2\pi$):
+
+$$
+BW_{\text{Carson}}\approx2(\beta+1)f_m
+$$
+
+At $\beta=2.405$, $BW\approx6.81\,f_m$; at small-angle $\beta=0.1$, $BW\approx2.2\,f_m$ (barely more than a single
+sideband pair, consistent with the picture that "small-angle PM has only the $\pm1$ sidebands").
+
+### 9.6 Python check: the full sideband ladder at three values of $\beta$
+
+```python
+import numpy as np
+from scipy.special import jv, jn_zeros
+from scipy.optimize import brentq
+
+for beta in [0.1, 1.0, 2.405]:
+    print(f"beta={beta}")
+    for n in range(5):
+        print(f"  J_{n}({beta}) = {jv(n, beta):.6f}")
+    # -> beta=0.1: J0=0.997502, J1=0.049938, J2=0.001249, J3=0.000021, J4≈0
+    # -> beta=1.0: J0=0.765198, J1=0.440051, J2=0.114903, J3=0.019563, J4=0.002477
+    # -> beta=2.405: J0=-0.000091(≈0), J1=0.519110, J2=0.431783, J3=0.199032, J4=0.064763
+
+# carrier null (classic 2.405)
+z0 = jn_zeros(0, 1)[0]
+print(f"first zero of J0: {z0:.6f}")
+# -> first zero of J0: 2.404826
+
+# small-angle approximation vs exact
+for beta in [0.1, 0.3, 0.5, 1.0]:
+    J0, J1 = jv(0, beta), jv(1, beta)
+    print(f"beta={beta}: J0={J0:.6f} vs 1-b^2/4={1-beta**2/4:.6f} | "
+          f"J1={J1:.6f} vs b/2={beta/2:.6f}")
+    # -> beta=0.1: J0=0.997502 vs 0.997500 | J1=0.049938 vs 0.050000
+    # -> beta=1.0: J0=0.765198 vs 0.750000 | J1=0.440051 vs 0.500000
+
+# 1 dB failure boundary: 20log10(J1(beta)/(beta/2)) = -1 dB
+f = lambda b: 20*np.log10(jv(1, b)/(b/2)) - (-1.0)
+beta_1dB = brentq(f, 0.5, 1.5)
+print(f"beta_1dB = {beta_1dB:.4f}")
+# -> beta_1dB = 0.9505
+
+# Parseval check: sum J_n^2 = 1
+for beta in [0.1, 1.0, 2.405]:
+    s = sum(jv(n, beta)**2 for n in range(-50, 51))
+    print(f"beta={beta}: sum J_n^2 = {s:.8f}")
+    # -> all beta give 1.00000000
+```
+
+**Used on this site**: Section 6's small-angle PM (this section is its full version),
+[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) (the small-angle premise behind the
+single-tone sideband Eq.(16)–(18)), [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) (the applicability
+boundary $\sigma_\phi\ll1$ rad, now with a quantitative number $\approx0.95$ rad).
+
+---
+
 ## Quick-reference summary table
 
 | Tool | Core formula | Main use on this site |
@@ -341,6 +512,7 @@ no longer growing without bound). Corresponds to claim C6.
 | small-angle PM | $\mathcal{L}\approx\frac12 S_\phi$ | dBc/Hz ↔ phase PSD |
 | product-to-sum | $\cos A\cos B=\tfrac12[\cdots]$ | Eq.(15)–(18) mixing |
 | random walk | $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ | accumulated jitter |
+| Bessel sideband ladder | $J_n(\beta)$, small-angle $J_1\approx\beta/2$, fails for $\beta\gtrsim0.95$ | large-angle PM, carrier suppression at $\beta=2.405$ |
 
 ## Further reading
 

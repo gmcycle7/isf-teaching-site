@@ -285,3 +285,4 @@ print(round(ratio,2), round(L_1f3,1))   # -> 3.2  -123.0  (ratio>1 => flicker do
 - flicker → 1/f³：[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
 - $\Gamma_{rms}$ 與 Parseval：[rms_isf](/03_isf_core_theory/rms_isf)
 - $q_{max}$ 槓桿：[tank_swing](/06_design_insights/tank_swing)；對稱：[symmetry](/06_design_insights/symmetry)
+- 相關供電/基板雜訊會把這張地圖上 $N-1$ 個頻道整批關掉、只留 DC 與 $k\cdot N\cdot f_0$（[P2] Eq.(37)–(38) 選擇律）：[lab_34_correlated_supply](/04_simulation_labs/lab_34_correlated_supply)

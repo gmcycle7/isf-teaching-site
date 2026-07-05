@@ -210,6 +210,85 @@ averaging, so **measurement time is long** ($M$ large); residual correlation set
 **Applicable range**: measuring the **lowest-noise** sources (OCXO, low-noise synthesizers, integrated
 PLLs), the method of choice when you need to approach the physical floor limit.
 
+#### Method C simulation: two-channel cross-correlation squeezes the instrument floor by a square root
+
+The $1/\sqrt{M}$ convergence above is only a verbal description; here is a **reproducible numerical
+simulation** that actually produces it, so you can see with your own eyes how "the single channel measures
+the instrument floor, while cross-correlation digs the true DUT floor back out" happens (full code:
+`simulations/lab_35_xcorr_measurement.py`; figure: `static/figures/xcorr_floor.png`).
+
+**Methodology walkthrough**:
+
+1. **Synthesize a "true" DUT spectrum**: use the site's canonical values (Example B: $q_{max}=1$ pC,
+   $\Gamma_{rms}=0.5$; [P1] Eq.(21) gives $\mathcal{L}(1\text{ MHz})=-148.0$ dBc/Hz, i.e.
+   $S_\phi(1\text{ MHz})=2\times10^{-14.8}=3.17\times10^{-15}$ rad²/Hz) as the $1/f^2$ mid-band, then add a
+   white floor $20$ dB below it ($S_{DUT,floor}=3.17\times10^{-17}$ rad²/Hz) — an honest "two-segment" toy
+   DUT spectrum: $1/f^2$ near the carrier, flattening far out. This is a **known answer**, so we can check
+   whether the measurement method actually recovers it.
+2. **Add instrument white noise to two independent channels**: $y_1(t)=\phi_{DUT}(t)+n_1(t)$,
+   $y_2(t)=\phi_{DUT}(t)+n_2(t)$, $n_1\perp n_2\perp\phi_{DUT}$, each channel's floor set $15$ dB above the
+   DUT floor ($S_{instr}=10^{1.5}\times S_{DUT,floor}\approx1.00\times10^{-15}$ rad²/Hz) — matching the
+   comparison table's scenario where "single-channel floor $=$ DUT floor $+$ instrument floor."
+3. **Compute both spectra from the same data**: the single-channel auto-spectrum $S_{yy}=\langle|Y_1|^2\rangle$
+   ($M$-segment averaged) and the cross-spectrum $S_{y_1y_2}=\langle Y_1Y_2^*\rangle$ (also $M$-segment
+   averaged), with $M=1,4,16,64,256,1024$ (powers of 4).
+4. **In a high-offset band far from $f_{ref}$** ($80$–$95$ MHz, where the DUT's $1/f^2$ skirt has already
+   decayed to below $1.5\%$ of the DUT floor and can be treated as "floor only"), measure how the
+   cross-spectrum residual floor changes with $M$, and fit a straight line over $M\le64$ (where the residual
+   floor is still clearly above the true DUT floor, i.e. "uncorrelated-noise-dominated"), comparing against
+   the canonical slope $\Delta_{floor}=5\log_{10}M$.
+5. **At $M=1024$, compare the recovered spectrum against the true DUT spectrum**: can cross-correlation dig
+   out the DUT's true floor, which the single channel cannot resolve.
+
+**Key results (`# ->` marks program output)**:
+
+| $M$ | Cross-spectrum residual floor [rad²/Hz] | Rel. $M{=}1$ [dB] | Theory $-5\log_{10}M$ [dB] |
+|---|---|---|---|
+| 1 | $8.38\times10^{-16}$ | $0.00$ | $0.00$ |
+| 4 | $4.40\times10^{-16}$ | $-2.79$ | $-3.01$ |
+| 16 | $2.30\times10^{-16}$ | $-5.62$ | $-6.02$ |
+| 64 | $1.17\times10^{-16}$ | $-8.55$ | $-9.03$ |
+| 256 | $6.43\times10^{-17}$ | $-11.15$ | $-12.04$ |
+| 1024 | $4.15\times10^{-17}$ | $-13.05$ | $-15.05$ |
+
+Fitting a slope over $M\le64$ (where the uncorrelated residual is still clearly above the DUT floor):
+**fitted slope $=-4.73$ dB/decade**, vs. theory $-5.00$ dB/decade, **match $=0.946$** (# ->
+`slope match: fitted/theory = 0.9463`) — with finite samples ($\sim300$ independent frequency bins, averaged
+over 8 independent realizations), the $1/\sqrt{M}$ law is cleanly verified.
+
+By $M=256$ and $1024$, the numbers start to deviate from the theory line ($-11.15$, $-13.05$ dB, "shallower"
+than the theoretical $-12.04$, $-15.05$ dB) — **this is not an error, it is physics**: because the simulation
+only sweeps $M$ up to $1024$ ($\sqrt{M}$ is only $32\times$, about $15$ dB of possible improvement), and the
+single-channel margin is also set at $15$ dB, the two are of comparable magnitude, so by $M=1024$ the residual
+uncorrelated floor $S_{instr}/\sqrt{M}$ has **approached** (rather than fallen far below) the true DUT floor
+$S_{DUT,floor}$, and the residual curve bends toward the true floor instead of continuing to follow the pure
+$1/\sqrt{M}$ line — this is the signature of cross-correlation **succeeding** at pushing the floor down near
+the DUT's true value, not a failure.
+
+**Recovery performance** (at $M=1024$, see panel (b) below):
+
+- In the DUT floor region (near $90$ MHz): the true value is $\mathcal{L}=-167.95$ dBc/Hz; the **single
+  channel** measures $-152.74$ dBc/Hz (masked by the instrument floor, off by $15.2$ dB — what it measures is
+  really the instrument); **cross-correlation** ($M=1024$) measures $-166.15$ dBc/Hz, **only $+1.79$ dB off**
+  (# -> `residual error at DUT floor after M=1024 averaging: +1.79 dB`) — the DUT's true floor, completely
+  hidden under the instrument floor, is dug back out almost fully by correlating two independent channels and
+  averaging.
+- In the $1/f^2$ mid-band ($1$ MHz): the DUT's own signal is large enough that both the single channel and
+  cross-correlation are close to the true value ($-147.80$ dBc/Hz true vs. $-143.87$ single-channel,
+  $-144.43$ cross-correlation) — cross-correlation isn't really needed here; the point of the demonstration is
+  the **floor** (far offset), not where the signal is already strong.
+
+![Cross-correlation measurement simulation: floor vs. averaging count M showing 1/sqrt(M) convergence, and the M=1024 recovered spectrum vs. the true DUT](/figures/xcorr_floor.png)
+
+**Honesty note**: what is verified here is only the **statistical/DSP mechanism** behind cross-correlation
+(the $1/\sqrt{M}$ convergence itself is a property of general complex-Gaussian statistics, not content from
+this site's five source PDFs, and not ISF physics), and in the model the two channels' instrument floors are
+set to be **perfectly uncorrelated**. On a real instrument, $M\to\infty$ cannot push the floor down without
+limit — **residual inter-channel correlation** (shared reference clock distribution, shared supply/ground,
+thermal coupling) sets a physical floor not modeled in this simulation (**external engineering literature,
+not among the five source PDFs**; the simulation above only demonstrates the idealized $1/\sqrt{M}$ mechanism
+and one realistic finite-$M$ outcome, not that the floor can be pushed arbitrarily low).
+
 ### Comparison of the three methods
 
 | Method | Carrier-suppression mechanism | External reference needed? | Floor (relative) | Main limitation | Best for |
@@ -445,13 +524,16 @@ print(round(c0_over_c1, 3))  # -> 0.316
 - **Measurement instruments/standards (SA, delay-line/PLL discriminator, cross-correlation analyzer) are
   external engineering literature and instrument manuals, not among the five downloaded source PDFs**; this
   page supplements them with standard measurement theory.
+- Cross-correlation $1/\sqrt{M}$ convergence simulation: `simulations/lab_35_xcorr_measurement.py`, figure
+  `/figures/xcorr_floor.png` (the statistical/DSP mechanism itself is also not among the five source PDFs).
 
 ## Key takeaways
 
 - The essence of measuring $\mathcal{L}(f)$: **remove the carrier + push down the system floor**. The
   direct SA method measures "DUT + instrument"; PLL/delay-line use carrier suppression to swap the
   instrument for a good reference or self-delay; **cross-correlation correlates two independent channels to
-  kill the uncorrelated floor by $1/\sqrt{M}$** (5 dB per ×10 averaging).
+  kill the uncorrelated floor by $1/\sqrt{M}$** (5 dB per ×10 averaging; simulation-verified fitted slope
+  $-4.73$ dB/decade vs. theory $-5.00$, match $0.946$, see `lab_35`).
 - **A spur** is a deterministic discrete tone (units **dBc**, density does not change with RBW); **random
   PN** is a continuous spectrum (**dBc/Hz**). Distinguish by: changing the RBW weighting, checking
   repeatability, toggling nearby equipment.

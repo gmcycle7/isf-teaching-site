@@ -205,6 +205,13 @@ after cross-checking the body text, the $\eta=0.75$ numerical anchor, and App.B,
 waveform_slope, references, etc.) have had the exponent and related numbers corrected in step (e.g. the $N{=}5\to15$ ratio changed from $0.4387$ / $-7.16$ dB to
 $0.1925$ / $-14.31$ dB). The N-independence of the Eq.(23) FOM, $8/(3\eta)$, $\kappa$, Eq.(15) $f_0$, and Eq.(17)/(18)/(21) are all unaffected.
 
+## 11g. v8: The full enhancement waves (A/B/C/D)
+
+**All 23 units delivered** (hard -> fable, mechanical/interactive -> sonnet; every unit also wrote its EN sibling):
+7 paper-verbatim math units (App.B asymmetric-ISF closed forms Eq.(52)-(57) verified to 1.6e-9 + a newly-found 2x DC-bookkeeping convention gap between [P1] Eq.24 and [P2] Eq.7, honestly dual-listed; [P1] Appendix three ISF methods with the closed form's O(mu) isochron-shear error taught honestly; differential-ring 10logN growth; [P3] optimal injection (Cauchy-Schwarz); correlated-supply N*f0 selection rule; [P4] M:N subharmonic locking; [P3] impulse-train locking), 5 derivation/example units (flicker ADEV floor sqrt(2ln2 h-1) proven rigorously; [P2] Fig.16 two-regime jitter — **found a printing erratum in the paper: zeta=2.5e5 should be 2.5e-5**, verified at 6x zoom; PLL peaking closed form + fractional-N delta-sigma term; [P1] Sec.V real-silicon walkthrough — **found the paper's "58.8 fF" should read fC**; Bessel sideband ladder + multi-source superposition), 8 new bilingual interactive widgets, and 6 new simulations (lab_33/34/35/36/38/39).
+
+Site now: **90 pages x 2 locales, 52 figures, 45 simulations, 20 interactive components, 144 checkable examples (133 auto-pass / 0 errors)**.
+
 ## 12. Suggested next steps for manual verification
 
 1. ~~Check the exact constants and equation forms of [P2]/[P3]/[P4] against the original PDFs~~ → **done in v4** (see 11c: FOM, APF,

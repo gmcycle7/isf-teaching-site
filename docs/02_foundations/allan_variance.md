@@ -1,7 +1,9 @@
 ---
 title: Allan variance：相位雜訊的時域對應
-description: 從兩樣本（Allan）變異數 σy²(τ)=⟨½(ȳ_{k+1}−ȳ_k)²⟩ 出發，逐步推頻域積分 σy²=2∫S_y sin⁴(πfτ)/(πfτ)² df、S_y=(f²/f0²)S_φ，並推導五種冪律雜訊的 ADEV 斜率對照表（white/flicker PM τ⁻¹、white FM τ⁻¹ᐟ²、flicker FM τ⁰ floor、RW FM τ^{+1/2}），解釋為何時鐘界用 ADEV 而非普通頻率方差。嵌入 allan_deviation 圖，含 2 個 worked example（由 L(f) 估 ADEV）。
+description: 從兩樣本（Allan）變異數 σy²(τ)=⟨½(ȳ_{k+1}−ȳ_k)²⟩ 出發，逐步推頻域積分 σy²=2∫S_y sin⁴(πfτ)/(πfτ)² df、S_y=(f²/f0²)S_φ，並推導五種冪律雜訊的 ADEV 斜率對照表（white/flicker PM τ⁻¹、white FM τ⁻¹ᐟ²、flicker FM τ⁰ floor、RW FM τ^{+1/2}），解釋為何時鐘界用 ADEV 而非普通頻率方差。進一步自推完整前因子表：證明 ∫sin⁴u/u³du=ln2，得 flicker-FM floor 常數 σy²=2·ln2·h₋₁；由 canonical 1/f³ corner 算 floor=1.06e-9 與 τ_knee=113 μs，lab_19 驗絕對高度（measured/theory=1.004）。嵌入 allan_deviation 與 allan_flicker_floor 圖，含 3 個 worked example。
 ---
+
+import AdevLiveExplorer from '@site/src/components/AdevLiveExplorer';
 
 # Allan variance：相位雜訊的時域對應
 
@@ -205,6 +207,19 @@ def overlapping_adev(x, tau0, ms):
 
 `d` 那一行就是第 2 步的二階差分 $x_{k+2m}-2x_{k+m}+x_k$；除以 $2(N-2m)(m\tau_0)^2$ 對應 $\sigma_y^2=\langle\tfrac12(\bar y_{k+1}-\bar y_k)^2\rangle$ 的離散估計（$\tau=m\tau_0$）。
 
+## 互動：自己「生」一條時間序列、自己估 ADEV（統計 vs 解析）
+
+上面的 lab_19 圖是**先驗地**告訴你三條斜率；但實務上你手上永遠只有**一條有限長的量測時間序列**，ADEV 是從這條序列**估計**出來的統計量，不是天上掉下來的解析曲線。下面這個小工具把「生成 → 估計」的完整流程搬進瀏覽器，跟上面的 [interactive_calculator](/04_simulation_labs/interactive_calculator) 頁的 `AllanDeviationExplorer`（純解析斜率、沒有隨機性）互補：
+
+- 用種子化亂數（seeded PRNG，換句話說「同一顆種子永遠生出同一條序列」）生一條長度 $N=4096$ 的分數頻率序列 $y[k]$，成分是滑桿控制的 white FM + random-walk FM，外加一個可選的、用簡易 $-10$dB/decade 濾波器串接**近似**出來的 flicker FM（誠實地說：只是近似，見下方說明）。
+- 對這條序列積分成時間誤差 $x[k]=\sum y[k]\tau_0$，再用第 2–3 步同一條**重疊式（overlapping）二階差分**公式，對 $\tau=\tau_0,2\tau_0,4\tau_0,\dots$（倍頻，一路到 $N/4$）**直接估計** ADEV，疊上 $\pm\sigma/\sqrt{\text{pairs}}$ 誤差棒。
+- 虛線是同一組 $h$ 係數的**解析**閉式（第 4 步/前因子表的公式，獨立過程變異數相加）——藍點應該圍著虛線散布。
+- 按「重抽」換一顆新種子：**小 $\tau$ 的點幾乎不動**（幾千個獨立 pairs，統計穩定），**大 $\tau$ 的點會明顯亂跳**（$\tau=N/4$ 時只剩約 4 個獨立 pairs）——這正是本節要傳達的教訓：**ADEV 曲線最右端那幾個點的「地板」或「上翹」看起來很像一個確定的物理現象，但如果背後只有個位數的獨立樣本支撐，那幾個點本身就有很大的統計不確定性**，量測時该做的是拉長總記錄長度、而不是照單全收最右端的形狀。
+
+<AdevLiveExplorer />
+
+**estimator 的獨立驗證**：把生成器切純 white FM（關掉 random-walk 與 flicker）、$h_0=10^{-19}$，在 Node 用同一套演算法跑 200 次重抽：每個倍頻 $\tau$ 的「量測/理論（$h_0/2\tau$ 閉式）」比值都落在 $0.94$–$1.00$（最大 $\tau$ 因 pairs 最少而略偏低，正是上一段講的效應），200 條曲線平均後 log–log 斜率擬合得 $-0.508$（理論 $\tau^{-1/2}$）；預設種子（seed=1234）單獨一次在最小 $\tau$ 已給出比值 $0.993$。widget 內的「最小 τ 的量測/理論」讀數就是這個自我檢查的即時版本。
+
 ## Worked examples 數值例題
 
 下面兩題用嚴格格式：**題目 → 逐步代入（帶單位）→ 結果 → dimension check → 一行 Python 驗證**。第一題練「斜率讀圖」、第二題示範**由 $\mathcal{L}(f)$ 估 ADEV**（最實用的工程換算）。
@@ -274,7 +289,246 @@ adev  = lambda tau: np.sqrt(h0/(2*tau))
 print(f"{h0:.1e}", f"{adev(1e-3):.1e}")  # -> 8.0e-18  6.3e-08
 ```
 
-（此處 white FM 閉式 $\sigma_y^2=h_0/2\tau$ 是標準頻率計量結果；本站 lab_19 只驗斜率不驗絕對常數，數值為示範用。)
+（此處 white FM 閉式 $\sigma_y^2=h_0/2\tau$ 是標準頻率計量結果——下一節會用 $I_2=\pi/4$ 在站內把它完整推出來，且 lab_19 已擴充為**連絕對高度一起驗證**，不只驗斜率。）
+
+## 完整前因子表：flicker-FM floor 常數 $\sigma_y^2=2\ln 2\cdot h_{-1}$
+
+第 4 步的斜率表只回答「$\sigma_y\propto\tau^\mu$」，沒說**絕對高度**。工程上真正要的是：給定 $S_y$ 的冪律係數，ADEV 每一段的**確切數值**——尤其是 flicker-FM 那塊「再怎麼平均都下不去」的地板到底多高。這一節把第 3 步的積分對五種冪律**逐一積出來**：重頭戲是 flicker FM 的 floor 常數，它是一個漂亮的 $\ln 2$；white FM 與 RW FM 用同一招順手拿下；兩個 PM 型則會看到「為什麼非得引入高頻截止 $f_h$ 不可」。
+
+### 記號：冪律係數 $h_\alpha$（IEEE 1139 標準記法）
+
+頻率計量標準把 $S_y$ 寫成冪律疊加：
+
+$$
+S_y(f)=\sum_{\alpha=-2}^{+2}h_\alpha f^{\alpha}.
+$$
+
+$S_y$ 的單位是 $1/\text{Hz}$，所以 $h_\alpha$ 的單位是 $\text{Hz}^{-(\alpha+1)}$：$h_{+2}$ 是 $\text{Hz}^{-3}$、$h_{+1}$ 是 $\text{Hz}^{-2}$、$h_0$ 是 $\text{Hz}^{-1}=\text{s}$、**$h_{-1}$ 無因次**、$h_{-2}$ 是 $\text{Hz}$。
+
+> **符號警告**：$h_\alpha$ 一律掛在 **$S_y$** 身上（IEEE 1139 的標準用法）。上面例 2 我們把 $S_\phi$ 的 $1/f^2$ 係數順手記成了 $h_{-2}$——那是 $S_\phi$ 側的係數，與這裡 RW FM 的 $h_{-2}$（$S_y$ 側、單位 Hz）**不是同一個東西**。本節起把 $S_\phi$ 側的係數一律加上標 $\phi$ 區分：白 FM 段寫 $S_\phi=h^{\phi}_{-2}/f^2$（$h^{\phi}_{-2}$ 單位 $\text{rad}^2\cdot\text{Hz}$）。
+
+### 一般式：一個變數代換蓋掉全部五列
+
+把 $S_y=h_\alpha f^\alpha$ 代進第 3 步的積分，做變數代換 $u=\pi f\tau$（無因次；$f=u/(\pi\tau)$、$df=du/(\pi\tau)$、$f^\alpha=u^\alpha/(\pi\tau)^\alpha$）：
+
+$$
+\sigma_y^2(\tau)=2\int_0^{\infty}h_\alpha f^{\alpha}\,\frac{\sin^4(\pi f\tau)}{(\pi f\tau)^2}\,df
+=\frac{2\,h_\alpha}{(\pi\tau)^{\alpha+1}}\,I_{2-\alpha},
+\qquad
+I_k\equiv\int_0^{\infty}\frac{\sin^4 u}{u^{k}}\,du.
+$$
+
+- **逐步**：被積函數 $=h_\alpha\dfrac{u^\alpha}{(\pi\tau)^\alpha}\cdot\dfrac{\sin^4u}{u^2}\cdot\dfrac{du}{\pi\tau}=h_\alpha\,(\pi\tau)^{-(\alpha+1)}\,\dfrac{\sin^4u}{u^{2-\alpha}}\,du$，抽出常數即得。
+- **斜率表免費重現**：$\sigma_y^2\propto\tau^{-(\alpha+1)}$——$\alpha=0\Rightarrow\tau^{-1}$（white FM）、$\alpha=-1\Rightarrow\tau^{0}$（floor）、$\alpha=-2\Rightarrow\tau^{+1}$（RW FM），與第 4 步的表一致 ✓。剩下的工作只是算出**純數字** $I_k$。
+- **收斂性（重要）**：$u\to0$ 時被積函數 $\sim u^{4-k}$（$k=2-\alpha\le4$ 對 $\alpha\ge-2$ 都可積 ✓）；$u\to\infty$ 時 $\sim u^{-k}$，需要 $k>1$ 即 $\alpha<1$。**$\alpha=+1,+2$（兩個 PM 型）在高頻端發散**——物理意義：PM 雜訊的 ADEV 取決於量測系統看得到多高的頻率，必須引入高頻截止 $f_h$（Hz）截斷在 $u_h=\pi f_h\tau$。這就是第 4 步表中 PM 兩列非帶 $f_h$ 不可的深層原因。
+- **單位檢查**：$h_\alpha$ 是 $\text{Hz}^{-(\alpha+1)}$、$(\pi\tau)^{-(\alpha+1)}$ 是 $\text{Hz}^{+(\alpha+1)}$、$I_k$ 純數 ⇒ $\sigma_y^2$ 無因次 ✓。
+
+### flicker FM（$\alpha=-1$）：證明 $I_3=\ln 2$
+
+$\alpha=-1$ 時 $(\pi\tau)^{\alpha+1}=(\pi\tau)^{0}=1$——**$\tau$ 在第一步就整個消失**，floor 的「$\tau$-無關」性質此刻已經確立，還沒算任何積分：
+
+$$
+\sigma_y^2(\tau)=2\,h_{-1}\,I_3=2\,h_{-1}\int_0^{\infty}\frac{\sin^4u}{u^3}\,du.
+$$
+
+剩下的就是求純數 $I_3$。下面四小步，不跳步。
+
+**第 (i) 步：$\sin^4$ 降冪成諧波。** 用 $\sin^2u=\tfrac12(1-\cos2u)$ 平方，再用 $\cos^2 2u=\tfrac12(1+\cos4u)$：
+
+$$
+\sin^4u=\frac{(1-\cos2u)^2}{4}=\frac{1-2\cos2u+\cos^2 2u}{4}=\frac{3-4\cos2u+\cos4u}{8}=\frac{4(1-\cos2u)-(1-\cos4u)}{8}.
+$$
+
+最後一個等號驗算：$4-4\cos2u-1+\cos4u=3-4\cos2u+\cos4u$ ✓。小 $u$ 檢查：$1-\cos(au)=\tfrac{a^2u^2}{2}-\tfrac{a^4u^4}{24}+\dots$，$u^2$ 項係數 $4\cdot\tfrac{4}{2}-\tfrac{16}{2}=8-8=0$ 相消，$u^4$ 項 $-4\cdot\tfrac{16}{24}+\tfrac{256}{24}=8$，得組合 $\approx8u^4=8\sin^4u$ ✓（$\sin^4u\approx u^4$）。
+
+**第 (ii) 步：為什麼要湊成「$(1-\cos)$ 組合」而不能拆項。** 若把 $3-4\cos2u+\cos4u$ 逐項對 $u^{-3}$ 積分，每一項 $\dfrac{1-\cos(au)}{u^3}\approx\dfrac{a^2}{2u}$ 在 $u\to0$ **對數發散**；只有組合裡 $1/u$ 的係數 $4\cdot\tfrac{2^2}{2}-\tfrac{4^2}{2}=0$ 恰好抵消，整體才可積（低頻端 $\sin^4u/u^3\sim u\to0$、高頻端 $\le1/u^3$ ✓）。所以下面**整體處理、不得拆項**——這種「個別發散、組合有限」的結構，正是 $1/f$ 雜訊一貫的脾氣（比較第 5 步：標準變異數發散、差分組合收斂）。
+
+**第 (iii) 步：兩次分部積分，把 $u^{-3}$ 降到 $u^{-1}$。** 記 $g(u)\equiv8\sin^4u=3-4\cos2u+\cos4u$，$I_3=\tfrac18\int_0^\infty g(u)\,u^{-3}du$。
+
+第一次分部（$u^{-3}du=d(-\tfrac{1}{2u^2})$）：
+
+$$
+\int_0^{\infty}\frac{g(u)}{u^3}\,du=\Big[-\frac{g(u)}{2u^2}\Big]_0^{\infty}+\frac12\int_0^{\infty}\frac{g'(u)}{u^2}\,du,
+\qquad g'(u)=8\sin2u-4\sin4u.
+$$
+
+邊界項檢查：$u\to\infty$ 時 $\lvert g\rvert\le8$ ⇒ $g/u^2\to0$；$u\to0$ 時 $g\approx8u^4$ ⇒ $g/(2u^2)\approx4u^2\to0$ ✓ 兩端皆零。
+
+第二次分部（$u^{-2}du=d(-u^{-1})$）：
+
+$$
+\int_0^{\infty}\frac{g'(u)}{u^2}\,du=\Big[-\frac{g'(u)}{u}\Big]_0^{\infty}+\int_0^{\infty}\frac{g''(u)}{u}\,du,
+\qquad g''(u)=16\cos2u-16\cos4u.
+$$
+
+邊界項檢查：$\infty$ 端 $g'$ 有界 ⇒ $g'/u\to0$；$0$ 端 $g'=8\sin2u-4\sin4u=(16u-16u)+O(u^3)=32u^3+O(u^5)$ ⇒ $g'/u\approx32u^2\to0$ ✓。合併：
+
+$$
+I_3=\frac18\cdot\frac12\int_0^{\infty}\frac{16(\cos2u-\cos4u)}{u}\,du=\int_0^{\infty}\frac{\cos2u-\cos4u}{u}\,du.
+$$
+
+**第 (iv) 步：Frullani 型餘弦積分 → $\ln2$。** 兩項各自在 $u\to0$ 發散（$\int du/u$），但組合可積（$\cos2u-\cos4u=6u^2+O(u^4)$，被積 $\sim6u\to0$）。取 $\varepsilon>0$ 下限，兩項分別代換 $v=2u$、$v=4u$：
+
+$$
+\int_{\varepsilon}^{\infty}\frac{\cos2u-\cos4u}{u}\,du=\int_{2\varepsilon}^{\infty}\frac{\cos v}{v}\,dv-\int_{4\varepsilon}^{\infty}\frac{\cos v}{v}\,dv=\int_{2\varepsilon}^{4\varepsilon}\frac{\cos v}{v}\,dv.
+$$
+
+（$\infty$ 端兩個積分各自條件收斂——Dirichlet 判準——同一條尾巴相減歸零，只剩 $[2\varepsilon,4\varepsilon]$ 一小段。）小段上 $\lvert\cos v-1\rvert\le v^2/2$：
+
+$$
+\int_{2\varepsilon}^{4\varepsilon}\frac{\cos v}{v}\,dv=\int_{2\varepsilon}^{4\varepsilon}\frac{dv}{v}+O(\varepsilon^2)=\ln\frac{4\varepsilon}{2\varepsilon}+O(\varepsilon^2)\ \xrightarrow{\ \varepsilon\to0\ }\ \ln2.
+$$
+
+所以：
+
+$$
+\boxed{\ I_3=\int_0^{\infty}\frac{\sin^4u}{u^3}\,du=\ln2
+\quad\Longrightarrow\quad
+\sigma_y^2(\tau)=2\ln2\cdot h_{-1}\ (\text{與 }\tau\text{ 無關}),\quad
+\sigma_{y,\text{floor}}=\sqrt{2\ln2\cdot h_{-1}}\approx1.1774\,\sqrt{h_{-1}}\ }
+$$
+
+> **物理直覺**：$\ln2=\ln\frac{4}{2}$ 是降冪出來的兩個諧波 $2u$、$4u$ 的**頻率比取對數**。$1/f$ 過程每個 octave（頻率倍程）貢獻等量功率；ADEV 的帶通核在 log-頻率軸上是一個「形狀固定、隨 $\tau$ 平移」的窗（對 $S_y\sim1/f$ 加權後每 decade 的貢獻密度 $\propto\sin^4u/u^2$，峰在 $\tan u=2u$ 即 $u\approx1.17$、$f\approx0.37/\tau$）——窗只平移不變形，看到的「octave 數」不隨 $\tau$ 變，所以積分值是常數。這就是 flicker floor「與 $\tau$ 無關」的頻域圖像。
+
+**數值驗證**（`scipy.integrate.quad` 積到 $200\pi$ 加 $\langle\sin^4\rangle=3/8$ 的解析尾巴修正；已在 lab_19 印出）：
+
+```python
+import numpy as np
+from scipy.integrate import quad
+U = 200*np.pi
+I3, _ = quad(lambda u: np.sin(u)**4/u**3, 0, U, limit=4000)
+I3 += (3/8)/(2*U**2)                  # 尾巴 ∫_U^∞ (3/8)/u^3 du
+print(f"{I3:.4f} {np.log(2):.4f}")    # -> 0.6931 0.6931
+```
+
+> **factor-2/4 記帳（本節每個 2 與 4 的來歷，一次講清楚）**：
+> - $\sigma_y^2=2\ln2\cdot h_{-1}$ 開頭的 **2**：來自第 3 步的核 $\lvert H\rvert^2=2\sin^4u/u^2$（定義的 $\tfrac12$ × 相鄰差分的 $4\sin^2$），是 **ADEV 數學**，與 phase-noise 的 SSB $/2$-vs-$/4$ 記帳**無關**。
+> - $\cos2u$ 與 $\cos4u$ 的 **2、4**：$\sin^4$ 降冪的第二、第四諧波；$\ln2=\ln(4/2)$ 就是它們的頻率比。
+> - white FM $h_0/(2\tau)$ 分母的 **2**：$2\cdot\frac{I_2}{\pi}=2\cdot\frac{\pi/4}{\pi}=\frac12$，同樣是 ADEV 數學，非 SSB 記帳。
+> - 下面例 3 的 $h^{\phi}_{-2}$ 分母的 **$4\pi^2$**：來自 $(2\pi f)^2$，純粹是 rad ↔ Hz 換算。
+> - 例 3 的 $\tau_{knee}$ 分母的 **4**：$=2\times2$（$h_0/\mathbf{2}\tau$ 的 2 × $\mathbf{2}\ln2$ 的 2）。
+> - 真正的 SSB $/2$-vs-$/4$ 慣例只在「把 $S_\phi$ 換算成 dBc/Hz 報表」時出現（例 3 步驟 1 會標記）。
+
+### 同一招順手拿下 white FM 與 RW FM（以及 PM 兩列的 $f_h$）
+
+**white FM（$\alpha=0$）**：$\sigma_y^2=\dfrac{2h_0}{\pi\tau}I_2$。$I_2$ 只要一次分部（邊界項同樣兩端歸零：$\sin^4u/u\sim u^3\to0$、$\le1/u\to0$）：
+
+$$
+I_2=\int_0^{\infty}\frac{\sin^4u}{u^2}\,du=\Big[-\frac{\sin^4u}{u}\Big]_0^{\infty}+\int_0^{\infty}\frac{4\sin^3u\cos u}{u}\,du=\int_0^{\infty}\frac{\sin2u-\tfrac12\sin4u}{u}\,du=\frac{\pi}{2}-\frac12\cdot\frac{\pi}{2}=\frac{\pi}{4}.
+$$
+
+（中間用了 $4\sin^3u\cos u=2\sin2u\sin^2u=\sin2u(1-\cos2u)=\sin2u-\tfrac12\sin4u$，以及 Dirichlet 積分 $\int_0^\infty\frac{\sin(au)}{u}du=\frac{\pi}{2}$，$a>0$。）代回：
+
+$$
+\sigma_y^2(\tau)=\frac{2h_0}{\pi\tau}\cdot\frac{\pi}{4}=\frac{h_0}{2\tau}.
+$$
+
+例 2 引用的「標準結果」就這樣在站內自推出來了 ✓。
+
+**RW FM（$\alpha=-2$）**：$\sigma_y^2=2h_{-2}(\pi\tau)\,I_4$，其中 $I_4=\int_0^\infty\sin^4u/u^4\,du=\dfrac{\pi}{3}$（同一家族：三次分部後歸到 Dirichlet 積分；標準積分表亦載，lab_19 以 quad 驗得 1.0472 $=\pi/3$）。代回：
+
+$$
+\sigma_y^2(\tau)=2\pi\tau\,h_{-2}\cdot\frac{\pi}{3}=\frac{2\pi^2}{3}\,h_{-2}\,\tau.
+$$
+
+**PM 兩列（$\alpha=+1,+2$）**：$I_1,I_0$ 在 $u\to\infty$ 發散，截斷在 $u_h=\pi f_h\tau$。white PM 用 $\int_0^{u_h}\sin^4u\,du=\tfrac38u_h-\tfrac14\sin2u_h+\tfrac1{32}\sin4u_h\approx\tfrac38u_h$（$u_h\gg1$，$\langle\sin^4\rangle=3/8$）：
+
+$$
+\sigma_y^2\approx\frac{2h_{+2}}{(\pi\tau)^3}\cdot\frac38\,\pi f_h\tau=\frac{3\,f_h\,h_{+2}}{4\pi^2\tau^2},
+$$
+
+正好是標準表的 white-PM 前因子（條件 $2\pi f_h\tau\gg1$）✓。flicker PM 同理：$I_1$ 的對數發散給 $\langle\sin^4\rangle\cdot\ln$ 項，係數 $\tfrac{3}{4\pi^2\tau^2}$；加法常數 $1.038$ 需要更細的振盪簿記，本頁直接引用標準值（外部文獻）。
+
+### 五種冪律的完整前因子表
+
+| 雜訊型態 | $S_y(f)$ | $h_\alpha$ 單位 | $\sigma_y^2(\tau)$ | 條件 | 出處 |
+|---|---|---|---|---|---|
+| white PM | $h_{+2}f^{2}$ | $\text{Hz}^{-3}$ | $\dfrac{3\,f_h\,h_{+2}}{4\pi^2\tau^2}$ | $2\pi f_h\tau\gg1$ | 標準表；前因子本頁以 $\langle\sin^4\rangle=\tfrac38$ 推得 |
+| flicker PM | $h_{+1}f$ | $\text{Hz}^{-2}$ | $\dfrac{\big[1.038+3\ln(2\pi f_h\tau)\big]h_{+1}}{4\pi^2\tau^2}$ | $2\pi f_h\tau\gg1$ | 標準表；$\ln$ 係數本頁推得、常數 1.038 引用 |
+| white FM | $h_0$ | $\text{Hz}^{-1}=\text{s}$ | $\dfrac{h_0}{2\tau}$ | — | **本頁自推**（$I_2=\pi/4$） |
+| **flicker FM** | $h_{-1}/f$ | 無因次 | $2\ln2\cdot h_{-1}$（$\approx1.386\,h_{-1}$，floor） | — | **本頁自推**（$I_3=\ln2$） |
+| random-walk FM | $h_{-2}/f^{2}$ | $\text{Hz}$ | $\dfrac{2\pi^2}{3}\,h_{-2}\,\tau$ | — | **本頁自推**（$I_4=\pi/3$） |
+
+$f_h$ = 量測系統高頻截止（Hz）。整表與 **IEEE Std 1139-2008**、**NIST SP 1065**（W. J. Riley, *Handbook of Frequency Stability Analysis*, 2008）的標準表逐項一致（外部文獻，非本站 5 篇 PDF）；其中 flicker-FM、white-FM、RW-FM 三列與 white-PM 前因子已在本頁自行推導。每列單位自檢：$h_\alpha\,\text{Hz}^{(\alpha+1)}$ 型的組合全部無因次 ✓（例如 RW FM：$\text{Hz}\times\text{s}$ ✓；flicker PM：$\text{Hz}^{-2}/\text{s}^2$ ✓）。
+
+### 例 3：由 canonical $1/f^3$ corner 算 flicker floor（帶單位）
+
+> **題**：canonical 振盪器（$f_0=5$ GHz、$q_{max}=1$ pC、$\Gamma_{rms}=0.5$、$S_i=10^{-24}\ \text{A}^2/\text{Hz}$），波形對稱化後 $c_0=0.04$，[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion) 例 F 算出 $1/f^3$ corner $f_c=3.2$ kHz。求 flicker-FM floor $\sigma_{y,\text{floor}}$，以及 white-FM 段與 floor 交叉的 $\tau_{knee}$。
+
+**步驟 1（白 FM 段的物理 $S_\phi$）**：時域乾淨推導（見 [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) 的 factor-of-2 註記）給單邊
+
+$$
+S_\phi(f)=\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{S_i}{(2\pi f)^2}=\frac{h^{\phi}_{-2}}{f^2},
+\qquad
+h^{\phi}_{-2}=\frac{\Gamma_{rms}^2\,S_i}{4\pi^2\,q_{max}^2}=\frac{0.25\times10^{-24}}{4\pi^2\times10^{-24}}=6.33\times10^{-3}\ \text{rad}^2\cdot\text{Hz}.
+$$
+
+- **單位檢查**：$\text{A}^2/\text{Hz}\div\text{C}^2=(\text{C/s})^2/(\text{Hz}\cdot\text{C}^2)=\text{Hz}^2/\text{Hz}=\text{Hz}$，乘無因次 $\Gamma_{rms}^2$ 得 $\text{rad}^2\cdot\text{Hz}$ ✓（分母 $4\pi^2$ 來自 $(2\pi f)^2$，是 rad↔Hz 換算，**不是**雜訊記帳慣例）。
+- **慣例標記（每次都要標）**：這是**物理的**單邊 $S_\phi$。換算成 dBc/Hz 報表時：時域 $/2$ 慣例（$\mathcal{L}=S_\phi/2$）給 $\mathcal{L}(1\,\text{MHz})=-145.0$ dBc/Hz；[P1] Eq.(21) 的 SSB $/4$ 記帳給 $-148.0$ dBc/Hz（差 3 dB，canonical 例 B）。**ADEV 只吃物理 $S_\phi$**，本例對應 $-145$ 那組；若誤把 $-148$ 當 $S_\phi/2$ 反推，$h^{\phi}_{-2}$ 會小 2 倍、floor 低 $\sqrt2$ 倍（$-1.5$ dB）。
+
+**步驟 2（flicker 段 → $h_{-1}$）**：corner 以下 $S_\phi$ 變陡為 $1/f^3$，在 $f_c$ 與白 FM 段連續：$S_\phi=\dfrac{h^{\phi}_{-2}\,f_c}{f^3}$（$f<f_c$）。轉成 $S_y$（第 1 步的轉接頭）：
+
+$$
+S_y(f)=\frac{f^2}{f_0^2}\,S_\phi=\frac{h^{\phi}_{-2}\,f_c}{f_0^2}\cdot\frac1f\equiv\frac{h_{-1}}{f},
+\qquad
+h_{-1}=\frac{h^{\phi}_{-2}\,f_c}{f_0^2}=\frac{6.33\times10^{-3}\times3.2\times10^{3}}{(5\times10^{9})^2}=8.11\times10^{-19}.
+$$
+
+- **單位檢查**：$\text{rad}^2\cdot\text{Hz}\times\text{Hz}\div\text{Hz}^2=$ 無因次 ✓（$h_{-1}$ 該無因次）。
+- 順手記：$h_{-1}=h_0\,f_c$，其中 $h_0=h^{\phi}_{-2}/f_0^2=2.53\times10^{-22}\ \text{Hz}^{-1}$ 是白 FM 位準——flicker 係數就是「白 FM 位準 × corner 頻率」。
+
+**步驟 3（floor）**：
+
+$$
+\sigma_{y,\text{floor}}=\sqrt{2\ln2\cdot h_{-1}}=\sqrt{1.3863\times8.11\times10^{-19}}=\sqrt{1.124\times10^{-18}}=1.06\times10^{-9}.
+$$
+
+**結果：** floor $\approx1.06\times10^{-9}$，約 1.1 ppb——換算成頻率：$\sigma_y f_0=1.06\times10^{-9}\times5\times10^{9}=5.3$ Hz。這顆自由振盪器**不管平均多久**，兩樣本頻率不穩定度都卡在約 5.3 Hz，這就是 flicker floor 的工程意義。
+
+**步驟 4（knee：白 FM 段撞上 floor 的 $\tau$）**：令 $h_0/(2\tau)=2\ln2\cdot h_{-1}$，用 $h_{-1}=h_0f_c$：
+
+$$
+\tau_{knee}=\frac{h_0}{4\ln2\cdot h_{-1}}=\frac{1}{4\ln2\cdot f_c}=\frac{0.3607}{f_c}=\frac{0.3607}{3200\ \text{Hz}}=113\ \mu\text{s}.
+$$
+
+（分母的 **4** $=2\times2$：$h_0/\mathbf{2}\tau$ 的 2 × $\mathbf{2}\ln2$ 的 2，皆 ADEV 數學。）$\tau$ 短於 113 μs 由白 FM 主導（$\tau^{-1/2}$ 下降）、長於它就坐在 floor 上。順手法則：**$\tau_{knee}\approx0.36/f_c$**。
+
+**對照（不對稱波形）**：例 E 的 $c_0=0.4$ 給 $f_c=320$ kHz ⇒ $h_{-1}=8.11\times10^{-17}$、floor $=1.06\times10^{-8}$。corner 高 **100 倍**，floor 只高 **10 倍**（$\sqrt{\ }$），knee 縮到 1.13 μs。因為 $f_c\propto c_0^2$（[P1] Eq.(24)）而 floor $\propto\sqrt{h_{-1}}\propto\sqrt{f_c}$，所以 **floor $\propto c_0$**：波形對稱化不只壓 close-in phase noise，它以一次方直接拉低長期穩定度地板。
+
+**Dimension check（全程）**：$h_{-1}$ 無因次 → $2\ln2\,h_{-1}$ 無因次 → 開根仍無因次（分數頻率）✓；$\tau_{knee}=h_0/(4\ln2\,h_{-1})=\text{s}/\text{無因次}=\text{s}$ ✓。
+
+```python
+import numpy as np
+g, Si, qmax, f0, fc = 0.5, 1e-24, 1e-12, 5e9, 3.2e3
+h_phi = g**2*Si/(qmax**2*4*np.pi**2)          # S_phi 白 FM 段係數（rad^2·Hz）
+h_m1  = h_phi*fc/f0**2                        # S_y = h_m1/f（無因次）
+floor = np.sqrt(2*np.log(2)*h_m1)
+print(f"{h_phi:.2e} {h_m1:.2e} {floor:.2e}")  # -> 6.33e-03 8.11e-19 1.06e-09
+h0 = h_phi/f0**2
+print(f"{h0:.2e} {1/(4*np.log(2)*fc)*1e6:.0f}")  # -> 2.53e-22 113
+```
+
+### 模擬驗證：絕對 floor 高度（lab_19 擴充）
+
+lab_19（`simulations/lab_19_allan.py`）已擴充成**驗絕對值**、不只驗斜率，做三件事：
+
+1. **積分家族**：`scipy.integrate.quad` 直接算 $I_2,I_3,I_4$（積到 $200\pi$、加 $\langle\sin^4\rangle=3/8$ 的解析尾巴），印出 0.7854、**0.6931**、1.0472，對上 $\pi/4$、$\ln2$、$\pi/3$ ✓。
+2. **純 flicker FM 的 floor**：用 FFT 整形合成**絕對 PSD 精確已知**的 $y(t)$——單位變異白噪的單邊 PSD 是 $2/f_s$，整形 $\lvert H\rvert^2=S_{target}/(2/f_s)$（函式 `synth_y_from_psd`；與只對斜率正規化的 `power_law_y` 不同）——取 $h_{-1}=8.11\times10^{-19}$，8 個 seed、$\tau=10\dots2000$ s 量 overlapping ADEV，得 **measured/theory $=1.004$**（理論 $\sqrt{2\ln2\,h_{-1}}=1.06\times10^{-9}$）。
+3. **white＋flicker 全曲線**：疊加 $S_y=h_0+h_{-1}/f$（canonical 兩係數），$f_s=1$ MHz、$2^{22}$ 點、6 seeds，整條曲線（含 knee）與 $\sqrt{h_0/2\tau+2\ln2\,h_{-1}}$ 的最大偏差 **2.3%**。
+
+![white+flicker FM 的絕對 ADEV：模擬點落在理論曲線 √(h0/2τ+2ln2·h₋₁) 上，floor=1.06e-9、knee=113 μs](/figures/allan_flicker_floor.png)
+
+| 項目 | 值 | 說明 |
+|---|---|---|
+| 模型 | toy / illustrative（非 transistor-level） | FFT 整形，**絕對單邊 PSD 精確已知** |
+| $h_0$ | $2.53\times10^{-22}\ \text{Hz}^{-1}$ | canonical 白 FM 位準（例 3 步驟 2） |
+| $h_{-1}$ | $8.11\times10^{-19}$（無因次） | canonical flicker 係數（$f_c=3.2$ kHz） |
+| 理論 floor | $\sqrt{2\ln2\,h_{-1}}=1.06\times10^{-9}$ | 綠虛線 |
+| 量測/理論（floor） | $1.004$ | 純 flicker、8 seeds 平均 |
+| 全曲線最大偏差 | $2.3\%$ | 大 $\tau$ 端含 FFT 低頻截斷偏差 |
+| $\tau_{knee}$ | $113\ \mu$s（紅點線） | $=1/(4\ln2\,f_c)$ |
+
+**如何解讀**：模擬點（藍）在小 $\tau$ 沿白 FM 漸近線 $\sqrt{h_0/2\tau}$ 以 $-1/2$ 斜率下降，在 $\tau_{knee}=113\ \mu$s 轉彎，之後坐上 $1.06\times10^{-9}$ 的地板——**高度**與理論吻合到 0.4%（floor 帶）。注意兩個誠實的 caveat：(a) 合成雜訊的最低頻率被記錄長度截斷在 $f_s/N$，最大 $\tau$ 端 flicker 功率略缺、曲線輕微偏離（包含在 2.3% 內）；(b) 這是 toy 合成驗證「積分數學」，真實振盪器的 floor 高度由真實 $f_c$、$h^{\phi}_{-2}$ 決定。
 
 ## 適用與失效條件
 
@@ -285,6 +539,8 @@ print(f"{h0:.1e}", f"{adev(1e-3):.1e}")  # -> 8.0e-18  6.3e-08
 | 資料夠長、$\tau\ll$ 總時長 | 估計可靠 | $\tau$ 接近總時長時樣本數少、信賴區間爆大 |
 | 過程到 RW FM 為止 | ADEV 收斂 | 比 RW 更低頻（$S_y\sim f^{-3}$ 以上）ADEV 也發散，需 Hadamard variance |
 | 量測系統本身夠乾淨 | 測到的是 DUT | 否則左端（小 $\tau$）被儀器 white PM 蓋住 |
+| floor 式 $\sigma_y^2=2\ln2\,h_{-1}$：$S_y\sim1/f$ 要覆蓋核所看的頻帶（$f\approx0.37/\tau$ 上下各約 1.5 decade） | floor 平坦、高度準 | $\tau$ 太靠近 $\tau_{knee}$ 時白 FM 貢獻不可忽略（改用完整式 $h_0/2\tau+2\ln2\,h_{-1}$）；$\tau$ 太大時 RW FM／drift 蓋過 floor |
+| PM 兩列的前因子需 $2\pi f_h\tau\gg1$ | white/flicker PM 前因子成立 | $\tau$ 小到 $2\pi f_h\tau\sim1$ 時前因子失準（$f_h$＝量測高頻截止） |
 
 ## 與哪些 paper／公式對應
 
@@ -294,6 +550,7 @@ print(f"{h0:.1e}", f"{adev(1e-3):.1e}")  # -> 8.0e-18  6.3e-08
   - **IEEE Std 1139**（"IEEE Standard Definitions of Physical Quantities for Fundamental Frequency and Time Metrology—Random Instabilities"）、**NIST Special Publication 1065**（W. Riley, "Handbook of Frequency Stability Analysis," 2008）——冪律斜率對照表與 overlapping ADEV 估計法的標準參考。
   - 上述為 **IEEE Std 1139-2008**（前版 1139-1999）與 **NIST SP 1065**（W. J. Riley, *Handbook of Frequency Stability Analysis*, 2008）；卷期/版本已查證。
 - 與本站頻域結果的對接：$S_\phi\sim1/f^2$（[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) 的 [P1] Eq.(21)）↔ white FM ↔ ADEV $\tau^{-1/2}$；$1/f^3$（[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion) 的 [P1] Eq.(23)）↔ flicker FM ↔ ADEV $\tau^0$ floor。
+- **完整前因子表**：整表與 IEEE Std 1139-2008、NIST SP 1065 一致（外部文獻，非本站 5 篇 PDF）；其中 **flicker-FM 的 $2\ln2$（$I_3=\ln2$）、white-FM 的 $h_0/2\tau$（$I_2=\pi/4$）、RW-FM 的 $\tfrac{2\pi^2}{3}h_{-2}\tau$（$I_4=\pi/3$）與 white-PM 前因子已於本頁自行推導**，只用到第 3 步的積分式；flicker-PM 的加法常數 1.038 引用標準值。例 3 的 corner $f_c=3.2$ kHz 來自 [P1] Eq.(24)（[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion) 例 F）。
 
 ## 重點回顧
 
@@ -303,6 +560,9 @@ print(f"{h0:.1e}", f"{adev(1e-3):.1e}")  # -> 8.0e-18  6.3e-08
 - 招牌對接：$1/f^2$ phase noise ↔ white FM ↔ ADEV $-1/2$ 斜率。
 - **為何用 ADEV**：普通頻率方差對 flicker/RW **不收斂**（隨量測時長發散）；ADEV 的差分核在 $f\to0$ 像 $f^2$，把低頻發散壓住，得到可重複的穩定度指標。
 - 例 2 示範由 $\mathcal{L}(1\text{MHz})=-100$ dBc/Hz（5 GHz）估出 $S_y$ 白色、$\sigma_y(1\text{ms})\approx6.3\times10^{-8}$。
+- **前因子不只斜率**：$u=\pi f\tau$ 代換給 $\sigma_y^2=2h_\alpha(\pi\tau)^{-(\alpha+1)}I_{2-\alpha}$；$I_2=\pi/4$、$I_3=\ln2$、$I_4=\pi/3$ ⇒ white FM $h_0/2\tau$、**flicker floor $2\ln2\,h_{-1}$**（$\tau$-無關）、RW FM $\tfrac{2\pi^2}{3}h_{-2}\tau$；PM 兩列因 $I_1,I_0$ 高頻發散必須帶 $f_h$。
+- **$\ln2$ 的由來**：$\sin^4$ 降冪成 $2u,4u$ 兩諧波、兩次分部積分、Frullani 型 $\int(\cos2u-\cos4u)/u\,du=\ln(4/2)$；quad 驗證 0.6931 ✓。
+- canonical 數值（例 3）：$f_c=3.2$ kHz ⇒ $h_{-1}=8.11\times10^{-19}$、floor $=1.06\times10^{-9}$（$\approx5.3$ Hz @ 5 GHz）、$\tau_{knee}=1/(4\ln2 f_c)=113\ \mu$s（$\approx0.36/f_c$）；floor $\propto c_0$——對稱化直接拉低長期穩定度地板。lab_19 以絕對 PSD 已知的合成雜訊量得 measured/theory $=1.004$。
 
 ## 延伸閱讀
 

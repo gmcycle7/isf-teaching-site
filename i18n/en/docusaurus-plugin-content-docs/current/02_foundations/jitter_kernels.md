@@ -1,6 +1,6 @@
 ---
 title: Rigorous Derivation of the Jitter Kernels (TIE / N-period / cycle-to-cycle)
-description: Under the single "one-sided S_φ, ∫₀^∞" convention, derive step by step from φ(t+NT)−φ(t) the TIE kernel 1, the period kernel 4sin²(πfNT), and the cycle-to-cycle kernel 16sin⁴(πfT); the white-FM closed form exactly recovers σ_Δφ=κ√(NT) of [P2] Eq.(8)/(11); flicker 1/f³ gets a closed form with a log term; lab_24 Monte Carlo verifies ratios ≈1.00, formally closing the prefactor TODO of worked_examples Example C3.
+description: Under the single "one-sided S_φ, ∫₀^∞" convention, derive step by step from φ(t+NT)−φ(t) the TIE kernel 1, the period kernel 4sin²(πfNT), and the cycle-to-cycle kernel 16sin⁴(πfT); the white-FM closed form exactly recovers σ_Δφ=κ√(NT) of [P2] Eq.(8)/(11); flicker 1/f³ gets a closed form with a log term; then compose the two-regime σ(Δt)=√(κ²Δt+ζ²Δt²) of [P2] Fig.16, the corner Δt_c=κ²/ζ², and its mapping to the frequency-domain 1/f³ corner; lab_24 Monte Carlo verifies ratios ≈1.00, formally closing the prefactor TODO of worked_examples Example C3.
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -461,12 +461,205 @@ $$
   oscillators," IEEE J. Solid-State Circuits, vol. 32, no. 6, pp. 870–879, Jun. 1997
   (external literature, not among the five source PDFs).
 
+## Step 5b: two-regime growth — [P2] Fig.16's $\sigma(\Delta t)=\sqrt{\kappa^2\Delta t+\zeta^2\Delta t^2}$
+
+Step 4 (white FM: $\sigma^2=\kappa^2\Delta t$, slope 1/2) and Step 5 (flicker FM:
+$\sigma^2\sim\zeta^2\Delta t^2$, slope $\approx1$) coexist in every real
+oscillator. [P2] literally **measures** this for you — that is the famous
+two-regime log-log plot of Fig. 16.
+
+### 5b.1 [P2] verbatim (verified against the rendered PDF pages)
+
+- **Fig. 16 caption (p.802)**: "RMS jitter versus measurement interval for the
+  four-stage, 2.8-GHz differential ring oscillator (oscillator number 12)."
+  The vertical axis reads "Rms jitter (second)", the horizontal axis
+  "$\Delta T$ (second)"; the two asymptote fits on the plot are annotated
+  $\kappa=6.18\text{e-}9\ \text{sec}^{0.5}$ and $\zeta=2.5\text{e}5$.
+- **Definitions of the two proportionality constants (p.792)**: Eq.(8)
+  $\sigma_{\Delta T}=\kappa\sqrt{\Delta T}$, "where $\kappa$ is a
+  proportionality constant determined by circuit parameters"; Eq.(9)
+  $\sigma_{\Delta T}=\zeta\,\Delta T$, "where $\zeta$ is another
+  proportionality constant". The premise of Eq.(9) is **fully correlated**
+  noise sources — in the paper's words: "when the noise sources are totally
+  correlated with one another … the standard deviations rather than the
+  variances add"; substrate/supply noise and low-frequency 1/f noise belong to
+  this class. Same page, the conclusion: "a log–log plot of the timing jitter
+  $\sigma_{\Delta T}$ versus the measurement delay $\Delta T$ for an open-loop
+  oscillator will demonstrate regions with slopes of 1/2 and 1, as shown in
+  Fig. 4."
+- **Measurement cross-check (p.801)**: "The best fit $\kappa$ for the data
+  shown in Fig. 16 is $\kappa=6.18\times10^{-9}\sqrt{s}$. Equations (12) and
+  (35) result in $\kappa=5.95\times10^{-9}\sqrt{s}$ and
+  $\kappa=6.07\times10^{-9}\sqrt{s}$, respectively." — ISF theory lands within
+  2–4% of measurement, one of the most beautiful closed loops in all of [P2].
+  The slope-1 attribution is on the same page: "The region of the jitter plot
+  with the slope of one can be attributed to the $1/f$ noise of the devices,
+  as discussed at the end of Section VI." (End of Section VI, pp.797–798:
+  "Low-frequency noise can also result in correlation between uncertainties
+  introduced during different cycles … the uncertainties add up in amplitude
+  rather than power, resulting in a region with a slope of one … even in the
+  absence of external noise sources".)
+- **Printing erratum (honesty note)**: the figure prints $\zeta$ as "2.5e5".
+  But Eq.(9) $\sigma=\zeta\Delta T$ (seconds $=\zeta\times$ seconds) makes
+  $\zeta$ **dimensionless**, and the slope-1 fit line passes through
+  ($10^{-6}$ s, $\approx2\times10^{-11}$ s), so
+  $\zeta=\sigma/\Delta T\approx2.5\times10^{-5}$ — the printed exponent is
+  missing its minus sign. This page uses $\zeta=2.5\times10^{-5}$ throughout.
+  (Incidental dimension check: $\kappa$ is annotated $\text{sec}^{0.5}$ ✓,
+  $\text{s}/\sqrt{\text{s}}=\sqrt{\text{s}}$.)
+
+### 5b.2 Composing the two: independent ⇒ variances add
+
+White FM (device thermal noise) and flicker FM (device 1/f) come from distinct
+physical mechanisms and are statistically independent; the variance of a sum of
+independent random variables is the sum of the variances (the cross term has
+zero expectation):
+
+$$
+\sigma_{\Delta t}^2(\Delta t)=\underbrace{\kappa^2\,\Delta t}_{\text{Step 4 (white)}}+\underbrace{\zeta^2\,\Delta t^2}_{\text{Step 5 (flicker)}}
+$$
+
+$$
+\boxed{\ \sigma_{\Delta t}(\Delta t)=\sqrt{\kappa^2\,\Delta t+\zeta^2\,\Delta t^2}\ }
+$$
+
+- **Honesty note on provenance**: this composed formula does **not appear
+  verbatim in [P2]** — the paper gives the two limiting behaviors Eq.(8)/(9)
+  and the two-segment plots of Fig.4/Fig.16; adding in quadrature is the direct
+  corollary of "independent ⇒ variances add" ([P2] p.792 says "standard
+  deviations add" for correlated sources and variances add for independent
+  ones; between the two noise **classes**, white and 1/f, it is the latter).
+- **Units (time version)**: the $\kappa,\zeta$ of this section are the time
+  versions — $[\kappa]=\sqrt{\text{s}}$
+  ($\kappa^2\Delta t:\ \text{s}\cdot\text{s}=\text{s}^2$ ✓), $\zeta$
+  dimensionless ($\zeta^2\Delta t^2=\text{s}^2$ ✓). The phase versions (rad
+  bookkeeping) carry an extra $\omega_0$ each: $\kappa_\phi=\omega_0\kappa$
+  (Section 4.2), $\zeta_\phi=\omega_0\zeta$ ($[\zeta_\phi]=\text{rad/s}$).
+- **The corner**: set the two terms equal,
+  $\kappa^2\Delta t_c=\zeta^2\Delta t_c^2$, and solve:
+
+$$
+\boxed{\ \Delta t_c=\frac{\kappa^2}{\zeta^2}\ }\qquad
+\Big[\frac{\text{s}}{1}\Big]=\text{s}\ \checkmark
+$$
+
+  For $\Delta t\ll\Delta t_c$ white noise dominates (slope 1/2); for
+  $\Delta t\gg\Delta t_c$ flicker dominates (slope 1); at $\Delta t_c$ the
+  composed curve sits $\sqrt2$ (3 dB) above either asymptote — each term
+  contributes half.
+
+### 5b.3 Reconciling with Step 5's log closed form — "constant $\zeta$" is a slowly-varying approximation
+
+Step 5's rigorous result (converted to time units, dividing by $\omega_0^2$) is
+
+$$
+\sigma_{\Delta t,\text{flicker}}^2(\Delta t)=\frac{4\pi^2 b_3}{\omega_0^2}\,\Delta t^2\Big[\tfrac32-\gamma-\ln(2\pi\Delta t\,f_l)\Big]
+\quad\Longrightarrow\quad
+\zeta_{\rm eff}^2(\Delta t)=\frac{4\pi^2 b_3}{\omega_0^2}\Big[\tfrac32-\gamma-\ln(2\pi\Delta t\,f_l)\Big],
+$$
+
+i.e., $\zeta$ is not a constant — it shrinks slowly with $\Delta t$ as
+$\sqrt{\log}$ (unit check:
+$b_3/\omega_0^2=[\text{rad}^2\text{Hz}^2]/[\text{rad/s}]^2=$ dimensionless ✓).
+The local log-log slope deviates from 1 accordingly:
+
+$$
+\frac{d\ln\sigma}{d\ln\Delta t}=1-\frac{1}{2\big[\tfrac32-\gamma-\ln(2\pi\Delta t f_l)\big]} .
+$$
+
+- The lab_24 Part 5 MC ($f_l=298$ Hz, set by the simulation length) fits a
+  slope of 0.909 in the flicker region, while the exact curve over the same
+  window gives 0.911 — the MC's deviation from 1.0 is **physics** (the log
+  correction), not noise.
+- In real measurements $f_l$ is set by the measurement duration (seconds ⇒
+  $f_l\sim1$ Hz), the bracket is $\approx13$–$16$, and the local slope is
+  $0.967$ ($\Delta t=10^{-7}$ s, $f_l=1$ Hz, printed by lab_24) — which is why
+  [P2] Fig.16 can be fitted with a **clean slope-1 straight line**: the log
+  correction is invisible over hardware decade spans. The paper's constant
+  $\zeta$ is the tangent approximation "bracket frozen at its corner value";
+  our figure (below) draws both, and they nearly coincide.
+
+### 5b.4 Time-domain corner ↔ frequency-domain $1/f^3$ corner (the honest mapping)
+
+Define the spectral corner $f_{1/f^3}\equiv b_3/b_2$ (the offset frequency at
+which the $1/f^3$ and $1/f^2$ segments of $S_\phi$ are equal). Because it is a
+**ratio within one and the same spectrum**, the SSB $/2$ vs $/4$ bookkeepings
+cancel between numerator and denominator — a rare corner of this page where no
+convention needs minding. Insert Step 4's $\kappa_\phi^2=2\pi^2b_2$ and the
+$\zeta_{\rm eff}$ above into $\Delta t_c=\kappa^2/\zeta^2$ (the time and phase
+versions give the same ratio; $\omega_0^2$ cancels):
+
+$$
+\Delta t_c=\frac{2\pi^2 b_2}{4\pi^2 b_3\big[\cdot\big]}
+=\boxed{\ \frac{1}{2\big[\cdot\big]\,f_{1/f^3}}\ },\qquad
+\big[\cdot\big]=\tfrac32-\gamma-\ln(2\pi\Delta t_c f_l)\ (\text{self-consistent}).
+$$
+
+- **This 2 is not an SSB bookkeeping 2**: the 2 in the denominator is the ratio
+  of the two kernel-integral constants — the white-noise integral
+  $\int\sin^2(ax)/x^2\,dx=\pi a/2$ (Section 4.1) against the flicker log form
+  (Step 5) — a convention-free physical constant.
+- **Order-of-magnitude intuition**: $[\cdot]\approx10$–$16$, so $\Delta t_c$ is
+  **20–30× shorter** than the naive guess $1/f_{1/f^3}$. "The spectral corner
+  is at 1 MHz, so the time-domain knee is at 1 µs" is wrong by a decade and a
+  half — the log bracket is the culprit.
+- **Not the same thing as [P2] Eq.(57)**: App. B's
+  $f_{1/f^3}=f_{1/f}\cdot\frac{3}{2\eta N}\frac{(1-A)^2}{1-A+A^2}$ is the
+  circuit-level mapping "device 1/f corner → spectral corner"; this section's
+  $f_{1/f^3}=b_3/b_2$ is the observational definition of the spectral corner
+  itself. Same corner, different routes to it.
+
+### 5b.5 Numerical examples (every number below is actually printed by lab_24 Part 5)
+
+**Example 1 — [P2] Fig.16's oscillator 12 (2.8 GHz differential ring)**:
+
+$$
+\Delta t_c=\frac{\kappa^2}{\zeta^2}=\Big(\frac{6.18\times10^{-9}\sqrt{\text{s}}}{2.5\times10^{-5}}\Big)^2=6.11\times10^{-8}\ \text{s}\approx61\ \text{ns}=171\ \text{periods}.
+$$
+
+dimension check: $(\sqrt{\text{s}})^2=\text{s}$ ✓. Against Fig.16, the two fit
+lines indeed cross near $\Delta T\approx6\times10^{-8}$ s ✓. Inverting for the
+spectral corner (taking $f_l=1$ Hz, bracket $=15.7$):
+$f_{1/f^3}=1/(2\times15.7\times6.11\times10^{-8})=5.21\times10^5$ Hz — while
+[P2] Fig.17 (p.802, swept against symmetry voltage) measures $1/f^3$ corners of
+about $10^5$–$10^6$ Hz for the same family's oscillator 7: right in the middle,
+order-of-magnitude-wise (a different oscillator, so we check the magnitude,
+not the digits). The time-domain jitter plot and the frequency-domain
+phase-noise plot interlock through one and the same $\kappa/\zeta$ language.
+
+**Example 2 — the canonical 5 GHz oscillator (the lab_24 Part 5 MC)**:
+representative $\kappa_\phi^2=0.125$ rad²/s ($\Gamma_{rms}=0.5$; the true-LC
+$1/\sqrt2$ doubles it to 0.25, lifting the white segment and doubling
+$\Delta t_c$ — the stronger the white noise, the longer the slope-1/2 segment
+survives), and flicker set to $b_3=6.333\times10^3$ rad²Hz² so that
+$f_{1/f^3}=b_3/b_2=1.000$ MHz (the canonical offset). The simulated record is
+$2^{24}$ periods $=3.36\times10^{-3}$ s ⇒ $f_l=298$ Hz. Self-consistent
+solution $\Delta t_c=4.89\times10^{-8}$ s (245 periods, bracket $=10.22$); the
+intersection of the two MC fit lines is $4.31\times10^{-8}$ s (216 periods,
+MC/theory $=0.88$ — the intersection is sensitive to the choice of fit
+windows; on the log-log plot the difference is only 0.06 decade). Identity
+check: $\Delta t_c\,f_{1/f^3}=0.0489=1/(2\times10.22)$ ✓.
+
+![Two-regime jitter growth: MC and the [P2] Fig.16 asymptotes](/figures/jitter_two_regime.png)
+
+**How to read the figure**: left panel (canonical 5 GHz) — the MC crosses span
+5 decades and land exactly on the exact curve (discrete bin sum); the blue
+$\kappa\sqrt{\Delta t}$ and red $\zeta\Delta t$ lines cross at
+$\Delta t_c=49$ ns; the red dashed line is the log-corrected flicker (slope
+$0.91$, not 1.0). Right panel — the two asymptotes and the composed curve
+redrawn from the $\kappa=6.18\times10^{-9}\sqrt{\text{s}}$,
+$\zeta=2.5\times10^{-5}$ printed in [P2] Fig.16, with the corner marked at
+61 ns; the gray dashed line is the log-corrected version ($f_l=1$ Hz), nearly
+coincident with the constant-$\zeta$ one — exactly the "hardware cannot see the
+log" point of 5b.3. This is a pedagogical replot (asymptotes and the composed
+formula), not the paper's measured data points themselves.
+
 ## Step 6: Monte-Carlo verification (lab_24)
 
 ![Monte-Carlo verification of the jitter kernels](/figures/jitter_kernels_mc.png)
 
 Full script: `simulations/lab_24_jitter_kernels.py` (run with
-`PYTHONPATH=. python simulations/lab_24_jitter_kernels.py`). The simulation has four parts,
+`PYTHONPATH=. python simulations/lab_24_jitter_kernels.py`). The simulation has five parts,
 all using the canonical parameters:
 
 | Parameter | Value | Unit | Notes |
@@ -477,6 +670,7 @@ all using the canonical parameters:
 | $\Gamma(\theta)$ | $-\sqrt2\times0.5\,\sin\theta$ | — | rms exactly the representative value $\Gamma_{rms}=0.5$ (reuse `gamma_lc_ideal`) |
 | $\kappa$ | 0.3536 | rad/$\sqrt{\text{s}}$ | $=(\Gamma_{rms}/q_{max})\sqrt{S_i/2}$, $\kappa^2=0.125$ rad²/s |
 | Sampling | 32 points/cycle × 2×10⁵ cycles (Part 1); 2×10⁶ cycles (Part 2) | — | Part 2's per-cycle increments $\mathcal{N}(0,\kappa^2T)$ are justified by Part 1 |
+| $b_3$ (Part 5) | $6.333\times10^3$ | rad²·Hz² | flicker-FM level so that $f_{1/f^3}=b_3/b_2=1$ MHz; record $2^{24}$ periods ⇒ $f_l=298$ Hz |
 
 **Part 1 — not an abstract random walk, but the mechanism of [P1] Eq.(11)**: finely sampled white noise current → ISF weighting →
 cumulative integration → per-cycle phase increment. Verifies that the increment standard deviation $=\kappa\sqrt T$ and that adjacent cycles are uncorrelated:
@@ -526,6 +720,42 @@ print(f"{kappa_c:.2f}")             # -> 62.83 rad/sqrt(s) (=2π·1MHz·√L_lin
 print(f"{sigma_c3*1e15:.1f} fs")    # -> 27.6 fs Example C3's value truncated to 10^3–10^10 Hz
 ```
 
+**Part 5 — two-regime growth (white + flicker FM composed; corresponds to Step 5b and [P2] Fig.16)**:
+both noise classes are synthesized as per-period phase increments — white
+increments $\mathcal{N}(0,\kappa^2T)$ (justified by Part 1) plus flicker
+increments (`flicker_noise` spectral shaping, level calibrated by Welch) —
+over $2^{24}$ periods, with $\sigma(\Delta t)$ spanning 5 decades:
+
+```python
+b2      = KAPPA2 / (2*np.pi**2); b3 = b2 * 1e6        # target f_{1/f^3} = 1 MHz
+k_flick = 2*np.pi**2 * b3 * T**2 * fs                 # so that S_d(f) = 4pi^2 b3 T^2 / f
+d_fl    = flicker_noise(n_periods, fs=fs, k_flicker=k_flick, rng=RNG)
+d_w     = RNG.normal(0.0, KAPPA*np.sqrt(T), n_periods)
+phi     = np.concatenate(([0.0], np.cumsum(d_w + d_fl)))
+sig_t   = np.array([rms(phi[N:] - phi[:-N]) for N in Ns]) / W0   # [s]
+```
+
+```text
+# flicker level calibration S_d*f  # -> 1.000e-14 rad^2 (nominal also 1.000e-14)
+# b3 / f_{1/f^3}                   # -> 6.333e+03 rad^2*Hz^2 / 1.000e+06 Hz
+# fitted slope, white region (N≤32)     # -> 0.519 (theory 0.5; exact curve over same window 0.520)
+# fitted slope, flicker region (N≥3200) # -> 0.909 (clean ζΔt would be 1.0; exact over same window 0.911)
+# corner: MC fit-line intersection  # -> 4.31e-08 s (216 periods)
+# corner: self-consistent theory    # -> 4.89e-08 s (245 periods; MC/theory = 0.88)
+# identity dt_c·f_{1/f^3}           # -> 0.0489 (= 1/(2×bracket), bracket = 10.22)
+# bin sum vs log form (N=10⁴)       # -> 1.089 (f_l=1/T_rec); 0.984 (half-bin correction f_l/2)
+# hardware f_l=1 Hz local slope     # -> 0.967 (Δt=1e-7 s; the paper's clean slope-1 fit is justified)
+# [P2] osc-12 corner                # -> 6.11e-08 s (171 periods @2.8 GHz)
+# implied f_{1/f^3}                 # -> 5.21e+05 Hz (f_l=1 Hz, bracket=15.7)
+```
+
+(Where the 9% bin-sum vs log-form difference comes from: the log closed form
+takes $f_l=1/T_{rec}$ as the lower limit of a **continuous** integral, while
+the first bin of the discrete FFT spectrum actually collects the power of
+$[f_l/2,\,3f_l/2]$ — replacing $f_l$ by the half-bin-corrected $f_l/2$ moves
+the ratio to 0.984. The log's sluggishness once more: half a bin moves only
+9%.)
+
 **How to read the figure**: the left column shows the three kernels (log-log); you can directly see the low-frequency behavior —
 TIE flat, period $\propto f^2$, c2c $\propto f^4$ — and the peak values 4/16. The middle column shows the MC
 $\sigma_{\Delta\phi}(N)$ landing on the $\kappa\sqrt{NT}$ theory line (slope 1/2, spanning 4 decades).
@@ -547,6 +777,9 @@ integrated only over the 1–100 MHz band. **Same set of formulas, same prefacto
 | Flicker closed form: $2\pi NTf_l\ll1$ | log formula accurate to $O((2\pi NTf_l)^2)$ | long delays / high cutoffs: integrate numerically |
 | TIE with an explicit band $[f_1,f_2]$ | numbers are reproducible | free-running oscillator diverges as $f_1\to0$; meaningless without a stated band |
 | Gaussian RJ | $\sigma$ fully describes the distribution (usable for BER extrapolation) | spurs/DJ: the variance formulas still hold, but the distribution is non-Gaussian; BER needs an RJ/DJ decomposition |
+| Two-regime composition: white and flicker statistically independent | $\sigma^2$ add, $\Delta t_c=\kappa^2/\zeta^2$ (Step 5b) | supply/substrate hitting several stages at once (correlated sources): the cross term is nonzero and [P2] Eq.(9)'s "standard deviations add" takes over |
+| Free-running (open-loop) | unbounded two-regime growth | inside a locked PLL: below the loop BW the phase is pulled back, $\sigma$ flattens at long $\Delta t$; a Fig.16-type curve only holds within the loop time constant |
+| Measurement floor subtracted | $\sigma_{\Delta T,\text{eff}}=\sqrt{\sigma_{\Delta T,\text{meas}}^2-\sigma_{\Delta T,\text{min}}^2}$ ([P2] Eq.(39), p.801) | short-$\Delta t$ end swamped by trigger jitter: the white segment looks flattened; subtract the floor before fitting $\kappa$ |
 
 ## Corresponding papers / equations
 
@@ -554,7 +787,15 @@ integrated only over the 1–100 MHz band. **Same set of formulas, same prefacto
 - $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ (phase-jitter random walk): [P2] Eq.(8), p.792;
   $\kappa=(\Gamma_{rms}/q_{max})\sqrt{S_i/2}$ (no $\omega_0$): [P2] Eq.(11)/(12), p.793 (all verified);
   phase↔time jitter conversion $\sigma_{\Delta\phi}=2\pi\sigma_{\Delta t}/T$: [P2] Eq.(10), p.793.
-- Correlated (1/f) noise, $\sigma\propto\Delta t$: [P2] Eq.(9), p.792 and Fig. 4.
+- Correlated (1/f) noise, $\sigma\propto\Delta t$: [P2] Eq.(9), p.792 and Fig. 4
+  (the definition of $\zeta$: "where $\zeta$ is another proportionality constant", verified).
+- Two-regime measurement and fits: [P2] Fig.16, p.802 (caption and the
+  $\kappa=6.18\text{e-}9\ \text{sec}^{0.5}$, $\zeta=2.5\text{e}5$ annotations verified verbatim
+  against the rendered page; the missing minus sign in $\zeta$'s printed exponent is the erratum
+  discussed in Section 5b.1); best fit vs the Eq.(12)/(35) theory values
+  $6.18/5.95/6.07\times10^{-9}\sqrt{\text{s}}$: p.801;
+  slope-1 attribution to device 1/f: p.801 and the end of Section VI, pp.797–798;
+  measurement-floor subtraction: Eq.(39), p.801.
 - jitter ← phase spectrum (autocorrelation + Khinchin route): [P2] Eq.(46)–(49), p.803; white-noise special case
   $\kappa$←$\mathcal{L}$: Eq.(50), p.803; cycle-to-cycle "based on (8)": Eq.(51), p.803
   (**these three equations verified verbatim in v5** (p.803 rendering): Eq.(49) $\sigma^2_{\Delta\phi}=\tfrac{8}{\omega_0^2}\int_0^\infty S_\phi\sin^2(\pi f\tau)df$ (with $S_\phi$ per Eq.(48) a **two-sided** spectrum, hence = this page's one-sided $4\sin^2$ kernel);
@@ -564,7 +805,7 @@ integrated only over the 1–100 MHz band. **Same set of formulas, same prefacto
   the factor-of-2 note in conventions Section 3.
 - Operational versions of the kernels and Example D: [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter);
   Example C3: worked_examples (its TODO is closed by this page).
-- Figure: `jitter_kernels_mc.png` (lab_24).
+- Figures: `jitter_kernels_mc.png`, `jitter_two_regime.png` (both lab_24).
 
 ## Key takeaways
 
@@ -579,6 +820,11 @@ integrated only over the 1–100 MHz band. **Same set of formulas, same prefacto
   (remember to use the $/2$-convention $\mathcal{L}$: $-145$, not $-148$).
 - Flicker: $\sigma_{\Delta\phi}^2(N)=4\pi^2b_3(NT)^2[\tfrac32-\gamma-\ln(2\pi NTf_l)]$,
   **logarithmically dependent on the low-frequency cutoff**; a report must include $f_l$; the growth law is approximately $\propto N$ (the slope-1 segment of [P2] Eq.(9)).
+- **The two-regime whole picture** ([P2] Fig.16): $\sigma(\Delta t)=\sqrt{\kappa^2\Delta t+\zeta^2\Delta t^2}$
+  (independent ⇒ variances add), corner $\Delta t_c=\kappa^2/\zeta^2$;
+  time↔frequency mapping $\Delta t_c=1/(2[\cdot]f_{1/f^3})$ with $[\cdot]\approx10$–$16$ ⇒
+  20–30× shorter than $1/f_{1/f^3}$; osc-12: 61 ns (171 periods), canonical: 49 ns (245 periods);
+  MC slopes 0.519/0.909 = the exact curve's 0.520/0.911 (the deviations from 0.5/1.0 are log physics).
 - Canonical numbers: representative oscillator $\kappa^2=0.125$ rad²/s, $\sigma_P=0.159$ fs,
   $\sigma_{c2c}=0.225$ fs, $\mathcal{L}(1\text{MHz})=-145/-148$ dBc/Hz ($/2$, $/4$ conventions);
   Example C spectrum: TIE(1–100 MHz)$=447.9$ fs, period-jitter closed form $28.28$ fs (Example C3's 27.6 fs

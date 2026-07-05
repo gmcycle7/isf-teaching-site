@@ -252,6 +252,8 @@ corner。對稱性把 close-in noise 推走了 200 倍頻率。完整推導見
 | Fig. 7 | 183 | (a) LC、(b) ring 的波形與 ISF | toy 對照 `lc_vs_ring_isf_comparison.png` |
 | Fig. 8 | 183 | $n\omega_0$ 附近 noise 搬到 carrier 的頻率搬移圖 | [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) |
 | Fig. 12 | 185 | $\overline{i^2}/f$ 與 $\mathcal{L}(\Delta f)$：1/f³、1/f²、floor | flicker upconversion lab |
+| Fig. 20–22 | 189–190 | 注入實驗：sideband $\propto I^2$、$-20$ dB/dec、對稱 vs 不對稱節點 | 見下方 Sec. V 一節 |
+| Fig. 23–24 | 190–191 | 232／115 MHz ring 的 $\mathcal{L}(\Delta f)$ 量測（1/f³ 與 1/f² 段分明） | 見下方 Sec. V 一節 |
 
 本站用 Python toy model 重畫了概念對照圖（**非 transistor-level**）：
 
@@ -270,6 +272,218 @@ corner。對稱性把 close-in noise 推走了 200 倍頻率。完整推導見
 
 設計面的整理見 [symmetry](/06_design_insights/symmetry) 與
 [lc_vs_ring](/06_design_insights/lc_vs_ring)。
+
+## 論文自己的端到端矽驗證（Sec. V）
+
+> **這一節要回答什麼**：本站的數值鏈（例 B 的 $-148.0$ dBc/Hz）用的是乾淨的教學數字；
+> 同一條「process 資料 → $C_{node}$ → $q_{max}$ → $\overline{i_n^2}/\Delta f$ →
+> $\Gamma_{rms}^2$ → Eq.(21) → $\mathcal{L}$」管線，[P1] Sec. V（pp.189–191）在**真矽**上
+> 用八個實驗驗證過，預測與量測差 0.2–0.7 dB，而且輸入全是**事前可得**的量（process 參數、
+> 幾何、擺幅、萃取的 ISF），不是事後擬合。下面先鳥瞰八個實驗，再把數字最完整的一條鏈逐步重演。
+
+八個實驗一覽（數字逐字取自 [P1] pp.189–191）：
+
+| # | 實驗 | 驗證什麼 | 論文結果 |
+|---|---|---|---|
+| 1 | 5 級 5.4 MHz CMOS ring，正弦電流注入掃幅度（$f_m=100$ kHz、$f_0+f_m=5.5$ MHz、$2f_0+f_m=10.9$ MHz、$3f_0+f_m=16.3$ MHz） | Eq.(18) 的電流→sideband 線性 | 上下 sideband 相等（量測精度 0.2 dB 內）；最佳擬合斜率 19.8 dB/decade vs 預測 20（Fig. 20） |
+| 2 | 同 ring，20 µA (rms)，掃 $f_m$ | Eq.(18) 的 $1/\Delta\omega$ 相依 | 四組注入頻率全部 $-20$ dB/decade（Fig. 21） |
+| 3 | 5 級 ring，其中一級加 extra pulldown NMOS 製造不對稱，注入 20 µA (rms) | 低頻上轉由 $c_0$（波形對稱性）決定 | 打在不對稱節點 sideband 大 7 dB；對稱節點幾乎不變（Fig. 22） |
+| 4 | **5 級 232 MHz single-ended ring（2-µm、5-V CMOS）** | Eq.(21) + Eq.(24) 全鏈預測 | 預測 $-114.7$ vs 量測 $-114.5$ dBc/Hz @ 500 kHz；corner 預測 75 vs 量測 80 kHz（Fig. 23） |
+| 5 | 11 級 115 MHz ring（同一顆 die） | 同上，換 $N$ 與元件尺寸 | 預測 $-122.1$ vs 量測 $-122.5$ dBc/Hz @ 500 kHz；corner 預測 43 vs 量測 45 kHz（Fig. 24） |
+| 6 | 7 級 current-starved ring（$f_0$ 定在 60／50 MHz），控制電壓獨立調 rise/fall | 對稱性只該動 1/f³、不動 1/f²（Eq.(24)、Eq.(30)） | 調對稱大幅壓 1/f³ 段、1/f² 段幾乎不變；存在最佳對稱點（Fig. 25／26） |
+| 7 | 4 級 differential 200 MHz ring（0.5-µm） | Eq.(21)；「half-circuit 對稱才算數」 | 預測 $-103.2$ vs 量測 $-103.9$ dBc/Hz @ 1 MHz；差動對稱仍有明顯 1/f³ 段（Fig. 27） |
+| 8 | Bipolar Colpitts 100 MHz，掃 $n=C_1/(C_1+C_2)$（$C_{eq}$ 固定） | cyclostationary／$\Gamma_{eff}$ 的導通角效應 | 存在最佳導通角，$n\approx0.2$ 相位雜訊最低——經典 Colpitts 經驗法則的理論根據（Fig. 28） |
+
+### 全鏈重演：第四個實驗（5 級、232 MHz、2-µm 5-V CMOS）
+
+這是全論文數字最完整的一條鏈——每個輸入都印在 p.190 上，我們逐步代回去。
+
+**Step 0 — 論文的 process／幾何輸入**（[P1] p.190，逐字轉錄）：
+
+| 量 | 值 | 單位 |
+|---|---|---|
+| gate oxide 厚度 $t_{ox}$ | 25 | nm |
+| $V_{TN}$ | 0.6 | V |
+| $V_{TP}$ | 0.53 | V |
+| $(W/L)_N$ | 3 µm ／ 2 µm | — |
+| $(W/L)_P$ | 5 µm ／ 2 µm | — |
+| lateral diffusion $L_d$ | 0.1 | µm（故 $L_{\text{eff}}=2-2\times0.1=1.8$ µm） |
+| 每節點總電容 $C_{total}$（含 parasitic，由 process＋幾何算出） | 35.7 | fF |
+| 量測方式 | delay-based | —（Fig. 23 可見分明的 1/f³ 與 1/f² 段） |
+
+**Step 1 — $q_{max}$**：5-V process，節點擺幅 $V_{swing}=5$ V：
+
+$$
+q_{max}=C_{total}\,V_{swing}=35.7\ \text{fF}\times5\ \text{V}=178.5\ \text{fC}
+$$
+
+論文取整為 **179 fC**。Dimension check：F × V = C ✓（fF × V = fC）。
+
+**Step 2 — transition 點的 noise PSD**：ring 的（有效）ISF 集中在 transition（本站
+[lc_vs_ring](/06_design_insights/lc_vs_ring) 與 [P2]），所以論文只在「輸出過 $V_{DD}/2$
+的那一瞬」評 noise；該點 NMOS 與 PMOS **同時導通**，兩者的電流噪聲功率相加（p.190）：
+
+$$
+\left(\overline{i_n^2}/\Delta f\right)_{NMOS}=4kT\gamma\mu_nC_{ox}(W/L_{\text{eff}})_N(V_{DD}/2-V_{TN})=4.44\times10^{-24}\ \text{A}^2/\text{Hz}
+$$
+
+$$
+\left(\overline{i_n^2}/\Delta f\right)_{PMOS}=2.19\times10^{-24}\ \text{A}^2/\text{Hz}
+$$
+
+（這是 $4kT\gamma g_{d0}$ 形式的 channel thermal noise，偏壓點取在 $V_{DD}/2$；$\mu_n$、
+$\gamma$ 的個別數值論文未列出，上面兩個 PSD 是論文直接給的結果。）每級合計：
+
+$$
+\overline{i_n^2}/\Delta f=(4.44+2.19)\times10^{-24}=6.63\times10^{-24}\ \text{A}^2/\text{Hz}
+$$
+
+（數值手感：本站 canonical 的 $S_i=10^{-24}$ A²/Hz 與這顆 2-µm 真矽的 $6.63\times10^{-24}$
+同一個量級。）
+
+**Step 3 — $\Gamma_{rms}^2$**：論文用附錄的方法對 ring 算出
+
+$$
+\Gamma_{rms}^2\approx\frac{16}{N^3}=\frac{16}{125}=0.128
+$$
+
+（無因次 ✓。）這正是 [P2] Eq.(16) 的前身：$\Gamma_{rms}^2=\dfrac{2\pi^2}{3\eta^3}\dfrac{1}{N^3}$，
+代 $\eta\approx0.75$ 得 $\approx15.6/N^3\approx16/N^3$——1998 與 1999 兩篇互相咬合。
+順帶一提 $\Gamma_{rms}=\sqrt{0.128}=0.358$，與本站代表值 0.5 同量級、比 true-LC 的
+$1/\sqrt2\approx0.707$ 小。
+
+**Step 4 — 代入 Eq.(21)（$N$ 個相同且不相關的源）**：$N$ 個不相關源功率相加，
+$\overline{i_n^2}/\Delta f\to N\times6.63\times10^{-24}=3.315\times10^{-23}$ A²/Hz：
+
+$$
+\mathcal{L}\{\Delta f\}=10\log_{10}\!\left(\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{N\,\overline{i_n^2}/\Delta f}{4\,(2\pi\Delta f)^2}\right)=10\log_{10}\!\left(\frac{0.128\times3.315\times10^{-23}}{(179\times10^{-15})^2\times4\times(2\pi)^2\times\Delta f^2}\right)
+$$
+
+分子 $=4.243\times10^{-24}$，分母 $=3.204\times10^{-26}\times157.9\times\Delta f^2=5.060\times10^{-24}\,\Delta f^2$，故
+
+$$
+\mathcal{L}\{\Delta f\}=10\log_{10}\!\left(\frac{0.84}{\Delta f^2}\right)
+$$
+
+與論文 p.190 印的 $10\log(0.84/\Delta f^2)$ 一致（我們重算得 0.839）。
+**Dimension check**：$\dfrac{S_i}{q_{max}^2}$ 的單位是 $\dfrac{\text{A}^2/\text{Hz}}{\text{C}^2}=\dfrac{\text{A}^2\cdot\text{s}}{\text{A}^2\text{s}^2}=\text{Hz}$，
+再除以 $(2\pi\Delta f)^2$ 的 Hz² 得 **1/Hz**——正是「每 Hz 的 sideband 功率相對
+carrier」該有的因次 ✓。
+（換句話說前係數 0.84 帶單位 Hz。）
+
+**Step 5 — 預測 vs 量測**：代 $\Delta f=500$ kHz：
+
+$$
+\mathcal{L}=10\log_{10}\!\left(\frac{0.839\ \text{Hz}}{(5\times10^5\ \text{Hz})^2}\right)=10\log_{10}\!\left(3.35\times10^{-12}\ \text{Hz}^{-1}\right)=-114.7\ \text{dBc/Hz}
+$$
+
+論文量測 **$-114.5$ dBc/Hz**——差 0.2 dB。
+
+> **factor-of-2／4 標記（每次出現都要講）**：分母的 **4** 是 [P1] Eq.(21) 的 **SSB 記帳**，
+> 與本站例 B 的 $-148.0$ dBc/Hz 同一套慣例。若改用時域乾淨推導的 **/2** 記帳，同一組輸入會
+> 預測 $-111.7$ dBc/Hz（高 3 dB），反而離量測 3.0 dB。這個實驗因此常被引用為 /4 版本的
+> 經驗支持；不過 0.2 dB 的吻合同時吃 $\Gamma_{rms}$、$C_{total}$ 估計誤差，把它讀成
+> 「量級與 scaling 對了」比讀成「一鎚定音裁決 factor-of-2」更穩健。詳見
+> [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)。
+
+**Step 6 — 1/f³ corner（Eq.(24) 兩邊同除 $2\pi$）**：同一顆 die 上的孤立 inverter
+（輸入輸出短路）量到 device 1/f corner $f_{1/f}=250$ kHz；由萃取的 ISF 算出
+$c_0^2/2\Gamma_{rms}^2=0.3$：
+
+$$
+f_{1/f^3}=f_{1/f}\cdot\frac{c_0^2}{2\,\Gamma_{rms}^2}=250\ \text{kHz}\times0.3=75\ \text{kHz}
+$$
+
+量測 **80 kHz**。這是 claim C5「1/f³ corner $\ne$ device 1/f corner」最直接的矽證據：
+corner 從 250 kHz 被波形（部分）對稱性壓到 80 kHz。
+
+**Python 驗證**（純代數重算，所有輸入取自 [P1] p.190–191）：
+
+```python
+import math
+
+# [P1] Sec. V 第四個實驗：5 級 232 MHz single-ended ring（2-µm 5-V CMOS, p.190）
+N       = 5              # 級數
+qmax    = 179e-15        # C（= C_total 35.7 fF × V_swing 5 V）
+Si_nmos = 4.44e-24       # A²/Hz（論文 p.190 給定，transition 點）
+Si_pmos = 2.19e-24       # A²/Hz（論文 p.190 給定）
+G2rms   = 16 / N**3      # Γ²_rms ≈ 16/N³（論文 p.190）
+
+print(round(G2rms, 3))                            # -> 0.128
+Si_total = N * (Si_nmos + Si_pmos)                # N 個不相關源功率相加
+prefac = G2rms * Si_total / (4 * qmax**2 * (2*math.pi)**2)
+print(round(prefac, 3))                           # -> 0.839 （論文印 0.84）
+
+df = 500e3   # Hz
+print(round(10*math.log10(prefac/df**2), 2))      # -> -114.74 （論文預測 -114.7；量測 -114.5）
+print(round(10*math.log10(2*prefac/df**2), 2))    # -> -111.73 （若改用時域 /2 記帳，離量測 3 dB）
+print(round(250e3*0.3/1e3, 1))                    # -> 75.0 （kHz，Eq.(24)；量測 80 kHz）
+
+# 第五個實驗：11 級 115 MHz（同一顆 die；noise 隨 W 放大：NMOS×4/3、PMOS×6/5，L 相同）
+N2, qmax2 = 11, 217e-15
+Si_stage2 = Si_nmos*(4/3) + Si_pmos*(6/5)
+prefac2 = (16/N2**3) * N2 * Si_stage2 / (4 * qmax2**2 * (2*math.pi)**2)
+print(round(prefac2, 3))                          # -> 0.152 （論文印 0.152，逐位一致）
+print(round(10*math.log10(prefac2/df**2), 2))     # -> -122.16 （論文預測 -122.1；量測 -122.5）
+print(round(250e3*0.17/1e3, 1))                   # -> 42.5 （kHz，論文取 43；量測 45 kHz）
+
+# 第七個實驗：4 級 differential 200 MHz（0.5-µm；q_max = 49 fF × 1.2 V = 58.8 fC）
+prefac3 = (16/4**3) * 4 * 2.63e-23 / (4 * (58.8e-15)**2 * (2*math.pi)**2)
+print(round(prefac3, 1))                          # -> 48.2 （論文印 48.1，尾數捨入差）
+print(round(10*math.log10(prefac3/(1e6)**2), 2))  # -> -103.17 （論文預測 -103.2；量測 -103.9）
+```
+
+### 同一顆 die 的第二次驗證：11 級 115 MHz ring
+
+第五個實驗換 $N$ 與元件尺寸重跑同一條鏈（[P1] p.190，數字逐字）：$(W/L)_N=4$ µm／2 µm、
+$(W/L)_P=6$ µm／2 µm、每節點總電容 43.5 fF、$q_{max}=217$ fC（$=43.5\ \text{fF}\times5\ \text{V}$）。
+論文說「以與前一實驗完全相同的方式計算」得 $\mathcal{L}\{\Delta f\}=10\log(0.152/\Delta f^2)$，
+即 500 kHz 處 $-122.1$ dBc/Hz；量測 **$-122.5$ dBc/Hz**（差 0.4 dB）。
+$c_0^2/2\Gamma_{rms}^2=0.17$ 預測 1/f³ corner 43 kHz、量測 **45 kHz**。
+論文沒有列出 11 級元件的 PSD；上面 Python 以「noise 隨 $W$ 線性放大（$L$ 相同）」重算，
+前係數得 **0.152**、與論文逐位一致——反推這正是論文的內部算法。
+
+順手把 5 級 → 11 級的 7.4 dB 改善**在 Eq.(21) 內部**拆帳（用上面重算的兩個前係數
+$10\log_{10}(0.839/0.152)=7.42$ dB）：
+
+| 項 | 比值 | dB |
+|---|---|---|
+| $\Gamma_{rms}^2\times N=16/N^2$（$25\to121$） | $\times4.84$ 變小 | $-6.85$ |
+| $q_{max}^2$（$179\to217$ fC） | $\times1.47$ 變大 | $-1.67$ |
+| 每級 noise PSD（$6.63\to8.55\times10^{-24}$ A²/Hz） | $\times1.29$ 變大 | $+1.10$ |
+| **合計** | | $-7.42$ ✓ |
+
+注意這**不是**免費午餐：級數變多、$f_0$ 也從 232 掉到 115 MHz；[P2] Eq.(23), p.796 之後
+證明**固定總功率、固定 $f_0$** 時 single-ended ring 的白噪 phase noise 與 $N$ 無關。
+詳見 [paper_002](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring)。
+
+### 換製程、換架構的第三次驗證：4 級 differential 200 MHz（0.5-µm）
+
+第七個實驗（[P1] p.191）：tail 電流 108 µA、每個差動節點總電容 $C_{total}=49$ fF、
+$V_{swing}=1.2$ V，故 $q_{max}=58.8$ fC（論文原文印作「58.8 fF」——因次上
+$49\ \text{fF}\times1.2\ \text{V}$ 只能是 fC，這是論文的排版筆誤，我們照實轉錄並標記）。
+每節點總 channel noise $(\overline{i_n^2}/\Delta f)_{total}=2.63\times10^{-23}$ A²/Hz，
+$N=4$ 代入同一條鏈得 $\mathcal{L}\{\Delta f\}=10\log(48.1/\Delta f^2)$（我們重算得 48.2，
+尾數捨入差），1 MHz 處預測 $-103.2$、量測 **$-103.9$ dBc/Hz**（差 0.7 dB）。
+
+同一實驗還有一個對稱性教訓：雖然**差動訊號**完美對稱，每個 **half-circuit** 的單端波形並
+不對稱，所以 Fig. 27 仍有明顯的 1/f³ 段——「差動救不了 $c_0$，重要的是 half-circuit 對稱」
+（呼應 p.188 與 [symmetry](/06_design_insights/symmetry)）。
+
+### 這組實驗告訴我們什麼（適用與失效條件）
+
+- **預測是 a-priori 的**：三條全鏈（232 MHz／115 MHz／200 MHz differential）誤差
+  0.2／0.4／0.7 dB，輸入只有 process 參數、幾何、$V_{swing}$ 與萃取的 ISF。
+  本站例 B 的 toy 鏈（$q_{max}=1$ pC、$\Gamma_{rms}=0.5$、$S_i=10^{-24}$ A²/Hz
+  → $-148.0$ dBc/Hz @ 1 MHz，SSB /4 記帳）走的就是同一條管線，只是換成乾淨數字。
+- **適用**：noise 集中在 transition 的近似（single-ended CMOS ring 成立）；
+  $\Gamma_{rms}^2\approx16/N^3$ 是「相同 inverter、標準上升下降」ring 的專用近似
+  （對應 [P2] 的 $\eta\approx0.75$）；各級 noise 不相關（不相關才可功率相加）。
+- **失效**：波形不對稱時（實驗 3／6／7）close-in 由 $c_0$ 的 1/f³ 主導，Eq.(21) 只管
+  1/f² 段；很近 carrier 處線性化失效（見
+  [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)）；有強 spur 或
+  injection pulling 時另計（[P3]／[P4]）。
+- **因次**：每個 $10\log_{10}$ 的引數都是 1/Hz——dBc/Hz 的正字標記。
 
 ## Limitations
 

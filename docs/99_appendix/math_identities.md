@@ -326,6 +326,171 @@ $\kappa$ 是每個元件的比例常數，單位 $\sqrt{\text{s}}$；它由同�
 
 ---
 
+## 9. 大相位調變：Bessel 邊帶與小角近似的失效邊界
+
+**一句話**：第 6 節的 small-angle PM（$\mathcal{L}\approx\frac12 S_\phi$）只是「大相位調變」在
+$\beta\ll1$ 時的第一階近似；完整解是一條無窮 Bessel 邊帶梯，載波與每條邊帶的幅度分別是
+$J_0(\beta)$、$J_n(\beta)$。這節把梯子搭出來，並**量化**小角近似何時開始不準。
+
+### 9.1 Jacobi–Anger 展開（外部文獻，非本站 5 篇 PDF）
+
+對任意實數 $\beta$（調變指數）與角度 $\Omega t$，**Jacobi–Anger 展開**（標準特殊函數恆等式，
+例如 Abramowitz & Stegun 9.1.42；**外部文獻，非本站 5 篇 PDF**）：
+
+$$
+e^{j\beta\sin\Omega t}=\sum_{n=-\infty}^{\infty}J_n(\beta)\,e^{jn\Omega t}
+$$
+
+其中 $J_n(\beta)$ 是第一類 $n$ 階 Bessel 函數。**為什麼成立（一句話出處）**：$e^{j\beta\sin\Omega t}$
+對 $\Omega t$ 是 $2\pi$ 週期函數，把它做傅立葉級數展開，其係數的積分定義
+$\frac{1}{2\pi}\int_{-\pi}^{\pi}e^{j(\beta\sin x-nx)}dx$ 剛好就是 $J_n(\beta)$ 的積分表示式
+（Bessel 函數的標準定義之一）；這裡不重新推導積分表示式本身，只引用其結論。
+
+**性質**（後面會用到）：$J_{-n}(\beta)=(-1)^n J_n(\beta)$（偶 $n$ 對稱、奇 $n$ 反對稱），
+以及 Bessel 函數的 **Parseval-like 恆等式**：
+
+$$
+\sum_{n=-\infty}^{\infty}J_n(\beta)^2=1\qquad(\forall\beta)
+$$
+
+這條之後可以核對「邊帶梯總功率守恆」——完全類比第 1 節 ISF 傅立葉係數的 Parseval 關係。
+
+### 9.2 單音 PM 的邊帶梯
+
+考慮被單一音頻 $\Omega$ 做相位調變的 carrier（把第 6 節的 $\phi(t)=\phi_p\sin\Omega t$ 記成
+$\phi(t)=\beta\sin\Omega t$，$\beta$ 就是調變指數，也就是 peak phase deviation，單位 rad）：
+
+$$
+V(t)=\cos\!\big(\omega_0 t+\beta\sin\Omega t\big)
+$$
+
+把它寫成 $\mathrm{Re}\{e^{j\omega_0 t}\,e^{j\beta\sin\Omega t}\}$，代入 Jacobi–Anger：
+
+$$
+V(t)=\mathrm{Re}\left\{e^{j\omega_0 t}\sum_{n=-\infty}^{\infty}J_n(\beta)e^{jn\Omega t}\right\}
+=\sum_{n=-\infty}^{\infty}J_n(\beta)\cos\big((\omega_0+n\Omega)t\big)
+$$
+
+這就是完整的 **Bessel 邊帶梯**：
+
+- **載波**（$n=0$）：幅度 $J_0(\beta)$，落在 $\omega_0$。
+- **第 $n$ 條邊帶**（$n=\pm1,\pm2,\dots$）：幅度 $J_n(\beta)$，落在 $\omega_0+n\Omega$。
+- 因為 $J_{-n}=(-1)^nJ_n$，上下邊帶幅度大小相等（$|J_{-n}|=|J_n|$），只差正負號（相位）。
+
+**單位檢查**：$\beta=\phi_p$ 是 peak phase，來自 $\int\phi(t)$ 的積分結果，單位 rad；$\Omega t$、
+$\omega_0 t$ 都是無因次相位角（rad），$J_n(\beta)$ 本身無因次（幅度比），代入 $\cos(\cdot)$ 前無單位
+問題；$V(t)$ 與原本 $\cos(\omega_0t+\phi(t))$ 同單位（正規化幅度）✓。
+
+### 9.3 小 $\beta$ 極限：還原第 6 節的小角近似
+
+**Bessel 函數的小引數展開**（外部文獻標準結果）：
+
+$$
+J_0(\beta)\approx1-\frac{\beta^2}{4},\qquad J_1(\beta)\approx\frac{\beta}{2}\qquad(\beta\ll1)
+$$
+
+代回邊帶梯：載波幅度 $J_0(\beta)\approx1-\beta^2/4\approx1$（一階近似下幾乎不衰減），
+第一邊帶幅度 $J_1(\beta)\approx\beta/2$。**單邊帶相對功率**：
+
+$$
+\mathcal{L}(\Delta f)\approx J_1(\beta)^2\approx\left(\frac{\beta}{2}\right)^2
+$$
+
+這正是第 6 節 small-angle PM 的結果 $\mathcal{L}\approx\left(\frac{\phi_p}{2}\right)^2=\frac12 S_\phi$
+（$\beta=\phi_p$ 是 peak phase，$S_\phi=\phi_p^2/2$ 是其功率）——**Bessel 邊帶梯在 $\beta\ll1$ 時
+自動收斂到 small-angle PM 公式**，兩者是同一件事的一階與完整版本。更高階邊帶
+$J_2(\beta)\approx\beta^2/4,\,J_3(\beta)\approx\beta^3/48,\dots$ 在 $\beta\ll1$ 時迅速趨零
+（$J_n(\beta)\sim(\beta/2)^n/n!$），這就是小角近似「只留一階邊帶」合理的原因。
+
+### 9.4 失效邊界：小角近似何時偏差 1 dB？
+
+小角近似把 $J_1(\beta)$ 換成一階項 $\beta/2$；隨 $\beta$ 增大，這個近似會偏離真實值。
+定義誤差（比較兩者的**幅度比**，換成 dB）：
+
+$$
+\text{err}_{\text{dB}}(\beta)=20\log_{10}\!\left(\frac{J_1(\beta)}{\beta/2}\right)
+$$
+
+（$\beta\to0$ 時 $\text{err}_{\text{dB}}\to0$；$\beta$ 增大後 $J_1$ 成長變慢，比值 $<1$，
+$\text{err}_{\text{dB}}<0$，即小角近似**高估**了邊帶。）數值求解 $\text{err}_{\text{dB}}(\beta)=-1$ dB
+（用 `scipy.optimize.brentq` 對 `scipy.special.jv` 求根，見下方 Python 區塊）：
+
+$$
+\beta_{1\text{dB}}\approx0.950\ \text{rad}\quad(\approx54.5^\circ)
+$$
+
+**白話**：只要 peak phase deviation $\beta\lesssim0.95$ rad，小角近似 $\mathcal{L}\approx(\beta/2)^2$
+的誤差在 1 dB 以內；超過這個範圍（例如寬頻 FM、大 index PM、或積分頻寬太寬使 $\sigma_\phi$
+逼近 1 rad），必須用完整的 Bessel 邊帶梯，不能再用 small-angle 公式。這與第 6 節「只在
+$\sigma_\phi\ll1$ rad 成立」的定性說法互相呼應，這裡給出了**定量**邊界。
+
+### 9.5 載波抑制零點與 Carson 頻寬（外部文獻，非本站 5 篇 PDF）
+
+**載波抑制**：當 $\beta$ 增加到 $J_0(\beta)=0$ 的第一個根，載波完全消失，功率全部轉移到邊帶——
+這是調頻/調相系統的經典現象：
+
+$$
+J_0(\beta)=0\ \text{的第一個根：}\ \beta=2.405\quad(\text{數值解，見下方 Python 區塊}：J_0(2.405)\approx-9\times10^{-5}\approx0)
+$$
+
+**Carson 頻寬法則**（外部文獻，工程經驗法則，非本站 5 篇 PDF）：實務上邊帶梯是無窮多條，但
+$J_n(\beta)$ 在 $n>\beta+1$ 後迅速衰減至可忽略，於是定義有效頻寬（$f_m=\Omega/2\pi$）：
+
+$$
+BW_{\text{Carson}}\approx2(\beta+1)f_m
+$$
+
+$\beta=2.405$ 時 $BW\approx6.81\,f_m$；小角 $\beta=0.1$ 時 $BW\approx2.2\,f_m$（幾乎只剩一對邊帶，
+與「small-angle PM 只有 $\pm1$ 邊帶」的圖像一致）。
+
+### 9.6 Python 核對：三個 $\beta$ 的完整邊帶梯
+
+```python
+import numpy as np
+from scipy.special import jv, jn_zeros
+from scipy.optimize import brentq
+
+for beta in [0.1, 1.0, 2.405]:
+    print(f"beta={beta}")
+    for n in range(5):
+        print(f"  J_{n}({beta}) = {jv(n, beta):.6f}")
+    # -> beta=0.1: J0=0.997502, J1=0.049938, J2=0.001249, J3=0.000021, J4≈0
+    # -> beta=1.0: J0=0.765198, J1=0.440051, J2=0.114903, J3=0.019563, J4=0.002477
+    # -> beta=2.405: J0=-0.000091(≈0), J1=0.519110, J2=0.431783, J3=0.199032, J4=0.064763
+
+# 載波零點（classic 2.405）
+z0 = jn_zeros(0, 1)[0]
+print(f"first zero of J0: {z0:.6f}")
+# -> first zero of J0: 2.404826
+
+# 小角近似 vs 精確值
+for beta in [0.1, 0.3, 0.5, 1.0]:
+    J0, J1 = jv(0, beta), jv(1, beta)
+    print(f"beta={beta}: J0={J0:.6f} vs 1-b^2/4={1-beta**2/4:.6f} | "
+          f"J1={J1:.6f} vs b/2={beta/2:.6f}")
+    # -> beta=0.1: J0=0.997502 vs 0.997500 | J1=0.049938 vs 0.050000
+    # -> beta=1.0: J0=0.765198 vs 0.750000 | J1=0.440051 vs 0.500000
+
+# 1 dB 失效邊界：20log10(J1(beta)/(beta/2)) = -1 dB
+f = lambda b: 20*np.log10(jv(1, b)/(b/2)) - (-1.0)
+beta_1dB = brentq(f, 0.5, 1.5)
+print(f"beta_1dB = {beta_1dB:.4f}")
+# -> beta_1dB = 0.9505
+
+# Parseval 檢查：sum J_n^2 = 1
+for beta in [0.1, 1.0, 2.405]:
+    s = sum(jv(n, beta)**2 for n in range(-50, 51))
+    print(f"beta={beta}: sum J_n^2 = {s:.8f}")
+    # -> 所有 beta 都得 1.00000000
+```
+
+**站內用到**：第 6 節 small-angle PM（本節是其完整版）、
+[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)（單音 sideband
+Eq.(16)–(18) 的小角前提）、[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)
+（$\sigma_\phi\ll1$ rad 的適用邊界，現在有了定量數字 $\approx0.95$ rad）。
+
+---
+
 ## 速查總表
 
 | 工具 | 核心式 | 站內主要用途 |
@@ -338,6 +503,7 @@ $\kappa$ 是每個元件的比例常數，單位 $\sqrt{\text{s}}$；它由同�
 | small-angle PM | $\mathcal{L}\approx\frac12 S_\phi$ | dBc/Hz ↔ phase PSD |
 | 積化和差 | $\cos A\cos B=\tfrac12[\cdots]$ | Eq.(15)–(18) 混頻 |
 | random walk | $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ | 累積 jitter |
+| Bessel 邊帶梯 | $J_n(\beta)$，小角 $J_1\approx\beta/2$，失效於 $\beta\gtrsim0.95$ | 大角 PM、載波抑制 $\beta=2.405$ |
 
 ## 延伸閱讀
 

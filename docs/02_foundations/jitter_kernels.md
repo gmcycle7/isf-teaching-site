@@ -1,6 +1,6 @@
 ---
 title: Jitter 核的嚴格推導（TIE / N-period / cycle-to-cycle）
-description: 在「單邊 S_φ、∫₀^∞」單一慣例下，從 φ(t+NT)−φ(t) 一步步推出 TIE 核 1、period 核 4sin²(πfNT)、cycle-to-cycle 核 16sin⁴(πfT)；白噪 FM 封閉式精確回收 [P2] Eq.(8)/(11) 的 σ_Δφ=κ√(NT)；flicker 1/f³ 給含 log 項的封閉式；lab_24 Monte-Carlo 驗證比值 ≈1.00，正式關閉 worked_examples 例 C3 的前置常數 TODO。
+description: 在「單邊 S_φ、∫₀^∞」單一慣例下，從 φ(t+NT)−φ(t) 一步步推出 TIE 核 1、period 核 4sin²(πfNT)、cycle-to-cycle 核 16sin⁴(πfT)；白噪 FM 封閉式精確回收 [P2] Eq.(8)/(11) 的 σ_Δφ=κ√(NT)；flicker 1/f³ 給含 log 項的封閉式；再合成 [P2] Fig.16 的兩段式 σ(Δt)=√(κ²Δt+ζ²Δt²)、corner Δt_c=κ²/ζ² 與頻域 1/f³ corner 的映射；lab_24 Monte-Carlo 驗證比值 ≈1.00，正式關閉 worked_examples 例 C3 的前置常數 TODO。
 ---
 
 # Jitter 核的嚴格推導：TIE、N-period、cycle-to-cycle
@@ -456,12 +456,170 @@ $$
   oscillators," IEEE J. Solid-State Circuits, vol. 32, no. 6, pp. 870–879, Jun. 1997
   （外部文獻，非本站 5 篇 PDF）。
 
+## 第 5b 步：兩段式成長——[P2] Fig.16 的 $\sigma(\Delta t)=\sqrt{\kappa^2\Delta t+\zeta^2\Delta t^2}$
+
+第 4 步（白噪 FM：$\sigma^2=\kappa^2\Delta t$，斜率 1/2）與第 5 步（flicker FM：
+$\sigma^2\sim\zeta^2\Delta t^2$，斜率 $\approx1$）在真實振盪器裡**同時存在**。
+[P2] 把這件事直接「量」給你看——這就是著名的 Fig. 16 兩段式 log-log 圖。
+
+### 5b.1 [P2] 原文逐字（已對照 PDF 渲染頁核實）
+
+- **Fig. 16 caption（p.802）**："RMS jitter versus measurement interval for the
+  four-stage, 2.8-GHz differential ring oscillator (oscillator number 12)."
+  縱軸 "Rms jitter (second)"、橫軸 "$\Delta T$ (second)"；圖上兩條漸近線分別標註
+  $\kappa=6.18\text{e-}9\ \text{sec}^{0.5}$ 與 $\zeta=2.5\text{e}5$。
+- **兩個比例常數的定義（p.792）**：Eq.(8) $\sigma_{\Delta T}=\kappa\sqrt{\Delta T}$，
+  "where $\kappa$ is a proportionality constant determined by circuit parameters"；
+  Eq.(9) $\sigma_{\Delta T}=\zeta\,\Delta T$，"where $\zeta$ is another
+  proportionality constant"。Eq.(9) 的前提是雜訊源**完全相關**——原文："when the
+  noise sources are totally correlated with one another … the standard deviations
+  rather than the variances add"；substrate/supply 雜訊與低頻 1/f 雜訊屬於此類。
+  同頁結論："a log–log plot of the timing jitter $\sigma_{\Delta T}$ versus the
+  measurement delay $\Delta T$ for an open-loop oscillator will demonstrate regions
+  with slopes of 1/2 and 1, as shown in Fig. 4."
+- **量測對帳（p.801）**："The best fit $\kappa$ for the data shown in Fig. 16 is
+  $\kappa=6.18\times10^{-9}\sqrt{s}$. Equations (12) and (35) result in
+  $\kappa=5.95\times10^{-9}\sqrt{s}$ and $\kappa=6.07\times10^{-9}\sqrt{s}$,
+  respectively."——ISF 理論預測與量測差 2–4%，是 [P2] 全篇最漂亮的閉環之一。
+  斜率 1 段的歸因也在同頁："The region of the jitter plot with the slope of one
+  can be attributed to the $1/f$ noise of the devices, as discussed at the end of
+  Section VI."（Section VI 結尾，pp.797–798："Low-frequency noise can also result
+  in correlation between uncertainties introduced during different cycles … the
+  uncertainties add up in amplitude rather than power, resulting in a region with
+  a slope of one … even in the absence of external noise sources"。）
+- **印刷勘誤（誠實聲明）**：圖上 $\zeta$ 印作「2.5e5」。但由 Eq.(9)
+  $\sigma=\zeta\Delta T$（秒＝$\zeta\times$秒）知 $\zeta$ **無因次**，且該條
+  slope-1 擬合線通過（$10^{-6}$ s, $\approx2\times10^{-11}$ s），
+  $\zeta=\sigma/\Delta T\approx2.5\times10^{-5}$——印刷指數少了負號。
+  本頁一律用 $\zeta=2.5\times10^{-5}$。（順帶 dimension check：$\kappa$ 標成
+  $\text{sec}^{0.5}$ ✓，$\text{s}/\sqrt{\text{s}}=\sqrt{\text{s}}$。）
+
+### 5b.2 合成推導：獨立 ⇒ 變異數相加
+
+白噪 FM（device 熱雜訊）與 flicker FM（device 1/f）來自不同的物理機制，
+統計上獨立；獨立隨機變數之和的變異數相加（交叉項期望值為零）：
+
+$$
+\sigma_{\Delta t}^2(\Delta t)=\underbrace{\kappa^2\,\Delta t}_{\text{第 4 步（白噪）}}+\underbrace{\zeta^2\,\Delta t^2}_{\text{第 5 步（flicker）}}
+$$
+
+$$
+\boxed{\ \sigma_{\Delta t}(\Delta t)=\sqrt{\kappa^2\,\Delta t+\zeta^2\,\Delta t^2}\ }
+$$
+
+- **出處的誠實聲明**：這條合成式在 [P2] **沒有逐字出現**——論文給的是 Eq.(8)/(9)
+  兩個極限行為與 Fig.4/Fig.16 的雙段圖；平方相加是「獨立 ⇒ 變異數相加」的直接推論
+  （[P2] p.792 對相關源說 "standard deviations add"、對獨立源說 variances add，
+  白噪與 1/f 兩**類**之間取的是後者）。
+- **單位（時間版）**：本節的 $\kappa,\zeta$ 都是時間版——$[\kappa]=\sqrt{\text{s}}$
+  （$\kappa^2\Delta t:\ \text{s}\cdot\text{s}=\text{s}^2$ ✓）、$\zeta$ 無因次
+  （$\zeta^2\Delta t^2=\text{s}^2$ ✓）。相位版（rad 記帳）各乘 $\omega_0$：
+  $\kappa_\phi=\omega_0\kappa$（第 4.2 節）、$\zeta_\phi=\omega_0\zeta$
+  （$[\zeta_\phi]=\text{rad/s}$）。
+- **交界（corner）**：兩項相等 $\kappa^2\Delta t_c=\zeta^2\Delta t_c^2$，解出
+
+$$
+\boxed{\ \Delta t_c=\frac{\kappa^2}{\zeta^2}\ }\qquad
+\Big[\frac{\text{s}}{1}\Big]=\text{s}\ \checkmark
+$$
+
+  $\Delta t\ll\Delta t_c$ 時白噪主導（斜率 1/2）、$\Delta t\gg\Delta t_c$ 時
+  flicker 主導（斜率 1）；在 $\Delta t_c$ 處合成曲線比任一條漸近線高
+  $\sqrt2$（3 dB，兩項各佔一半）。
+
+### 5b.3 與第 5 步 log 封閉式對帳——「$\zeta$ 是常數」其實是慢變近似
+
+第 5 步的嚴格結果（換到時間單位，除 $\omega_0^2$）是
+
+$$
+\sigma_{\Delta t,\text{flicker}}^2(\Delta t)=\frac{4\pi^2 b_3}{\omega_0^2}\,\Delta t^2\Big[\tfrac32-\gamma-\ln(2\pi\Delta t\,f_l)\Big]
+\quad\Longrightarrow\quad
+\zeta_{\rm eff}^2(\Delta t)=\frac{4\pi^2 b_3}{\omega_0^2}\Big[\tfrac32-\gamma-\ln(2\pi\Delta t\,f_l)\Big],
+$$
+
+即 $\zeta$ 並非常數，而是隨 $\Delta t$ 以 $\sqrt{\log}$ 慢慢**變小**（單位檢查：
+$b_3/\omega_0^2=[\text{rad}^2\text{Hz}^2]/[\text{rad/s}]^2=$ 無因次 ✓）。log-log
+局部斜率跟著偏離 1：
+
+$$
+\frac{d\ln\sigma}{d\ln\Delta t}=1-\frac{1}{2\big[\tfrac32-\gamma-\ln(2\pi\Delta t f_l)\big]} .
+$$
+
+- lab_24 Part 5 的 MC（$f_l=298$ Hz，受模擬長度限制）在 flicker 區擬合出斜率
+  0.909，而 exact 曲線同窗口給 0.911——MC 偏離 1.0 是**物理**（log 修正），
+  不是雜訊。
+- 真實量測的 $f_l$ 由量測時長決定（秒級 ⇒ $f_l\sim1$ Hz），括號 $\approx13$–$16$，
+  局部斜率 $=0.967$（$\Delta t=10^{-7}$ s、$f_l=1$ Hz，lab_24 印出）——
+  這就是 [P2] Fig.16 能用**乾淨的 slope-1 直線**擬合的原因：log 修正在硬體
+  frequency 十進位跨距下小到看不見。paper 的常數 $\zeta$ 是「括號凍結在 corner
+  附近取值」的切線近似；本站圖（下方）同時畫出兩者，幾乎重合。
+
+### 5b.4 時域 corner ↔ 頻域 $1/f^3$ corner（誠實映射）
+
+定義頻譜 corner $f_{1/f^3}\equiv b_3/b_2$（$S_\phi$ 的 $1/f^3$ 段與 $1/f^2$ 段
+等值的 offset 頻率）。因為它是**同一條譜內的比值**，SSB 的 $/2$ 與 $/4$ 記帳
+在分子分母對消——這是本頁少見「完全不用管慣例」的量。把第 4 步的
+$\kappa_\phi^2=2\pi^2b_2$ 與上面的 $\zeta_{\rm eff}$ 代入 $\Delta t_c=\kappa^2/\zeta^2$
+（時間版與相位版之比相同，$\omega_0^2$ 對消）：
+
+$$
+\Delta t_c=\frac{2\pi^2 b_2}{4\pi^2 b_3\big[\cdot\big]}
+=\boxed{\ \frac{1}{2\big[\cdot\big]\,f_{1/f^3}}\ },\qquad
+\big[\cdot\big]=\tfrac32-\gamma-\ln(2\pi\Delta t_c f_l)\ (\text{自洽解}).
+$$
+
+- **這個 2 不是 SSB 記帳的 2**：分母的 2 來自兩個核積分的係數比——白噪核積分
+  $\int\sin^2(ax)/x^2\,dx=\pi a/2$（4.1 節）對上 flicker 核積分的 log 式
+  （第 5 步），是 convention-free 的物理常數。
+- **數量級直覺**：$[\cdot]\approx10$–$16$，所以 $\Delta t_c$ 比天真猜測的
+  $1/f_{1/f^3}$ **短 20–30 倍**。「頻域 corner 在 1 MHz，所以時域 1 µs 處轉折」
+  這句話錯一個半數量級——log 括號是罪魁禍首。
+- **它與 [P2] Eq.(57) 不同**：App. B 的 $f_{1/f^3}=f_{1/f}\cdot\frac{3}{2\eta N}\frac{(1-A)^2}{1-A+A^2}$
+  是「device 1/f corner → 頻譜 corner」的電路級映射；本節的
+  $f_{1/f^3}=b_3/b_2$ 是頻譜 corner 的觀測定義。兩者指同一個角，路徑不同。
+
+### 5b.5 數值例（全部數字皆 lab_24 Part 5 實印）
+
+**例 1——[P2] Fig.16 的 oscillator 12（2.8 GHz differential ring）**：
+
+$$
+\Delta t_c=\frac{\kappa^2}{\zeta^2}=\Big(\frac{6.18\times10^{-9}\sqrt{\text{s}}}{2.5\times10^{-5}}\Big)^2=6.11\times10^{-8}\ \text{s}\approx61\ \text{ns}=171\ \text{個週期}.
+$$
+
+dimension check：$(\sqrt{\text{s}})^2=\text{s}$ ✓。對照 Fig.16，兩條擬合線正是在
+$\Delta T\approx6\times10^{-8}$ s 附近交叉 ✓。再反推頻譜 corner（取 $f_l=1$ Hz，
+括號 $=15.7$）：$f_{1/f^3}=1/(2\times15.7\times6.11\times10^{-8})=5.21\times10^5$ Hz
+——而 [P2] Fig.17（p.802，隨 symmetry voltage 掃描）對同家族 oscillator 7 量到的
+$1/f^3$ corner 落在約 $10^5$–$10^6$ Hz 之間，量級正中（不同顆振盪器，只驗量級
+不驗個位數）。
+時域 jitter 圖與頻域 phase-noise 圖用同一套 $\kappa/\zeta$ 語言互鎖。
+
+**例 2——canonical 5 GHz 振盪器（lab_24 Part 5 的 MC）**：代表值
+$\kappa_\phi^2=0.125$ rad²/s（$\Gamma_{rms}=0.5$；真 LC 的 $1/\sqrt2$ 會翻倍成
+0.25，白噪段跟著上移、$\Delta t_c$ 加倍——白噪愈強，斜率 1/2 段撐得愈久），
+flicker 取 $b_3=6.333\times10^3$ rad²Hz²，使 $f_{1/f^3}=b_3/b_2=1.000$ MHz
+（canonical offset）。模擬紀錄長 $2^{24}$ 週期 $=3.36\times10^{-3}$ s
+⇒ $f_l=298$ Hz。自洽解 $\Delta t_c=4.89\times10^{-8}$ s（245 週期，括號 $=10.22$）；
+MC 兩段擬合線交點 $4.31\times10^{-8}$ s（216 週期，MC/理論 $=0.88$——交點對
+擬合窗的選擇敏感，log-log 上僅差 0.06 decade）。恆等式檢查：
+$\Delta t_c\,f_{1/f^3}=0.0489=1/(2\times10.22)$ ✓。
+
+![兩段式 jitter 成長：MC 與 [P2] Fig.16 漸近線](/figures/jitter_two_regime.png)
+
+**如何解讀圖**：左圖（canonical 5 GHz）——MC 十字點橫跨 5 個 decade，完全落在
+exact 曲線（離散 bin 和）上；藍線 $\kappa\sqrt{\Delta t}$ 與紅線 $\zeta\Delta t$
+在 $\Delta t_c=49$ ns 交叉；紅虛線是 log 修正版 flicker（斜率 $0.91$，非 1.0）。
+右圖——用 [P2] Fig.16 印出的 $\kappa=6.18\times10^{-9}\sqrt{\text{s}}$、
+$\zeta=2.5\times10^{-5}$ 重繪兩條漸近線與合成曲線，corner 標在 61 ns；灰虛線是
+log 修正版（$f_l=1$ Hz），與常數-$\zeta$ 版幾乎重合——正是 5b.3 說的「硬體上
+看不出 log」。這是 pedagogical 重繪（漸近線與合成式），不是論文量測資料點本身。
+
 ## 第 6 步：Monte-Carlo 驗證（lab_24）
 
 ![jitter 核 Monte-Carlo 驗證](/figures/jitter_kernels_mc.png)
 
 完整 script：`simulations/lab_24_jitter_kernels.py`（跑法
-`PYTHONPATH=. python simulations/lab_24_jitter_kernels.py`）。模擬分四部分，
+`PYTHONPATH=. python simulations/lab_24_jitter_kernels.py`）。模擬分五部分，
 全部使用 canonical 參數：
 
 | 參數 | 值 | 單位 | 說明 |
@@ -472,6 +630,7 @@ $$
 | $\Gamma(\theta)$ | $-\sqrt2\times0.5\,\sin\theta$ | — | rms 恰為代表值 $\Gamma_{rms}=0.5$（reuse `gamma_lc_ideal`） |
 | $\kappa$ | 0.3536 | rad/$\sqrt{\text{s}}$ | $=(\Gamma_{rms}/q_{max})\sqrt{S_i/2}$，$\kappa^2=0.125$ rad²/s |
 | 取樣 | 32 點/週期 × 2×10⁵ 週期（Part 1）；2×10⁶ 週期（Part 2） | — | Part 2 的每週期增量 $\mathcal{N}(0,\kappa^2T)$ 由 Part 1 證成 |
+| $b_3$（Part 5） | $6.333\times10^3$ | rad²·Hz² | flicker FM 位準，使 $f_{1/f^3}=b_3/b_2=1$ MHz；紀錄 $2^{24}$ 週期 ⇒ $f_l=298$ Hz |
 
 **Part 1——不是抽象隨機漫步，而是 [P1] Eq.(11) 的機制**：細取樣白噪電流 → ISF 加權 →
 累積積分 → 每週期相位增量。驗證增量標準差 $=\kappa\sqrt T$ 且相鄰週期無相關：
@@ -521,6 +680,38 @@ print(f"{kappa_c:.2f}")             # -> 62.83 rad/sqrt(s)（=2π·1MHz·√L_li
 print(f"{sigma_c3*1e15:.1f} fs")    # -> 27.6 fs 例 C3 的 10^3–10^10 Hz 截斷數值
 ```
 
+**Part 5——兩段式成長（白噪＋flicker FM 合成，對應第 5b 步與 [P2] Fig.16）**：
+以每週期相位增量合成兩類雜訊——白噪增量 $\mathcal{N}(0,\kappa^2T)$（由 Part 1
+證成）＋ flicker 增量（`flicker_noise` 頻譜整形，位準經 Welch 校準），
+$2^{24}$ 週期、$\sigma(\Delta t)$ 橫跨 5 個 decade：
+
+```python
+b2      = KAPPA2 / (2*np.pi**2); b3 = b2 * 1e6        # 目標 f_{1/f^3} = 1 MHz
+k_flick = 2*np.pi**2 * b3 * T**2 * fs                 # 使 S_d(f) = 4pi^2 b3 T^2 / f
+d_fl    = flicker_noise(n_periods, fs=fs, k_flicker=k_flick, rng=RNG)
+d_w     = RNG.normal(0.0, KAPPA*np.sqrt(T), n_periods)
+phi     = np.concatenate(([0.0], np.cumsum(d_w + d_fl)))
+sig_t   = np.array([rms(phi[N:] - phi[:-N]) for N in Ns]) / W0   # [s]
+```
+
+```text
+# flicker 位準校準 S_d*f      # -> 1.000e-14 rad^2（nominal 亦 1.000e-14）
+# b3 / f_{1/f^3}              # -> 6.333e+03 rad^2*Hz^2 / 1.000e+06 Hz
+# 白噪區擬合斜率（N≤32）      # -> 0.519（理論 0.5；exact 曲線同窗口 0.520）
+# flicker 區擬合斜率（N≥3200） # -> 0.909（乾淨 ζΔt 為 1.0；exact 同窗口 0.911）
+# corner：MC 擬合線交點        # -> 4.31e-08 s（216 週期）
+# corner：自洽理論             # -> 4.89e-08 s（245 週期；MC/理論 = 0.88）
+# 恆等式 dt_c·f_{1/f^3}        # -> 0.0489（= 1/(2×bracket)，bracket = 10.22）
+# bin 和 vs log 式（N=10⁴）    # -> 1.089（f_l=1/T_rec）；0.984（半 bin 修正 f_l/2）
+# 硬體 f_l=1 Hz 局部斜率       # -> 0.967（Δt=1e-7 s；paper 乾淨 slope-1 擬合的正當性）
+# [P2] osc-12 corner           # -> 6.11e-08 s（171 週期 @2.8 GHz）
+# 反推 f_{1/f^3}               # -> 5.21e+05 Hz（f_l=1 Hz, bracket=15.7）
+```
+
+（bin 和 vs log 式差 9% 的出處：log 封閉式以 $f_l=1/T_{rec}$ 為**連續**積分下限，
+而離散 FFT 頻譜的第一個 bin 實際涵蓋 $[f_l/2,\,3f_l/2]$ 的功率——把 $f_l$ 換成
+半 bin 修正的 $f_l/2$ 後比值變 0.984。又一次 log 的遲鈍：差半個 bin 只動 9%。）
+
 **如何解讀圖**：左欄是三個核（log-log），可直接看到 TIE 平坦、period $\propto f^2$、
 c2c $\propto f^4$ 的低頻行為與 4/16 的峰值。中欄是 MC 的
 $\sigma_{\Delta\phi}(N)$ 落在 $\kappa\sqrt{NT}$ 理論線上（斜率 1/2，橫跨 4 個 decade）。
@@ -542,6 +733,9 @@ $10^{10}$ Hz 以上尾巴（那裡核平均值 2、$1/f^2$ 譜仍有 ~5% 的變�
 | flicker 封閉式：$2\pi NTf_l\ll1$ | log 式準到 $O((2\pi NTf_l)^2)$ | 長延遲/高截止：直接數值積分 |
 | TIE 有明確頻帶 $[f_1,f_2]$ | 數字可重現 | 自由振盪器 $f_1\to0$ 發散；不標頻帶無意義 |
 | 高斯 RJ | $\sigma$ 完整描述分佈（BER 外推可用） | spur/DJ：變異數公式仍對，但分佈非高斯，BER 要 RJ/DJ 分解 |
+| 兩段式合成：白噪與 flicker 統計獨立 | $\sigma^2$ 相加、$\Delta t_c=\kappa^2/\zeta^2$（第 5b 步） | supply/substrate 同時打進多級（源間相關）：交叉項不為零，[P2] Eq.(9) 的「標準差相加」接管 |
+| 自由振盪（open-loop） | 兩段式無上界成長 | PLL 鎖住後：loop BW 以下被拉回，長 $\Delta t$ 轉平，Fig.16 型曲線只在 loop 時間常數以內成立 |
+| 量測底噪已扣除 | $\sigma_{\Delta T,\text{eff}}=\sqrt{\sigma_{\Delta T,\text{meas}}^2-\sigma_{\Delta T,\text{min}}^2}$（[P2] Eq.(39), p.801） | 短 $\Delta t$ 端被 trigger jitter 淹沒：白噪段斜率看起來變平，先扣底噪再擬合 $\kappa$ |
 
 ## 對應的 paper / 公式
 
@@ -549,7 +743,13 @@ $10^{10}$ Hz 以上尾巴（那裡核平均值 2、$1/f^2$ 譜仍有 ~5% 的變�
 - $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$（相位 jitter 隨機漫步）：[P2] Eq.(8), p.792；
   $\kappa=(\Gamma_{rms}/q_{max})\sqrt{S_i/2}$（無 $\omega_0$）：[P2] Eq.(11)/(12), p.793（皆已核實）；
   相位↔時間 jitter 換算 $\sigma_{\Delta\phi}=2\pi\sigma_{\Delta t}/T$：[P2] Eq.(10), p.793。
-- 相關（1/f）雜訊 $\sigma\propto\Delta t$：[P2] Eq.(9), p.792 與 Fig. 4。
+- 相關（1/f）雜訊 $\sigma\propto\Delta t$：[P2] Eq.(9), p.792 與 Fig. 4
+  （$\zeta$ 的定義："where $\zeta$ is another proportionality constant"，已核實）。
+- 兩段式量測與擬合：[P2] Fig.16, p.802（caption 與 $\kappa=6.18\text{e-}9\ \text{sec}^{0.5}$、
+  $\zeta=2.5\text{e}5$ 標註皆已對照渲染頁逐字核實；$\zeta$ 指數缺負號的印刷勘誤見第 5b.1 節）；
+  best-fit vs Eq.(12)/(35) 理論值 $6.18/5.95/6.07\times10^{-9}\sqrt{\text{s}}$：p.801；
+  slope-1 歸因 device 1/f：p.801 與 Section VI 結尾 pp.797–798；
+  量測底噪扣除：Eq.(39), p.801。
 - jitter ← phase spectrum（自相關＋Khinchin 路線）：[P2] Eq.(46)–(49), p.803；白噪特例
   $\kappa$←$\mathcal{L}$：Eq.(50), p.803；cycle-to-cycle「based on (8)」：Eq.(51), p.803
   （**此三式已於 v5 逐字核實**（p.803 渲染）：Eq.(49) $\sigma^2_{\Delta\phi}=\tfrac{8}{\omega_0^2}\int_0^\infty S_\phi\sin^2(\pi f\tau)df$（$S_\phi$ 依 Eq.(48) 為**雙邊**譜，故＝本頁單邊 $4\sin^2$ 核）；
@@ -559,7 +759,7 @@ $10^{10}$ Hz 以上尾巴（那裡核平均值 2、$1/f^2$ 譜仍有 ~5% 的變�
   規範第 3 節 factor-of-2 註記。
 - 核的操作版與例 D：[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)；
   例 C3：worked_examples（其 TODO 由本頁關閉）。
-- 圖：`jitter_kernels_mc.png`（lab_24）。
+- 圖：`jitter_kernels_mc.png`、`jitter_two_regime.png`（皆 lab_24）。
 
 ## 重點回顧
 
@@ -574,6 +774,11 @@ $10^{10}$ Hz 以上尾巴（那裡核平均值 2、$1/f^2$ 譜仍有 ~5% 的變�
   （記得用 $/2$ 慣例的 $\mathcal{L}$，$-145$ 而非 $-148$）。
 - flicker：$\sigma_{\Delta\phi}^2(N)=4\pi^2b_3(NT)^2[\tfrac32-\gamma-\ln(2\pi NTf_l)]$，
   **對數依賴低頻截止**，report 必附 $f_l$；成長律近似 $\propto N$（[P2] Eq.(9) 的斜率 1 段）。
+- **兩段式全貌**（[P2] Fig.16）：$\sigma(\Delta t)=\sqrt{\kappa^2\Delta t+\zeta^2\Delta t^2}$
+  （獨立 ⇒ 變異數相加），corner $\Delta t_c=\kappa^2/\zeta^2$；
+  時↔頻映射 $\Delta t_c=1/(2[\cdot]f_{1/f^3})$，$[\cdot]\approx10$–$16$ ⇒ 比
+  $1/f_{1/f^3}$ 短 20–30 倍；osc-12：61 ns（171 週期）、canonical：49 ns（245 週期）；
+  MC 斜率 0.519/0.909 = exact 曲線的 0.520/0.911（偏離 0.5/1.0 是 log 物理）。
 - canonical 數字：代表振盪器 $\kappa^2=0.125$ rad²/s、$\sigma_P=0.159$ fs、
   $\sigma_{c2c}=0.225$ fs、$\mathcal{L}(1\text{MHz})=-145/-148$ dBc/Hz（$/2$、$/4$ 慣例）；
   例 C 譜：TIE(1–100 MHz)$=447.9$ fs、period jitter 封閉式 $28.28$ fs（例 C3 的 27.6 fs

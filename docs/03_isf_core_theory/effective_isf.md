@@ -3,6 +3,8 @@ title: Effective ISF 與 cyclostationary noise
 description: 從 cyclostationary device noise 推到 effective ISF Γ_eff(x)=Γ(x)·α(x)；說明 device 雜訊如何被週期「閘控」併入 ISF，並補充 PPV / adjoint / Floquet 的外部背景（不在 5 篇 PDF）。
 ---
 
+import EffectiveIsfExplorer from "@site/src/components/EffectiveIsfExplorer";
+
 # Effective ISF 與 cyclostationary noise
 
 > **前置閱讀**：[isf_definition](/03_isf_core_theory/isf_definition)（$\Gamma$ 的定義）、[rms_isf](/03_isf_core_theory/rms_isf)（$\Gamma_{rms}$ 與 $\sum c_n^2$）、[stochastic_noise_basics](/02_foundations/stochastic_noise_basics)（stationary vs cyclostationary noise）。
@@ -21,6 +23,13 @@ $$
 
 之後**所有公式照舊用 $\Gamma_{eff}$ 取代 $\Gamma$ 即可**（cyclostationary 分解與 effective ISF 的出處為
 [P1] Sec. II-D「Cyclostationary Noise Sources」, Eq.(25)–(27), p.186；$\Gamma_{eff}=\Gamma\cdot\alpha$ 為 Eq.(27)）。
+
+**動手玩玩看**：下面的互動 explorer 把 $\Gamma(x)=-\sin x$ 固定住，讓你拖動 NMF $\alpha(x)$
+這扇窗的**中心相位** $\theta_c$、**寬度**與**底值 floor**，即時看 $\Gamma$、$\alpha$、
+$\Gamma_{eff}=\Gamma\cdot\alpha$ 三條曲線疊在一起，以及 $\Gamma_{eff,rms}$、$c_0^{eff}$、
+相對 stationary 的 phase-noise 變化怎麼跟著動。
+
+<EffectiveIsfExplorer />
 
 > **物理直覺（先講結論）**：振盪器有兩個「時間之窗」在同時開合：
 > (1) **ISF $\Gamma(x)$**——振盪器「此刻對雜訊有多敏感」（波形哪裡好踢）；

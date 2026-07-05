@@ -125,13 +125,15 @@ $$
 
 ## 數值例子（建立手感）
 
-> 用 canonical 數值 + 一個假設的 device 1/f corner。
+> 第一個例子用**假設的** $c_0$（示意）；第二個例子改用 [P2] Appendix B 的閉式解，
+> 從拓樸參數 $(N,A)$ **直接算出** $c_0$ 與 corner——完整推導見
+> [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form)。
 
 **對稱波形（$c_0\approx0$）**：理論上 $\Delta\omega_{1/f^3}=\omega_{1/f}\cdot c_0^2/(2\Gamma_{rms}^2)\to0$，
 1/f³ corner 被壓到極低頻——實務上由 residual mismatch 決定的小 $c_0$ 主導（見下表 knobs）。
 
-**不對稱波形**：取 $c_0=0.4$、$\Gamma_{rms}=0.5$（則 $c_0^2/(2\Gamma_{rms}^2)=0.16/(2\times0.25)=0.32$）。
-若 device $f_{1/f}=1$ MHz，則
+**不對稱波形（示意，$c_0$ 為假設值）**：取 $c_0=0.4$、$\Gamma_{rms}=0.5$
+（則 $c_0^2/(2\Gamma_{rms}^2)=0.16/(2\times0.25)=0.32$）。若 device $f_{1/f}=1$ MHz，則
 
 $$
 f_{1/f^3}=f_{1/f}\cdot\frac{c_0^2}{2\Gamma_{rms}^2}=1\ \text{MHz}\times0.32=320\ \text{kHz}.
@@ -139,6 +141,23 @@ $$
 
 - **手感**：把 $c_0$ 從 0.4 降到 0.04（小 10 倍），corner 降 100 倍（$c_0^2$）→ 從 320 kHz 降到 3.2 kHz。
   也就是說**對稱性每改善一個量級，1/f³ skirt 的影響範圍縮小兩個量級**——這是極划算的設計槓桿。
+
+**不對稱波形（計算，從 ring 拓樸參數直接算）**：$N=5$、$\eta=1$ 的 ring，rise 比 fall
+陡 1.5 倍（不對稱比 $A=f'_{rise}/f'_{fall}=1.5$）。[P2] App. B 閉式（Eq.(55)/(56)/(57), p.803；
+推導見 [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form)）直接給出
+
+$$
+\Gamma_{rms}=0.2428,\qquad c_0=2\,\Gamma_{dc}=-0.1005,\qquad
+f_{1/f^3}=f_{1/f}\cdot\frac{3}{2\eta N}\cdot\frac{(1-A)^2}{1-A+A^2}=42.9\ \text{kHz}.
+$$
+
+- **慣例旗標**：42.86 kHz 是 [P2] Eq.(7)/(57) 的記帳；把 $c_0=2\Gamma_{dc}$ 代回上面的
+  [P1] Eq.(24) 會得到 $2\times=85.71$ kHz（DC 通道計權慣例差，詳見新頁的旗標說明；
+  scaling 與比值不受影響）。數值由 `simulations/lab_33_asymmetry_corner.py` 驗證
+  （閉式 vs 數值積分誤差 $\sim10^{-9}$）。
+- **新設計訊息（[P2] p.803 原句）**：固定 $A$ 下 corner $\propto1/N$——**級數少的 ring，
+  flicker corner 高**（$A=1.5$ 時 $N=3\to71.43$ kHz、$N=15\to14.29$ kHz）。白噪區
+  phase noise 與 $N$ 近似無關（[P2] Eq.(23)），但 close-in 1/f³ 的轉折點會被級數推低。
 - 對應實驗證據：[P2] Fig. 17, p.802 量到 ring oscillator 的 phase noise 對「symmetry 控制電壓」
   畫出來會在**對稱點出現一個最小值**——直接支持「對稱 → 低 1/f³」這條設計規則。
   （[P2] Fig. 17, p.802「Phase noise versus symmetry voltage for oscillator number 7」已核實：
@@ -172,9 +191,11 @@ $$
 ## Worked examples 數值例題
 
 以下兩題示範「對稱性改善 → 1/f³ corner 下降」這條最划算的設計槓桿，沿用本站 canonical
-$\Gamma_{rms}=0.5$、device $f_{1/f}=1$ MHz。
+$\Gamma_{rms}=0.5$、device $f_{1/f}=1$ MHz。兩題的 $c_0$ 都是**示意假設值**（練換算用）；
+想從拓樸參數 $(N,A)$ 算出真的 $c_0$，見
+[asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form)。
 
-> **例 1（基準：算不對稱波形的 1/f³ corner）**
+> **例 1（基準：算不對稱波形的 1/f³ corner；$c_0$ 為示意假設值）**
 > 給定 $c_0=0.4$、$\Gamma_{rms}=0.5$、device 1/f corner $f_{1/f}=1$ MHz，求 1/f³ corner $f_{1/f^3}$。
 
 **逐步代入（帶單位）**，用上面剛推導的 $f_{1/f^3}=f_{1/f}\cdot c_0^2/(2\Gamma_{rms}^2)$：
@@ -238,13 +259,17 @@ print("corner ratio:", (c0_new/c0_old)**2,            # -> 0.01  (3.2 kHz / 320 
 - 只有 ISF 的 DC 係數 $c_0$ 會把 device 1/f noise 上轉成 close-in 1/f³（[P1] Eq.(23)）。
 - 1/f³ corner $=\omega_{1/f}\cdot c_0^2/(2\Gamma_{rms}^2)$，**不等於** device 1/f corner（[P1] Eq.(24)）。
 - rise/fall 對稱 → ISF 一週積分相消 → $c_0\to0$ → 1/f³ corner 被推到很低頻。
-- $c_0$ 降 10 倍，1/f³ corner 降 100 倍（$c_0^2$）：不對稱 $c_0=0.4$、$f_{1/f}=1$ MHz → corner 320 kHz。
+- $c_0$ 降 10 倍，1/f³ corner 降 100 倍（$c_0^2$）：示意 $c_0=0.4$、$f_{1/f}=1$ MHz → corner 320 kHz。
+- ring 的 $c_0$ 可以**直接從拓樸算**：[P2] App. B 閉式給 $c_0=2\Gamma_{dc}=\frac{4\pi}{\eta^2N^2}\frac{1-A}{1+A}$、
+  corner $\propto\frac{(1-A)^2}{1-A+A^2}\cdot\frac{1}{N}$（$N=5$、$A=1.5\to42.9$ kHz；
+  [P1] Eq.(24) 慣例 $\times2$）——見 [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form)。
 - 設計槓桿：differential、對稱負載、duty 50%；要看 **effective** ISF（含 $\alpha$）的 $c_0$。
 - 實驗：[P2] Fig. 17 phase noise vs symmetry voltage 有最小值。
 
 ## 延伸閱讀
 
 - 上轉的完整推導：[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
+- 非對稱三角 ISF 的 $\Gamma_{rms}$、$c_0$、corner 閉式（[P2] App. B）：[asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form)
 - 為何 $\Gamma$ 形狀像波形斜率：[waveform_slope](/06_design_insights/waveform_slope)
 - effective ISF 與 $\alpha$：[device_noise_mapping](/06_design_insights/device_noise_mapping)、[effective_isf](/03_isf_core_theory/effective_isf)
 - 傅立葉係數與 Parseval：[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)

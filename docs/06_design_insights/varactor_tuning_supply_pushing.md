@@ -1,6 +1,6 @@
 ---
 title: Tuning line 與 supply pushing 的相位雜訊
-description: 定義 K_VCO=∂f0/∂V_tune 與 supply pushing K_push=∂f0/∂V_DD；推導 tune/supply 節點的低頻雜訊電壓如何 FM 載波得 S_φ=K_VCO²·S_v/Δf²（white→1/f²、1/f→1/f³，與 device flicker c0 機制平行）；varactor C(V) 非線性的 AM-PM；split tuning、平坦偏壓點、LDO/共模抑制等 design knobs；worked example K_VCO=50 MHz/V、100 nV/√Hz @ 1 MHz、f0=5 GHz → L=-109 dBc/Hz。
+description: 定義 K_VCO=∂f0/∂V_tune 與 supply pushing K_push=∂f0/∂V_DD；推導 tune/supply 節點的低頻雜訊電壓如何 FM 載波得 S_φ=K_VCO²·S_v/Δf²（white→1/f²、1/f→1/f³，與 device flicker c0 機制平行）；varactor C(V) 非線性的 AM-PM；split tuning、平坦偏壓點、LDO/共模抑制等 design knobs；worked example K_VCO=50 MHz/V、100 nV/√Hz @ 1 MHz、f0=5 GHz → L=-109 dBc/Hz；lab_38 在 Level-1 ring 上第一性實測 K_push=2.936 GHz/V 並以 FM sidebands 驗證（β 比 1.002）。
 ---
 
 # Tuning line 與 supply pushing 的相位雜訊
@@ -206,6 +206,89 @@ S_phi = K_push**2 * S_vdd / df**2
 print(10*math.log10(0.5*S_phi))   # -> -117.0 dBc/Hz
 ```
 
+## K_push 第一性驗證（Level-1 ring 實測，lab_38）
+
+例 H 的 $K_{push}=2$ MHz/V 是**給定**的代表值（照顧得不錯的 LC VCO 等級）。這一節不給定：拿 [lab_32](/04_simulation_labs/lab_32_mos_level1_ring) 那顆 **MOS Level-1（Shichman-Hodges 平方律）3 級 ring**，用 $K_{push}$ 的**定義**直接量——先靜態掃 $V_{DD}$ 取 $f_0(V_{DD})$ 的斜率，再疊一個小漣波驗證第 2 步的 FM 積分器預測。誠實聲明：這是 **device-equation level（Level-1 平方律、$\lambda=0$），非 SPICE/BSIM/PDK**；數字是這顆 toy ring 的，但物理與量級教訓是通用的。完整 script：`simulations/lab_38_supply_pushing_ring.py`（node equation 逐位元沿用 lab_32，只把 $V_{DD}$ 升格成參數；交叉檢查差 $0.0$ V/s）。
+
+### 靜態量測：$f_0(V_{DD})$ 掃描 → $K_{push}$
+
+$V_{DD}$ 從 0.9 V 掃到 1.1 V（25 mV 一格），每點讓 ring 穩定振盪後用門檻交越量週期：
+
+| $V_{DD}$ [V] | 0.900 | 0.950 | 1.000 | 1.050 | 1.100 |
+|---|---|---|---|---|---|
+| $f_0$ [GHz] | 0.9394 | 1.0803 | 1.2252 | 1.3738 | 1.5255 |
+
+$f_0(1.000\,\text{V})=1.2252$ GHz 與 lab_32 完全一致（同一顆 ring、同一積分器）。在 1.0 V 取中央差分：
+
+$$
+K_{push}=\left.\frac{\partial f_0}{\partial V_{DD}}\right|_{1.0\,\text{V}}=\frac{f_0(1.025)-f_0(0.975)}{0.05\ \text{V}}=2.936\ \text{GHz/V}
+$$
+
+（9 點二次擬合的導數 2.932 GHz/V，差 0.1%——斜率萃取自洽。）**單位檢查**：Hz ÷ V = Hz/V ✓。
+
+**為什麼這麼大？手算 sanity check（逐步）**：ring 的頻率是 $f_0=\dfrac{1}{2N\tau_D}$（[P2] Eq.(15) 的觀念；這個 2 是「每週期兩個 edge」的電路事實，不是記帳慣例），而每級延遲 $\tau_D\approx C_L\,\Delta V/I_D$，其中 swing $\Delta V\propto V_{DD}$、驅動電流走平方律 $I_D\approx\tfrac{k'}{2}\tfrac{W}{L}(V_{DD}-V_T)^2$。所以
+
+$$
+f_0\ \propto\ \frac{(V_{DD}-V_T)^2}{V_{DD}}\quad\Rightarrow\quad \frac{1}{f_0}\frac{\partial f_0}{\partial V_{DD}}=\frac{2}{V_{DD}-V_T}-\frac{1}{V_{DD}}
+$$
+
+（分子的 2 是平方律指數，物理來源，非慣例。）代 $V_{DD}=1.0$ V、$V_T=0.4$ V：$2/0.6-1/1.0=2.33\ \text{V}^{-1}$，乘 $f_0=1.2252$ GHz 得 **2.859 GHz/V**——與量測 2.936 GHz/V 差 2.6%，量級與物理都對。**單位檢查**：$\text{V}^{-1}\times\text{Hz}=\text{Hz/V}$ ✓。
+
+正規化 pushing 是 $K_{push}/f_0=2.40$ /V $=2.4\times10^6$ ppm/V。對照：LC VCO 的 $f_0$ 由 tank 的 $L\,C$ 決定、電源只透過寄生與偏壓**微擾**它（典型 pushing 落在 ppm/V～千 ppm/V 等級——外部文獻，非本站 5 篇 PDF）；ring 的 $f_0$ **就是** device 電流除以電容，電源直接坐在公式裡。**「ring 的 supply pushing 天生比 LC 大好幾個數量級」不是經驗談，是 $f_0=1/(2N\tau_D)$ 的直接後果。**
+
+### 動態驗證：10 mV 漣波 → narrowband FM sidebands
+
+在 $V_{DD}$ 上疊 $V_r=10$ mV、$f_m=100$ MHz 的正弦漣波。由第 2 步的積分器，逐步：
+
+$$
+\Delta f(t)=K_{push}V_r\sin(2\pi f_m t)\quad\Rightarrow\quad\phi(t)=\int 2\pi\,\Delta f\,dt'=-\underbrace{\frac{K_{push}V_r}{f_m}}_{\beta}\cos(2\pi f_m t)
+$$
+
+峰值相位偏移（FM 調變指數）$\beta=K_{push}V_r/f_m$。**單位檢查**：$\dfrac{(\text{Hz/V})\cdot\text{V}}{\text{Hz}}=$ 無因次（rad）✓——這正是「頻率抖動 ÷ 調變頻率 = 相位」的 FM 基本功。代量測值：
+
+$$
+\beta_{pred}=\frac{2.936\times10^{9}\ \text{Hz/V}\times 0.01\ \text{V}}{10^{8}\ \text{Hz}}=0.2936\ \text{rad}.
+$$
+
+模擬把漣波真的加進 node equation、從門檻交越時間萃取 $\phi(t)$ 再做正弦擬合：$\beta_{meas}=0.2942$ rad，**比值 1.002**（調變相位 $-88.2°$，理論 $-90°$：$\phi=\int\sin=-\cos$ ✓）。頻譜上 $f_0\pm f_m$ 出現 sidebands：量測 $-16.31/-16.83$ dBc，對 narrowband FM 預測 $20\log_{10}(\beta/2)=-16.67$ dBc（Bessel 精確值 $20\log_{10}(J_1/J_0)=-16.55$ dBc）。**慣例旗標**：這裡的 $/2$ 是 **FM 數學**（$J_1/J_0\approx\beta/2$），跟 $\mathcal{L}\approx\tfrac12 S_\phi$ 的 SSB 記帳 2、或 [P1] Eq.(21) 分母的 4，**不是同一個 2**。上下 sideband 差 0.52 dB 是伴生 AM（swing 本身跟著 $V_{DD}$ 動，$m\approx V_r/V_{DD}=1\%$）——正是第 4 步 AM-PM 議題的電源版縮影；連 $f_0\pm2f_m$ 的二階 sideband（$-38.6/-39.8$ dBc）都對上 $J_2/J_0$ 的 $-39.2$ dBc。
+
+這個確定性單音實驗驗證的**就是**第 2 步那台積分器：隨機的 $v_n(t)$ 不過是無數個這種單音的疊加（PSD 語言），所以「$\beta$ 對上」等價於「$S_\phi=K_{push}^2S_v/\Delta f^2$ 對上」。
+
+```python
+# lab_38 關鍵數字（跑 PYTHONPATH=. python simulations/lab_38_supply_pushing_ring.py 可再現）
+K_push = (1.2991e9 - 1.1523e9) / 0.05
+print(f"{K_push:.3e}")                   # -> 2.936e9 Hz/V（中央差分 @ 1.0 V）
+beta   = K_push * 10e-3 / 100e6
+print(round(beta, 4))                    # -> 0.2936 rad（量測 0.2942，比 1.002）
+```
+
+![Level-1 ring 的 supply pushing：f0(VDD) 掃描、漣波相位調變、FM sidebands](/figures/supply_pushing_ring.png)
+
+**如何解讀**：(a) $f_0(V_{DD})$ 幾乎是一條直線（微彎），紅色切線斜率就是 $K_{push}$；(b) 門檻交越萃取的 $\phi(t)$（紫點）與正弦擬合，紅虛線 $\pm\beta_{pred}$ 是純理論、未擬合；(c) 頻譜以載波為 0 dB，$\pm100$ MHz 的 sidebands 落在預測線上，$\pm200$ MHz 的小峰是二階 FM sideband。參數：$C_L=10$ fF/節點、$N=3$、靜態掃描 $dt=25$ fs、動態 $dt=100$ fs、記錄 150 ns；runtime 約 28 s。
+
+> **例 I（端到端：量測 $K_{push}$ × 本頁公式）**：拿例 H 同款電源雜訊 $1\ \mu\text{V}/\sqrt{\text{Hz}}$（$S_{v,DD}=10^{-12}\ \text{V}^2/\text{Hz}$）@ $\Delta f=1$ MHz，換上這顆 ring 量到的 $K_{push}=2.936$ GHz/V：
+>
+> $$
+> S_\phi=\frac{K_{push}^2\,S_{v,DD}}{\Delta f^2}=\frac{(2.936\times10^{9})^2\times10^{-12}}{(10^{6})^2}=8.62\times10^{-6}\ \text{rad}^2/\text{Hz},
+> $$
+>
+> $$
+> \mathcal{L}(1\,\text{MHz})=10\log_{10}\!\big(\tfrac12\times8.62\times10^{-6}\big)=-53.7\ \text{dBc/Hz}.
+> $$
+>
+> （這裡的 $\tfrac12$ 是 $\mathcal{L}\approx\tfrac12S_\phi$ 的 SSB 小角慣例，規範第 3 節公式 16。）**dimension check**：$(\text{Hz/V})^2\cdot\text{V}^2/\text{Hz}\div\text{Hz}^2=\text{Hz}^{-1}$ → rad²/Hz ✓。比例 H 的 $-117.0$ dBc/Hz **糟 63.3 dB**——正好 $20\log_{10}(2936/2)$，全部來自 $K_{push}$ 的平方。這就是「未穩壓的 ring 接髒電源是災難」的定量版；反過來說，$K^2$ 也是好消息：LDO 每壓 20 dB 電壓雜訊，這一份相位雜訊等比降 20 dB。
+
+### 與 ISF 的接口：supply 看到的是「逐級敏感度的相干總和」
+
+device 雜訊與 supply 雜訊在 ISF 語言裡有一個關鍵差別：
+
+- **device noise（每級自己的 $i_n$）**：$N$ 級的雜訊源**彼此獨立**，各級貢獻以**功率**相加——這是 [P2] ring 分析的記帳方式（每級一份 $\Gamma_{rms}^2$）。
+- **supply（$V_{DD}$ rail）**：電源是所有 $N$ 級**共用**的 port。一個低頻（準靜態）電源擾動**同時、同方向**改變每一級的延遲——輪到哪一級切換，哪一級就被同一個 $v_n$ 加速或拖慢，一個週期內 $2N$ 個 edge 的延遲變化**同號累加**成 $\Delta T$。所以 supply 有效敏感度是**逐級敏感度的相干（振幅）總和**，而這個總和的**平均（DC）成分**就是 $2\pi K_{push}$：對慢擾動而言「每一刻都有某級在被推」，總和敏感度從不換號。
+- 推論一：獨立源疊 $N$ 份走 $\sqrt N$（功率相加），相干源走 $N$（振幅相加）——supply 雜訊不是「多一個雜訊源」而已，它**繞過了獨立源的統計折扣**。
+- 推論二：supply 有效敏感度的 DC 項天生很大（角色如同 device flicker 上轉裡的 $c_0$），所以電源的 $1/f$ 雜訊會如第 3 步所述上轉成 $1/f^3$；但 device 版可用**波形對稱**把 $c_0$ 壓到近 0（lab_32 那顆對稱 ring 量到 $c_0=0.0014$），supply 版**沒有這張牌**——「每級延遲都跟著 $V_{DD}$ 跑」不是對稱性能取消的。能打的牌只剩壓入口（LDO）與壓 $K_{push}$ 本身（差動/穩壓拓樸、delay 對 $V_{DD}$ 一階不敏感的 stage 設計——外部文獻，非本站 5 篇 PDF）。
+
+**限制（誠實）**：Level-1 平方律、$\lambda=0$、單一 lumped $C_L$、$N=3$ 單點（未驗證 $N$ 標度）；真實 PDK ring 因 velocity saturation、短通道效應，$K_{push}$ 數字會不同（但仍遠大於 LC——外部文獻經驗），而本節的**方法**（定義量測 + FM 驗證）與**結構結論**（相干總和、$K^2$ 槓桿）不變。
+
 ## 適用與失效條件
 
 | 條件 | 成立時 | 失效時會怎樣 |
@@ -222,6 +305,7 @@ print(10*math.log10(0.5*S_phi))   # -> -117.0 dBc/Hz
 - **AM-PM / amplitude modulation** 的完整框架：[P4]（APF、amplitude decay，進階；見 [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)）。
 - **$K_{VCO}/K_{push}$ 定義、split tuning、switched-cap bank、LDO、varactor $C(V)$、共模抑制、pushing figure** 等電路/拓樸/儀器具體：**標準 RF IC 設計文獻（外部文獻，非本站 5 篇 PDF）**——Razavi *RF Microelectronics*、Leeson 模型、廠商 datasheet。
 - $\mathcal{L}\approx\tfrac12 S_\phi$：規範第 3 節公式 16（小角 PM）。
+- **$K_{push}$ 第一性量測（lab_38）**：ring 頻率觀念 $f_0=1/(2N\tau_D)$ 來自 [P2] Eq.(15), p.794；device 方程與 ring 本體沿用 lab_32（Level-1 方程級，非 SPICE/BSIM/PDK）；narrowband FM 的 $J_1/J_0\approx\beta/2$ 屬標準通訊教科書內容（外部文獻，非本站 5 篇 PDF）。
 
 ## 重點回顧
 
@@ -231,6 +315,7 @@ print(10*math.log10(0.5*S_phi))   # -> -117.0 dBc/Hz
 - **varactor $C(V)$ 非線性 → AM-PM**：$\partial\omega/\partial A\propto C''(V_{tune})$，把被抑制的振幅雜訊復活成相位雜訊；**偏壓平坦點（小 $C''$）** 壓它（與縮 $K_{VCO}$ 是不同鈕）。
 - design knobs：**split tuning（coarse switched-cap + fine varactor，縮 $K_{VCO}$）**、平坦偏壓點（壓 AM-PM）、**LDO / 乾淨參考（壓 $S_v$ 入口）**、**共模抑制（對付 supply/基板共模）**。
 - 數值：$K_{VCO}=50$ MHz/V、$100$ nV$/\sqrt{\text{Hz}}$ @ 1 MHz → $\mathcal{L}(1\,\text{MHz})=-109$ dBc/Hz（單一條 tune line 就能主導 $1/f^2$ 區）；$\mathcal{L}$ 不顯含 $f_0$。
+- **lab_38 第一性實測**：Level-1 3 級 ring 量到 $K_{push}=2.936$ GHz/V（$2.4\times10^6$ ppm/V，手算平方律模型差 2.6%）；10 mV @ 100 MHz 漣波的 FM 驗證 $\beta_{meas}/\beta_{pred}=1.002$；同款 $1\ \mu\text{V}/\sqrt{\text{Hz}}$ 電源下 $\mathcal{L}=-53.7$ dBc/Hz，比例 H 糟 63.3 dB——ring 的 supply 是「逐級敏感度的相干總和」，沒有對稱性歸零這張牌，必須靠 LDO/穩壓拓樸。
 
 ## 延伸閱讀
 
@@ -240,3 +325,5 @@ print(10*math.log10(0.5*S_phi))   # -> -117.0 dBc/Hz
 - tune line 雜訊在環路中如何被高通/低通、最佳 loop BW：[pll_noise_budget](/06_design_insights/pll_noise_budget)
 - swing/$q_{max}$ 槓桿（另一條獨立鈕）：[tank_swing](/06_design_insights/tank_swing)
 - 哪些 knob 改 $\Gamma_{rms}$、哪些改 $q_{max}$：[device_noise_mapping](/06_design_insights/device_noise_mapping)
+- lab_38 所用的 Level-1 ring 本體與 ISF 萃取：[lab_32_mos_level1_ring](/04_simulation_labs/lab_32_mos_level1_ring)
+- 供電/基板雜訊的**高頻**入口——相關雜訊只從 DC 與 $k\cdot N\cdot f_0$ 附近進來（[P2] Eq.(37)–(38) 的選擇律；本頁的 $K_{push}$ 正是那把梳的 DC 齒）：[lab_34_correlated_supply](/04_simulation_labs/lab_34_correlated_supply)

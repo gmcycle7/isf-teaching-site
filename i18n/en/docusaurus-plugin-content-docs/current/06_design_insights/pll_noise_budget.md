@@ -1,6 +1,6 @@
 ---
 title: Complete PLL phase-noise budget and optimal loop BW
-description: The transfer of each of five noise sources (reference, PFD/charge-pump, divider, loop filter, VCO) and their sum S_out=(S_ref N²+S_cp)|H_lp|²+S_vco|H_hp|², the in-band vs out-of-band handoff, reference spur, and minimizing the integrated jitter to find the optimal loop BW (fn≈6.9 MHz, σt≈259 fs).
+description: The transfer of each of five noise sources (reference, PFD/charge-pump, divider, loop filter, VCO) and their sum S_out=(S_ref N²+S_cp)|H_lp|²+S_vco|H_hp|², the in-band vs out-of-band handoff, reference spur, and minimizing the integrated jitter to find the optimal loop BW (fn≈6.9 MHz, σt≈259 fs); plus the closed-form type-II peaking (ζ=0.707→2.09 dB @0.786fn, the cascaded 0.1-dB rule) and the fractional-N ΔΣ quantization-noise third term (MASH-m, +40 dB/dec ramp).
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -20,7 +20,10 @@ $$
 S_{out}=(S_{ref}N^2+S_{cp})\,\lvert H_{lp}\rvert^2+S_{vco}\,\lvert H_{hp}\rvert^2
 $$
 
-(canonical Section 11.2, "PLL output noise budget"), then minimize $\int S_{out}\,df$
+(canonical Section 11.2, "PLL output noise budget"; for a **fractional-N** loop a third term —
+the ΔΣ quantization noise $S_{\Delta\Sigma}\,\lvert H_{lp}\rvert^2$ — must be added, see the
+section "The third term for fractional-N" on this page; it is zero for integer-N), then minimize
+$\int S_{out}\,df$
 (integrated phase variance, proportional to rms jitter squared) to find that **famous U-shaped
 curve** and its minimum.
 
@@ -147,6 +150,12 @@ $$
   transfer has a small peak near $f_n$, usually smaller in magnitude than ref/CP and VCO; this
   page's toy budget omits it (marked illustrative). A real design needs to include it and
   optimize resistor noise.
+- **The fractional-N third term**: if the divider modulus is dithered by a ΔΣ modulator
+  (fractional-N), the quantization noise enters the budget as
+  $S_{\Delta\Sigma}(f)\,\lvert H_{lp}\rvert^2$ — same low-pass path as the CP, but **not
+  multiplied by $N^2$**, and shaped as a rising ramp of $+20(m-1)$ dB/dec. Full derivation and
+  worked example in the section "The third term for fractional-N: ΔΣ quantization noise" on
+  this page. For integer-N (this page's lab_20 setup) this term is zero.
 
 ### The VCO term is precisely this site's ISF result
 
@@ -181,12 +190,197 @@ Break $S_{out}$ into three segments:
    ($-3$ dB), and their sum $\approx2$ ($+3$ dB) — this is the slight **peaking**, also the
    origin of the common "bump near the loop BW" seen in PLL output (the two curves are actually
    equal at $f\approx1.55\,f_n$, each about $0.85$, $-0.7$ dB, not at $f_n$). Too small a
-   $\zeta$ (underdamped) makes the peaking sharp.
+   $\zeta$ (underdamped) makes the peaking sharp. The **exact** location and height of the peak
+   actually have a closed-form solution — see the next section.
 
 > **Reading a PN plot at a glance**: see a flat close-in floor → measure in-band, back out
 > $S_{ref}N^2+S_{cp}$; see the floor start falling at $-20$ dB/dec from some offset → that
 > knee is $f_n$, beyond it is VCO. A sharp peak in the middle → insufficient damping or an
 > overshooting loop-BW design.
+
+## Supplementary derivation: the closed-form peaking — a type-II with a zero is destined to bump
+
+Step 3 measured $\lvert H_{lp}\rvert^2\approx1.5$ ($+1.76$ dB) at $f=f_n$ — but that is **not
+the maximum**. This section solves analytically for the **peak frequency and peak magnitude**
+of the type-II second-order $\lvert H_{lp}\rvert^2$ (the canonical Section-10.2 form). The
+derivation itself is pure algebra (self-contained); the "$\zeta\leftrightarrow$ phase margin
+mapping" and the "cascaded 0.1-dB rule" belong to standard control/telecom literature, each
+labeled as such (external literature, not among this site's five source PDFs).
+
+### Normalization
+
+Let $x=\omega/\omega_n=f/f_n$ (dimensionless; rad/s ÷ rad/s — checks out). Divide the numerator
+and denominator of the canonical Section-10.2 $\lvert H_{lp}\rvert^2$ by $\omega_n^4$:
+
+$$
+\lvert H_{lp}\rvert^2=\frac{(2\zeta\omega_n\omega)^2+\omega_n^4}{(\omega_n^2-\omega^2)^2+(2\zeta\omega_n\omega)^2}
+=\frac{1+4\zeta^2x^2}{(1-x^2)^2+4\zeta^2x^2}\equiv g(x) .
+$$
+
+### Finding the extremum: a beautiful quadratic
+
+Let $u=x^2$ ($u\ge0$). Numerator $N(u)=1+4\zeta^2u$, denominator
+$D(u)=(1-u)^2+4\zeta^2u=u^2+(4\zeta^2-2)u+1$, derivatives $N'=4\zeta^2$, $D'=2u+4\zeta^2-2$.
+The extremum condition of the quotient is $N'D-ND'=0$; expand term by term:
+
+$$
+\begin{aligned}
+N'D-ND'&=4\zeta^2\big[u^2+(4\zeta^2-2)u+1\big]-(1+4\zeta^2u)\big[2u+4\zeta^2-2\big]\\
+&=\big[4\zeta^2u^2+(16\zeta^4-8\zeta^2)u+4\zeta^2\big]-\big[8\zeta^2u^2+(16\zeta^4-8\zeta^2)u+2u+4\zeta^2-2\big]\\
+&=-4\zeta^2u^2-2u+2\;=\;-2\big(2\zeta^2u^2+u-1\big).
+\end{aligned}
+$$
+
+(The two $16\zeta^4$ cross terms **cancel exactly**, leaving a quadratic with no $\zeta^4$.)
+Setting it to zero and taking the positive root:
+
+$$
+2\zeta^2u^2+u-1=0\quad\Longrightarrow\quad
+u^\*=\frac{\sqrt{1+8\zeta^2}-1}{4\zeta^2}=\frac{2}{\sqrt{1+8\zeta^2}+1},\qquad
+f_{pk}=f_n\sqrt{u^\*}.
+$$
+
+(The two forms are equal: multiply numerator and denominator by $\sqrt{1+8\zeta^2}+1$ and use
+$8\zeta^2=(\sqrt{1+8\zeta^2})^2-1$.)
+
+### Why it "always" peaks
+
+At $u=0$ (DC), $N'D-ND'=4\zeta^2-(4\zeta^2-2)=+2$ — **positive for every $\zeta$**. The DC gain
+is 1 and the slope points up, so for any finite $\zeta$, $u^\*>0$ always holds and the peak is
+necessarily above 0 dB. The physical reason: a type-II loop has two integrators (open-loop
+phase starts at $-180^\circ$) and can only be stabilized by the loop filter's zero
+($f_z=f_n/(2\zeta)$) pulling the phase back early; that zero first **lifts** the closed-loop
+gain above 1 before the double pole pushes it down — **peaking is the price of type-II
+stability**, not a design mistake. Contrast: an ordinary second-order low-pass without a zero
+has no resonance peak for $\zeta\ge1/\sqrt2$; a type-II with a zero **always** peaks, the peak
+merely getting lower and sliding toward lower frequency as $\zeta$ grows.
+
+### Peak magnitude: substitute back and simplify
+
+Let $s=\sqrt{1+8\zeta^2}$ (dimensionless). Three intermediate quantities, simplified step by
+step (using $8\zeta^2=s^2-1$ repeatedly):
+
+$$
+\begin{aligned}
+N(u^\*)&=1+4\zeta^2u^\*=1+(s-1)=s,\\
+1-u^\*&=1-\frac{2}{s+1}=\frac{s-1}{s+1},\\
+D(u^\*)&=\Big(\frac{s-1}{s+1}\Big)^2+(s-1)
+=\frac{(s-1)\big[(s-1)+(s+1)^2\big]}{(s+1)^2}
+=\frac{s\,(s-1)(s+3)}{(s+1)^2}.
+\end{aligned}
+$$
+
+(The last step uses $(s-1)+(s+1)^2=s^2+3s=s(s+3)$.) Therefore
+
+$$
+\lvert H_{lp}\rvert^2_{max}=\frac{N(u^\*)}{D(u^\*)}=\frac{(s+1)^2}{(s-1)(s+3)},\qquad
+f_{pk}=f_n\sqrt{\frac{2}{s+1}},\qquad s=\sqrt{1+8\zeta^2}.
+$$
+
+Peaking (dB) $=10\log_{10}\lvert H_{lp}\rvert^2_{max}$. **dB bookkeeping note**: this is
+$10\log_{10}$ of a power transfer, numerically equal to $20\log_{10}$ of the magnitude
+transfer — the same number; there is **no** SSB /2 or /4 bookkeeping here (that only arises when
+converting $S_\phi$ to $\mathcal{L}$ — see canonical Eq. 16 and the [P1] Eq.(21) discussion).
+
+**Dimension check**: $x,u,\zeta,s$ are all dimensionless; $f_{pk}=f_n\times$(dimensionless)
+$=$ Hz — checks out; $\lvert H_{lp}\rvert^2_{max}$ is a dimensionless power ratio — checks out.
+
+> **Golden-ratio easter egg**: at $\zeta=1/\sqrt2$ ($\zeta^2=\tfrac12$), $s=\sqrt5$,
+> $u^\*=2/(\sqrt5+1)=(\sqrt5-1)/2=1/\varphi=0.618$, and
+> $\lvert H_{lp}\rvert^2_{max}=(\sqrt5+1)/2=\varphi=1.618$ — **the peak is exactly the golden
+> ratio**, peaking $=10\log_{10}1.618=2.09$ dB, located at $f_{pk}=0.786\,f_n$. The $+1.76$ dB
+> read at $f_n$ in Step 3 is only the right shoulder of this peak.
+
+### ζ → peaking table (with phase margin)
+
+| $\zeta$ | $f_{pk}/f_n$ | peaking (dB) | phase margin |
+|---|---|---|---|
+| 0.5 | 0.856 | 3.33 | 51.8° |
+| 0.707 | 0.786 | **2.09** | 65.5° |
+| 1.0 | 0.707 | 1.25 | 76.3° |
+| 1.5 | 0.611 | 0.65 | 83.7° |
+| 4.32 | 0.388 | 0.10 | 89.2° |
+
+Where the $\zeta\leftrightarrow$PM mapping comes from: back out the open loop from $H_{lp}$,
+$G(s)=H_{lp}/(1-H_{lp})=(2\zeta\omega_n s+\omega_n^2)/s^2$; setting
+$\lvert G(j\omega_c)\rvert=1$ gives the crossover frequency
+$\omega_c=\omega_n\sqrt{2\zeta^2+\sqrt{4\zeta^4+1}}$; and
+$\angle G=-180^\circ+\arctan(2\zeta\omega_c/\omega_n)$, hence
+
+$$
+\mathrm{PM}=\arctan\!\Big(2\zeta\sqrt{2\zeta^2+\sqrt{4\zeta^4+1}}\Big).
+$$
+
+This expression is **identical in form** to the textbook "standard second-order system
+(no-zero prototype)" $\zeta\leftrightarrow$PM mapping (the algebraic identity
+$(\sqrt{4\zeta^4+1}-2\zeta^2)(\sqrt{4\zeta^4+1}+2\zeta^2)=1$ makes the two $\arctan$ arguments
+equal), so the common rule of thumb $\mathrm{PM}\approx100\,\zeta$ degrees (valid for
+$\zeta\lesssim0.7$) carries over as well (the standard $\zeta\leftrightarrow$PM mapping and the
+$100\zeta$ rule are external literature, not among this site's five source PDFs:
+F. M. Gardner, *Phaselock Techniques*, 3rd ed., Wiley, 2005; B. Razavi,
+*Design of CMOS Phase-Locked Loops*, Cambridge Univ. Press, 2020).
+
+### The cascade rule: why telecom specs obsess over 0.1 dB
+
+Cascade $M$ loops with identical transfers (a chain of repeaters/CDRs on a long-haul link, each
+regenerating and re-transmitting the clock): the total jitter transfer is $H_{lp}^M$ — **the dBs
+add directly**: the peak becomes $M\times P$ dB.
+
+- 2.09 dB per stage ($\zeta=0.707$) $\times$ 20 stages $=$ **41.8 dB**: jitter near $f_{pk}$ is
+  amplified more than a hundredfold — the link is dead.
+- 0.1 dB per stage $\times$ 20 stages $=$ 2 dB: manageable.
+
+This is why the SONET/SDH era pinned the regenerator jitter-transfer peaking spec at the
+**0.1 dB** level (external standards literature: Telcordia GR-253-CORE and the ITU-T
+G.783/G.958 family of telecom specs; this site has not verified the individual clause numbers —
+we cite the magnitude and the spirit). Inverting the closed form, 0.1 dB requires
+$\zeta\approx4.32$ (PM $\approx89.2^\circ$, heavily overdamped) — completely different from the
+$\zeta\approx0.7$–$1$ that minimizes a single PLL's integrated jitter: **single-loop optimal is
+not cascade optimal**; a CDR's $\zeta$ is a system spec set by "which stage of the chain you
+are."
+
+Rigor note: adding dBs assumes every stage has the same $f_n,\zeta$ (peaks aligned — worst
+case); in practice the stages' $f_n$ are slightly staggered and the compounding is milder than
+$M\times P$, but specs are written for the worst case.
+
+### Numerical cross-check (repo `pll_utils`)
+
+Closed form vs `H_lowpass_mag2` from `simulations/common/pll_utils.py` (a 4-million-point fine
+sweep):
+
+```python
+import numpy as np
+from simulations.common.pll_utils import H_lowpass_mag2
+
+def peak_closed(zeta):                      # closed form: f_pk/f_n and |H_lp|^2_max
+    s = np.sqrt(1 + 8*zeta**2)
+    return np.sqrt((s - 1)/(4*zeta**2)), (s + 1)**2/((s - 1)*(s + 3))
+
+x = np.linspace(0.001, 5, 4_000_001)        # x = f/f_n (take f_n = 1 Hz)
+for z in (0.5, 0.707, 1.0, 1.5):
+    xpk, g = peak_closed(z)
+    m2 = H_lowpass_mag2(x, 1.0, z)
+    k = int(np.argmax(m2))
+    print(f"{z}: closed {xpk:.4f}/{10*np.log10(g):.4f} dB, "
+          f"numeric {x[k]:.4f}/{10*np.log10(m2[k]):.4f} dB")
+# -> 0.707: closed 0.7862/2.0903 dB, numeric 0.7862/2.0903 dB (others: zeta=0.5→3.3339, 1.0→1.2494, 1.5→0.6514; closed = numeric to 4 decimals)
+
+zg = np.linspace(2, 8, 600001)              # sweep zeta to invert for 0.1 dB peaking
+pk = 10*np.log10(peak_closed(zg)[1])
+z01 = zg[int(np.argmin(np.abs(pk - 0.1)))]
+print(round(z01, 3))                        # -> 4.319 (zeta required for 0.1 dB)
+```
+
+**Conditions of validity and failure (this section's closed form):**
+
+- Valid only for the **ideal type-II second-order** closed loop of canonical Section 10.2
+  (linearized charge-pump PLL, no extra poles). Real loops usually add 1–2 high-frequency
+  poles in the loop filter (third/fourth-order loops); the peak location and height shift and
+  must be computed numerically.
+- The PM mapping assumes the crossover happens on the ideal $G(s)$; extra poles eat PM, and
+  $\mathrm{PM}\approx100\zeta$ loses accuracy accordingly.
+- This peak is a bump of the **transfer function**; the actual PN bump near $f_n$ at the output
+  must still be multiplied by each source's PSD (see Step 3).
 
 ## Step 4: reference spur (brief)
 
@@ -411,6 +605,186 @@ for fn in [0.3e6, 6.9e6, 30e6]:
     print(f"fn={fn/1e6:5.2f} MHz -> sigma_t={st*1e15:.0f} fs")  # 867 / 259 / 396 fs
 ```
 
+## The third term for fractional-N: ΔΣ quantization noise
+
+The budget so far is **integer-N**: $f_{out}=Nf_{ref}$, so the frequency step can only be an
+integer multiple of $f_{ref}$. For fine steps (e.g. a 200-kHz channel spacing) without
+sacrificing $f_{ref}$, you need **fractional-N** (fractional division): dither the modulus
+between integers (÷$N$ this reference period, ÷$(N{+}1)$ the next, …) so the **average**
+modulus is $N+\alpha$ ($0\le\alpha<1$). This pays a double dividend — $f_{ref}$ can be raised
+and $N$ shrinks, so the in-band $S_{ref}N^2$ floor drops directly — but the modulus dithering
+is itself a **quantization error** and becomes a new noise source. Generating the modulus
+sequence with a ΔΣ modulator (delta-sigma modulator — a feedback quantizer that shapes the
+quantization error toward high frequencies) pushes the error power out to high offsets where
+the loop's low-pass filters it away. This section writes it up as the budget's **third term**.
+
+The shaped result in this section belongs to standard ΔΣ frequency-synthesis theory (external
+literature, not among this site's five source PDFs); the classic source: T. A. D. Riley,
+M. A. Copeland, and T. A. Kwasniewski, "Delta-Sigma Modulation in Fractional-N Frequency
+Synthesis," *IEEE J. Solid-State Circuits*, vol. 28, no. 5, pp. 553–559, May 1993. The
+derivation below is self-contained, step by step.
+
+### From modulus dithering to phase noise (four steps)
+
+**(i) The MASH-m output.** An $m$-th-order MASH (MASH-1-1-1 means $m=3$: three cascaded
+first-order accumulators) produces the modulus-control sequence
+
+$$
+y[k]=\alpha+(1-z^{-1})^m\,e[k],
+$$
+
+where $e[k]$ is the last stage's quantization error, modeled as white: uniformly distributed
+over $\pm\Delta/2$, variance $\sigma_e^2=\Delta^2/12$, with $\Delta=1$ LSB (note: this $\Delta$
+is the quantization step $=$ 1 VCO cycle per reference period — **not** the $\Delta$ of the
+offset $\Delta f$). The $(1-z^{-1})^m$ is the ΔΣ **noise shaping**: it pushes the error power
+toward high frequencies.
+
+**(ii) The error accumulates into phase (one integration).** In reference period $k$ the
+divider swallows $y[k]-\alpha$ extra VCO cycles; each cycle is $2\pi$ rad of output phase, and
+phase is the **accumulation** of frequency error:
+
+$$
+\phi_{\Delta\Sigma}[k]=2\pi\sum_{j\le k}\big(y[j]-\alpha\big)=2\pi\,(1-z^{-1})^{m-1}e[k]\quad[\text{rad}] .
+$$
+
+(Accumulation is $1/(1-z^{-1})$ in the $z$-domain, which eats exactly one order of shaping:
+$m$-th-order **frequency** shaping → $(m-1)$-th-order **phase** shaping.)
+
+**(iii) PSD of the white sequence.** A white sequence at sampling rate $f_{ref}$ spreads its
+power $\sigma_e^2$ uniformly over $\pm f_{ref}/2$ (two-sided bookkeeping) → density
+$\sigma_e^2/f_{ref}=\Delta^2/(12f_{ref})$ per Hz; the discrete difference has magnitude response
+$\lvert1-e^{-j2\pi f/f_{ref}}\rvert=2\lvert\sin(\pi f/f_{ref})\rvert$. Putting it together
+(referred to the output phase, before the loop):
+
+$$
+\mathcal{L}_{\Delta\Sigma}(f)=\frac{(2\pi\Delta)^2}{12\,f_{ref}}\Big[2\sin\Big(\frac{\pi f}{f_{ref}}\Big)\Big]^{2(m-1)},\qquad
+S_{\Delta\Sigma}(f)=2\,\mathcal{L}_{\Delta\Sigma}(f)=\frac{(2\pi\Delta)^2}{6\,f_{ref}}\Big[2\sin\Big(\frac{\pi f}{f_{ref}}\Big)\Big]^{2(m-1)}
+$$
+
+($S_{\Delta\Sigma}$ in $\text{rad}^2/\text{Hz}$, single-sided). **Factor-of-2 bookkeeping flag
+(flagged every time)**: the literature's customary $1/12$ version is **two-sided** bookkeeping,
+which numerically happens to equal the SSB $\mathcal{L}$ (because the $\tfrac12$ in
+$\mathcal{L}\approx\tfrac12S_\phi$ cancels the $\times2$ of single-siding); this site's strict
+**single-sided** $S_\phi$ convention needs the $\times2$ (giving $1/6$). Both notations appear
+in the literature — always state which one you are reading. This is the same class of
+factor-of-2 issue as [P1] Eq.(21)'s /4 (SSB bookkeeping) vs the clean time-domain /2.
+
+**(iv) No $\times N^2$!** This term enters the loop at the PFD like $S_{ref}$ and is low-passed
+by the same $\lvert H_{lp}\rvert^2$, but it is **not multiplied by $N^2$**: the error is counted
+in "VCO cycles" to begin with, so the $2\pi$ is already rad of output phase. If you insist on
+referring it to the divider output (only $2\pi/N$ rad per cycle), you must multiply by $N$
+(power $\times N^2$) to get back to the output — the $N^2$ cancels exactly. The most common
+rookie budget mistake is multiplying this term by $N^2$ anyway.
+
+**Dimension check**: $(2\pi\Delta)^2$ [rad²] ($\Delta$ is a dimensionless cycle count)
+$\times$ $1/(12f_{ref})$ [1/Hz] $\times$ shaping factor [dimensionless]
+$=\text{rad}^2/\text{Hz}$ — checks out.
+
+### Into the budget: the third term
+
+$$
+S_{out}(f)=\big(S_{ref}N^2+S_{cp}\big)\lvert H_{lp}\rvert^2+S_{vco}\lvert H_{hp}\rvert^2+S_{\Delta\Sigma}(f)\,\lvert H_{lp}\rvert^2 .
+$$
+
+It shares the CP noise's path (low-pass) but has a completely different shape: for
+$f\ll f_{ref}$, $2\sin(\pi f/f_{ref})\approx2\pi f/f_{ref}$, so
+
+$$
+S_{\Delta\Sigma}\propto f^{\,2(m-1)}
+$$
+
+— a **rising ramp of $20(m-1)$ dB/dec** (MASH-1-1-1: $+40$ dB/dec), capping out at $f_{ref}/2$
+(shaping factor at most $2^{2(m-1)}=16$, i.e. $+12.0$ dB). It is not a floor — it is a wall
+climbing up from low frequency; the loop must chop it with $\lvert H_{lp}\rvert^2$ before the
+wall climbs high enough to hurt.
+
+**The two suppression knobs (why higher $f_{ref}$ and narrower BW work):**
+
+- **Raise $f_{ref}$**: at fixed $f\ll f_{ref}$,
+  $\mathcal{L}_{\Delta\Sigma}\propto f^{2(m-1)}/f_{ref}^{\,2m-1}$ — doubling $f_{ref}$ drops it
+  by $(2m-1)\times3.01\approx15.05$ dB ($m=3$). Intuition: the total quantization power
+  $\Delta^2/12$ is fixed but spread over a wider Nyquist bandwidth, and the $f_{ref}$ in the
+  shaping denominator grows.
+- **Narrow the loop BW**: the in-band spot value doesn't change
+  ($\lvert H_{lp}\rvert^2\approx1$), but the low-pass intercepts the ramp earlier — the third
+  term's peak lands near $\sim f_n$ with magnitude $\propto f_n^{2(m-1)}$ ($m=3$: halving $f_n$
+  drops the peak 12 dB); a brick-wall estimate of its integrated power scales as
+  $\propto f_n^{2m-1}$ ($f_n^5$ — extremely sensitive to BW). This pushes in the same direction
+  as the U-shape's right arm ("narrow BW suppresses in-band"), but **directly conflicts with a
+  ring VCO's need for wide BW** — fractional-N + a noisy VCO is the hardest budget combination,
+  and one reason low-noise fractional-N synthesizers prefer LC VCOs.
+
+> **Honest toy-model warning (important)**: this page's type-II second-order
+> $\lvert H_{lp}\rvert^2$ only falls $-20$ dB/dec beyond $f_n$ — it cannot catch the $+40$
+> dB/dec rise of $m=3$. So in this toy model the third term keeps climbing at a net $+20$
+> dB/dec past $f_n$ until the $\sin$ caps: with $f_n=100$ kHz the peak is $-103.6$ dBc/Hz at
+> $\approx18.6$ MHz, about 22 dB **above** the VCO term at the same offset ($-125.4$ dBc/Hz).
+> Real fractional-N loops therefore **must add high-frequency loop-filter poles** (third/
+> fourth-order loops) so the out-of-band rolloff beats $20(m-1)$ dB/dec (external standard
+> practice — see the Gardner and Razavi textbooks; not among this site's five source PDFs).
+> This is the classic origin of "the third term looks harmless on paper, then a high-frequency
+> hump pops up in silicon."
+
+### Worked example (Example 3: the MASH-1-1-1 spot contribution)
+
+> **Example 3**: MASH-1-1-1 ($m=3$), $f_{ref}=50$ MHz, $\Delta=1$, $\zeta=0.707$. Find
+> $\mathcal{L}_{\Delta\Sigma}$ at $f=1$ MHz (first without the loop, then through
+> $\lvert H_{lp}\rvert^2$ with $f_n=1$ MHz and 100 kHz respectively), and compare against this
+> page's in-band floor of $-121.2$ dBc/Hz.
+
+**Step by step:**
+
+1. Prefactor: $\dfrac{(2\pi\times1)^2}{12\times50\times10^6}=\dfrac{39.478}{6\times10^8}=6.580\times10^{-8}\ \text{rad}^2/\text{Hz}$.
+2. Shaping factor: $2\sin\big(\pi\times10^6/(5\times10^7)\big)=2\sin(0.06283\ \text{rad})=0.12558$;
+   raised to the $2(m-1)=4$ → $2.487\times10^{-4}$ (dimensionless).
+3. Before the loop: $6.580\times10^{-8}\times2.487\times10^{-4}=1.636\times10^{-11}$ →
+   $\mathcal{L}_{\Delta\Sigma}(1\text{ MHz})=-107.9$ dBc/Hz.
+4. $f_n=1$ MHz: $\lvert H_{lp}(1\text{ MHz})\rvert^2=1.50$ ($+1.76$ dB) → $-106.1$ dBc/Hz —
+   **15 dB above** the $-121.2$ dBc/Hz floor; the in-band budget is wrecked: the BW is too
+   wide, the ramp has already climbed to its top at 1 MHz and gets a boost from the peaking.
+5. $f_n=100$ kHz: $\lvert H_{lp}\rvert^2=0.0201$ ($-17.0$ dB) → $-124.8$ dBc/Hz — pushed 3.6 dB
+   below the floor, safe on a spot basis (but the high-frequency hump still needs checking —
+   see the toy-model warning above).
+6. Alternatively, leave the BW alone and raise $f_{ref}$ to 100 MHz: before the loop it becomes
+   $-122.9$ dBc/Hz, a 15.04-dB improvement (theoretical asymptote $15.05$ dB — checks out).
+
+**Dimension check**: $\text{rad}^2/\text{Hz}\times$ dimensionless $=\text{rad}^2/\text{Hz}$;
+after $10\log_{10}$ it reads as dBc/Hz — checks out.
+
+```python
+import numpy as np
+from simulations.common.pll_utils import H_lowpass_mag2
+
+fref, m, Delta, f = 50e6, 3, 1.0, 1e6
+P = (2*np.pi*Delta)**2/(12*fref)
+shape = (2*np.sin(np.pi*f/fref))**(2*(m - 1))
+raw = P*shape
+print(f"{P:.4e}", f"{shape:.4e}", round(10*np.log10(raw), 2))
+# -> 6.5797e-08 2.4871e-04 -107.86 (prefactor rad^2/Hz, shaping factor, before-loop dBc/Hz)
+for fn in (1e6, 1e5):
+    lp = H_lowpass_mag2(np.array([f]), fn, 0.707)[0]
+    print(round(fn/1e3), round(10*np.log10(raw*lp), 2))
+# -> 1000 -106.1, 100 -124.83 (L_dSigma(1 MHz) for fn=1 MHz vs 100 kHz, dBc/Hz)
+raw2 = (2*np.pi*Delta)**2/(12*100e6)*(2*np.sin(np.pi*f/100e6))**(2*(m - 1))
+print(round(10*np.log10(raw/raw2), 2))
+# -> 15.04 (improvement in dB for f_ref 50→100 MHz; asymptote (2m-1)x3.01=15.05)
+
+fs = np.logspace(3, np.log10(25e6), 200_000)
+LdS = P*(2*np.sin(np.pi*fs/fref))**(2*(m - 1))*H_lowpass_mag2(fs, 1e5, 0.707)
+k = int(np.argmax(LdS))
+print(round(10*np.log10(LdS[k]), 2), round(fs[k]/1e6, 2))
+# -> -103.6 18.55 (the third term's high-frequency hump under the toy 2nd-order loop: dBc/Hz, MHz)
+```
+
+### Conditions of validity and failure (the ΔΣ white-noise model)
+
+| Condition | Holds when | Fails when |
+|---|---|---|
+| $e[k]$ white, uniform | $\alpha$ is "busy" (no short limit cycle) or dithered | $\alpha$ a simple fraction (e.g. $1/8$) → periodic pattern → **fractional spurs** (discrete spikes, not a continuous spectrum) |
+| PFD/CP linear | high-frequency shaped noise gets filtered by the loop | CP up/down mismatch, nonlinearity → high-frequency noise **folds back** in-band (noise folding); silicon measures worse than the formula |
+| loop rolloff beats the ramp | integral under control, no hump | a 2nd-order loop's $-20$ dB/dec is not enough for $m=3$ (this section's toy demonstrated the $-103.6$ dBc/Hz hump) |
+| quantization error dominant | the formula above is the third term | DTC-assisted, digital PLLs and other fractional techniques have their own residuals (external literature) |
+
 ## Design-knobs list
 
 | Knob | Effect | How to tune |
@@ -422,6 +796,7 @@ for fn in [0.3e6, 6.9e6, 30e6]:
 | VCO $\Gamma_{rms}/q_{max}$ | how high $S_{vco}$ is (the ISF!) | increase swing $q_{max}$, reduce $\Gamma_{rms}$ (LC instead of ring) → can relax $f_n$ |
 | reference $1/f$ | close-in tilt | choose a low-$1/f$ crystal; a narrow BW can't suppress the ref $1/f$ once it's amplified by $N^2$ |
 | CP current mismatch | reference spur | trim/calibrate the charge-pump; a narrow BW attenuates the spur but hurts VCO suppression |
+| ΔΣ order $m$, $f_{ref}$ (fractional-N) | third-term ramp $+20(m-1)$ dB/dec, magnitude $\propto1/f_{ref}^{2m-1}$ | doubling $f_{ref}$ gives $-15$ dB ($m=3$); narrowing $f_n$ chops the ramp; add loop-filter poles to kill the high-frequency hump |
 
 ## Connection to SerDes
 
@@ -445,7 +820,7 @@ relies on eye margin), see
 | linear PLL (small phase error) | type-II second-order closed loop is valid | large unlock/slew → nonlinear, transfer function no longer holds |
 | VCO is $1/f^2$ (white-noise upconversion) | $S_{vco}=k/f^2$, this page's U-shape | with flicker ($1/f^3$ close-in) present → optimal BW shifts, re-integration needed |
 | ignoring loop-filter and spur | toy budget is adequate | precise design must include $S_{lf}$, reference spur, fractional spurs |
-| integer-N | reference $\times N^2$ | fractional-N: quantization noise counted separately, $\Delta\Sigma$ shaping |
+| integer-N | reference $\times N^2$ | fractional-N: ΔΣ quantization-noise third term (now covered in this page's "The third term for fractional-N" section) |
 
 ## Key takeaways
 
@@ -456,6 +831,16 @@ relies on eye margin), see
 - **Optimal loop BW**: minimize $\int S_{out}df$, $f_n^\*\propto\sqrt{S_{vco}/(S_{ref}N^2+S_{cp})}$;
   too narrow leaks VCO, too wide leaks ref/CP. lab_20 numerics: $f_n^\*\approx6.90$ MHz, $\sigma_t\approx259$ fs.
 - This ring-PLL's U-shape has a steeper left arm than right → favors a somewhat larger loop BW.
+- A type-II with a zero **always peaks**: $f_{pk}=f_n\sqrt{2/(s+1)}$,
+  $\lvert H_{lp}\rvert^2_{max}=(s+1)^2/[(s-1)(s+3)]$, $s=\sqrt{1+8\zeta^2}$;
+  $\zeta=0.707\to2.09$ dB @ $0.786f_n$ (the peak is exactly the golden ratio $\varphi$). In a
+  cascade the peak dBs add → the 0.1-dB telecom spec (needs $\zeta\approx4.3$): single-loop
+  optimal $\ne$ cascade optimal.
+- The fractional-N third term:
+  $\mathcal{L}_{\Delta\Sigma}=\frac{(2\pi\Delta)^2}{12f_{ref}}[2\sin(\pi f/f_{ref})]^{2(m-1)}\lvert H_{lp}\rvert^2$
+  (SSB reading; this site's single-sided $S_\phi$ needs $\times2$), **no $\times N^2$**,
+  climbing at $+40$ dB/dec ($m=3$); doubling $f_{ref}$ gives $-15$ dB, a narrow BW chops the
+  ramp; a 2nd-order loop cannot contain the $m=3$ high-frequency hump (add filter poles).
 
 ## Further reading
 
@@ -464,3 +849,11 @@ relies on eye margin), see
 - Why ring's $S_{vco}$ is high and LC's is low: [lc_vs_ring](/06_design_insights/lc_vs_ring)
 - Feeding $\sigma_t$ into eye/BER: [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)
 - The budget's simulation script: `simulations/lab_20_pll_budget.py`
+- The classic source for fractional-N ΔΣ shaping: T. A. D. Riley, M. A. Copeland, and
+  T. A. Kwasniewski, "Delta-Sigma Modulation in Fractional-N Frequency Synthesis," IEEE
+  J. Solid-State Circuits, vol. 28, no. 5, pp. 553–559, May 1993 (external literature, not
+  among this site's five source PDFs)
+- Standard textbooks for type-II loops, the PM mapping, and jitter-peaking specs:
+  F. M. Gardner, *Phaselock Techniques*, 3rd ed., Wiley, 2005; B. Razavi, *Design of CMOS
+  Phase-Locked Loops*, Cambridge Univ. Press, 2020 (external literature, not among this site's
+  five source PDFs)

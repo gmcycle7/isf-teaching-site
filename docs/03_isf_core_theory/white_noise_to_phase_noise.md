@@ -609,6 +609,127 @@ print(round(L, 1), "dBc/Hz")   # -> -145.0 dBc/Hz
 （兩題的 Eq.(21) 是 SSB $/4$ 慣例；若用本站 lab_06 的時域乾淨版 $/2$，兩題各再 $+3$ dB——見上面 factor-of-2 註記。
 完整函式庫：`simulations/common/noise_utils.py`、`simulations/common/isf_utils.py`。）
 
+> **例 3（兩個雜訊源相加）**：真實振盪器從來不只一個 noise 源。這題示範**多源 superposition**——
+> 兩個獨立白噪源同時打進同一個理想 LC 節點，該怎麼合成總 phase noise？
+
+**題目設定。** 沿用例 1 的振盪器參數（$f_0=5$ GHz、$\Delta f=1$ MHz、$q_{max}=1$ pC），節點上疊加兩個
+互相獨立（statistically independent）的白噪電流源：
+
+- **Device A**（例如主要跨導管，直接看到完整 ISF）：$\Gamma_{A,rms}=0.5$、$S_{i,A}=\overline{i_{n,A}^2}/\Delta f=1\times10^{-24}\ \text{A}^2/\text{Hz}$。
+- **Device B**（tail 電流源一類的元件，因為 cyclostationary 閘控只在部分相位貢獻雜訊，見
+  [effective_isf](/03_isf_core_theory/effective_isf) 的 $\Gamma_{eff}=\Gamma\alpha$）：等效 $\Gamma_{eff,B,rms}=0.25$
+  （只有 A 的一半，示意用的 illustrative 值）、但電流噪聲功率較大 $S_{i,B}=4\times10^{-24}\ \text{A}^2/\text{Hz}$
+  （例如偏壓電流較大的元件）。
+
+兩者是**不同的物理雜訊源、彼此獨立**（不相關），所以要問的是：合起來的 $\mathcal{L}_{total}(1\text{MHz})$
+是多少？
+
+**第 0 步：為什麼獨立源要在 $S_\phi$（功率）疊加，不能在 dB 疊加。** 每個 noise 源各自經過（可能不同的）
+ISF 加權、獨立地被積分成相位擾動 $\phi_A(t)$、$\phi_B(t)$（見 [P1] Eq.(11)）；節點上的總 excess phase 是
+線性疊加 $\phi(t)=\phi_A(t)+\phi_B(t)$。對獨立（不相關）隨機過程，方差／功率譜疊加、交叉項期望值為零：
+
+$$
+S_{\phi,total}(\Delta\omega)=\big\langle(\phi_A+\phi_B)(\phi_A+\phi_B)\big\rangle_{\text{頻譜}}=S_{\phi,A}(\Delta\omega)+S_{\phi,B}(\Delta\omega)+\underbrace{2\,\text{Re}\langle\phi_A\phi_B^*\rangle}_{=0\ (\text{獨立})}.
+$$
+
+**這就是本題的「一行規則」：獨立源在 $S_\phi$（線性功率）相加，絕不能直接把兩個 dBc/Hz 數字相加或平均。**
+必須先各自轉回 linear、相加、再取一次 $10\log_{10}$。
+
+**第 1 步：Device A 單獨算（就是例 1 的算法，套 [P1] Eq.(21)）。**
+
+$$
+\mathcal{L}_A=10\log_{10}\!\left(\frac{\Gamma_{A,rms}^2}{q_{max}^2}\cdot\frac{S_{i,A}}{4\,\Delta\omega^2}\right),\qquad \Delta\omega=2\pi\times10^6=6.283\times10^6\ \text{rad/s},\ \Delta\omega^2=3.948\times10^{13}.
+$$
+
+$$
+\frac{\Gamma_{A,rms}^2}{q_{max}^2}=\frac{0.25}{10^{-24}}=2.5\times10^{23}\ \text{C}^{-2},\qquad
+\frac{S_{i,A}}{4\Delta\omega^2}=\frac{10^{-24}}{1.579\times10^{14}}=6.332\times10^{-39}.
+$$
+
+括號內線性值 $\ell_A=2.5\times10^{23}\times6.332\times10^{-39}=1.583\times10^{-15}$，
+$\mathcal{L}_A=10\log_{10}(1.583\times10^{-15})\approx-148.0\ \text{dBc/Hz}$（與例 1 一致——同一組參數）。
+
+**第 2 步：Device B 單獨算（同一公式，$\Gamma\to\Gamma_{eff,B,rms}$、$S_i\to S_{i,B}$）。**
+
+$$
+\frac{\Gamma_{eff,B,rms}^2}{q_{max}^2}=\frac{0.25^2}{10^{-24}}=\frac{0.0625}{10^{-24}}=6.25\times10^{22}\ \text{C}^{-2},\qquad
+\frac{S_{i,B}}{4\Delta\omega^2}=\frac{4\times10^{-24}}{1.579\times10^{14}}=2.533\times10^{-38}.
+$$
+
+括號內線性值 $\ell_B=6.25\times10^{22}\times2.533\times10^{-38}=1.583\times10^{-15}$，
+$\mathcal{L}_B=10\log_{10}(1.583\times10^{-15})\approx-148.0\ \text{dBc/Hz}$。
+
+**「你以為 A 主導，其實不然」**：乍看 $\Gamma_{eff,B,rms}=0.25$ 只有 $\Gamma_{A,rms}=0.5$ 的一半，直覺
+會猜 Device B 的 ISF 權重項 $\Gamma_{eff,B,rms}^2/q_{max}^2$ 差了 $4$ 倍（$-6$ dB），B 應該完全被 A 蓋過、
+可以忽略。**但 Device B 的電流噪聲 $S_{i,B}$ 剛好大 $4$ 倍**（$+6$ dB）——兩個 $\pm6$ dB 恰好抵消，
+算出來 $\mathcal{L}_A=\mathcal{L}_B\approx-148.0$ dBc/Hz，**B 與 A 一樣強，貢獻同等重要，完全不可忽略**。
+這正是「只看 $\Gamma_{rms}$ 大小就猜雜訊貢獻」會踩的陷阱：真正決定貢獻大小的是
+$\Gamma_{rms}^2\cdot S_i$ 這個乘積，兩個因子要一起看。
+
+**第 3 步：功率相加（在 linear domain 相加，不是在 dB 相加）。**
+
+$$
+\mathcal{L}_{total}=10\log_{10}\big(\ell_A+\ell_B\big)=10\log_{10}\big(1.583\times10^{-15}+1.583\times10^{-15}\big)=10\log_{10}(3.166\times10^{-15}).
+$$
+
+用等價的「dB 域功率合成公式」（先各自 $10^{L/10}$ 還原成 linear，相加，再取一次 $10\log_{10}$）核對：
+
+$$
+\mathcal{L}_{total}=10\log_{10}\!\Big(10^{\mathcal{L}_A/10}+10^{\mathcal{L}_B/10}\Big)=10\log_{10}\!\Big(10^{-148.0/10}+10^{-148.0/10}\Big).
+$$
+
+**結果：** $\mathcal{L}_{total}(1\,\text{MHz})\approx-145.0\ \text{dBc/Hz}$。
+
+- **算術上發生了什麼**：$A$、$B$ 兩源功率相等，合起來剛好是**兩倍功率** $\Rightarrow 10\log_{10}2\approx3.01$ dB，
+  所以 $\mathcal{L}_{total}\approx\mathcal{L}_A+3.0\ \text{dB}=-148.0+3.0=-145.0$ dBc/Hz。
+  Device B 對總雜訊的貢獻，換算成「比只有 A 時劣化了多少」，就是 **X = 3.0 dB**——
+  而不是被邏輯上「$\Gamma_{eff,B,rms}$ 只有一半」誤導成可忽略的 0 dB。
+- **一句話規則（務必記住）**：**不相關（獨立）雜訊源要在 $S_\phi$／功率上相加，絕不能直接把 dBc/Hz
+  數字相加，也不能取平均。** 兩個相同大小的源功率相加 $=\times2=+3.0$ dB，不是 $+6$ dB（那是電壓/幅度
+  相加、相干疊加才會發生的事，white noise 源之間不相干）。
+
+**Dimension check：** $\ell_A$、$\ell_B$ 分別跟例 1／例 2 一樣是 $\Gamma_{rms}^2/q_{max}^2\cdot S_i/(4\Delta\omega^2)$
+的形式，因次都化簡為 $\text{s}$（per-Hz，見例 1 的 dimension check），兩個同因次的量才能相加；
+相加後仍是 $\text{s}$，取 $10\log_{10}$ 讀作 dBc/Hz ✓。
+
+```python
+import numpy as np
+
+qmax = 1e-12                       # C
+dw = 2*np.pi*1e6                   # rad/s (Δf = 1 MHz)
+
+# Device A: 主要跨導管，看到完整 ISF
+gamma_A, Si_A = 0.5, 1e-24         # (–, A^2/Hz)
+# Device B: tail 元件，cyclostationary 閘控後的等效 Gamma_eff,rms 較小，但電流噪聲較大
+gamma_effB, Si_B = 0.25, 4e-24     # (–, A^2/Hz)
+
+def bracket(gamma_rms, Si, qmax, dw):
+    return (gamma_rms**2 / qmax**2) * (Si / (4 * dw**2))   # [P1] Eq.(21) 括號內線性值
+
+ell_A = bracket(gamma_A, Si_A, qmax, dw)
+ell_B = bracket(gamma_effB, Si_B, qmax, dw)
+L_A = 10*np.log10(ell_A)
+L_B = 10*np.log10(ell_B)
+print(round(L_A, 1), "dBc/Hz  (A alone)")   # -> -148.0 dBc/Hz
+print(round(L_B, 1), "dBc/Hz  (B alone)")   # -> -148.0 dBc/Hz
+
+# 正確作法：功率（linear S_phi）相加，再取一次 log；不是把兩個 dB 數字相加
+L_total_via_linear = 10*np.log10(ell_A + ell_B)
+L_total_via_powersum = 10*np.log10(10**(L_A/10) + 10**(L_B/10))   # 等價寫法，供對照
+print(round(L_total_via_linear, 1), "dBc/Hz  (A+B power-summed)")     # -> -145.0 dBc/Hz
+print(round(L_total_via_powersum, 1), "dBc/Hz  (cross-check)")        # -> -145.0 dBc/Hz
+
+X_dB = L_total_via_linear - L_A   # B 帶來的劣化量：本例中 A、B 貢獻相等
+print(round(X_dB, 1), "dB  (B 的貢獻，即使 Gamma_eff,B,rms 只有 Gamma_A,rms 的一半)")  # -> 3.0 dB
+```
+
+（本例延續 [P1] Eq.(21) 的 SSB $/4$ 慣例，兩源公式相同、只是各自代入自己的 $\Gamma_{rms}$（或
+$\Gamma_{eff,rms}$）與 $S_i$ 後在**功率**上相加；若改用 lab_06 時域乾淨版 $/2$，$\mathcal{L}_A$、$\mathcal{L}_B$、
+$\mathcal{L}_{total}$ 三者會一起各加 $3$ dB，彼此的 **3.0 dB 差距不變**——這再次呼應前面 factor-of-2
+註記：常數慣例不影響 scaling／相對關係。多源 superposition 的完整規則與 cyclostationary $\Gamma_{eff}$
+的推導見 [effective_isf](/03_isf_core_theory/effective_isf)；完整函式庫：`simulations/common/noise_utils.py`、
+`simulations/common/isf_utils.py`。）
+
 ## 重點回顧
 
 - white noise 平的；**$1/f^2$ 斜率完全來自相位積分器**的 $1/\omega^2$，ISF 只設定權重大小。

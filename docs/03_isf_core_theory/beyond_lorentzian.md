@@ -32,6 +32,11 @@ description: 白噪假設 Var[Δφ]=2D|t| 給 Lorentzian；flicker FM 使 Var[Δ
 > 白噪版線寬 50 Hz、flicker 版線寬 3.1 kHz——**一個 offset 上的 dBc/Hz 數字完全不決定線寬，
 > 雜訊「顏色」才決定**。這正是 lab_29 數值演示的主秀。
 
+> **動手試**：[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) 頁面內嵌了一個
+> 互動 explorer——同一個 $\mathcal{L}(10\,\text{kHz})$ 規格滑桿、white FM／flicker FM 切換、
+> 外加頻譜儀 RBW 滑桿，可以親手看到本頁「同一規格、線寬差百倍」的結論，以及 RBW 太寬時
+> 轉平／近高斯肩部怎麼被抹平。
+
 ---
 
 ## Part A：flicker FM 的 $1/f^3$ 線形

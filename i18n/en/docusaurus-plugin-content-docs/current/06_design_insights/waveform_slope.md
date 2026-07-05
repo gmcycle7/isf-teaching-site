@@ -83,6 +83,15 @@ $$
   $\Gamma(\theta)\propto1/\sin\theta$ only holds where slope is nonzero; the rigorous LC ISF is
   $\Gamma(\theta)=-\sin\theta$ ($\Gamma=0$ at the peak $\theta=0$, $|\Gamma|$ maximal at the ZC $\theta=\pi/2$).
 
+> **The divergence problem now has its rigorous resolution (resolved)**: the $1/\text{slope}$ divergence
+> at the peak has an official "parent formula" — the closed form of [P1]'s appendix (Eq.(37), p.193)
+> $\Gamma=f'/(f'^{\,2}+f''^{\,2})$: on transitions ($f'^{\,2}\gg f''^{\,2}$) it degenerates into this
+> page's $1/f'$ heuristic; near the peak the numerator $f'\to0$ while the denominator is held up by
+> $f''^{\,2}$, so $\Gamma\to0$ — **bounded, no divergence**. Substituting $f=\cos$ gives the denominator
+> $\sin^2+\cos^2=1$ and $\Gamma=-\sin$ exactly. For the full derivation, the verbatim transcription of
+> [P1]'s three ISF calculation methods, and the numerical duel, see
+> [isf_from_waveform](/03_isf_core_theory/isf_from_waveform).
+
 > **A common direction confusion needs to be spelled out here**: the "shift" picture above,
 > "$\Delta t=\Delta V/\dot V$," describes "how much the threshold-crossing time moves after the waveform is
 > perturbed by voltage" — that is **threshold-crossing sensitivity**, where a large slope makes timing more
@@ -261,6 +270,7 @@ for th in (0.0, np.pi/2):
 ## Further reading
 
 - Full impulse→phase derivation: [impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift)
+- The rigorous parent formula of $1/\text{slope}$ and [P1]'s three ISF calculation methods: [isf_from_waveform](/03_isf_core_theory/isf_from_waveform)
 - LTV (why the same impulse has a different effect at different phases): [lti_vs_ltv](/02_foundations/lti_vs_ltv)
 - Symmetry and $c_0$: [symmetry](/06_design_insights/symmetry)
 - Swing and $q_{max}$: [tank_swing](/06_design_insights/tank_swing)

@@ -71,6 +71,13 @@ $$
   「平移」近似只在斜率不為 0 時成立；嚴格的 LC ISF 是 $\Gamma(\theta)=-\sin\theta$（在波峰 $\theta=0$
   處 $\Gamma=0$，在 ZC $\theta=\pi/2$ 處 $|\Gamma|$ 最大）。
 
+> **發散問題的嚴格解（resolved）**：$1/\text{slope}$ 在波峰的發散如今有正式的「母公式」——
+> [P1] 附錄的 closed form（Eq.(37), p.193）$\Gamma=f'/(f'^{\,2}+f''^{\,2})$：在 transition 上
+> （$f'^{\,2}\gg f''^{\,2}$）它退化成本頁的 $1/f'$ heuristic；在波峰處分子 $f'\to0$、分母被
+> $f''^{\,2}$ 撐住，$\Gamma\to0$ **有界不發散**。對 $f=\cos$ 代入得分母 $\sin^2+\cos^2=1$、
+> $\Gamma=-\sin$ 精確成立。完整推導、[P1] 三種 ISF 計算法的逐字轉錄與數值對決，見
+> [isf_from_waveform](/03_isf_core_theory/isf_from_waveform)。
+
 > **這裡有一個常見的方向混淆，要說清楚**：上面「$\Delta t=\Delta V/\dot V$」的平移圖像，
 > 講的是「波形被電壓擾動後，過零時刻（threshold crossing）移動多少」——那是 **threshold-crossing
 > 敏感度**，斜率大時 timing 反而穩（這也是「快 transition 有幫助」的另一個角度）。
@@ -231,6 +238,7 @@ for th in (0.0, np.pi/2):
 ## 延伸閱讀
 
 - impulse→phase 完整推導：[impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift)
+- $1/\text{slope}$ 的嚴格母公式與 [P1] 三種 ISF 計算法：[isf_from_waveform](/03_isf_core_theory/isf_from_waveform)
 - LTV（為何同 impulse、不同相位、不同效果）：[lti_vs_ltv](/02_foundations/lti_vs_ltv)
 - 對稱性與 $c_0$：[symmetry](/06_design_insights/symmetry)
 - swing 與 $q_{max}$：[tank_swing](/06_design_insights/tank_swing)

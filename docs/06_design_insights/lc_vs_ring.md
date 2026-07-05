@@ -113,6 +113,165 @@ phase noise 與級數 $N$ 無關。微觀上，$N$↑ 會降 $\Gamma_{rms}$（Eq
 - **結論**：固定中心頻率與功耗下，加級數**不會**改善 ring 的 phase noise／jitter——[P2] 的招牌反直覺結果。
 - **設計含意**：選 $N$ 要看調諧範圍、多相位需求、面積、最高 $f_0$，而**不是**為了 phase noise。
 
+## 第 2b 步：差動 ring——N-independence 失落的另一半（[P2] Eq.(31)–(35), p.796，已核實 ✓）
+
+上面的 N-independence 只講了**一半的故事**：它是 **single-ended** CMOS ring 的結論。
+[P2] Sec. V-B（p.796）對 **differential（差動）** MOS ring（電阻負載 $R_L$、tail current 偏置）
+重做同一套記帳，結局反轉——**phase noise 公式裡明含一個因子 $N$**。以下五條公式均已對照
+[P2] 原始 PDF p.796 逐字核實（渲染頁截圖比對）。
+
+**(a) 功率記帳從「動態」變「靜態」**（[P2] Eq.(31), p.796）：
+
+$$
+P=N\,I_{tail}\,V_{DD}
+$$
+
+- 差動對由 tail current source（尾電流源）恆流偏置：**不管有沒有在切換**，每級都持續從
+  $V_{DD}$ 抽 $I_{tail}$（class-A 式的靜態記帳），$N$ 級就是 $N$ 份。
+- **單位檢查**：$(\text{無因次})\cdot[\text{A}]\cdot[\text{V}]=[\text{W}]$ ✓。
+- 對照 single-ended 的 Eq.(21) $P=2\eta N V_{DD}q_{max}f_0$：那邊是「每週期充放 $q_{max}$」
+  的**動態**功耗，功率自動綁著 $f_0$；這邊的**靜態**功耗與 $f_0$ 無關——這個記帳差異就是
+  結局反轉的種子。
+
+**(b) 頻率＝tail 電流對節點電荷 slew**（[P2] Eq.(32), p.796）：
+
+$$
+f_0=\frac{1}{2Nt_D}\approx\frac{1}{2\eta N t_r}\approx\frac{I_{tail}}{2\eta N q_{max}}
+$$
+
+- 最後一步的物理：每級 transition 是 tail current 對節點電荷 $q_{max}$ 做 slew（斜率充放），
+  $t_r\approx q_{max}/I_{tail}$，比例常數收進 $\eta$（同 Eq.(14)–(15) 的級延遲常數，$\approx1$）。
+- **單位檢查**：$[\text{A}]/([\text{C}])=[\text{A/(A·s)}]=1/\text{s}=[\text{Hz}]$ ✓。
+- **factor-2 flag**：$1/(2Nt_D)$ 的 2 是「訊號繞環兩圈才回同相」的物理計數（同 Eq.(15)），
+  與 SSB／時域慣例**無關**。
+
+**(c) 固定 $P$、$f_0$ 之下加 $N$：兩條鏈子同時勒緊**
+
+- 由 Eq.(31) 反解：$I_{tail}=P/(N V_{DD})\propto 1/N$——功率固定，多一級就得砍每級電流。
+- 代入 Eq.(32)：$q_{max}=I_{tail}/(2\eta N f_0)\propto 1/N^2$——電流變小（$1/N$）**又**要
+  在更短的級延遲內完成 transition（再一個 $1/N$）。[P2] p.797 原文（逐字）：
+  "increasing the number of stages at a fixed total power dissipation demands a proportional
+  reduction of tail-current sources, which will reduce the swing, and hence $q_{max}$,
+  **by a factor of $1/N^2$**."
+- 對照 single-ended：Eq.(21) 在固定 $P$、$f_0$ 下只給 $q_{max}\propto1/N$（一次方）。差動多
+  被勒一次的原因：功率不再隨 $f_0$ 的充放電自動記帳，砍 tail 電流是唯一途徑，而砍電流直接砍 swing。
+
+**(d) 每個節點的雜訊**（[P2] Eq.(33), p.796）：
+
+$$
+\frac{\overline{i_n^2}}{\Delta f}=\left(\frac{\overline{i_n^2}}{\Delta f}\right)_{N}+\left(\frac{\overline{i_n^2}}{\Delta f}\right)_{Load}=4kT\,I_{tail}\left(\frac{1}{V_{char}}+\frac{1}{R_L I_{tail}}\right)
+$$
+
+- 兩份來源：**差動電晶體**（下標 $N$，指 NMOS 差動管）＋**負載電阻** $R_L$。$V_{char}$：
+  long-channel 平衡級為 $(V_{GS}-V_T)/\gamma$、short-channel 為 $E_cL/\gamma$（[P2] p.796 原文）。
+- **單位檢查**：$4kT I_{tail}/V_{char}=[\text{J}][\text{A}]/[\text{V}]$；$[\text{J}]=[\text{V·A·s}]$，
+  故 $=[\text{V·A·s·A/V}]=[\text{A}^2\text{·s}]=[\text{A}^2/\text{Hz}]$ ✓。
+- **$2N$ 個節點**：每級差動有**兩個**輸出節點，全環共 $2N$ 個 single-ended 節點；[P2] p.796
+  原文："The phase noise and jitter due to all $2N$ noise sources is $2N$ times the value given
+  by (6) and (12)."——這個 2 是**節點計數**，不是 SSB 慣例的 2。
+- **tail 源哪去了？**同頁原文："Surprisingly, tail-current source noise in the vicinity of $f_0$
+  does not affect the phase noise."——影響 phase noise 的是 tail 的**低頻**雜訊（走 symmetry／$c_0$
+  那條 1/f³ 路，見 [symmetry](/06_design_insights/symmetry)）與**偶次諧波附近**的雜訊（可用串聯電感
+  ／並聯電容壓制），所以白噪記帳只算差動管＋負載兩份。
+
+**(e) 收斂：差動 ring 的 phase noise 與 jitter 下限**（[P2] Eq.(34)/(35), p.796）：
+
+$$
+\mathcal{L}_{min}\{\Delta f\}=\frac{8}{3\eta}\cdot N\cdot\frac{kT}{P}\cdot\left(\frac{V_{DD}}{V_{char}}+\frac{V_{DD}}{R_L I_{tail}}\right)\cdot\frac{f_0^2}{\Delta f^2}
+$$
+
+$$
+\kappa_{min}=\sqrt{\frac{8}{3\eta}}\cdot\sqrt{N\cdot\frac{kT}{P}\cdot\left(\frac{V_{DD}}{V_{char}}+\frac{V_{DD}}{R_L I_{tail}}\right)}
+$$
+
+（$\mathcal{L}$ 即論文的 $L\{\Delta f\}$，本站記號；原文明述兩式 "valid in both long- and
+short-channel regimes of operation with the right choice of $V_{char}$"；bipolar 差動 ring 由
+Eq.(36), p.797 的 shot＋load noise 併回**同兩式**，$V_{char}=4kT/q_e$。）
+
+與 single-ended 的 Eq.(23) 相比**只差兩處**：多了明含的 $N$；括號多了負載電阻那份
+$V_{DD}/(R_L I_{tail})$。$N$ 是從哪裡冒出來的？把 $\mathcal{L}\propto(\text{源數})\cdot\Gamma_{rms}^2\cdot S_i/q_{max}^2$
+的指數逐項記帳（toy 記帳，固定 $P$、$f_0$、固定 swing $R_L I_{tail}$）：
+
+| 因子 | single-ended（Eq.23 之路） | differential（Eq.34 之路） |
+|---|---|---|
+| noise 源數 | $\times N$（每級 NMOS+PMOS 已併入 Eq.18） | $\times 2N\propto N$（每級兩個輸出節點） |
+| $\Gamma_{rms}^2$（Eq.16） | $\propto N^{-3}$ | $\propto N^{-3}$ |
+| 每源 $S_i$ | $\propto N^{0}$（固定 $P,f_0$ 下 $W$ 不變） | $\propto I_{tail}\propto N^{-1}$（Eq.33 兩項皆是） |
+| $1/q_{max}^2$ | $\propto N^{2}$（$q_{max}\propto1/N$） | $\propto N^{4}$（$q_{max}\propto1/N^2$） |
+| **乘積** | $N^{1-3+0+2}=N^{0}$ | $N^{1-3-1+4}=N^{+1}$ |
+
+single-ended 恰好全消（$N^0$＝Eq.23 無 $N$）；差動的 $q_{max}\propto1/N^2$ 多貢獻兩個正冪，
+淨剩 $N^{+1}$——正是 Eq.(34) 明擺著的那個 $N$。
+
+> **[P2] 自己的結論句（pp.796–797，逐字）**："Note that, in contrast with the single-ended ring
+> oscillator, a differential oscillator **does** exhibit a phase noise and jitter dependency on the
+> number of stages, with the phase noise **degrading as the number of stages increases** for a given
+> frequency and power dissipation. This result may be understood as a consequence of the necessary
+> reduction in the charge swing that is required to accommodate a constant frequency of oscillation
+> at a fixed power level as $N$ increases."
+> ——固定頻率與功耗下，差動 ring 的 phase noise **隨 $N$ 增加而變差**；禍首是被迫縮小的
+> charge swing（$q_{max}\propto1/N^2$）。
+
+**慣例 flag（每次出現 2 或 4 都要交代）**：Eq.(34) 的前置係數 $8/(3\eta)$ 與 Eq.(23) 同族，
+繼承 [P2] Eq.(6) 的 **SSB 記帳**（與 [P1] Eq.(21) 分母的 4 同一慣例家族；換成時域 $/2$ 慣例
+所有絕對 dBc/Hz 數字整體 $+3$ dB，如例 B 的 $-148$（SSB, $/4$）對 $-145$（時域, $/2$），見
+[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)）。下面例 3 的
+$\Delta\mathcal{L}$ 是兩個 $\mathcal{L}$ **相減**，慣例因子相消——**兩種慣例答案相同**。
+
+> **例 3（差動 ring：$N=4$ vs $N=12$，同 $P$、同 $f_0$，$\Delta\mathcal{L}$ 是多少？）**
+> 取 $f_0=5$ GHz、$\Delta f=1$ MHz、$kT=4.0\times10^{-21}$ J（300 K）、$P=1$ mW、$\eta\approx1$、
+> $V_{DD}/V_{char}=3$（沿用本頁後文例 1 的示意值）、固定-swing 設計 $R_L I_{tail}=V_{DD}/2$
+> $\Rightarrow V_{DD}/(R_L I_{tail})=2$（括號 $=3+2=5$，設計上把 $R_L\propto N$ 放大以維持 swing，
+> 故括號不隨 $N$ 變）。用 [P2] Eq.(34)。
+
+**逐步代入（帶單位）**：
+
+$$
+\begin{aligned}
+\left(\frac{f_0}{\Delta f}\right)^2&=(5000)^2=2.5\times10^{7},\qquad
+\frac{kT}{P}=\frac{4.0\times10^{-21}\ \text{J}}{1\times10^{-3}\ \text{W}}=4.0\times10^{-18}\ \text{s},\\[4pt]
+N=4:\ \mathcal{L}_{min}&=10\log_{10}\!\Big(\tfrac{8}{3}\cdot4\cdot(4.0\times10^{-18})\cdot5\cdot(2.5\times10^{7})\Big)
+=10\log_{10}(5.33\times10^{-9})=-82.7\ \text{dBc/Hz},\\[4pt]
+N=12:\ \mathcal{L}_{min}&=10\log_{10}\!\Big(\tfrac{8}{3}\cdot12\cdot(4.0\times10^{-18})\cdot5\cdot(2.5\times10^{7})\Big)
+=10\log_{10}(1.60\times10^{-8})=-78.0\ \text{dBc/Hz},\\[4pt]
+\Delta\mathcal{L}&=10\log_{10}\frac{12}{4}=10\log_{10}3=+4.77\ \text{dB}.
+\end{aligned}
+$$
+
+- **結果**：級數 4→12（$\times3$），phase noise 從 $-82.7$ 惡化到 $-78.0$ dBc/Hz，差
+  $+4.77$ dB。一般式：固定 $P$、$f_0$、電壓比下 $\Delta\mathcal{L}=10\log_{10}(N_2/N_1)$。
+  jitter 常數同理：Eq.(35) 給 $\kappa_{min}\propto\sqrt{N}$，$N\times3$ → $\kappa\times\sqrt3\approx1.732$。
+- **交叉檢查（對後文例 1 的 single-ended 值）**：差動 $N=4$ 的 $-82.7$ 比 single-ended 的 $-91.0$ 高，可分解為
+  括號多了負載份（$3\to5$，$10\log_{10}(5/3)=2.2$ dB）加上 $\times N$（$10\log_{10}4=6.0$ dB）：
+  $-91.0+2.2+6.0=-82.8\approx-82.7$（0.1 dB 為中間捨入）✓。
+- **Dimension check**：同 Eq.(23)：$\dfrac{[\text{J}]}{[\text{W}]}\cdot(\text{無因次})\cdot(\text{無因次})^2=[\text{s}]$
+  → per-Hz 功率比 → $10\log_{10}$ 得 dBc/Hz ✓。
+- **Python 驗證**：
+
+```python
+import numpy as np
+def L_ring_diff(N, kT, P, f0, df, eta=1.0, vdd_vchar=3.0, vdd_swing=2.0):  # [P2] Eq.(34)
+    return 10*np.log10(8/(3*eta) * N * (kT/P) * (vdd_vchar + vdd_swing) * (f0/df)**2)
+L4  = L_ring_diff(4,  4.0e-21, 1e-3, 5e9, 1e6)
+L12 = L_ring_diff(12, 4.0e-21, 1e-3, 5e9, 1e6)
+print(round(L4,1), round(L12,1), round(L12-L4,2))   # -> -82.7 -78.0 4.77
+```
+
+**適用／失效條件**：
+
+- **適用**：white-noise dominated（symmetry 條件已滿足、1/f 上轉已壓——[P2] Sec. V 開頭的前提）；
+  差動對完全切換、電阻負載；Eq.(34)/(35) 在 long-/short-channel 皆成立（選對 $V_{char}$）；
+  MOS 或 bipolar（後者經 Eq.(36) 換 $V_{char}=4kT/q_e$）。
+- **注意**：$\mathcal{L}_{min}$／$\kappa_{min}$ 是**下限**（同 Eq.(25)/(26) 的邏輯——額外雜訊源、
+  不對稱、supply/substrate 都只會更差）；若設計**固定 $R_L$** 而非固定 swing，則
+  $V_{DD}/(R_L I_{tail})\propto N$，惡化比 $10\log_{10}N$ **更陡**；$\Gamma_{rms}$ 的 $N^{-3/2}$
+  沿用 Eq.(16)，[P2] Fig. 9（p.795）以三種約束情境（fixed power/fixed swing、fixed power/fixed
+  $R_L$、fixed tail current/fixed $R_L$）量測差動 ring 的 rms ISF，都貼近同一 scaling。
+
+> **一行設計心法**：single-ended ring＝phase noise 對 $N$ 免疫（Eq.23 無 $N$）；差動 ring＝
+> **級數最少的贏**（Eq.34 明含 $N$，每加倍級數 $+3.01$ dB）——在 phase margin、quadrature／
+> 多相位、除頻需求允許的**最小 $N$** 停下。
+
 ## 第 3 步：jitter accumulation——LC 慢、ring 快
 
 ring 是 free-running、無絕對時間參考，每級 transition 加一點獨立 timing noise，edge 時間做
@@ -150,7 +309,7 @@ $$
 
 | 目標 | LC knob | Ring knob |
 |---|---|---|
-| 降 phase noise（1/f²） | 提高 tank $Q$、加大 swing（$q_{max}$） | 加大每級電流/swing；$N$ 對 phase noise 幾乎無效 |
+| 降 phase noise（1/f²） | 提高 tank $Q$、加大 swing（$q_{max}$） | 加大每級電流/swing；single-ended：$N$ 幾乎無效；差動：$N$ 越少越好（Eq.34，見第 2b 步） |
 | 降 1/f³（close-in） | 對稱 differential、低 $c_0$ | 對稱負載（[P2] Fig. 17 symmetry voltage） |
 | 寬調諧 | varactor（範圍窄） | 改 bias 電流/$\tau_D$（範圍寬，ring 強項） |
 | 多相位輸出 | 需額外電路 | 天生 $N$ 相位（ring 強項） |
@@ -234,6 +393,7 @@ print(round(L_lc(0.5, 1e-12, 1e-24, 5e9, 1e6), 1))   # -> -148.0
 - ring：方波、ISF 集中於 transition、無儲能、$N$ 個 noise 源、$\Gamma_{rms}\propto N^{-3/2}$、快 random-walk jitter。
 - [P2] 三公式：$f_0=1/(2N\tau_D)$（Eq.15）、$\Gamma_{rms}\propto N^{-3/2}$（Eq.16，v7 已重核：根號只蓋常數）、FOM $\frac{8}{3\eta}\,\frac{V_{DD}}{V_{char}}\,\frac{kT}{P}(\omega_0/\Delta\omega)^2$（Eq.23，前置係數 $8/(3\eta)$，已核實）。
 - **N-independence**：固定 $f_0$/功率下 ring phase noise ~與 $N$ 無關（各 $N$ 因子相消）；選 $N$ 看調諧/多相位/面積。
+- **差動 ring 例外**：[P2] Eq.(34), p.796 明含 $N$——固定 $f_0$/功率下 $\mathcal{L}$ 隨 $10\log_{10}N$ 惡化（$q_{max}\propto1/N^2$ 是禍首）；$N=4\to12$ 差 $+4.77$ dB。差動設計用最少必要級數。
 - ISF 看得見相位敏感度分佈與 scaling；看不見絕對 $Q$、強非線性、耦合、確切常數。
 
 ## 延伸閱讀

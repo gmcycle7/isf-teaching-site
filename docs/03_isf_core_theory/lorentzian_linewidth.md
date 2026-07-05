@@ -3,6 +3,8 @@ title: Lorentzian 線寬：解開 1/f² 在 Δf→0 發散的矛盾
 description: 從相位 random walk（Var[Δφ]=2D|t|）經高斯特徵函數推出載波自相關 ½cos(ω₀τ)e^{-D|τ|}，再用 Wiener-Khinchin 得 Lorentzian S∝D/(D²+Δω²) 與 3-dB 線寬 D/π，並把 1/f² 在近載波的「假發散」修正為有限峰、總功率守恆，連 ISF 的 D=Γrms²/(4qmax²)·S_i 與 [E2] Demir 2000。
 ---
 
+import LineshapeExplorer from "@site/src/components/LineshapeExplorer";
+
 # Lorentzian 線寬：解開 1/f² 在 Δf→0 發散的矛盾
 
 > **前置閱讀**：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)（$1/f^2$ 招牌結果 [P1] Eq.(21)）、[rms_isf](/03_isf_core_theory/rms_isf)（$\Gamma_{rms}^2/q_{max}^2$ 設定 phase diffusion）、[stochastic_noise_basics](/02_foundations/stochastic_noise_basics)（自相關 ↔ Wiener–Khinchin）。
@@ -303,6 +305,20 @@ $$
 正是「轉折」發生處。**這張圖一眼就說明：$1/f^2$ 是尾巴、Lorentzian 才是全貌。**
 **如何解讀右圖**：量到的 $\operatorname{Var}[\Delta\phi(\tau)]$（藍）精準落在 $2D\tau$（黑虛）直線上，
 證實相位確實是線性擴散的 random walk——這就是指數自相關、進而 Lorentzian 的根。
+
+### 互動：同一個 L(f_ref) 規格，兩種線形，RBW 一抹就沒了
+
+上面的圖是白噪 FM 的個案；[beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian) 會證明
+flicker FM 之下同一套機制給出**近高斯**線核而不是 Lorentzian，而且線寬可以差到兩個數量級。
+下面這個互動小工具把兩種線形疊在同一組軸上，並讓你調頻譜儀的**解析頻寬（RBW）**——
+親手看看「轉平」這件事在 RBW 太寬時怎麼被儀器自己的解析度抹平：
+
+<LineshapeExplorer />
+
+**讀法**：固定 $\mathcal{L}(10\,\text{kHz})$ 這一個規格點，切換 white FM／flicker FM 看
+FWHM_true 差多少（白噪版數十至數百 Hz、flicker 版數千 Hz，同一數字差可達百倍）；再把 RBW
+滑桿往右拉，看灰色虛線（真實線形）與藍色實線（RBW 卷積後的「量測」線）何時分道揚鑣——
+RBW 遠大於線寬時，量到的只是一個寬而無特徵的鼓包，轉平／近高斯肩部的資訊已經丟了。
 
 核心 Python（完整 script：`simulations/lab_18_lorentzian.py`）：
 

@@ -276,6 +276,8 @@ derivation in [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upc
 | Fig. 7 | 183 | Waveforms and ISFs of (a) LC and (b) ring | toy counterpart `lc_vs_ring_isf_comparison.png` |
 | Fig. 8 | 183 | Frequency-translation map: noise near $n\omega_0$ moved onto the carrier | [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) |
 | Fig. 12 | 185 | $\overline{i^2}/f$ and $\mathcal{L}(\Delta f)$: 1/f³, 1/f², floor | flicker upconversion lab |
+| Fig. 20–22 | 189–190 | Injection experiments: sideband $\propto I^2$, $-20$ dB/dec, symmetric vs asymmetric node | see the Sec. V section below |
+| Fig. 23–24 | 190–191 | Measured $\mathcal{L}(\Delta f)$ of the 232/115 MHz rings (distinct 1/f³ and 1/f² regions) | see the Sec. V section below |
 
 This site redraws the conceptual comparison with a Python toy model (**not transistor-level**):
 
@@ -296,6 +298,239 @@ This site redraws the conceptual comparison with a Python toy model (**not trans
 
 Design-side summaries in [symmetry](/06_design_insights/symmetry) and
 [lc_vs_ring](/06_design_insights/lc_vs_ring).
+
+## The paper's own end-to-end silicon validation (Sec. V)
+
+> **What this section answers**: this site's numeric chain (Example B's $-148.0$ dBc/Hz) uses
+> clean pedagogical numbers; the very same "process data → $C_{node}$ → $q_{max}$ →
+> $\overline{i_n^2}/\Delta f$ → $\Gamma_{rms}^2$ → Eq.(21) → $\mathcal{L}$" pipeline was
+> validated by [P1] Sec. V (pp.189–191) on **real silicon** with eight experiments, with
+> prediction–measurement gaps of 0.2–0.7 dB — and every input is available **a priori**
+> (process parameters, geometry, swing, extracted ISF); nothing is fitted after the fact.
+> Below we first survey the eight experiments, then replay the chain with the most complete
+> numbers step by step.
+
+The eight experiments at a glance (numbers transcribed verbatim from [P1] pp.189–191):
+
+| # | Experiment | What it verifies | Paper's result |
+|---|---|---|---|
+| 1 | 5-stage 5.4 MHz CMOS ring, sinusoidal current injection, sweeping amplitude ($f_m=100$ kHz, $f_0+f_m=5.5$ MHz, $2f_0+f_m=10.9$ MHz, $3f_0+f_m=16.3$ MHz) | Linearity of current→sideband in Eq.(18) | Upper/lower sidebands equal (within the 0.2 dB accuracy of the setup); best-fit slope 19.8 dB/decade vs predicted 20 (Fig. 20) |
+| 2 | Same ring, 20 µA (rms), sweeping $f_m$ | The $1/\Delta\omega$ dependence of Eq.(18) | All four injection frequencies give $-20$ dB/decade (Fig. 21) |
+| 3 | 5-stage ring, one stage made asymmetric with an extra pulldown NMOS, 20 µA (rms) injected | Low-frequency upconversion is set by $c_0$ (waveform symmetry) | Sidebands 7 dB larger at the asymmetric node; symmetric nodes essentially unchanged (Fig. 22) |
+| 4 | **5-stage 232 MHz single-ended ring (2-µm, 5-V CMOS)** | The full Eq.(21) + Eq.(24) chain | Predicted $-114.7$ vs measured $-114.5$ dBc/Hz @ 500 kHz; corner predicted 75 vs measured 80 kHz (Fig. 23) |
+| 5 | 11-stage 115 MHz ring (same die) | Same chain with different $N$ and device sizes | Predicted $-122.1$ vs measured $-122.5$ dBc/Hz @ 500 kHz; corner predicted 43 vs measured 45 kHz (Fig. 24) |
+| 6 | 7-stage current-starved ring ($f_0$ held at 60/50 MHz), control voltages tune rise/fall independently | Symmetry should move only 1/f³, not 1/f² (Eq.(24), Eq.(30)) | Tuning symmetry strongly suppresses the 1/f³ region while barely touching 1/f²; an optimum symmetry point exists (Fig. 25/26) |
+| 7 | 4-stage differential 200 MHz ring (0.5-µm) | Eq.(21); "only half-circuit symmetry counts" | Predicted $-103.2$ vs measured $-103.9$ dBc/Hz @ 1 MHz; a distinct 1/f³ region despite differential symmetry (Fig. 27) |
+| 8 | Bipolar Colpitts 100 MHz, sweeping $n=C_1/(C_1+C_2)$ ($C_{eq}$ fixed) | Conduction-angle effect of cyclostationary noise / $\Gamma_{eff}$ | A definite optimum conduction angle exists; phase noise minimized near $n\approx0.2$ — the theoretical basis for the classic Colpitts rule of thumb (Fig. 28) |
+
+### Full-chain replay: the fourth experiment (5-stage, 232 MHz, 2-µm 5-V CMOS)
+
+This is the chain with the most complete numbers in the whole paper — every input is printed
+on p.190, and we substitute them back step by step.
+
+**Step 0 — the paper's process/geometry inputs** ([P1] p.190, transcribed verbatim):
+
+| Quantity | Value | Unit |
+|---|---|---|
+| gate oxide thickness $t_{ox}$ | 25 | nm |
+| $V_{TN}$ | 0.6 | V |
+| $V_{TP}$ | 0.53 | V |
+| $(W/L)_N$ | 3 µm / 2 µm | — |
+| $(W/L)_P$ | 5 µm / 2 µm | — |
+| lateral diffusion $L_d$ | 0.1 | µm (so $L_{\text{eff}}=2-2\times0.1=1.8$ µm) |
+| total node capacitance $C_{total}$ (incl. parasitics, computed from process + geometry) | 35.7 | fF |
+| measurement method | delay-based | — (Fig. 23 shows distinct 1/f³ and 1/f² regions) |
+
+**Step 1 — $q_{max}$**: 5-V process, node swing $V_{swing}=5$ V:
+
+$$
+q_{max}=C_{total}\,V_{swing}=35.7\ \text{fF}\times5\ \text{V}=178.5\ \text{fC}
+$$
+
+The paper rounds this to **179 fC**. Dimension check: F × V = C ✓ (fF × V = fC).
+
+**Step 2 — noise PSD at the transition point**: a ring's (effective) ISF is concentrated at the
+transitions (this site's [lc_vs_ring](/06_design_insights/lc_vs_ring) and [P2]), so the paper
+evaluates the noise only at "the instant the output crosses $V_{DD}/2$"; at that point the NMOS
+and PMOS are **simultaneously on**, and their current-noise powers add (p.190):
+
+$$
+\left(\overline{i_n^2}/\Delta f\right)_{NMOS}=4kT\gamma\mu_nC_{ox}(W/L_{\text{eff}})_N(V_{DD}/2-V_{TN})=4.44\times10^{-24}\ \text{A}^2/\text{Hz}
+$$
+
+$$
+\left(\overline{i_n^2}/\Delta f\right)_{PMOS}=2.19\times10^{-24}\ \text{A}^2/\text{Hz}
+$$
+
+(This is channel thermal noise in the $4kT\gamma g_{d0}$ form with the bias point taken at
+$V_{DD}/2$; the paper does not list the individual values of $\mu_n$ and $\gamma$ — the two
+PSDs above are given directly by the paper.) Per stage, the total is:
+
+$$
+\overline{i_n^2}/\Delta f=(4.44+2.19)\times10^{-24}=6.63\times10^{-24}\ \text{A}^2/\text{Hz}
+$$
+
+(Numeric feel: this site's canonical $S_i=10^{-24}$ A²/Hz is the same order of magnitude as
+this 2-µm real-silicon $6.63\times10^{-24}$.)
+
+**Step 3 — $\Gamma_{rms}^2$**: using the methods of the Appendix, the paper obtains, for rings,
+
+$$
+\Gamma_{rms}^2\approx\frac{16}{N^3}=\frac{16}{125}=0.128
+$$
+
+(Dimensionless ✓.) This is the direct ancestor of [P2] Eq.(16):
+$\Gamma_{rms}^2=\dfrac{2\pi^2}{3\eta^3}\dfrac{1}{N^3}$, which with $\eta\approx0.75$ gives
+$\approx15.6/N^3\approx16/N^3$ — the 1998 and 1999 papers mesh with each other. Incidentally
+$\Gamma_{rms}=\sqrt{0.128}=0.358$, the same order as this site's representative 0.5 and smaller
+than the true-LC $1/\sqrt2\approx0.707$.
+
+**Step 4 — substitute into Eq.(21) ($N$ identical, uncorrelated sources)**: the powers of $N$
+uncorrelated sources add, $\overline{i_n^2}/\Delta f\to N\times6.63\times10^{-24}=3.315\times10^{-23}$ A²/Hz:
+
+$$
+\mathcal{L}\{\Delta f\}=10\log_{10}\!\left(\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{N\,\overline{i_n^2}/\Delta f}{4\,(2\pi\Delta f)^2}\right)=10\log_{10}\!\left(\frac{0.128\times3.315\times10^{-23}}{(179\times10^{-15})^2\times4\times(2\pi)^2\times\Delta f^2}\right)
+$$
+
+The numerator is $=4.243\times10^{-24}$ and the denominator is $=3.204\times10^{-26}\times157.9\times\Delta f^2=5.060\times10^{-24}\,\Delta f^2$, so
+
+$$
+\mathcal{L}\{\Delta f\}=10\log_{10}\!\left(\frac{0.84}{\Delta f^2}\right)
+$$
+
+which matches the $10\log(0.84/\Delta f^2)$ printed on p.190 of the paper (our recomputation
+gives 0.839). **Dimension check**: the unit of $\dfrac{S_i}{q_{max}^2}$ is $\dfrac{\text{A}^2/\text{Hz}}{\text{C}^2}=\dfrac{\text{A}^2\cdot\text{s}}{\text{A}^2\text{s}^2}=\text{Hz}$,
+and dividing by the Hz² of $(2\pi\Delta f)^2$ gives **1/Hz** — exactly the dimension of
+"sideband power per Hz relative to the carrier" ✓. (In other words the prefactor 0.84 carries
+the unit Hz.)
+
+**Step 5 — prediction vs measurement**: substituting $\Delta f=500$ kHz:
+
+$$
+\mathcal{L}=10\log_{10}\!\left(\frac{0.839\ \text{Hz}}{(5\times10^5\ \text{Hz})^2}\right)=10\log_{10}\!\left(3.35\times10^{-12}\ \text{Hz}^{-1}\right)=-114.7\ \text{dBc/Hz}
+$$
+
+The paper measures **$-114.5$ dBc/Hz** — a 0.2 dB gap.
+
+> **factor-of-2/4 flag (called out every time it appears)**: the **4** in the denominator is
+> [P1] Eq.(21)'s **SSB bookkeeping**, the same convention as this site's Example B
+> ($-148.0$ dBc/Hz). With the clean time-domain **/2** bookkeeping instead, the same inputs
+> would predict $-111.7$ dBc/Hz (3 dB higher), i.e. 3.0 dB away from the measurement. This
+> experiment is therefore often cited as empirical support for the /4 version; note, however,
+> that the 0.2 dB agreement also absorbs estimation errors in $\Gamma_{rms}$ and $C_{total}$,
+> so reading it as "the magnitude and scaling are right" is more robust than reading it as a
+> definitive verdict on the factor of 2. See
+> [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise).
+
+**Step 6 — the 1/f³ corner (Eq.(24) divided through by $2\pi$)**: an isolated inverter on the
+same die (input and output shorted) measures a device 1/f corner of $f_{1/f}=250$ kHz; from the
+extracted ISF, $c_0^2/2\Gamma_{rms}^2=0.3$:
+
+$$
+f_{1/f^3}=f_{1/f}\cdot\frac{c_0^2}{2\,\Gamma_{rms}^2}=250\ \text{kHz}\times0.3=75\ \text{kHz}
+$$
+
+Measured: **80 kHz**. This is the most direct silicon evidence for claim C5, "the 1/f³ corner
+$\ne$ the device 1/f corner": the corner is pushed from 250 kHz down to 80 kHz by the (partial)
+symmetry of the waveform.
+
+**Python verification** (pure-algebra recomputation; all inputs from [P1] p.190–191):
+
+```python
+import math
+
+# [P1] Sec. V, fourth experiment: 5-stage 232 MHz single-ended ring (2-µm 5-V CMOS, p.190)
+N       = 5              # number of stages
+qmax    = 179e-15        # C (= C_total 35.7 fF × V_swing 5 V)
+Si_nmos = 4.44e-24       # A²/Hz (given by the paper, p.190, at the transition point)
+Si_pmos = 2.19e-24       # A²/Hz (given by the paper, p.190)
+G2rms   = 16 / N**3      # Γ²_rms ≈ 16/N³ (paper, p.190)
+
+print(round(G2rms, 3))                            # -> 0.128
+Si_total = N * (Si_nmos + Si_pmos)                # powers of N uncorrelated sources add
+prefac = G2rms * Si_total / (4 * qmax**2 * (2*math.pi)**2)
+print(round(prefac, 3))                           # -> 0.839 (paper prints 0.84)
+
+df = 500e3   # Hz
+print(round(10*math.log10(prefac/df**2), 2))      # -> -114.74 (paper predicts -114.7; measured -114.5)
+print(round(10*math.log10(2*prefac/df**2), 2))    # -> -111.73 (with the time-domain /2 bookkeeping: 3 dB off the measurement)
+print(round(250e3*0.3/1e3, 1))                    # -> 75.0 (kHz, Eq.(24); measured 80 kHz)
+
+# Fifth experiment: 11-stage 115 MHz (same die; noise scales with W: NMOS×4/3, PMOS×6/5, same L)
+N2, qmax2 = 11, 217e-15
+Si_stage2 = Si_nmos*(4/3) + Si_pmos*(6/5)
+prefac2 = (16/N2**3) * N2 * Si_stage2 / (4 * qmax2**2 * (2*math.pi)**2)
+print(round(prefac2, 3))                          # -> 0.152 (paper prints 0.152, digit-for-digit)
+print(round(10*math.log10(prefac2/df**2), 2))     # -> -122.16 (paper predicts -122.1; measured -122.5)
+print(round(250e3*0.17/1e3, 1))                   # -> 42.5 (kHz, paper rounds to 43; measured 45 kHz)
+
+# Seventh experiment: 4-stage differential 200 MHz (0.5-µm; q_max = 49 fF × 1.2 V = 58.8 fC)
+prefac3 = (16/4**3) * 4 * 2.63e-23 / (4 * (58.8e-15)**2 * (2*math.pi)**2)
+print(round(prefac3, 1))                          # -> 48.2 (paper prints 48.1, trailing-digit rounding)
+print(round(10*math.log10(prefac3/(1e6)**2), 2))  # -> -103.17 (paper predicts -103.2; measured -103.9)
+```
+
+### Second validation on the same die: the 11-stage 115 MHz ring
+
+The fifth experiment reruns the same chain with different $N$ and device sizes
+([P1] p.190, numbers verbatim): $(W/L)_N=4$ µm / 2 µm, $(W/L)_P=6$ µm / 2 µm, total node
+capacitance 43.5 fF, $q_{max}=217$ fC ($=43.5\ \text{fF}\times5\ \text{V}$). The paper states
+the phase noise is "calculated in exactly the same manner as the previous experiment", giving
+$\mathcal{L}\{\Delta f\}=10\log(0.152/\Delta f^2)$, i.e. $-122.1$ dBc/Hz at 500 kHz; measured
+**$-122.5$ dBc/Hz** (0.4 dB gap). $c_0^2/2\Gamma_{rms}^2=0.17$ predicts a 1/f³ corner of
+43 kHz; measured **45 kHz**. The paper does not list the device PSDs of the 11-stage inverters;
+the Python above recomputes them by scaling the noise linearly with $W$ (same $L$) and lands on
+a prefactor of **0.152**, digit-for-digit identical to the paper — reverse-confirming that this
+is exactly the paper's internal calculation.
+
+As a bonus, we can itemize the 7.4 dB improvement from 5 stages to 11 stages **entirely inside
+Eq.(21)** (using the two recomputed prefactors, $10\log_{10}(0.839/0.152)=7.42$ dB):
+
+| Term | Ratio | dB |
+|---|---|---|
+| $\Gamma_{rms}^2\times N=16/N^2$ ($25\to121$) | $\times4.84$ smaller | $-6.85$ |
+| $q_{max}^2$ ($179\to217$ fC) | $\times1.47$ larger | $-1.67$ |
+| per-stage noise PSD ($6.63\to8.55\times10^{-24}$ A²/Hz) | $\times1.29$ larger | $+1.10$ |
+| **Total** | | $-7.42$ ✓ |
+
+Note this is **not** a free lunch: the stage count grows and $f_0$ also drops from 232 to
+115 MHz; [P2] Eq.(23), p.796 later proves that at **fixed total power and fixed $f_0$** the
+white-noise phase noise of a single-ended ring is independent of $N$. See
+[paper_002](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring).
+
+### Third validation across process and architecture: 4-stage differential 200 MHz (0.5-µm)
+
+The seventh experiment ([P1] p.191): tail current 108 µA, total capacitance on each
+differential node $C_{total}=49$ fF, $V_{swing}=1.2$ V, hence $q_{max}=58.8$ fC (the paper's
+text prints "58.8 fF" — dimensionally $49\ \text{fF}\times1.2\ \text{V}$ can only be fC; this
+is a typo in the paper, which we transcribe faithfully and flag). Total channel noise per node
+$(\overline{i_n^2}/\Delta f)_{total}=2.63\times10^{-23}$ A²/Hz; with $N=4$ the same chain gives
+$\mathcal{L}\{\Delta f\}=10\log(48.1/\Delta f^2)$ (our recomputation gives 48.2,
+a trailing-digit rounding difference), predicting $-103.2$ at 1 MHz; measured
+**$-103.9$ dBc/Hz** (0.7 dB gap).
+
+The same experiment carries a symmetry lesson: although the **differential signal** is
+perfectly symmetric, the single-ended waveform of each **half-circuit** is not, so Fig. 27
+still shows a distinct 1/f³ region — "differential signaling does not rescue $c_0$; what counts
+is half-circuit symmetry" (echoing p.188 and [symmetry](/06_design_insights/symmetry)).
+
+### What this set of experiments establishes (applicability and failure conditions)
+
+- **The predictions are a priori**: the three full chains (232 MHz / 115 MHz / 200 MHz
+  differential) miss by 0.2 / 0.4 / 0.7 dB, with inputs limited to process parameters,
+  geometry, $V_{swing}$, and the extracted ISF. This site's Example B toy chain
+  ($q_{max}=1$ pC, $\Gamma_{rms}=0.5$, $S_i=10^{-24}$ A²/Hz → $-148.0$ dBc/Hz @ 1 MHz,
+  SSB /4 bookkeeping) runs the very same pipeline, just with clean numbers.
+- **Applicable when**: noise is concentrated at the transitions (true for single-ended CMOS
+  rings); $\Gamma_{rms}^2\approx16/N^3$ is a ring-specific approximation for "identical
+  inverters with standard rise/fall" (corresponding to [P2]'s $\eta\approx0.75$); the noise of
+  different stages is uncorrelated (only then may powers be added).
+- **Fails when**: the waveform is asymmetric (experiments 3/6/7) so that close-in noise is
+  dominated by the $c_0$-driven 1/f³ — Eq.(21) covers only the 1/f² region; very close to the
+  carrier the linearization breaks down (see
+  [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)); strong spurs or injection
+  pulling require separate treatment ([P3]/[P4]).
+- **Dimensions**: the argument of every $10\log_{10}$ is 1/Hz — the hallmark of dBc/Hz.
 
 ## Limitations
 

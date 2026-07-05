@@ -611,6 +611,137 @@ print(round(L, 1), "dBc/Hz")   # -> -145.0 dBc/Hz
 (Both problems use Eq.(21) in the SSB $/4$ convention; with this site's lab_06 clean time-domain $/2$ version, each gains another $+3$ dB — see the factor-of-2 note above.
 Full libraries: `simulations/common/noise_utils.py`, `simulations/common/isf_utils.py`.)
 
+> **Example 3 (adding two noise sources)**: A real oscillator is never driven by just one noise source.
+> This example demonstrates **multi-source superposition** — two independent white-noise sources hitting
+> the same ideal-LC node at once. How do we combine them into a total phase noise?
+
+**Problem setup.** Reuse the oscillator parameters from Example 1 ($f_0=5$ GHz, $\Delta f=1$ MHz, $q_{max}=1$ pC).
+Superpose two statistically independent white-noise current sources on the node:
+
+- **Device A** (e.g. the main transconductor, which sees the full ISF): $\Gamma_{A,rms}=0.5$, $S_{i,A}=\overline{i_{n,A}^2}/\Delta f=1\times10^{-24}\ \text{A}^2/\text{Hz}$.
+- **Device B** (a tail-current-source-type device, which only contributes noise during part of the cycle
+  because of cyclostationary gating — see [effective_isf](/03_isf_core_theory/effective_isf) and
+  $\Gamma_{eff}=\Gamma\alpha$): effective $\Gamma_{eff,B,rms}=0.25$ (half of A's — an illustrative value),
+  but with larger current-noise power $S_{i,B}=4\times10^{-24}\ \text{A}^2/\text{Hz}$ (e.g. a device biased with a larger current).
+
+The two are **distinct physical noise sources and are independent** (uncorrelated), so the question is:
+what is the combined $\mathcal{L}_{total}(1\text{MHz})$?
+
+**Step 0: why independent sources add in $S_\phi$ (power), not in dB.** Each noise source is separately
+weighted by its (possibly different) ISF and independently integrated into a phase perturbation
+$\phi_A(t)$, $\phi_B(t)$ (see [P1] Eq.(11)); the total excess phase at the node is the linear superposition
+$\phi(t)=\phi_A(t)+\phi_B(t)$. For independent (uncorrelated) random processes, the variance/power spectral
+density adds and the cross term has zero expectation:
+
+$$
+S_{\phi,total}(\Delta\omega)=\big\langle(\phi_A+\phi_B)(\phi_A+\phi_B)\big\rangle_{\text{spectrum}}=S_{\phi,A}(\Delta\omega)+S_{\phi,B}(\Delta\omega)+\underbrace{2\,\text{Re}\langle\phi_A\phi_B^*\rangle}_{=0\ (\text{independent})}.
+$$
+
+**This is the "one-line rule" for this problem: independent sources add in $S_\phi$ (linear power) —
+you must never add or average two dBc/Hz numbers directly.** You have to convert each back to linear,
+add, and only then take a single $10\log_{10}$.
+
+**Step 1: compute Device A alone (same recipe as Example 1, using [P1] Eq.(21)).**
+
+$$
+\mathcal{L}_A=10\log_{10}\!\left(\frac{\Gamma_{A,rms}^2}{q_{max}^2}\cdot\frac{S_{i,A}}{4\,\Delta\omega^2}\right),\qquad \Delta\omega=2\pi\times10^6=6.283\times10^6\ \text{rad/s},\ \Delta\omega^2=3.948\times10^{13}.
+$$
+
+$$
+\frac{\Gamma_{A,rms}^2}{q_{max}^2}=\frac{0.25}{10^{-24}}=2.5\times10^{23}\ \text{C}^{-2},\qquad
+\frac{S_{i,A}}{4\Delta\omega^2}=\frac{10^{-24}}{1.579\times10^{14}}=6.332\times10^{-39}.
+$$
+
+Linear value inside the parentheses: $\ell_A=2.5\times10^{23}\times6.332\times10^{-39}=1.583\times10^{-15}$,
+so $\mathcal{L}_A=10\log_{10}(1.583\times10^{-15})\approx-148.0\ \text{dBc/Hz}$ (matches Example 1 — same parameters).
+
+**Step 2: compute Device B alone (same formula, with $\Gamma\to\Gamma_{eff,B,rms}$, $S_i\to S_{i,B}$).**
+
+$$
+\frac{\Gamma_{eff,B,rms}^2}{q_{max}^2}=\frac{0.25^2}{10^{-24}}=\frac{0.0625}{10^{-24}}=6.25\times10^{22}\ \text{C}^{-2},\qquad
+\frac{S_{i,B}}{4\Delta\omega^2}=\frac{4\times10^{-24}}{1.579\times10^{14}}=2.533\times10^{-38}.
+$$
+
+Linear value: $\ell_B=6.25\times10^{22}\times2.533\times10^{-38}=1.583\times10^{-15}$,
+so $\mathcal{L}_B=10\log_{10}(1.583\times10^{-15})\approx-148.0\ \text{dBc/Hz}$.
+
+**"You'd think A dominates — it doesn't"**: at first glance $\Gamma_{eff,B,rms}=0.25$ is only half of
+$\Gamma_{A,rms}=0.5$, so intuition suggests Device B's ISF-weight term $\Gamma_{eff,B,rms}^2/q_{max}^2$ is
+$4\times$ smaller ($-6$ dB) and B should be completely swamped by A and safely ignored.
+**But Device B's current noise $S_{i,B}$ happens to be exactly $4\times$ larger** ($+6$ dB) — the two
+$\pm6$ dB effects exactly cancel, giving $\mathcal{L}_A=\mathcal{L}_B\approx-148.0$ dBc/Hz: **B is just as
+strong as A and contributes equally — it cannot be neglected.** This is exactly the trap you fall into by
+judging a noise source's contribution from $\Gamma_{rms}$ alone: what actually sets the contribution is the
+product $\Gamma_{rms}^2\cdot S_i$, and both factors must be considered together.
+
+**Step 3: power-sum (add in the linear domain, not in dB).**
+
+$$
+\mathcal{L}_{total}=10\log_{10}\big(\ell_A+\ell_B\big)=10\log_{10}\big(1.583\times10^{-15}+1.583\times10^{-15}\big)=10\log_{10}(3.166\times10^{-15}).
+$$
+
+Cross-check with the equivalent "dB-domain power-combining formula" (convert each back to linear via
+$10^{L/10}$, add, then take a single $10\log_{10}$):
+
+$$
+\mathcal{L}_{total}=10\log_{10}\!\Big(10^{\mathcal{L}_A/10}+10^{\mathcal{L}_B/10}\Big)=10\log_{10}\!\Big(10^{-148.0/10}+10^{-148.0/10}\Big).
+$$
+
+**Result:** $\mathcal{L}_{total}(1\,\text{MHz})\approx-145.0\ \text{dBc/Hz}$.
+
+- **What just happened arithmetically**: A and B have equal power, so together they give exactly
+  **twice the power** $\Rightarrow 10\log_{10}2\approx3.01$ dB, so $\mathcal{L}_{total}\approx\mathcal{L}_A+3.0\ \text{dB}=-148.0+3.0=-145.0$ dBc/Hz.
+  Device B's contribution to the total noise, expressed as "how much worse than A alone," is
+  **X = 3.0 dB** — not the 0 dB you'd wrongly conclude by reasoning that "$\Gamma_{eff,B,rms}$ is only half" and therefore negligible.
+- **One-line rule (memorize this)**: **uncorrelated (independent) noise sources add in $S_\phi$/power —
+  never add dBc/Hz numbers directly, and never average them.** Two equal-power sources combine to
+  $\times2=+3.0$ dB, not $+6$ dB (that would only happen for coherent/voltage-amplitude addition; white-noise
+  sources here are uncorrelated).
+
+**Dimension check:** $\ell_A$ and $\ell_B$ each have the form $\Gamma_{rms}^2/q_{max}^2\cdot S_i/(4\Delta\omega^2)$,
+just as in Examples 1 and 2, and both reduce to $\text{s}$ (per-Hz, see the dimension check in Example 1) —
+only quantities with the same dimension may be added; the sum is still $\text{s}$, and after $10\log_{10}$ it reads as dBc/Hz ✓.
+
+```python
+import numpy as np
+
+qmax = 1e-12                       # C
+dw = 2*np.pi*1e6                   # rad/s (offset Δf = 1 MHz)
+
+# Device A: main transconductor, sees the full ISF
+gamma_A, Si_A = 0.5, 1e-24         # (–, A^2/Hz)
+# Device B: tail device; smaller effective Gamma_eff,rms after cyclostationary gating, but larger current noise
+gamma_effB, Si_B = 0.25, 4e-24     # (–, A^2/Hz)
+
+def bracket(gamma_rms, Si, qmax, dw):
+    return (gamma_rms**2 / qmax**2) * (Si / (4 * dw**2))   # linear value inside [P1] Eq.(21)
+
+ell_A = bracket(gamma_A, Si_A, qmax, dw)
+ell_B = bracket(gamma_effB, Si_B, qmax, dw)
+L_A = 10*np.log10(ell_A)
+L_B = 10*np.log10(ell_B)
+print(round(L_A, 1), "dBc/Hz  (A alone)")   # -> -148.0 dBc/Hz
+print(round(L_B, 1), "dBc/Hz  (B alone)")   # -> -148.0 dBc/Hz
+
+# Correct approach: sum the power (linear S_phi), then take one log; never add two dB numbers
+L_total_via_linear = 10*np.log10(ell_A + ell_B)
+L_total_via_powersum = 10*np.log10(10**(L_A/10) + 10**(L_B/10))   # equivalent form, for cross-check
+print(round(L_total_via_linear, 1), "dBc/Hz  (A+B power-summed)")     # -> -145.0 dBc/Hz
+print(round(L_total_via_powersum, 1), "dBc/Hz  (cross-check)")        # -> -145.0 dBc/Hz
+
+X_dB = L_total_via_linear - L_A   # degradation contributed by B: here A and B contribute equally
+print(round(X_dB, 1), "dB  (B's contribution, even though Gamma_eff,B,rms is only half of Gamma_A,rms)")  # -> 3.0 dB
+```
+
+(This example continues the [P1] Eq.(21) SSB $/4$ convention; both sources use the same formula, each with
+its own $\Gamma_{rms}$ (or $\Gamma_{eff,rms}$) and $S_i$, and are summed in **power**. Using the lab_06 clean
+time-domain $/2$ version instead would shift $\mathcal{L}_A$, $\mathcal{L}_B$, and $\mathcal{L}_{total}$ all
+up by $3$ dB together — leaving the **3.0 dB gap between them unchanged**. This echoes the factor-of-2 note
+above: the constant convention does not affect scaling/relative relationships. The full rule for multi-source
+superposition and the derivation of the cyclostationary $\Gamma_{eff}$ are in
+[effective_isf](/03_isf_core_theory/effective_isf); full libraries: `simulations/common/noise_utils.py`,
+`simulations/common/isf_utils.py`.)
+
 ## Key takeaways
 
 - White noise is flat; **the $1/f^2$ slope comes entirely from the phase integrator's** $1/\omega^2$ — the ISF only sets the size of the weight.

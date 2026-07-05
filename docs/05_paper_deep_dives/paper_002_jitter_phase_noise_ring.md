@@ -184,6 +184,79 @@ single-ended ring 的 phase noise 與級數 $N$ 無關。**
 > $\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入。（v2 曾誤改為 $8/(3\gamma)$ 並誤標「逐字核實」，v3 已對照原始 PDF p.796 更正。）
 > $V_T=0$ 的下限亦由此修為 $16\gamma/(3\eta)$。$\gamma$（噪聲係數）與 $\eta$（頻率比例常數，Eq.14）是不同的量，勿混淆。
 
+### Eq.(31)–(35)：差動 ring 的 phase noise——明含 $N$（已核實 ✓）
+
+**Original formulas**（[P2] Sec. V-B, p.796，對照原始 PDF 渲染頁逐字核實）：
+
+功率（Eq.(31)）與頻率（Eq.(32)）：
+
+$$
+P=N\,I_{tail}\,V_{DD}
+\qquad\qquad
+f_0=\frac{1}{2Nt_D}\approx\frac{1}{2\eta N t_r}\approx\frac{I_{tail}}{2\eta N q_{max}}
+$$
+
+每個 single-ended 節點的雜訊（Eq.(33)；差動電晶體＋負載電阻 $R_L$ 兩份，$V_{char}=(V_{GS}-V_T)/\gamma$
+long-channel 平衡級、$E_cL/\gamma$ short-channel）：
+
+$$
+\frac{\overline{i_n^2}}{\Delta f}=\left(\frac{\overline{i_n^2}}{\Delta f}\right)_{N}+\left(\frac{\overline{i_n^2}}{\Delta f}\right)_{Load}=4kT\,I_{tail}\left(\frac{1}{V_{char}}+\frac{1}{R_L I_{tail}}\right)
+$$
+
+全環 $2N$ 個節點（每級兩個輸出），總 phase noise 是單源的 $2N$ 倍（p.796 原文："The phase noise
+and jitter due to all $2N$ noise sources is $2N$ times the value given by (6) and (12)."——這個 2 是
+**節點計數**，不是 SSB 慣例的 2）。配上 Eq.(16) 的 $\Gamma_{rms}$，收成（Eq.(34)/(35)，$\mathcal{L}$
+即論文的 $L\{\Delta f\}$）：
+
+$$
+\mathcal{L}_{min}\{\Delta f\}=\frac{8}{3\eta}\cdot N\cdot\frac{kT}{P}\cdot\left(\frac{V_{DD}}{V_{char}}+\frac{V_{DD}}{R_L I_{tail}}\right)\cdot\frac{f_0^2}{\Delta f^2}
+$$
+
+$$
+\kappa_{min}=\sqrt{\frac{8}{3\eta}}\cdot\sqrt{N\cdot\frac{kT}{P}\cdot\left(\frac{V_{DD}}{V_{char}}+\frac{V_{DD}}{R_L I_{tail}}\right)}
+$$
+
+原文明述兩式 "valid in both long- and short-channel regimes of operation with the right choice of
+$V_{char}$"；bipolar 差動 ring 的 shot＋load noise（Eq.(36), p.797）併回**同兩式**，$V_{char}=4kT/q_e$。
+
+**Meaning**：與 single-ended 的 Eq.(23) 只差兩處——**多了明含的 $N$**、括號多了負載那份
+$V_{DD}/(R_L I_{tail})$。固定 $f_0$ 與 $P$ 下，差動 ring 的 phase noise **隨 $N$ 變差**
+（$\Delta\mathcal{L}=10\log_{10}(N_2/N_1)$，jitter 則 $\kappa_{min}\propto\sqrt N$）——
+N-independence 的失落另一半。
+
+**Why the $N$ appears**（指數記帳，固定 $P$、$f_0$、固定 swing）：$P=NI_{tail}V_{DD}$ 是**靜態**
+記帳（不像 Eq.(21) 綁著 $f_0$），固定 $P$ 逼 $I_{tail}\propto1/N$；Eq.(32) 再逼
+$q_{max}=I_{tail}/(2\eta Nf_0)\propto1/N^2$（p.797 原文逐字："…reduce the swing, and hence
+$q_{max}$, by a factor of $1/N^2$"）。於是
+$2N\cdot\Gamma_{rms}^2\cdot S_i/q_{max}^2\propto N\cdot N^{-3}\cdot N^{-1}\cdot N^{4}=N^{+1}$。
+完整逐項表與 worked example 見 [lc_vs_ring 第 2b 步](/06_design_insights/lc_vs_ring)。
+
+> **[P2] 結論句（pp.796–797，逐字）**："Note that, in contrast with the single-ended ring oscillator,
+> a differential oscillator does exhibit a phase noise and jitter dependency on the number of stages,
+> with the phase noise degrading as the number of stages increases for a given frequency and power
+> dissipation."
+
+**Numerical example**：$f_0=5$ GHz、$\Delta f=1$ MHz、$kT=4.0\times10^{-21}$ J、$P=1$ mW、
+$\eta\approx1$、$V_{DD}/V_{char}=3$、$V_{DD}/(R_LI_{tail})=2$（固定 swing）：$N=4$ 得
+$-82.7$ dBc/Hz、$N=12$ 得 $-78.0$ dBc/Hz，$\Delta\mathcal{L}=10\log_{10}3=+4.77$ dB；
+$\kappa_{min}$ 則 $\times\sqrt3\approx1.732$。（絕對值繼承 [P2] 的 SSB 記帳，與 [P1] Eq.(21)
+分母的 4 同族；時域 $/2$ 慣例整體 $+3$ dB。$\Delta\mathcal{L}$ 是相減，**兩種慣例相同**。）
+
+**Python verification**：
+
+```python
+import numpy as np
+def L_ring_diff(N, kT, P, f0, df, eta=1.0, vdd_vchar=3.0, vdd_swing=2.0):  # [P2] Eq.(34)
+    return 10*np.log10(8/(3*eta) * N * (kT/P) * (vdd_vchar + vdd_swing) * (f0/df)**2)
+L4  = L_ring_diff(4,  4.0e-21, 1e-3, 5e9, 1e6)
+L12 = L_ring_diff(12, 4.0e-21, 1e-3, 5e9, 1e6)
+print(round(L4,1), round(L12,1), round(L12-L4,2))   # -> -82.7 -78.0 4.77
+```
+
+**設計一行話**：single-ended＝$N$-free（Eq.23）；差動＝**最少級數的贏**（Eq.34，每加倍 $+3.01$ dB）——
+$N$ 由 phase margin／quadrature／多相位需求決定下限，別多加。tail 源近 $f_0$ 的雜訊「surprisingly」
+不進 phase noise（p.796），進的是低頻（symmetry 路）與偶次諧波附近（可用 LC 濾）。
+
 ## Key figures
 
 | 論文圖 | 頁 | 內容 | 本站對應 | 註 |
@@ -191,6 +264,7 @@ single-ended ring 的 phase noise 與級數 $N$ 無關。**
 | Fig. 5 | 793 | 同頻、不同級數 $N$（3/5/15）的 ISF 疊圖 | scaling 直覺（$\Gamma_{rms}\propto N^{-3/2}$） | ✓ |
 | Fig. 6 | 793 | single-ended ring 單級的近似波形與 ISF（能量集中在 transition） | toy 三角 ISF（lab_03） | ✓ |
 | Fig. 8 | 794 | 不同級數 ring 的 rms ISF vs $N$，實線為 Eq.(16) 在 $\eta=0.75$ 時的 $\Gamma_{rms}\approx4/N^{1.5}$ | `lc_vs_ring_isf_comparison.png` 的 scaling 論證 | ✓ |
+| Fig. 9 | 795 | **差動** ring 的 rms ISF vs $N$，三種約束情境（fixed power/fixed swing、fixed power/fixed $R_L$、fixed tail current/fixed $R_L$） | 差動 ring 沿用 Eq.(16) scaling 的實證（Eq.(34) 推導的前提） | ✓ |
 | **Fig. 17** | 802 | phase noise vs symmetry（控制）電壓，在對稱點有**極小值** | symmetry 設計法則的直接實驗佐證 | ✓ |
 
 **Fig. 17 是 symmetry 法則的鐵證**：把控制電壓掃過，調到 PMOS 上拉電流 = NMOS 下拉電流、
@@ -206,8 +280,9 @@ single-ended ring 的 phase noise 與級數 $N$ 無關。**
 
 - **jitter 與 phase noise 同源**：壓低 $\Gamma_{rms}^2/q_{max}^2$ 同時降低兩者；別把 long-term
   jitter 與 close-in phase noise 當兩件事處理。
-- **加級數不是 phase noise 的解藥**：固定 $f_0$、$P$ 下 phase noise 近似與 $N$ 無關（結論
-  已核實）；加級數的真正理由是 quadrature／多相位輸出、調頻範圍、相位裕度。
+- **加級數不是 phase noise 的解藥**：single-ended 固定 $f_0$、$P$ 下 phase noise 近似與 $N$ 無關
+  （結論已核實）；**差動 ring 更要少級**——Eq.(34) 明含 $N$，固定 $f_0$、$P$ 下每加倍級數
+  $+3.01$ dB。加級數的真正理由是 quadrature／多相位輸出、調頻範圍、相位裕度。
 - **對稱性是 close-in noise 的主旋鈕**：調 rise/fall 對稱（如 Fig. 17 的控制電壓）壓 $c_0$、
   推遠 1/f³ corner。差動 ring（differential）的對稱性通常比 single-ended 好。
 - **transition 越陡越好**：能量集中在 transition，斜率越大、$q_{max}$ 越大、$\Gamma_{rms}$
@@ -221,7 +296,7 @@ SerDes 觀點見 [serdes_clocking_connection](/06_design_insights/serdes_clockin
 照 paper_metadata（paper_002.limitations）：
 
 - toy／一階：短通道效應與細部 device noise 是近似的。
-- **N-independence 結論**只在固定功率、固定頻率與特定 noise 模型下成立（[P2] Sec.V, Eq.(23)/(25), p.796，已核實，claim C7）。
+- **N-independence 結論**只對 **single-ended** ring、在固定功率、固定頻率與特定 noise 模型下成立（[P2] Sec.V, Eq.(23)/(25), p.796，已核實，claim C7）；差動 ring 反而明含 $N$（Eq.(34), p.796，已核實）。
 - substrate／supply noise 是分開、定性處理的。
 
 ## Relationship to other papers
@@ -250,5 +325,7 @@ SerDes 觀點見 [serdes_clocking_connection](/06_design_insights/serdes_clockin
 - **$\Gamma_{rms}\propto N^{-3/2}$**（[P2] Eq.(16), p.794，v7 已重核：根號只蓋常數，正文 $4/N^{1.5}$@$\eta=0.75$
   與 App.B Eq.(55) 三重驗證）；但固定 $f_0$、$P$ 下 phase noise
   **幾乎與 $N$ 無關**（[P2] Eq.(23) 無 $N$，claim C7，已核實）。
+- **差動 ring 相反**：[P2] Eq.(34), p.796 明含 $N$（$q_{max}\propto1/N^2$，p.797 原文），固定 $f_0$、$P$
+  下 phase noise 隨 $10\log_{10}N$ 惡化（$N=4\to12$ 為 $+4.77$ dB）；差動設計用最少必要級數。
 - **Fig. 17**：對稱點 phase noise 有碗底——symmetry 法則的鐵證（claim C4）。
 - ring 比 LC 好整合，但 phase noise 通常較差；本頁告訴你旋鈕在哪。

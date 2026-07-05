@@ -1,9 +1,11 @@
 ---
 title: "Allan Variance: The Time-Domain Counterpart of Phase Noise"
-description: "Starting from the two-sample (Allan) variance σy²(τ)=⟨½(ȳ_{k+1}−ȳ_k)²⟩, we derive step by step the frequency-domain integral σy²=2∫S_y sin⁴(πfτ)/(πfτ)² df with S_y=(f²/f0²)S_φ, and build the ADEV slope table for the five power-law noise types (white/flicker PM τ⁻¹, white FM τ⁻¹ᐟ², flicker FM τ⁰ floor, RW FM τ^{+1/2}), explaining why the clock community uses ADEV rather than the ordinary frequency variance. Embeds the allan_deviation figure, with 2 worked examples (estimating ADEV from L(f))."
+description: "Starting from the two-sample (Allan) variance σy²(τ)=⟨½(ȳ_{k+1}−ȳ_k)²⟩, we derive step by step the frequency-domain integral σy²=2∫S_y sin⁴(πfτ)/(πfτ)² df with S_y=(f²/f0²)S_φ, and build the ADEV slope table for the five power-law noise types (white/flicker PM τ⁻¹, white FM τ⁻¹ᐟ², flicker FM τ⁰ floor, RW FM τ^{+1/2}), explaining why the clock community uses ADEV rather than the ordinary frequency variance. We then derive the complete prefactor table in-house: proving ∫sin⁴u/u³du=ln2 gives the flicker-FM floor constant σy²=2·ln2·h₋₁; from the canonical 1/f³ corner we compute floor=1.06e-9 and τ_knee=113 μs, and lab_19 verifies the absolute level (measured/theory=1.004). Embeds the allan_deviation and allan_flicker_floor figures, with 3 worked examples."
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
+
+import AdevLiveExplorer from '@site/src/components/AdevLiveExplorer';
 
 # Allan Variance: The Time-Domain Counterpart of Phase Noise
 
@@ -207,6 +209,19 @@ def overlapping_adev(x, tau0, ms):
 
 The `d` line is the second difference $x_{k+2m}-2x_{k+m}+x_k$ of Step 2; dividing by $2(N-2m)(m\tau_0)^2$ corresponds to the discrete estimate of $\sigma_y^2=\langle\tfrac12(\bar y_{k+1}-\bar y_k)^2\rangle$ (with $\tau=m\tau_0$).
 
+## Interactive: generate your own time series and estimate ADEV yourself (statistics vs. analytic)
+
+The lab_19 figure above tells you the three slopes *a priori*. In practice, though, you only ever have **one finite-length measured time series**, and ADEV is a statistic **estimated** from that series — not an analytic curve handed down from above. The widget below moves the full "generate → estimate" pipeline into the browser, complementing the `AllanDeviationExplorer` on the [interactive_calculator](/04_simulation_labs/interactive_calculator) page (which plots the pure analytic slope with no randomness at all):
+
+- A seeded pseudo-random number generator (PRNG — meaning the same seed always reproduces the same series) generates a fractional-frequency series $y[k]$ of length $N=4096$, made of slider-controlled white FM + random-walk FM, plus an optional flicker FM **approximated** with a simple $-10$dB/decade filter cascade (an honest approximation — see the note below).
+- The series is integrated into a time error $x[k]=\sum y[k]\tau_0$, and the same **overlapping** second-difference formula from Steps 2–3 is applied to **estimate** ADEV directly at $\tau=\tau_0,2\tau_0,4\tau_0,\dots$ (octaves, up to $N/4$), with $\pm\sigma/\sqrt{\text{pairs}}$ error bars overlaid.
+- The dashed line is the **analytic** closed form for the same mixture of $h$ coefficients (Step 4 / the prefactor table, variances of independent processes add) — the blue points should scatter around it.
+- Click "re-seed" to draw a new seed: **the small-$\tau$ points barely move** (thousands of independent pairs, statistically stable), while **the large-$\tau$ points visibly jump around** (only about 4 independent pairs remain at $\tau=N/4$). This is exactly the lesson of this section: **the "floor" or "upturn" you see at the far right of an ADEV curve can look like a definite physical feature, but if it is only supported by a handful of independent samples, those last few points carry large statistical uncertainty of their own** — the fix is a longer total record, not taking the shape of the rightmost points at face value.
+
+<AdevLiveExplorer />
+
+**Independent check of the estimator**: switching the generator to pure white FM (random-walk and flicker off) with $h_0=10^{-19}$ and running the same algorithm in Node over 200 re-seeds, the measured/theory ratio (against the closed form $h_0/2\tau$) at every octave falls in the range $0.94$–$1.00$ (worst at the largest $\tau$, where pairs are scarcest — exactly the effect described above); the log–log slope fitted to the 200-seed-averaged curve is $-0.508$ (theory: $\tau^{-1/2}$), and a single run with the default seed (1234) already gives a ratio of $0.993$ at the smallest $\tau$. The widget's "smallest τ measured/theory" readout is a live version of this same self-check.
+
 ## Worked examples
 
 The two problems below follow the strict format: **problem → step-by-step substitution (with units) → result → dimension check → one-line Python verification**. The first practices "reading slopes off the plot"; the second demonstrates **estimating ADEV from $\mathcal{L}(f)$** (the most useful engineering conversion).
@@ -276,7 +291,246 @@ adev  = lambda tau: np.sqrt(h0/(2*tau))
 print(f"{h0:.1e}", f"{adev(1e-3):.1e}")  # -> 8.0e-18  6.3e-08
 ```
 
-(The white-FM closed form $\sigma_y^2=h_0/2\tau$ is a standard frequency-metrology result; lab_19 on this site verifies only the slope, not the absolute constant — the numbers are for illustration.)
+(The white-FM closed form $\sigma_y^2=h_0/2\tau$ is a standard frequency-metrology result — the next section derives it fully in-house using $I_2=\pi/4$, and lab_19 has been extended to verify **the absolute level as well**, not just the slope.)
+
+## The complete prefactor table: the flicker-FM floor constant $\sigma_y^2=2\ln 2\cdot h_{-1}$
+
+The Step-4 slope table only answers "$\sigma_y\propto\tau^\mu$" — it says nothing about the **absolute level**. What engineering actually needs is: given the power-law coefficients of $S_y$, the **exact numerical value** of each segment of the ADEV curve — above all, how high the flicker-FM floor sits, the level that "no amount of averaging gets you below". This section evaluates the Step-3 integral for each of the five power laws **one by one**: the centerpiece is the flicker-FM floor constant, which turns out to be a beautiful $\ln 2$; white FM and RW FM fall to the same trick along the way; and the two PM types will show us "why a high-frequency cutoff $f_h$ is unavoidable".
+
+### Notation: the power-law coefficients $h_\alpha$ (standard IEEE 1139 notation)
+
+The frequency-metrology standards write $S_y$ as a power-law superposition:
+
+$$
+S_y(f)=\sum_{\alpha=-2}^{+2}h_\alpha f^{\alpha}.
+$$
+
+$S_y$ has units $1/\text{Hz}$, so $h_\alpha$ has units $\text{Hz}^{-(\alpha+1)}$: $h_{+2}$ is $\text{Hz}^{-3}$, $h_{+1}$ is $\text{Hz}^{-2}$, $h_0$ is $\text{Hz}^{-1}=\text{s}$, **$h_{-1}$ is dimensionless**, $h_{-2}$ is $\text{Hz}$.
+
+> **Notation warning**: the $h_\alpha$ always attach to **$S_y$** (the standard IEEE 1139 usage). In Example 2 above we casually wrote the $1/f^2$ coefficient of $S_\phi$ as $h_{-2}$ — that is the $S_\phi$-side coefficient, **not the same object** as the RW-FM $h_{-2}$ here (which lives on the $S_y$ side, with units Hz). From this section on, $S_\phi$-side coefficients carry a superscript $\phi$: the white-FM segment is written $S_\phi=h^{\phi}_{-2}/f^2$ (with $h^{\phi}_{-2}$ in $\text{rad}^2\cdot\text{Hz}$).
+
+### The general formula: one substitution covers all five rows
+
+Substitute $S_y=h_\alpha f^\alpha$ into the Step-3 integral and change variables $u=\pi f\tau$ (dimensionless; $f=u/(\pi\tau)$, $df=du/(\pi\tau)$, $f^\alpha=u^\alpha/(\pi\tau)^\alpha$):
+
+$$
+\sigma_y^2(\tau)=2\int_0^{\infty}h_\alpha f^{\alpha}\,\frac{\sin^4(\pi f\tau)}{(\pi f\tau)^2}\,df
+=\frac{2\,h_\alpha}{(\pi\tau)^{\alpha+1}}\,I_{2-\alpha},
+\qquad
+I_k\equiv\int_0^{\infty}\frac{\sin^4 u}{u^{k}}\,du.
+$$
+
+- **Step by step**: the integrand $=h_\alpha\dfrac{u^\alpha}{(\pi\tau)^\alpha}\cdot\dfrac{\sin^4u}{u^2}\cdot\dfrac{du}{\pi\tau}=h_\alpha\,(\pi\tau)^{-(\alpha+1)}\,\dfrac{\sin^4u}{u^{2-\alpha}}\,du$; pull out the constants and the result follows.
+- **The slope table comes out for free**: $\sigma_y^2\propto\tau^{-(\alpha+1)}$ — $\alpha=0\Rightarrow\tau^{-1}$ (white FM), $\alpha=-1\Rightarrow\tau^{0}$ (floor), $\alpha=-2\Rightarrow\tau^{+1}$ (RW FM), consistent with the Step-4 table ✓. All that remains is to evaluate the **pure numbers** $I_k$.
+- **Convergence (important)**: as $u\to0$ the integrand $\sim u^{4-k}$ ($k=2-\alpha\le4$, integrable for all $\alpha\ge-2$ ✓); as $u\to\infty$ it goes $\sim u^{-k}$, requiring $k>1$, i.e. $\alpha<1$. **For $\alpha=+1,+2$ (the two PM types) the integral diverges at the high-frequency end** — physically: the ADEV of PM noise depends on how high a frequency the measurement system can see, so a high-frequency cutoff $f_h$ (Hz) must be introduced, truncating at $u_h=\pi f_h\tau$. This is the deeper reason why the two PM rows of the Step-4 table cannot do without $f_h$.
+- **Unit check**: $h_\alpha$ is $\text{Hz}^{-(\alpha+1)}$, $(\pi\tau)^{-(\alpha+1)}$ is $\text{Hz}^{+(\alpha+1)}$, $I_k$ is a pure number ⇒ $\sigma_y^2$ dimensionless ✓.
+
+### Flicker FM ($\alpha=-1$): proving $I_3=\ln 2$
+
+For $\alpha=-1$ we get $(\pi\tau)^{\alpha+1}=(\pi\tau)^{0}=1$ — **$\tau$ disappears entirely at the very first step**; the "$\tau$-independence" of the floor is established right here, before evaluating any integral:
+
+$$
+\sigma_y^2(\tau)=2\,h_{-1}\,I_3=2\,h_{-1}\int_0^{\infty}\frac{\sin^4u}{u^3}\,du.
+$$
+
+All that is left is the pure number $I_3$. Four sub-steps below, no jumps.
+
+**Step (i): power-reduce $\sin^4$ into harmonics.** Square $\sin^2u=\tfrac12(1-\cos2u)$, then use $\cos^2 2u=\tfrac12(1+\cos4u)$:
+
+$$
+\sin^4u=\frac{(1-\cos2u)^2}{4}=\frac{1-2\cos2u+\cos^2 2u}{4}=\frac{3-4\cos2u+\cos4u}{8}=\frac{4(1-\cos2u)-(1-\cos4u)}{8}.
+$$
+
+Check the last equality: $4-4\cos2u-1+\cos4u=3-4\cos2u+\cos4u$ ✓. Small-$u$ check: $1-\cos(au)=\tfrac{a^2u^2}{2}-\tfrac{a^4u^4}{24}+\dots$; the $u^2$ coefficient $4\cdot\tfrac{4}{2}-\tfrac{16}{2}=8-8=0$ cancels, and the $u^4$ term $-4\cdot\tfrac{16}{24}+\tfrac{256}{24}=8$ gives the combination $\approx8u^4=8\sin^4u$ ✓ ($\sin^4u\approx u^4$).
+
+**Step (ii): why we must group into "$(1-\cos)$ combinations" and may not split.** If you integrate $3-4\cos2u+\cos4u$ against $u^{-3}$ term by term, each piece $\dfrac{1-\cos(au)}{u^3}\approx\dfrac{a^2}{2u}$ **diverges logarithmically** as $u\to0$; only in the combination does the $1/u$ coefficient $4\cdot\tfrac{2^2}{2}-\tfrac{4^2}{2}=0$ cancel exactly, making the whole thing integrable (low end $\sin^4u/u^3\sim u\to0$, high end $\le1/u^3$ ✓). So below we **treat it as a whole and never split** — this "individually divergent, finite in combination" structure is exactly the usual temperament of $1/f$ noise (compare Step 5: the standard variance diverges while the differenced combination converges).
+
+**Step (iii): integrate by parts twice, lowering $u^{-3}$ to $u^{-1}$.** Write $g(u)\equiv8\sin^4u=3-4\cos2u+\cos4u$, so $I_3=\tfrac18\int_0^\infty g(u)\,u^{-3}du$.
+
+First integration by parts ($u^{-3}du=d(-\tfrac{1}{2u^2})$):
+
+$$
+\int_0^{\infty}\frac{g(u)}{u^3}\,du=\Big[-\frac{g(u)}{2u^2}\Big]_0^{\infty}+\frac12\int_0^{\infty}\frac{g'(u)}{u^2}\,du,
+\qquad g'(u)=8\sin2u-4\sin4u.
+$$
+
+Boundary terms: as $u\to\infty$, $\lvert g\rvert\le8$ ⇒ $g/u^2\to0$; as $u\to0$, $g\approx8u^4$ ⇒ $g/(2u^2)\approx4u^2\to0$ ✓ both ends vanish.
+
+Second integration by parts ($u^{-2}du=d(-u^{-1})$):
+
+$$
+\int_0^{\infty}\frac{g'(u)}{u^2}\,du=\Big[-\frac{g'(u)}{u}\Big]_0^{\infty}+\int_0^{\infty}\frac{g''(u)}{u}\,du,
+\qquad g''(u)=16\cos2u-16\cos4u.
+$$
+
+Boundary terms: at the $\infty$ end $g'$ is bounded ⇒ $g'/u\to0$; at the $0$ end $g'=8\sin2u-4\sin4u=(16u-16u)+O(u^3)=32u^3+O(u^5)$ ⇒ $g'/u\approx32u^2\to0$ ✓. Combining:
+
+$$
+I_3=\frac18\cdot\frac12\int_0^{\infty}\frac{16(\cos2u-\cos4u)}{u}\,du=\int_0^{\infty}\frac{\cos2u-\cos4u}{u}\,du.
+$$
+
+**Step (iv): a Frullani-type cosine integral → $\ln2$.** Each term alone diverges as $u\to0$ ($\int du/u$), but the combination is integrable ($\cos2u-\cos4u=6u^2+O(u^4)$, integrand $\sim6u\to0$). Take a lower limit $\varepsilon>0$ and substitute $v=2u$ and $v=4u$ in the two terms respectively:
+
+$$
+\int_{\varepsilon}^{\infty}\frac{\cos2u-\cos4u}{u}\,du=\int_{2\varepsilon}^{\infty}\frac{\cos v}{v}\,dv-\int_{4\varepsilon}^{\infty}\frac{\cos v}{v}\,dv=\int_{2\varepsilon}^{4\varepsilon}\frac{\cos v}{v}\,dv.
+$$
+
+(At the $\infty$ end each integral converges conditionally — Dirichlet's test — and the identical tails cancel on subtraction, leaving only the sliver $[2\varepsilon,4\varepsilon]$.) On that sliver $\lvert\cos v-1\rvert\le v^2/2$:
+
+$$
+\int_{2\varepsilon}^{4\varepsilon}\frac{\cos v}{v}\,dv=\int_{2\varepsilon}^{4\varepsilon}\frac{dv}{v}+O(\varepsilon^2)=\ln\frac{4\varepsilon}{2\varepsilon}+O(\varepsilon^2)\ \xrightarrow{\ \varepsilon\to0\ }\ \ln2.
+$$
+
+Therefore:
+
+$$
+\boxed{\ I_3=\int_0^{\infty}\frac{\sin^4u}{u^3}\,du=\ln2
+\quad\Longrightarrow\quad
+\sigma_y^2(\tau)=2\ln2\cdot h_{-1}\ (\text{independent of }\tau),\quad
+\sigma_{y,\text{floor}}=\sqrt{2\ln2\cdot h_{-1}}\approx1.1774\,\sqrt{h_{-1}}\ }
+$$
+
+> **Physical intuition**: $\ln2=\ln\frac{4}{2}$ is the **log of the frequency ratio** of the two harmonics $2u$ and $4u$ produced by the power reduction. A $1/f$ process contributes equal power per octave; the ADEV band-pass kernel, on a log-frequency axis, is a window of **fixed shape that merely slides with $\tau$** (weighted by $S_y\sim1/f$, the contribution density per decade is $\propto\sin^4u/u^2$, peaking at $\tan u=2u$, i.e. $u\approx1.17$, $f\approx0.37/\tau$) — the window slides without changing shape, so the "number of octaves" it sees does not depend on $\tau$, and the integral is a constant. That is the frequency-domain picture of why the flicker floor is "$\tau$-independent".
+
+**Numerical verification** (`scipy.integrate.quad` up to $200\pi$ plus the analytic $\langle\sin^4\rangle=3/8$ tail correction; printed by lab_19):
+
+```python
+import numpy as np
+from scipy.integrate import quad
+U = 200*np.pi
+I3, _ = quad(lambda u: np.sin(u)**4/u**3, 0, U, limit=4000)
+I3 += (3/8)/(2*U**2)                  # tail ∫_U^∞ (3/8)/u^3 du
+print(f"{I3:.4f} {np.log(2):.4f}")    # -> 0.6931 0.6931
+```
+
+> **Factor-2/4 bookkeeping (the origin of every 2 and 4 in this section, settled once and for all)**:
+> - The leading **2** in $\sigma_y^2=2\ln2\cdot h_{-1}$: from the Step-3 kernel $\lvert H\rvert^2=2\sin^4u/u^2$ (the definition's $\tfrac12$ × the adjacent-difference $4\sin^2$) — this is **ADEV mathematics**, and has **nothing to do** with the phase-noise SSB $/2$-vs-$/4$ bookkeeping.
+> - The **2 and 4** in $\cos2u$ and $\cos4u$: the second and fourth harmonics from power-reducing $\sin^4$; $\ln2=\ln(4/2)$ is precisely their frequency ratio.
+> - The **2** in the white-FM denominator $h_0/(2\tau)$: $2\cdot\frac{I_2}{\pi}=2\cdot\frac{\pi/4}{\pi}=\frac12$ — again ADEV mathematics, not SSB bookkeeping.
+> - The **$4\pi^2$** in the denominator of $h^{\phi}_{-2}$ in Example 3 below: from $(2\pi f)^2$, purely the rad ↔ Hz conversion.
+> - The **4** in the denominator of $\tau_{knee}$ in Example 3: $=2\times2$ (the 2 of $h_0/\mathbf{2}\tau$ × the 2 of $\mathbf{2}\ln2$).
+> - The genuine SSB $/2$-vs-$/4$ convention appears only when "converting $S_\phi$ into a dBc/Hz report" (flagged in Example 3, Step 1).
+
+### The same trick takes down white FM and RW FM (and the $f_h$ of the two PM rows)
+
+**White FM ($\alpha=0$)**: $\sigma_y^2=\dfrac{2h_0}{\pi\tau}I_2$. $I_2$ needs only one integration by parts (the boundary terms again vanish at both ends: $\sin^4u/u\sim u^3\to0$ and $\le1/u\to0$):
+
+$$
+I_2=\int_0^{\infty}\frac{\sin^4u}{u^2}\,du=\Big[-\frac{\sin^4u}{u}\Big]_0^{\infty}+\int_0^{\infty}\frac{4\sin^3u\cos u}{u}\,du=\int_0^{\infty}\frac{\sin2u-\tfrac12\sin4u}{u}\,du=\frac{\pi}{2}-\frac12\cdot\frac{\pi}{2}=\frac{\pi}{4}.
+$$
+
+(In the middle we used $4\sin^3u\cos u=2\sin2u\sin^2u=\sin2u(1-\cos2u)=\sin2u-\tfrac12\sin4u$, plus the Dirichlet integral $\int_0^\infty\frac{\sin(au)}{u}du=\frac{\pi}{2}$, $a>0$.) Substituting back:
+
+$$
+\sigma_y^2(\tau)=\frac{2h_0}{\pi\tau}\cdot\frac{\pi}{4}=\frac{h_0}{2\tau}.
+$$
+
+The "standard result" quoted in Example 2 is thereby derived in-house ✓.
+
+**RW FM ($\alpha=-2$)**: $\sigma_y^2=2h_{-2}(\pi\tau)\,I_4$, where $I_4=\int_0^\infty\sin^4u/u^4\,du=\dfrac{\pi}{3}$ (same family: three integrations by parts reduce it to the Dirichlet family; it is also in the standard integral tables, and lab_19 verifies 1.0472 $=\pi/3$ by quad). Substituting back:
+
+$$
+\sigma_y^2(\tau)=2\pi\tau\,h_{-2}\cdot\frac{\pi}{3}=\frac{2\pi^2}{3}\,h_{-2}\,\tau.
+$$
+
+**The two PM rows ($\alpha=+1,+2$)**: $I_1,I_0$ diverge as $u\to\infty$; truncate at $u_h=\pi f_h\tau$. For white PM use $\int_0^{u_h}\sin^4u\,du=\tfrac38u_h-\tfrac14\sin2u_h+\tfrac1{32}\sin4u_h\approx\tfrac38u_h$ ($u_h\gg1$, $\langle\sin^4\rangle=3/8$):
+
+$$
+\sigma_y^2\approx\frac{2h_{+2}}{(\pi\tau)^3}\cdot\frac38\,\pi f_h\tau=\frac{3\,f_h\,h_{+2}}{4\pi^2\tau^2},
+$$
+
+which is exactly the standard white-PM prefactor (condition $2\pi f_h\tau\gg1$) ✓. Flicker PM works the same way: the logarithmic divergence of $I_1$ produces the $\langle\sin^4\rangle\cdot\ln$ term with coefficient $\tfrac{3}{4\pi^2\tau^2}$; the additive constant $1.038$ requires more careful oscillatory bookkeeping, so this page quotes the standard value directly (external literature).
+
+### The complete prefactor table for the five power laws
+
+| Noise type | $S_y(f)$ | Units of $h_\alpha$ | $\sigma_y^2(\tau)$ | Condition | Source |
+|---|---|---|---|---|---|
+| white PM | $h_{+2}f^{2}$ | $\text{Hz}^{-3}$ | $\dfrac{3\,f_h\,h_{+2}}{4\pi^2\tau^2}$ | $2\pi f_h\tau\gg1$ | standard table; prefactor derived here via $\langle\sin^4\rangle=\tfrac38$ |
+| flicker PM | $h_{+1}f$ | $\text{Hz}^{-2}$ | $\dfrac{\big[1.038+3\ln(2\pi f_h\tau)\big]h_{+1}}{4\pi^2\tau^2}$ | $2\pi f_h\tau\gg1$ | standard table; $\ln$ coefficient derived here, constant 1.038 quoted |
+| white FM | $h_0$ | $\text{Hz}^{-1}=\text{s}$ | $\dfrac{h_0}{2\tau}$ | — | **derived in-house** ($I_2=\pi/4$) |
+| **flicker FM** | $h_{-1}/f$ | dimensionless | $2\ln2\cdot h_{-1}$ ($\approx1.386\,h_{-1}$, floor) | — | **derived in-house** ($I_3=\ln2$) |
+| random-walk FM | $h_{-2}/f^{2}$ | $\text{Hz}$ | $\dfrac{2\pi^2}{3}\,h_{-2}\,\tau$ | — | **derived in-house** ($I_4=\pi/3$) |
+
+$f_h$ = high-frequency cutoff of the measurement system (Hz). The whole table agrees entry by entry with the standard tables of **IEEE Std 1139-2008** and **NIST SP 1065** (W. J. Riley, *Handbook of Frequency Stability Analysis*, 2008) (external literature, not among this site's five source PDFs); the flicker-FM, white-FM, and RW-FM rows and the white-PM prefactor have been derived on this page. Per-row unit self-check: every combination of the form $h_\alpha\,\text{Hz}^{(\alpha+1)}$ is dimensionless ✓ (e.g. RW FM: $\text{Hz}\times\text{s}$ ✓; flicker PM: $\text{Hz}^{-2}/\text{s}^2$ ✓).
+
+### Example 3: computing the flicker floor from the canonical $1/f^3$ corner (with units)
+
+> **Problem**: the canonical oscillator ($f_0=5$ GHz, $q_{max}=1$ pC, $\Gamma_{rms}=0.5$, $S_i=10^{-24}\ \text{A}^2/\text{Hz}$), with waveform symmetrized so that $c_0=0.04$; Example F of [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion) gives the $1/f^3$ corner $f_c=3.2$ kHz. Find the flicker-FM floor $\sigma_{y,\text{floor}}$ and the $\tau_{knee}$ where the white-FM segment crosses the floor.
+
+**Step 1 (the physical $S_\phi$ of the white-FM segment)**: the time-domain-clean derivation (see the factor-of-2 note in [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)) gives the single-sided
+
+$$
+S_\phi(f)=\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{S_i}{(2\pi f)^2}=\frac{h^{\phi}_{-2}}{f^2},
+\qquad
+h^{\phi}_{-2}=\frac{\Gamma_{rms}^2\,S_i}{4\pi^2\,q_{max}^2}=\frac{0.25\times10^{-24}}{4\pi^2\times10^{-24}}=6.33\times10^{-3}\ \text{rad}^2\cdot\text{Hz}.
+$$
+
+- **Unit check**: $\text{A}^2/\text{Hz}\div\text{C}^2=(\text{C/s})^2/(\text{Hz}\cdot\text{C}^2)=\text{Hz}^2/\text{Hz}=\text{Hz}$, times the dimensionless $\Gamma_{rms}^2$ gives $\text{rad}^2\cdot\text{Hz}$ ✓ (the $4\pi^2$ in the denominator comes from $(2\pi f)^2$ — a rad↔Hz conversion, **not** a noise-bookkeeping convention).
+- **Convention flag (every single time)**: this is the **physical** single-sided $S_\phi$. When converted into a dBc/Hz report: the time-domain $/2$ convention ($\mathcal{L}=S_\phi/2$) gives $\mathcal{L}(1\,\text{MHz})=-145.0$ dBc/Hz, while the SSB $/4$ accounting of [P1] Eq.(21) gives $-148.0$ dBc/Hz (a 3 dB difference; canonical Example B). **ADEV consumes only the physical $S_\phi$**, so this example corresponds to the $-145$ reading; if you mistakenly invert $-148$ as $S_\phi/2$, your $h^{\phi}_{-2}$ comes out 2× too small and the floor $\sqrt2$ too low ($-1.5$ dB).
+
+**Step 2 (flicker segment → $h_{-1}$)**: below the corner, $S_\phi$ steepens to $1/f^3$, continuous with the white-FM segment at $f_c$: $S_\phi=\dfrac{h^{\phi}_{-2}\,f_c}{f^3}$ ($f<f_c$). Converting to $S_y$ (the Step-1 adapter):
+
+$$
+S_y(f)=\frac{f^2}{f_0^2}\,S_\phi=\frac{h^{\phi}_{-2}\,f_c}{f_0^2}\cdot\frac1f\equiv\frac{h_{-1}}{f},
+\qquad
+h_{-1}=\frac{h^{\phi}_{-2}\,f_c}{f_0^2}=\frac{6.33\times10^{-3}\times3.2\times10^{3}}{(5\times10^{9})^2}=8.11\times10^{-19}.
+$$
+
+- **Unit check**: $\text{rad}^2\cdot\text{Hz}\times\text{Hz}\div\text{Hz}^2=$ dimensionless ✓ ($h_{-1}$ should be dimensionless).
+- Worth noting: $h_{-1}=h_0\,f_c$, where $h_0=h^{\phi}_{-2}/f_0^2=2.53\times10^{-22}\ \text{Hz}^{-1}$ is the white-FM level — the flicker coefficient is just "white-FM level × corner frequency".
+
+**Step 3 (the floor)**:
+
+$$
+\sigma_{y,\text{floor}}=\sqrt{2\ln2\cdot h_{-1}}=\sqrt{1.3863\times8.11\times10^{-19}}=\sqrt{1.124\times10^{-18}}=1.06\times10^{-9}.
+$$
+
+**Result:** the floor is $\approx1.06\times10^{-9}$, about 1.1 ppb — in frequency terms: $\sigma_y f_0=1.06\times10^{-9}\times5\times10^{9}=5.3$ Hz. **No matter how long you average**, the two-sample frequency instability of this free-running oscillator is stuck at about 5.3 Hz — that is the engineering meaning of the flicker floor.
+
+**Step 4 (the knee: where the white-FM segment hits the floor)**: set $h_0/(2\tau)=2\ln2\cdot h_{-1}$ and use $h_{-1}=h_0f_c$:
+
+$$
+\tau_{knee}=\frac{h_0}{4\ln2\cdot h_{-1}}=\frac{1}{4\ln2\cdot f_c}=\frac{0.3607}{f_c}=\frac{0.3607}{3200\ \text{Hz}}=113\ \mu\text{s}.
+$$
+
+(The **4** in the denominator $=2\times2$: the 2 of $h_0/\mathbf{2}\tau$ × the 2 of $\mathbf{2}\ln2$, both ADEV mathematics.) For $\tau$ shorter than 113 μs white FM dominates (the $\tau^{-1/2}$ descent); beyond it you sit on the floor. Rule of thumb: **$\tau_{knee}\approx0.36/f_c$**.
+
+**Contrast (asymmetric waveform)**: Example E's $c_0=0.4$ gives $f_c=320$ kHz ⇒ $h_{-1}=8.11\times10^{-17}$, floor $=1.06\times10^{-8}$. The corner is **100× higher**, the floor only **10× higher** (the $\sqrt{\ }$), and the knee shrinks to 1.13 μs. Because $f_c\propto c_0^2$ ([P1] Eq.(24)) while the floor $\propto\sqrt{h_{-1}}\propto\sqrt{f_c}$, we get **floor $\propto c_0$**: waveform symmetrization does not just suppress close-in phase noise — it pulls the long-term-stability floor down linearly in $c_0$.
+
+**Dimension check (throughout)**: $h_{-1}$ dimensionless → $2\ln2\,h_{-1}$ dimensionless → the square root still dimensionless (fractional frequency) ✓; $\tau_{knee}=h_0/(4\ln2\,h_{-1})=\text{s}/\text{dimensionless}=\text{s}$ ✓.
+
+```python
+import numpy as np
+g, Si, qmax, f0, fc = 0.5, 1e-24, 1e-12, 5e9, 3.2e3
+h_phi = g**2*Si/(qmax**2*4*np.pi**2)          # S_phi white-FM coefficient (rad^2·Hz)
+h_m1  = h_phi*fc/f0**2                        # S_y = h_m1/f (dimensionless)
+floor = np.sqrt(2*np.log(2)*h_m1)
+print(f"{h_phi:.2e} {h_m1:.2e} {floor:.2e}")  # -> 6.33e-03 8.11e-19 1.06e-09
+h0 = h_phi/f0**2
+print(f"{h0:.2e} {1/(4*np.log(2)*fc)*1e6:.0f}")  # -> 2.53e-22 113
+```
+
+### Simulation verification: the absolute floor level (lab_19 extension)
+
+lab_19 (`simulations/lab_19_allan.py`) has been extended to **verify absolute values**, not just slopes, doing three things:
+
+1. **The integral family**: `scipy.integrate.quad` computes $I_2,I_3,I_4$ directly (up to $200\pi$ plus the analytic $\langle\sin^4\rangle=3/8$ tail), printing 0.7854, **0.6931**, 1.0472, matching $\pi/4$, $\ln2$, $\pi/3$ ✓.
+2. **The floor of pure flicker FM**: FFT shaping synthesizes $y(t)$ with an **exactly known absolute PSD** — unit-variance white noise has one-sided PSD $2/f_s$, so shape with $\lvert H\rvert^2=S_{target}/(2/f_s)$ (function `synth_y_from_psd`; unlike `power_law_y`, which normalizes only the slope) — with $h_{-1}=8.11\times10^{-19}$, 8 seeds, overlapping ADEV over $\tau=10\dots2000$ s, yielding **measured/theory $=1.004$** (theory $\sqrt{2\ln2\,h_{-1}}=1.06\times10^{-9}$).
+3. **The full white＋flicker curve**: superposing $S_y=h_0+h_{-1}/f$ (both canonical coefficients), $f_s=1$ MHz, $2^{22}$ points, 6 seeds; the entire curve (knee included) deviates from $\sqrt{h_0/2\tau+2\ln2\,h_{-1}}$ by at most **2.3%**.
+
+![Absolute ADEV of white+flicker FM: simulated points land on the theory curve √(h0/2τ+2ln2·h₋₁), floor=1.06e-9, knee=113 μs](/figures/allan_flicker_floor.png)
+
+| Item | Value | Notes |
+|---|---|---|
+| Model | toy / illustrative (not transistor-level) | FFT shaping, **absolute one-sided PSD exactly known** |
+| $h_0$ | $2.53\times10^{-22}\ \text{Hz}^{-1}$ | canonical white-FM level (Example 3, Step 2) |
+| $h_{-1}$ | $8.11\times10^{-19}$ (dimensionless) | canonical flicker coefficient ($f_c=3.2$ kHz) |
+| Theory floor | $\sqrt{2\ln2\,h_{-1}}=1.06\times10^{-9}$ | green dashed line |
+| Measured/theory (floor) | $1.004$ | pure flicker, average of 8 seeds |
+| Max full-curve deviation | $2.3\%$ | includes FFT low-frequency truncation bias at large $\tau$ |
+| $\tau_{knee}$ | $113\ \mu$s (red dotted line) | $=1/(4\ln2\,f_c)$ |
+
+**How to read it**: the simulated points (blue) descend along the white-FM asymptote $\sqrt{h_0/2\tau}$ with slope $-1/2$ at small $\tau$, turn at $\tau_{knee}=113\ \mu$s, then sit on the $1.06\times10^{-9}$ floor — the **level** agrees with theory to 0.4% (floor band). Two honest caveats: (a) the lowest frequency of the synthesized noise is truncated by the record length at $f_s/N$, so at the largest $\tau$ some flicker power is missing and the curve deviates slightly (included in the 2.3%); (b) this is a toy synthesis validating the "integral mathematics" — the floor level of a real oscillator is set by its real $f_c$ and $h^{\phi}_{-2}$.
 
 ## Applicability and failure conditions
 
@@ -287,6 +541,8 @@ print(f"{h0:.1e}", f"{adev(1e-3):.1e}")  # -> 8.0e-18  6.3e-08
 | Data long enough, $\tau\ll$ total record length | estimate is reliable | as $\tau$ approaches the record length, few samples remain and confidence intervals blow up |
 | Processes no lower-frequency than RW FM | ADEV converges | for processes below RW ($S_y\sim f^{-3}$ and steeper) ADEV also diverges; use the Hadamard variance |
 | Measurement system itself clean enough | you measure the DUT | otherwise the left end (small $\tau$) is buried under the instrument's white PM |
+| Floor formula $\sigma_y^2=2\ln2\,h_{-1}$: $S_y\sim1/f$ must cover the band the kernel sees ($f\approx0.37/\tau$, roughly ±1.5 decades) | floor is flat and its level accurate | with $\tau$ too close to $\tau_{knee}$ the white-FM contribution is not negligible (use the full form $h_0/2\tau+2\ln2\,h_{-1}$); at very large $\tau$ RW FM / drift overrides the floor |
+| PM-row prefactors require $2\pi f_h\tau\gg1$ | white/flicker PM prefactors hold | for $\tau$ so small that $2\pi f_h\tau\sim1$ the prefactors lose accuracy ($f_h$ = measurement high-frequency cutoff) |
 
 ## Which papers / formulas this maps to
 
@@ -296,6 +552,7 @@ print(f"{h0:.1e}", f"{adev(1e-3):.1e}")  # -> 8.0e-18  6.3e-08
   - **IEEE Std 1139** ("IEEE Standard Definitions of Physical Quantities for Fundamental Frequency and Time Metrology—Random Instabilities") and **NIST Special Publication 1065** (W. Riley, "Handbook of Frequency Stability Analysis," 2008) — the standard references for the power-law slope table and the overlapping-ADEV estimator.
   - The above are **IEEE Std 1139-2008** (prior edition 1139-1999) and **NIST SP 1065** (W. J. Riley, *Handbook of Frequency Stability Analysis*, 2008); volume/issue and edition details have been verified.
 - Connection to this site's frequency-domain results: $S_\phi\sim1/f^2$ ([P1] Eq.(21) of [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)) ↔ white FM ↔ ADEV $\tau^{-1/2}$; $1/f^3$ ([P1] Eq.(23) of [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)) ↔ flicker FM ↔ ADEV $\tau^0$ floor.
+- **The complete prefactor table**: the whole table agrees with IEEE Std 1139-2008 and NIST SP 1065 (external literature, not among this site's five source PDFs); of it, **the flicker-FM $2\ln2$ ($I_3=\ln2$), the white-FM $h_0/2\tau$ ($I_2=\pi/4$), the RW-FM $\tfrac{2\pi^2}{3}h_{-2}\tau$ ($I_4=\pi/3$), and the white-PM prefactor are derived on this page**, using nothing beyond the Step-3 integral; the flicker-PM additive constant 1.038 is quoted from the standard. The corner $f_c=3.2$ kHz of Example 3 comes from [P1] Eq.(24) (Example F of [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)).
 
 ## Key takeaways
 
@@ -305,6 +562,9 @@ print(f"{h0:.1e}", f"{adev(1e-3):.1e}")  # -> 8.0e-18  6.3e-08
 - Signature link: $1/f^2$ phase noise ↔ white FM ↔ ADEV slope $-1/2$.
 - **Why ADEV**: the ordinary frequency variance **does not converge** for flicker/RW (it diverges with measurement duration); ADEV's differencing kernel goes like $f^2$ as $f\to0$, taming the low-frequency divergence and yielding a repeatable stability metric.
 - Example 2 shows how $\mathcal{L}(1\text{MHz})=-100$ dBc/Hz (5 GHz) yields a white $S_y$ and $\sigma_y(1\text{ms})\approx6.3\times10^{-8}$.
+- **Prefactors, not just slopes**: the substitution $u=\pi f\tau$ gives $\sigma_y^2=2h_\alpha(\pi\tau)^{-(\alpha+1)}I_{2-\alpha}$; $I_2=\pi/4$, $I_3=\ln2$, $I_4=\pi/3$ ⇒ white FM $h_0/2\tau$, **flicker floor $2\ln2\,h_{-1}$** ($\tau$-independent), RW FM $\tfrac{2\pi^2}{3}h_{-2}\tau$; the two PM rows must carry $f_h$ because $I_1,I_0$ diverge at high frequency.
+- **Where the $\ln2$ comes from**: power-reduce $\sin^4$ into the $2u,4u$ harmonics, integrate by parts twice, then the Frullani-type $\int(\cos2u-\cos4u)/u\,du=\ln(4/2)$; quad verifies 0.6931 ✓.
+- Canonical numbers (Example 3): $f_c=3.2$ kHz ⇒ $h_{-1}=8.11\times10^{-19}$, floor $=1.06\times10^{-9}$ ($\approx5.3$ Hz @ 5 GHz), $\tau_{knee}=1/(4\ln2 f_c)=113\ \mu$s ($\approx0.36/f_c$); floor $\propto c_0$ — symmetrization directly lowers the long-term stability floor. lab_19 measures measured/theory $=1.004$ on synthesized noise with exactly known absolute PSD.
 
 ## Further reading
 

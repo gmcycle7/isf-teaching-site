@@ -3,6 +3,8 @@ title: 嚴格 LTV 框架：Zadeh 時變傳函與 harmonic transfer matrix
 description: 從訊號與系統的卷積/LTI 出發，推到 LTV y(t)=∫h(t,τ)x dτ 與 Zadeh 時變傳函 H(f,t)；證明週期 LTV 把輸入頻率 f 搬到 f+k f0、增益是 ISF 第 k 個傅立葉係數 cₖ，即 harmonic transfer matrix；最後證「ISF 就是相位輸出對各諧波的轉換向量」，連 [P1] Eq.(13) 與 fourier 頁。外部數學框架（Zadeh 1950），不在 5 篇 PDF 內。
 ---
 
+import HtmFoldingExplorer from "@site/src/components/HtmFoldingExplorer";
+
 # 嚴格 LTV 框架：Zadeh 時變傳函與 harmonic transfer matrix
 
 > **先備**：[lti_vs_ltv](/02_foundations/lti_vs_ltv)（LTV vs LTI 的直覺）、[convolution_derivation](/03_isf_core_theory/convolution_derivation)（[P1] Eq.(11) 的 LTV 卷積）、[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)（ISF 傅立葉係數 $c_n$）｜**接下來**：[derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv)（同一個 ISF 的 PPV/Floquet 面孔）
@@ -185,6 +187,24 @@ $[\mathbf H]_{m,k}=H_{m-k}$ 的 **Toeplitz 熱圖**，沿對角線為常數（�
 *（圖：`simulations/fig_htm_bandfold.py`。這是 illustrative 教學圖，非 transistor-level 萃取。左圖箭頭增益
 $|\tilde c_0|=c_0/2$、$|\tilde c_{\pm1}|=c_1/2$、$|\tilde c_{\pm2}|=c_2/2$，正對應第 4 步將證的
 $H_k^{(\Gamma)}=\tilde c_k$；折疊增益的模平方和 $\sum_k|\tilde c_k|^2=\Gamma_{rms}^2$ 即第 5 步的 Parseval。）*
+
+親手拖拖看——下面這個互動版把上圖的「單一輸入 band、固定 ISF」換成**可拖動的 $f_{in}$ 與可調的 ISF**：
+拉動滑桿把輸入單音 $f_{in}$ 從 0 掃到 $3f_0$，小工具會即時找出離 $f_{in}$ 最近的諧波 $k\cdot f_0$，
+畫出折到 baseband 偏移 $\Delta f=|f_{in}-k f_0|$ 的箭頭，箭頭高度／標籤就是折疊增益
+$|\tilde c_k|$（$k=0$ 是 $c_0/2$、$k\ge1$ 是 $c_k/2$）——正是上面 boxed 結果與第 4 步 $H_k^{(\Gamma)}=\tilde c_k$
+的逐字視覺化。三顆預設按鈕切換 ISF 波形（ideal LC 只有 $c_1$、asymmetric 同本頁圖的 pedagogical ISF、
+square-ish 讓奇次諧波 $c_1,c_3$ 較強），也可以用下面四支滑桿自由調 $c_0$–$c_3$。讀數卡片同時顯示
+**主導諧波 $k^*$**、**baseband 偏移 $\Delta f$**、**折疊增益 $|\tilde c_{k^*}|$**、**relevant terms 的
+$\sum|c_k/2|^2$**（baseband 相位雜訊權重）、以及**積分器 $1/(2\pi\Delta f)$**（把 Step 5 的 $1/\Delta\omega$
+積分器增益也讀出來，取 $I_0/q_{max}=1$ 正規化）。
+
+<HtmFoldingExplorer />
+
+> **錨點案例（試試看）**：切到 **ideal LC** 預設（$\Gamma=-\sin\theta$，只有 $c_1\neq0$）。把 $f_{in}$
+> 掃過整個 0–$3f_0$ 視窗，你會看到**只有 $f_{in}$ 掃過 $f_0$ 附近時**才有非零的折疊箭頭——DC、$2f_0$、$3f_0$
+> band 的增益全部是 0，因為 ideal LC 的 ISF 只有基頻分量。$\sum|c_k/2|^2$ 讀數也只剩單一
+> $c_1/2=0.5$ 這一項（$|c_1/2|^2=0.25$）。這就是「LC oscillator 對遠離 $f_0$ 整數倍的 noise 幾乎不折疊」
+> 的直接視覺證據；換成 asymmetric 或 square-ish 預設，DC／高次諧波 band 才會冒出非零箭頭。
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Tuning-line and supply-pushing phase noise
-description: Define K_VCO=∂f0/∂V_tune and supply pushing K_push=∂f0/∂V_DD; derive how low-frequency noise voltage on the tune/supply node FM-modulates the carrier to give S_φ=K_VCO²·S_v/Δf² (white→1/f², 1/f→1/f³, paralleling the device flicker c0 mechanism); AM-PM from varactor C(V) nonlinearity; design knobs — split tuning, flat bias point, LDO/common-mode rejection; worked example K_VCO=50 MHz/V, 100 nV/√Hz @ 1 MHz, f0=5 GHz → L=-109 dBc/Hz.
+description: Define K_VCO=∂f0/∂V_tune and supply pushing K_push=∂f0/∂V_DD; derive how low-frequency noise voltage on the tune/supply node FM-modulates the carrier to give S_φ=K_VCO²·S_v/Δf² (white→1/f², 1/f→1/f³, paralleling the device flicker c0 mechanism); AM-PM from varactor C(V) nonlinearity; design knobs — split tuning, flat bias point, LDO/common-mode rejection; worked example K_VCO=50 MHz/V, 100 nV/√Hz @ 1 MHz, f0=5 GHz → L=-109 dBc/Hz; lab_38 measures K_push=2.936 GHz/V from first principles on the Level-1 ring and verifies it via FM sidebands (β ratio 1.002).
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -208,6 +208,89 @@ S_phi = K_push**2 * S_vdd / df**2
 print(10*math.log10(0.5*S_phi))   # -> -117.0 dBc/Hz
 ```
 
+## K_push from first principles (Level-1 ring measurement, lab_38)
+
+Example H's $K_{push}=2$ MHz/V was a **given** representative value (a well-cared-for LC-VCO grade number). This section gives nothing: take the **MOS Level-1 (Shichman-Hodges square-law) 3-stage ring** from [lab_32](/04_simulation_labs/lab_32_mos_level1_ring) and measure $K_{push}$ directly **by its definition** — first a static $V_{DD}$ sweep for the slope of $f_0(V_{DD})$, then a small superimposed ripple to verify Step 2's FM-integrator prediction. Honesty statement: this is **device-equation level (Level-1 square law, $\lambda=0$), NOT SPICE/BSIM/PDK**; the numbers belong to this toy ring, but the physics and the order-of-magnitude lesson are general. Full script: `simulations/lab_38_supply_pushing_ring.py` (the node equation reuses lab_32 bit-exactly, only promoting $V_{DD}$ to an argument; cross-check difference $0.0$ V/s).
+
+### Static measurement: $f_0(V_{DD})$ sweep → $K_{push}$
+
+Sweep $V_{DD}$ from 0.9 V to 1.1 V (25 mV grid); at each point let the ring reach steady oscillation and measure the period by threshold crossings:
+
+| $V_{DD}$ [V] | 0.900 | 0.950 | 1.000 | 1.050 | 1.100 |
+|---|---|---|---|---|---|
+| $f_0$ [GHz] | 0.9394 | 1.0803 | 1.2252 | 1.3738 | 1.5255 |
+
+$f_0(1.000\,\text{V})=1.2252$ GHz exactly reproduces lab_32 (same ring, same integrator). Central difference at 1.0 V:
+
+$$
+K_{push}=\left.\frac{\partial f_0}{\partial V_{DD}}\right|_{1.0\,\text{V}}=\frac{f_0(1.025)-f_0(0.975)}{0.05\ \text{V}}=2.936\ \text{GHz/V}
+$$
+
+(The 9-point quadratic-fit derivative gives 2.932 GHz/V, 0.1% apart — the slope extraction is self-consistent.) **Dimension check**: Hz ÷ V = Hz/V ✓.
+
+**Why so large? A hand sanity check (step by step)**: the ring's frequency is $f_0=\dfrac{1}{2N\tau_D}$ (the concept of [P2] Eq.(15); this 2 is the circuit fact "two edges per period," not a bookkeeping convention), and each stage delay is $\tau_D\approx C_L\,\Delta V/I_D$, where the swing $\Delta V\propto V_{DD}$ and the drive current follows the square law $I_D\approx\tfrac{k'}{2}\tfrac{W}{L}(V_{DD}-V_T)^2$. Hence
+
+$$
+f_0\ \propto\ \frac{(V_{DD}-V_T)^2}{V_{DD}}\quad\Rightarrow\quad \frac{1}{f_0}\frac{\partial f_0}{\partial V_{DD}}=\frac{2}{V_{DD}-V_T}-\frac{1}{V_{DD}}
+$$
+
+(The 2 in the numerator is the square-law exponent — a physical origin, not a convention.) Plug in $V_{DD}=1.0$ V, $V_T=0.4$ V: $2/0.6-1/1.0=2.33\ \text{V}^{-1}$, times $f_0=1.2252$ GHz gives **2.859 GHz/V** — 2.6% from the measured 2.936 GHz/V; both magnitude and physics agree. **Dimension check**: $\text{V}^{-1}\times\text{Hz}=\text{Hz/V}$ ✓.
+
+The normalized pushing is $K_{push}/f_0=2.40$ /V $=2.4\times10^6$ ppm/V. For contrast: an LC VCO's $f_0$ is set by the tank's $L\,C$ and the supply only **perturbs** it through parasitics and bias (typical pushing figures sit in the ppm/V to thousands-of-ppm/V range — external literature, not among the five source PDFs); a ring's $f_0$ **is** device current divided by capacitance — the supply sits directly inside the formula. **"A ring's supply pushing is inherently orders of magnitude larger than an LC's" is not folklore; it is a direct consequence of $f_0=1/(2N\tau_D)$.**
+
+### Dynamic verification: 10 mV ripple → narrowband FM sidebands
+
+Superimpose a sinusoidal ripple $V_r=10$ mV at $f_m=100$ MHz on $V_{DD}$. By Step 2's integrator, step by step:
+
+$$
+\Delta f(t)=K_{push}V_r\sin(2\pi f_m t)\quad\Rightarrow\quad\phi(t)=\int 2\pi\,\Delta f\,dt'=-\underbrace{\frac{K_{push}V_r}{f_m}}_{\beta}\cos(2\pi f_m t)
+$$
+
+The peak phase deviation (FM modulation index) is $\beta=K_{push}V_r/f_m$. **Dimension check**: $\dfrac{(\text{Hz/V})\cdot\text{V}}{\text{Hz}}=$ dimensionless (rad) ✓ — exactly the FM fundamental "frequency deviation ÷ modulation frequency = phase." Plug in the measured value:
+
+$$
+\beta_{pred}=\frac{2.936\times10^{9}\ \text{Hz/V}\times 0.01\ \text{V}}{10^{8}\ \text{Hz}}=0.2936\ \text{rad}.
+$$
+
+The simulation puts the ripple physically into the node equation, extracts $\phi(t)$ from threshold-crossing times, and fits a sinusoid: $\beta_{meas}=0.2942$ rad, **ratio 1.002** (modulation phase $-88.2°$, theory $-90°$: $\phi=\int\sin=-\cos$ ✓). The spectrum shows sidebands at $f_0\pm f_m$: measured $-16.31/-16.83$ dBc, against the narrowband-FM prediction $20\log_{10}(\beta/2)=-16.67$ dBc (exact Bessel value $20\log_{10}(J_1/J_0)=-16.55$ dBc). **Convention flag**: this $/2$ is **FM math** ($J_1/J_0\approx\beta/2$) — it is **not the same 2** as the SSB bookkeeping in $\mathcal{L}\approx\tfrac12 S_\phi$, nor the 4 in the denominator of [P1] Eq.(21). The 0.52 dB upper/lower sideband asymmetry is concurrent AM (the swing itself tracks $V_{DD}$, $m\approx V_r/V_{DD}=1\%$) — a supply-side miniature of Step 4's AM-PM issue; even the second-order sidebands at $f_0\pm2f_m$ ($-38.6/-39.8$ dBc) match $J_2/J_0$'s $-39.2$ dBc.
+
+This deterministic single-tone experiment verifies **precisely** Step 2's integrator: a random $v_n(t)$ is nothing but a superposition of countless such tones (in PSD language), so "$\beta$ checks out" is equivalent to "$S_\phi=K_{push}^2S_v/\Delta f^2$ checks out."
+
+```python
+# lab_38 key numbers (reproduce with: PYTHONPATH=. python simulations/lab_38_supply_pushing_ring.py)
+K_push = (1.2991e9 - 1.1523e9) / 0.05
+print(f"{K_push:.3e}")   # -> 2.936e9 Hz/V (central difference @ 1.0 V)
+beta   = K_push * 10e-3 / 100e6
+print(round(beta, 4))         # -> 0.2936 rad (measured 0.2942, ratio 1.002)
+```
+
+![Supply pushing of the Level-1 ring: f0(VDD) sweep, ripple phase modulation, FM sidebands](/figures/supply_pushing_ring.png)
+
+**How to read the figure**: (a) $f_0(V_{DD})$ is nearly a straight line (slightly curved); the red tangent's slope is $K_{push}$; (b) $\phi(t)$ extracted from threshold crossings (purple dots) with the sinusoidal fit; the red dashed lines $\pm\beta_{pred}$ are pure theory, not fitted; (c) the spectrum normalized to the carrier at 0 dB — the $\pm100$ MHz sidebands land on the predicted level, and the small peaks at $\pm200$ MHz are second-order FM sidebands. Parameters: $C_L=10$ fF/node, $N=3$, static sweep $dt=25$ fs, dynamic $dt=100$ fs, 150 ns record; runtime about 28 s.
+
+> **Example I (end-to-end: measured $K_{push}$ × this page's formula)**: take Example H's same supply noise, $1\ \mu\text{V}/\sqrt{\text{Hz}}$ ($S_{v,DD}=10^{-12}\ \text{V}^2/\text{Hz}$) at $\Delta f=1$ MHz, but substitute this ring's measured $K_{push}=2.936$ GHz/V:
+>
+> $$
+> S_\phi=\frac{K_{push}^2\,S_{v,DD}}{\Delta f^2}=\frac{(2.936\times10^{9})^2\times10^{-12}}{(10^{6})^2}=8.62\times10^{-6}\ \text{rad}^2/\text{Hz},
+> $$
+>
+> $$
+> \mathcal{L}(1\,\text{MHz})=10\log_{10}\!\big(\tfrac12\times8.62\times10^{-6}\big)=-53.7\ \text{dBc/Hz}.
+> $$
+>
+> (The $\tfrac12$ here is the SSB small-angle convention $\mathcal{L}\approx\tfrac12S_\phi$, spec Section 3, Eq. 16.) **Dimension check**: $(\text{Hz/V})^2\cdot\text{V}^2/\text{Hz}\div\text{Hz}^2=\text{Hz}^{-1}$ → rad²/Hz ✓. This is **63.3 dB worse** than Example H's $-117.0$ dBc/Hz — exactly $20\log_{10}(2936/2)$, entirely from the square of $K_{push}$. That is the quantitative version of "an unregulated ring on a dirty supply is a disaster"; conversely, the $K^2$ is also good news: every 20 dB an LDO shaves off the voltage noise removes 20 dB of this phase-noise contribution.
+
+### Interface with the ISF: the supply sees the "coherent sum of per-stage sensitivities"
+
+In ISF language there is one key difference between device noise and supply noise:
+
+- **device noise (each stage's own $i_n$)**: the $N$ stages' noise sources are **mutually independent**, so per-stage contributions add in **power** — this is [P2]'s bookkeeping for the ring analysis (one $\Gamma_{rms}^2$ share per stage).
+- **supply (the $V_{DD}$ rail)**: the supply is a port **shared by all $N$ stages**. One low-frequency (quasi-static) supply disturbance changes **every stage's delay simultaneously and in the same direction** — whichever stage is switching gets sped up or slowed down by the same $v_n$, and within one period the delay changes of all $2N$ edges **accumulate with the same sign** into $\Delta T$. So the supply's effective sensitivity is the **coherent (amplitude) sum of the per-stage sensitivities**, and the **average (DC) component** of that sum is exactly $2\pi K_{push}$: for a slow disturbance, "some stage is being pushed at every instant," and the summed sensitivity never changes sign.
+- Corollary 1: stacking $N$ independent sources scales as $\sqrt N$ (power addition); a coherent source scales as $N$ (amplitude addition) — supply noise is not merely "one more noise source": it **bypasses the statistical discount of independent sources**.
+- Corollary 2: the DC term of the supply's effective sensitivity is inherently large (its role is that of $c_0$ in device-flicker upconversion), so the supply's $1/f$ noise upconverts to $1/f^3$ as in Step 3; but while the device version can push $c_0$ near 0 via **waveform symmetry** (lab_32's symmetric ring measured $c_0=0.0014$), the supply version **has no such card to play** — "every stage's delay tracks $V_{DD}$" is not something symmetry can cancel. The remaining cards are suppressing the entry (LDO) and suppressing $K_{push}$ itself (differential/regulated topologies, stage designs whose delay is first-order insensitive to $V_{DD}$ — external literature, not among the five source PDFs).
+
+**Limitations (honestly)**: Level-1 square law, $\lambda=0$, a single lumped $C_L$, single point $N=3$ (no $N$-scaling verified); a real PDK ring's $K_{push}$ number will differ due to velocity saturation and short-channel effects (though it remains far larger than an LC's — external-literature experience), while this section's **method** (definition-based measurement + FM verification) and **structural conclusions** (coherent summing, the $K^2$ lever) stand.
+
 ## Validity and failure conditions
 
 | Condition | When it holds | What breaks when it doesn't |
@@ -224,6 +307,7 @@ print(10*math.log10(0.5*S_phi))   # -> -117.0 dBc/Hz
 - **AM-PM / amplitude modulation**'s full framework: [P4] (APF, amplitude decay, advanced; see [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)).
 - **$K_{VCO}/K_{push}$ definitions, split tuning, switched-cap bank, LDO, varactor $C(V)$, common-mode rejection, pushing figure** and other circuit/topology/instrumentation specifics: **standard RF IC design literature (external literature, not among the five source PDFs)** — Razavi's *RF Microelectronics*, the Leeson model, vendor datasheets.
 - $\mathcal{L}\approx\tfrac12 S_\phi$: spec Section 3, Eq. 16 (small-angle PM).
+- **$K_{push}$ first-principles measurement (lab_38)**: the ring frequency concept $f_0=1/(2N\tau_D)$ comes from [P2] Eq.(15), p.794; the device equations and the ring itself reuse lab_32 (Level-1 equation level, NOT SPICE/BSIM/PDK); narrowband FM's $J_1/J_0\approx\beta/2$ is standard communications-textbook material (external literature, not among the five source PDFs).
 
 ## Key takeaways
 
@@ -233,6 +317,7 @@ print(10*math.log10(0.5*S_phi))   # -> -117.0 dBc/Hz
 - **Varactor $C(V)$ nonlinearity → AM-PM**: $\partial\omega/\partial A\propto C''(V_{tune})$, reviving suppressed amplitude noise as phase noise; a **flat bias point (small $C''$)** suppresses it (a different knob from shrinking $K_{VCO}$).
 - Design knobs: **split tuning (coarse switched-cap + fine varactor, shrinks $K_{VCO}$)**, flat bias point (suppresses AM-PM), **LDO / clean reference (suppresses the $S_v$ entry)**, **common-mode rejection (combats supply/substrate common mode)**.
 - Numbers: $K_{VCO}=50$ MHz/V, $100$ nV$/\sqrt{\text{Hz}}$ @ 1 MHz → $\mathcal{L}(1\,\text{MHz})=-109$ dBc/Hz (a single tune line alone can dominate the $1/f^2$ region); $\mathcal{L}$ does not explicitly contain $f_0$.
+- **lab_38 first-principles measurement**: the Level-1 3-stage ring measures $K_{push}=2.936$ GHz/V ($2.4\times10^6$ ppm/V; the hand square-law model is 2.6% away); the 10 mV @ 100 MHz ripple FM verification gives $\beta_{meas}/\beta_{pred}=1.002$; with the same $1\ \mu\text{V}/\sqrt{\text{Hz}}$ supply, $\mathcal{L}=-53.7$ dBc/Hz — 63.3 dB worse than Example H. A ring's supply sees the "coherent sum of per-stage sensitivities," has no symmetry-zeroing card to play, and must rely on LDO/regulated topologies.
 
 ## Further reading
 
@@ -242,3 +327,5 @@ print(10*math.log10(0.5*S_phi))   # -> -117.0 dBc/Hz
 - How tune-line noise is high-pass/low-pass filtered in the loop, and optimal loop BW: [pll_noise_budget](/06_design_insights/pll_noise_budget)
 - The swing/$q_{max}$ lever (another independent knob): [tank_swing](/06_design_insights/tank_swing)
 - Which knobs change $\Gamma_{rms}$ and which change $q_{max}$: [device_noise_mapping](/06_design_insights/device_noise_mapping)
+- The Level-1 ring used by lab_38, and its ISF extraction: [lab_32_mos_level1_ring](/04_simulation_labs/lab_32_mos_level1_ring)
+- The **high-frequency** entrance for supply/substrate noise — correlated noise only enters from near DC and $k\cdot N\cdot f_0$ ([P2] Eqs.(37)–(38) selection rule; this page's $K_{push}$ is precisely the DC tooth of that comb): [lab_34_correlated_supply](/04_simulation_labs/lab_34_correlated_supply)

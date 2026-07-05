@@ -3,6 +3,8 @@ title: "Lorentzian Linewidth: Resolving the 1/f² Divergence Paradox at Δf→0"
 description: "From the phase random walk (Var[Δφ]=2D|t|), via the Gaussian characteristic function, to the carrier autocorrelation ½cos(ω₀τ)e^{-D|τ|}; Wiener-Khinchin then yields the Lorentzian S∝D/(D²+Δω²) and the 3-dB linewidth D/π, correcting the near-carrier 'false divergence' of 1/f² into a finite peak with conserved total power, and linking to the ISF via D=Γrms²/(4qmax²)·S_i and [E2] Demir 2000."
 ---
 
+import LineshapeExplorer from "@site/src/components/LineshapeExplorer";
+
 # Lorentzian Linewidth: Resolving the 1/f² Divergence Paradox at Δf→0
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -305,6 +307,23 @@ the blue curve **departs** from $1/f^2$, hugs the black dashed line (Lorentzian)
 exactly where the corner happens. **One glance at this figure says it all: $1/f^2$ is the tail; the Lorentzian is the whole picture.**
 **How to read the right panel**: the measured $\operatorname{Var}[\Delta\phi(\tau)]$ (blue) lands precisely on the $2D\tau$ line (black dashed),
 confirming that the phase really is a linearly diffusing random walk — the very root of the exponential autocorrelation and hence the Lorentzian.
+
+### Interactive: same L(f_ref) spec, two lineshapes, smeared away by RBW
+
+The figure above is the white-FM case; [beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian) proves
+that under flicker FM the same machinery yields a **near-Gaussian** line core instead of a Lorentzian, with
+linewidths that can differ by two orders of magnitude for the same spec point. The widget below overlays both
+lineshapes on the same axes and lets you sweep a spectrum analyzer's **resolution bandwidth (RBW)** — see for
+yourself how the "flattening" gets smeared away by the instrument's own resolution once the RBW is too wide:
+
+<LineshapeExplorer />
+
+**How to read it**: fix a single spec point $\mathcal{L}(10\,\text{kHz})$ and toggle white FM / flicker FM to see
+how different FWHM_true is (tens-to-hundreds of Hz for white FM versus thousands of Hz for flicker FM — up to a
+100× difference for the same number); then drag the RBW slider to the right and watch when the gray dashed curve
+(true lineshape) and the blue solid curve (RBW-convolved "measured" trace) part ways — once RBW is much larger
+than the linewidth, all you measure is a wide, featureless hump, and the flattening / near-Gaussian shoulder
+information is gone.
 
 Core Python (full script: `simulations/lab_18_lorentzian.py`):
 

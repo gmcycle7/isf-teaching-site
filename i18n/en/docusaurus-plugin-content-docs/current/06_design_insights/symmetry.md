@@ -143,14 +143,16 @@ remain).
 
 ## Numerical example (building intuition)
 
-> Using canonical numbers plus an assumed device 1/f corner.
+> The first example uses an **assumed** $c_0$ (illustrative); the second switches to the closed forms of
+> [P2] Appendix B and computes $c_0$ and the corner **directly** from the topology parameters $(N,A)$ —
+> full derivation in [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form).
 
 **Symmetric waveform ($c_0\approx0$)**: theoretically $\Delta\omega_{1/f^3}=\omega_{1/f}\cdot
 c_0^2/(2\Gamma_{rms}^2)\to0$, and the 1/f³ corner is pushed to extremely low frequency — in practice it is
 dominated by the small residual $c_0$ set by mismatch (see the knobs table below).
 
-**Asymmetric waveform**: take $c_0=0.4$, $\Gamma_{rms}=0.5$ (so $c_0^2/(2\Gamma_{rms}^2)=0.16/(2\times0.25)=0.32$).
-If the device $f_{1/f}=1$ MHz, then
+**Asymmetric waveform (illustrative, $c_0$ assumed)**: take $c_0=0.4$, $\Gamma_{rms}=0.5$
+(so $c_0^2/(2\Gamma_{rms}^2)=0.16/(2\times0.25)=0.32$). If the device $f_{1/f}=1$ MHz, then
 
 $$
 f_{1/f^3}=f_{1/f}\cdot\frac{c_0^2}{2\Gamma_{rms}^2}=1\ \text{MHz}\times0.32=320\ \text{kHz}.
@@ -159,6 +161,25 @@ $$
 - **Intuition**: lowering $c_0$ from 0.4 to 0.04 (10× smaller) drops the corner by 100× ($c_0^2$) — from
   320 kHz down to 3.2 kHz. In other words, **each order-of-magnitude improvement in symmetry shrinks the
   reach of the 1/f³ skirt by two orders of magnitude** — an extremely cost-effective design lever.
+
+**Asymmetric waveform (computed, directly from ring topology parameters)**: a ring with $N=5$, $\eta=1$,
+whose rise is 1.5× steeper than its fall (asymmetry ratio $A=f'_{rise}/f'_{fall}=1.5$). The [P2] App. B
+closed forms (Eq.(55)/(56)/(57), p.803; derivation in
+[asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form)) directly give
+
+$$
+\Gamma_{rms}=0.2428,\qquad c_0=2\,\Gamma_{dc}=-0.1005,\qquad
+f_{1/f^3}=f_{1/f}\cdot\frac{3}{2\eta N}\cdot\frac{(1-A)^2}{1-A+A^2}=42.9\ \text{kHz}.
+$$
+
+- **Convention flag**: 42.86 kHz is the [P2] Eq.(7)/(57) bookkeeping; substituting $c_0=2\Gamma_{dc}$
+  back into [P1] Eq.(24) above yields $2\times=85.71$ kHz (a DC-channel weighting convention difference;
+  see the flag on the new page. Scalings and ratios are unaffected). The numbers are verified by
+  `simulations/lab_33_asymmetry_corner.py` (closed forms vs numeric integration, error $\sim10^{-9}$).
+- **New design message ([P2]'s own sentence, p.803)**: at fixed $A$ the corner is $\propto1/N$ —
+  **rings with fewer stages have a higher flicker corner** (at $A=1.5$: $N=3\to71.43$ kHz,
+  $N=15\to14.29$ kHz). White-region phase noise is approximately N-independent ([P2] Eq.(23)), but the
+  1/f³ knee is pushed down by the stage count.
 - Corresponding experimental evidence: [P2] Fig. 17, p.802 measures ring-oscillator phase noise vs.
   "symmetry control voltage," which shows a **minimum at the symmetry point** — direct support for the
   design rule "symmetric → low 1/f³."
@@ -196,9 +217,11 @@ $$
 ## Worked examples
 
 The following two examples demonstrate the most cost-effective design lever — "improving symmetry lowers
-the 1/f³ corner" — reusing this site's canonical $\Gamma_{rms}=0.5$, device $f_{1/f}=1$ MHz.
+the 1/f³ corner" — reusing this site's canonical $\Gamma_{rms}=0.5$, device $f_{1/f}=1$ MHz. Both use an
+**illustrative assumed** $c_0$ (conversion practice); to compute the real $c_0$ from topology parameters
+$(N,A)$, see [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form).
 
-> **Example 1 (baseline: compute the 1/f³ corner for an asymmetric waveform)**
+> **Example 1 (baseline: compute the 1/f³ corner for an asymmetric waveform; $c_0$ is an illustrative assumed value)**
 > Given $c_0=0.4$, $\Gamma_{rms}=0.5$, device 1/f corner $f_{1/f}=1$ MHz, find the 1/f³ corner $f_{1/f^3}$.
 
 **Step-by-step substitution (with units)**, using the just-derived $f_{1/f^3}=f_{1/f}\cdot c_0^2/(2\Gamma_{rms}^2)$:
@@ -269,13 +292,18 @@ print("corner ratio:", (c0_new/c0_old)**2,            # -> 0.01  (3.2 kHz / 320 
 - Only the ISF's DC coefficient $c_0$ upconverts device 1/f noise into close-in 1/f³ ([P1] Eq.(23)).
 - 1/f³ corner $=\omega_{1/f}\cdot c_0^2/(2\Gamma_{rms}^2)$, **not equal to** the device's 1/f corner ([P1] Eq.(24)).
 - Symmetric rise/fall → the ISF cancels over one period → $c_0\to0$ → the 1/f³ corner is pushed to very low frequency.
-- Lowering $c_0$ by 10× lowers the 1/f³ corner by 100× ($c_0^2$): asymmetric $c_0=0.4$, $f_{1/f}=1$ MHz → corner 320 kHz.
+- Lowering $c_0$ by 10× lowers the 1/f³ corner by 100× ($c_0^2$): illustrative $c_0=0.4$, $f_{1/f}=1$ MHz → corner 320 kHz.
+- A ring's $c_0$ can be **computed directly from topology**: the [P2] App. B closed forms give
+  $c_0=2\Gamma_{dc}=\frac{4\pi}{\eta^2N^2}\frac{1-A}{1+A}$ and
+  corner $\propto\frac{(1-A)^2}{1-A+A^2}\cdot\frac{1}{N}$ ($N=5$, $A=1.5\to42.9$ kHz;
+  [P1] Eq.(24) convention $\times2$) — see [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form).
 - Design levers: differential, symmetric loads, 50% duty; must look at the $c_0$ of the **effective** ISF (including $\alpha$).
 - Experiment: [P2] Fig. 17, phase noise vs. symmetry voltage, shows a minimum.
 
 ## Further reading
 
 - Full upconversion derivation: [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
+- Closed forms for $\Gamma_{rms}$, $c_0$ and the corner of the asymmetric triangular ISF ([P2] App. B): [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form)
 - Why $\Gamma$'s shape tracks the waveform slope: [waveform_slope](/06_design_insights/waveform_slope)
 - Effective ISF and $\alpha$: [device_noise_mapping](/06_design_insights/device_noise_mapping), [effective_isf](/03_isf_core_theory/effective_isf)
 - Fourier coefficients and Parseval: [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)

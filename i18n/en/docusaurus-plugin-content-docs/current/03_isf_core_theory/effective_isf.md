@@ -3,6 +3,8 @@ title: Effective ISF and cyclostationary noise
 description: From cyclostationary device noise to the effective ISF Γ_eff(x)=Γ(x)·α(x); how periodic "gating" of device noise folds into the ISF, with external background on PPV / adjoint / Floquet (not among the five source PDFs).
 ---
 
+import EffectiveIsfExplorer from "@site/src/components/EffectiveIsfExplorer";
+
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
 # Effective ISF and cyclostationary noise
@@ -25,6 +27,13 @@ $$
 From then on, **every formula stays the same with $\Gamma_{eff}$ substituted for $\Gamma$** (the
 cyclostationary decomposition and the effective ISF come from
 [P1] Sec. II-D "Cyclostationary Noise Sources", Eq.(25)–(27), p.186; $\Gamma_{eff}=\Gamma\cdot\alpha$ is Eq.(27)).
+
+**Try it yourself**: the interactive explorer below keeps $\Gamma(x)=-\sin x$ fixed and lets you drag
+the NMF $\alpha(x)$ window's **center phase** $\theta_c$, **width**, and **floor**, watching $\Gamma$,
+$\alpha$, and $\Gamma_{eff}=\Gamma\cdot\alpha$ overlaid live, along with $\Gamma_{eff,rms}$,
+$c_0^{eff}$, and the phase-noise change relative to the stationary case.
+
+<EffectiveIsfExplorer />
 
 > **Physical intuition (conclusion first)**: two "time windows" open and close simultaneously in an oscillator:
 > (1) the **ISF $\Gamma(x)$** — how sensitive the oscillator is to noise right now (where the waveform is easy to kick);

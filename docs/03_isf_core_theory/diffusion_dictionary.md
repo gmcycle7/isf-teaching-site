@@ -3,6 +3,8 @@ title: 擴散常數字典：κ、D、線寬、ADEV、1/f² 係數是同一個數
 description: 以相位方差成長率 κ²=Γrms²·Si/(2qmax²)（[P2] Eq.11/12）為主角，逐步推導它換上五件衣服——ring jitter 常數 κ、相位擴散常數 D（兩種慣例）、Lorentzian 3-dB 線寬 κ²/(2π)、1/f² phase PSD 係數 2κ²、white-FM Allan deviation κ/(2πf₀√τ)——並把每個 factor-of-2 慣例（單邊/雙邊、Var=D|t| vs 2D|t|、SSB /2 vs /4）逐一對帳，用 lab_23 一次模擬五路驗證，canonical κ²=0.125 rad²/s。
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 # 擴散常數字典：κ、D、線寬、ADEV、1/f² 係數是同一個數字
 
 > 先備：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) · [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) · [allan_variance](/02_foundations/allan_variance) ｜ 接下來：[capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)
@@ -218,6 +220,15 @@ $$
   $\Gamma_{rms}=0.5$）；真・理想 LC（$\kappa^2=0.25$）則 $39.8$ mHz。
   `lab_23` 直接量合成載波的頻譜：Lorentzian 擬合給 **20.0 mHz**、半高直讀給
   **20.3 mHz**（圖 (b)），與 $\kappa^2/2\pi=19.9$ mHz 吻合。
+
+<NumericQuiz
+  prompt="先自己算：代表值 κ²=0.125 rad²/s 的 Lorentzian FWHM Δf₃dB = ？（以 mHz 作答）"
+  answer={19.9}
+  tol={0.02}
+  unit="mHz"
+  hint="Δf₃dB = κ²/(2π)。"
+  solutionNote="Δf₃dB = 0.125/(2π) ≈ 19.9 mHz（真 LC 的 κ²=0.25 則給 39.8 mHz；與 lab_23 量測 20.0 mHz 吻合）。"
+/>
 - **外部交叉檢查**（標準結果）：白色**頻率**雜訊單邊 PSD 為 $S_\nu^0$（$\text{Hz}^2/\text{Hz}$）
   時，線寬 $\Delta f_{3\mathrm{dB}}=\pi S_\nu^0$。由衣服四將得 $S_\nu^0=\kappa^2/(2\pi^2)$，
   代入：$\pi\cdot\kappa^2/(2\pi^2)=\kappa^2/(2\pi)$ ✓ 同一答案。（此關係式屬外部文獻，

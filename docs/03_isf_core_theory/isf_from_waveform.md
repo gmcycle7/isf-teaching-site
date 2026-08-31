@@ -59,6 +59,12 @@ $$
 - **單位檢查**：設狀態都是電壓，$[\Delta\vec X]=$ V、$\dot{\vec X}/|\dot{\vec X}|$ 無因次 → $l$ 單位 V ✓（位移與狀態同單位）。
 - **隱藏假設一**：內積要求各狀態分量**同單位／同尺度**。狀態混了 V 與 A（例如 LC 的 $v_C,i_L$）就要先 normalize，而 normalize 的方式會改答案（見「失效條件」）。
 
+下圖把 Fig. 29 的 state-space 圖景（左）與 Fig. 30 的三法對比（右，方法 C 那節會回頭引用）用本站的 van der Pol toy 實算復刻出來：
+
+![[P1] Fig. 29 與 Fig. 30 的概念復刻：左為 van der Pol μ=2.0 實算的 state-space 軌跡（粗線極限環、狀態向量、擾動向量、重返軌跡與 Δφ），右為 μ=0.2 上三種 ISF 計算法的單色對比](/figures/p1_fig2930_replica.png)
+
+**概念復刻，非原圖數位化**。左：對應 [P1] Fig. 29（p.192），原標題逐字：*"State-space trajectory of an $n$th-order oscillator."*——原圖是 $n$ 維示意手繪（未指定系統）；復刻改用 van der Pol（μ=2.0）**實算**：粗線＝極限環，細線＝在 $x$ 軸踢 $\Delta x=0.45$（刻意放大以便看圖）後真實積分出來的重返軌跡，$\Delta\phi$ 標在兩軌同時刻的落差上、以晚期零交越實測得 $-0.768$ rad（$-0.122$ 週期）。右：對應 [P1] Fig. 30（p.193），原標題逐字：*"ISF's obtained from different methods."*，原圖標題列 *"Calculation of Impulse Sensitivity Function"*——原圖振盪器未載明；復刻用 μ=0.2 的同一顆 vdP（與下方「三法對決」同一套機器），線型沿用原圖：實線＝1st Method（法 A）、點線＝2nd Method（法 B）、虛線＝3rd Method（法 C），相位零點對齊波形谷值使正 lobe 在前、負 lobe 在後（同原圖的排列）。**誠實差異**：原圖是 1st≈2nd、虛線 3rd 偏離（$N$ 級相同 stage 的 ring 把 Eq.(36) 分母撐成常數）；本復刻的單節點 vdP 上反而是法 B≈法 C（rms 差 0.134），打脈衝真值 A 在波形極值附近離開兩者（AM→PM，見下方對決）。數字：$\Gamma_{rms}$ A／B／C $=0.7777$／$0.7097$／$0.6758$；rms $|B-A|=0.2365$、rms $|C-A|=0.3219$。腳本：`simulations/fig_p1_fig2930_replica.py`（跑法 `PYTHONPATH=. python simulations/fig_p1_fig2930_replica.py`，約 1 s）。
+
 ### 第 2 步：位移 ÷ 速率 = 時間偏移——Eq. (32)
 
 沿軌跡移了 $l$，等效於時間上移了「$l$ 除以速率 $|\dot{\vec X}|$」（[P1] Eq.(32), p.193）：
@@ -172,7 +178,7 @@ $$
 is approximate, it is the easiest to use and allows a designer to rapidly develop important
 insights into the behavior of an oscillator."*——近似、但最好用。[P1] Fig. 30（p.193，*"ISF's
 obtained from different methods"*）把三法畫在同一張圖上比較，方法 C（虛線）在 lobe 高度與細節上
-偏離另外兩法，但形狀對。
+偏離另外兩法，但形狀對（其概念復刻見方法 B 第 1 步那張復刻圖的右半）。
 
 - **它就是本站互動工具的引擎**：[互動工具 7 IsfSandbox](/04_simulation_labs/interactive_calculator)（畫波形→看 ISF）用的正是這個 slope 近似的 [P2]-Appendix 變體（每個 edge 各自用自己的最大斜率 normalize，才能重現上升／下降不對稱給出 $c_0\neq0$）；本頁就是那個 widget 的「嚴格出身證明」。
 - [P2] App. B 的 ring closed form（Eq.(52)–(55)，$\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\,N^{-1.5}$，見 [rms_isf](/03_isf_core_theory/rms_isf)）本質上就是把方法 C 的三角形 ISF 積分出來的結果。

@@ -214,7 +214,8 @@ export default function PllLoopBwExplorer() {
       </div>
 
       {/* ---- output spectrum (log-log) ---- */}
-      <svg viewBox={`0 0 ${W} ${H}`} style={{width: '100%', height: 'auto', background: 'var(--ifm-background-color)', borderRadius: '6px'}}>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Closed-loop output phase noise spectrum: reference, VCO, and combined output"
+           style={{width: '100%', height: 'auto', background: 'var(--ifm-background-color)', borderRadius: '6px'}}>
         {decades.map((d) => (
           <g key={`xd${d}`}>
             <line x1={Xf(Math.pow(10, d))} y1={PAD_T} x2={Xf(Math.pow(10, d))} y2={H - PAD_B} stroke={grid} strokeWidth="1" />
@@ -246,7 +247,8 @@ export default function PllLoopBwExplorer() {
       </svg>
 
       {/* ---- integrated jitter vs f_n ---- */}
-      <svg viewBox={`0 0 ${JW} ${JH}`} style={{width: '100%', height: 'auto', background: 'var(--ifm-background-color)', borderRadius: '6px', marginTop: '0.5rem'}}>
+      <svg viewBox={`0 0 ${JW} ${JH}`} role="img" aria-label="Integrated rms jitter versus loop bandwidth, showing the optimum"
+           style={{width: '100%', height: 'auto', background: 'var(--ifm-background-color)', borderRadius: '6px', marginTop: '0.5rem'}}>
         {fnDecades.map((d) => (
           <g key={`jxd${d}`}>
             <line x1={Xfn(Math.pow(10, d))} y1={JPAD_T} x2={Xfn(Math.pow(10, d))} y2={JH - JPAD_B} stroke={grid} strokeWidth="1" />

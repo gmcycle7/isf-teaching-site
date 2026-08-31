@@ -3,6 +3,8 @@ title: "Diffusion-Constant Dictionary: κ, D, Linewidth, ADEV, and the 1/f² Coe
 description: "Starring the phase-variance growth rate κ²=Γrms²·Si/(2qmax²) ([P2] Eq.11/12), this page derives step by step its five outfits — the ring jitter constant κ, the phase diffusion constant D (two conventions), the Lorentzian 3-dB linewidth κ²/(2π), the 1/f² phase-PSD coefficient 2κ², and the white-FM Allan deviation κ/(2πf₀√τ) — reconciles every factor-of-2 convention (single/double-sided, Var=D|t| vs 2D|t|, SSB /2 vs /4) one by one, and verifies with lab_23's single simulation extracted five ways; canonical κ²=0.125 rad²/s."
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
 # Diffusion-Constant Dictionary: κ, D, Linewidth, ADEV, and the 1/f² Coefficient Are One and the Same Number
@@ -99,7 +101,7 @@ $$
 
 ---
 
-## Outfit 1: κ — the ring / jitter crowd's language ([P2])
+## Outfit One: κ — the ring / jitter crowd's language ([P2])
 
 [P2] Eq.(8), p.792 writes the free-running oscillator's accumulated jitter as a random walk:
 
@@ -125,7 +127,7 @@ $$
 > $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ with $\kappa$ in $\sqrt{\text{s}}$, they mean this
 > $\kappa_t$. The two differ only by an $\omega_0$; the physics is the same.
 
-- **Relation to $\kappa^2$**: $\kappa=\sqrt{\kappa^2}$ — Outfit 1 is just the protagonist under a square root.
+- **Relation to κ²**: $\kappa=\sqrt{\kappa^2}$ — Outfit One is just the protagonist under a square root.
 - **Unit check**: $\dfrac{1}{\text{C}}\cdot\sqrt{\text{A}^2\text{s}}=\dfrac{\text{A}\sqrt{\text{s}}}{\text{A}\,\text{s}}=\dfrac{1}{\sqrt{\text{s}}}$ ✓ (rad dimensionless);
   $\kappa_t$: $(1/\sqrt{\text{s}})/(1/\text{s})=\sqrt{\text{s}}$ ✓.
 - **Canonical numbers**: $\kappa=\sqrt{0.125}=0.354\ \text{rad}/\sqrt{\text{s}}$. Attach $f_0=5$ GHz:
@@ -144,7 +146,7 @@ print(f"{kappa/(2*np.pi*f0)*np.sqrt(1e-6)*1e15:.2f}")  # -> 11.25 fs (integrated
 
 ---
 
-## Outfit 2: D — the two conventions for the diffusion constant (this page's reconciliation core)
+## Outfit Two: D — the two conventions for the diffusion constant (this page's reconciliation core)
 
 The literature carries **two definitions** of the "diffusion constant $D$", differing by a 2. This section is the **head-on
 reconciliation** between the spec (Spec 11.2) and [P2] Eq.(11) — with a single job: state exactly what $\kappa^2$
@@ -181,7 +183,7 @@ $$
 > **not** on the $2\times0.125\,\tau$ line. Conclusion: **the canonical value $D=0.125$ is correct, but it is
 > convention A's $D$ ($=\kappa^2$); the variance law that goes with it must be $\mathrm{Var}=D|t|$**. If you insist on convention B's
 > $\mathrm{Var}=2D|t|$, then $D$ must be read as $0.0625$. This affects no scaling — only the absolute value of the
-> linewidth in the next section (see Outfit 3's honesty note).
+> linewidth in the next section (see Outfit Three's honesty note).
 
 - **Units**: both $D$'s are $\text{rad}^2/\text{s}$ (equivalently $1/\text{s}$) ✓.
 - **One-line dictionary**: $\kappa^2=D_{\text{甲}}=2D_{\text{乙}}$. Before quoting $D$ to anyone, **first ask whether their
@@ -189,7 +191,7 @@ $$
 
 ---
 
-## Outfit 3: the Lorentzian 3-dB linewidth
+## Outfit Three: the Lorentzian 3-dB linewidth
 
 [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) already derived the whole mechanism
 (Gaussian characteristic function → exponential autocorrelation → Wiener–Khinchin → Lorentzian; it belongs to [E2] Demir 2000,
@@ -220,10 +222,19 @@ $$
   $\Gamma_{rms}=0.5$); the truly ideal LC ($\kappa^2=0.25$) gives $39.8$ mHz.
   `lab_23` measures the spectrum of the synthesized carrier directly: the Lorentzian fit gives **20.0 mHz**, the direct half-power readout
   **20.3 mHz** (panel (b)), matching $\kappa^2/2\pi=19.9$ mHz.
+
+<NumericQuiz
+  prompt="Try it yourself first: for the representative value κ²=0.125 rad²/s, the Lorentzian FWHM Δf₃dB = ? (answer in mHz)"
+  answer={19.9}
+  tol={0.02}
+  unit="mHz"
+  hint="Δf₃dB = κ²/(2π)."
+  solutionNote="Δf₃dB = 0.125/(2π) ≈ 19.9 mHz (the true LC's κ²=0.25 gives 39.8 mHz; matches the lab_23 measurement of 20.0 mHz)."
+/>
 - **External cross-check** (standard result): for white **frequency** noise with single-sided PSD $S_\nu^0$ ($\text{Hz}^2/\text{Hz}$),
-  the linewidth is $\Delta f_{3\mathrm{dB}}=\pi S_\nu^0$. Outfit 4 will give $S_\nu^0=\kappa^2/(2\pi^2)$;
+  the linewidth is $\Delta f_{3\mathrm{dB}}=\pi S_\nu^0$. Outfit Four will give $S_\nu^0=\kappa^2/(2\pi^2)$;
   substituting: $\pi\cdot\kappa^2/(2\pi^2)=\kappa^2/(2\pi)$ ✓ same answer. (This relation is external literature,
-  not among the five source PDFs: G. Di Domenico, S. Schilt, and P. Thomann, "Simple approach to the
+  not among the 5 source PDFs: G. Di Domenico, S. Schilt, and P. Thomann, "Simple approach to the
   relation between laser frequency noise and laser line shape," Applied Optics,
   vol. 49, no. 25, pp. 4801–4807, 2010.)
 
@@ -243,10 +254,10 @@ $$
 
 ---
 
-## Outfit 4: the 1/f² phase-PSD coefficient and $\mathcal{L}$
+## Outfit Four: the 1/f² phase-PSD coefficient and $\mathcal{L}$
 
 **Step (i): $\dot\phi$ is white.** The protagonist says the variance grows by $\kappa^2$ per second, equivalent to the
-autocorrelation $R_{\dot\phi}(\tau)=\kappa^2\delta(\tau)$. Its **double-sided** PSD is
+autocorrelation of $\dot\phi$, $R_{\dot\phi}(\tau)=\kappa^2\delta(\tau)$. Its **double-sided** PSD is
 $\kappa^2$, its **single-sided** PSD $2\kappa^2$ (units $\text{rad}^2/\text{s}^2/\text{Hz}=\text{rad}^2/\text{s}$).
 **The second factor of 2: single- vs double-sided** — the same family as Step 0's $S_i/2$.
 
@@ -263,7 +274,7 @@ This is exactly the clean time-domain version of [white_noise_to_phase_noise](/0
 $S_\phi=\Gamma_{rms}^2S_i/(q_{max}^2\Delta\omega^2)$ — substitute
 $\kappa^2=\Gamma_{rms}^2S_i/(2q_{max}^2)$ and it follows, fully consistent ✓.
 
-**Step (iii): $\mathcal{L}$ — the third factor of 2 (SSB $/2$ vs $/4$, stated explicitly across the site).**
+**Step (iii): $\mathcal{L}$ — the third factor of 2 (SSB /2 vs /4, stated explicitly across the site).**
 
 $$
 \mathcal{L}_{/2}(\Delta f)=\frac{S_\phi}{2}=\frac{\kappa^2}{\Delta\omega^2}
@@ -275,7 +286,7 @@ The former is the clean small-angle-PM result (spec Eq.16); the latter is [P1] E
 bookkeeping ($\Gamma_{rms}^2S_i/(4q_{max}^2\Delta\omega^2)$); they differ by 3 dB — this is exactly why
 $-145$ and $-148$ dBc/Hz coexist site-wide, each with its own note (see the
 factor-of-2 teaching note in
-[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)). It is also the Lorentzian's far tail: Outfit 3's normalized Lorentzian
+[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)). It is also the Lorentzian's far tail: Outfit Three's normalized Lorentzian
 at $\Delta f\gg\Delta f_{3\mathrm{dB}}$ tends $\to\kappa^2/\Delta\omega^2=\mathcal{L}_{/2}$ ✓.
 
 - **Canonical numbers** ($\Delta f=1$ MHz, $\Delta\omega=6.283\times10^6$ rad/s,
@@ -293,16 +304,16 @@ at $\Delta f\gg\Delta f_{3\mathrm{dB}}$ tends $\to\kappa^2/\Delta\omega^2=\mathc
 
 ---
 
-## Outfit 5: white-FM Allan deviation
+## Outfit Five: white-FM Allan deviation
 
 Step 1 of [allan_variance](/02_foundations/allan_variance) supplied the adapter
-$S_y=(f^2/f_0^2)S_\phi$. Substitute Outfit 4 (the annotation in the equation reads: white FM, independent of $f$):
+$S_y=(f^2/f_0^2)S_\phi$. Substitute Outfit Four:
 
 $$
-S_y(f)=\frac{f^2}{f_0^2}\cdot\frac{2\kappa^2}{(2\pi f)^2}=\frac{\kappa^2}{2\pi^2 f_0^2}\equiv h_0\quad(\text{白色 FM，與 }f\text{ 無關})\ [\text{1/Hz}].
+S_y(f)=\frac{f^2}{f_0^2}\cdot\frac{2\kappa^2}{(2\pi f)^2}=\frac{\kappa^2}{2\pi^2 f_0^2}\equiv h_0\quad(\text{white FM, independent of }f)\ [\text{1/Hz}].
 $$
 
-Along the way we also obtained the frequency-noise PSD used in Outfit 3: $S_\nu^0=f_0^2\,h_0=\kappa^2/(2\pi^2)$
+Along the way we also obtained the frequency-noise PSD used in Outfit Three: $S_\nu^0=f_0^2\,h_0=\kappa^2/(2\pi^2)$
 ($\text{Hz}^2/\text{Hz}$) — the same number as $b_{-2}$. Coincidence? No: $S_\nu=f^2S_\phi$
 is constant for a $1/f^2$ skirt by construction.
 
@@ -320,7 +331,7 @@ $$
   and got $\sigma_y(1\,\text{ms})=6.3\times10^{-8}$; ours at $-145$ dBc/Hz is 45 dB lower, so
   $\sigma_y$ should be $\sqrt{10^{4.5}}=178$ times smaller: $6.3\times10^{-8}/178=3.5\times10^{-10}$ ✓ matches.
 - **Closing the dictionary loop (the prettiest step)**: multiply the ADEV back by $\tau$ to get the time-domain drift
-  $\tau\,\sigma_y(\tau)=\kappa_t\sqrt{\tau}$ — **exactly Outfit 1's accumulated timing jitter**
+  $\tau\,\sigma_y(\tau)=\kappa_t\sqrt{\tau}$ — **exactly Outfit One's accumulated timing jitter**
   $\sigma_{\Delta t}=\kappa_t\sqrt{\Delta t}$. Five outfits, one full circle back to the start; the dictionary is self-consistent ✓.
 
 ---
@@ -337,9 +348,9 @@ the $\kappa$-type entries ×$\sqrt2$).
 | Variance growth rate (protagonist) | $\mathrm{Var}[\Delta\phi]=\kappa^2\vert t\vert$ | $\text{rad}^2/\text{s}$ | $0.125$ | theory | [P2] Eq.(11) p.793 |
 | ① $\kappa$ (phase) | $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ | $\text{rad}/\sqrt{\text{s}}$ | $0.354$ | ring/jitter | [P2] Eq.(8) p.792, Eq.(12) p.793 |
 | ① $\kappa_t$ (time) | $\kappa_t=\kappa/(2\pi f_0)$ | $\sqrt{\text{s}}$ | $1.13\times10^{-11}$ | ring/jitter | converted via [P2] Eq.(10) p.793 |
-| ② $D$ (convention A) | $D_{\text{甲}}=\kappa^2$ ($\mathrm{Var}=D\vert t\vert$) | $\text{rad}^2/\text{s}$ | $0.125$ | rate convention (spec v3 once mislabeled this value as $D$) | reconciliation in Outfit 2 |
+| ② $D$ (convention A) | $D_{\text{甲}}=\kappa^2$ ($\mathrm{Var}=D\vert t\vert$) | $\text{rad}^2/\text{s}$ | $0.125$ | rate convention (spec v3 once mislabeled this value as $D$) | reconciliation in Outfit Two |
 | ② $D$ (convention B) | $D_{\text{乙}}=\kappa^2/2$ ($\mathrm{Var}=2D\vert t\vert$) | $\text{rad}^2/\text{s}$ | $0.0625$ | Demir/laser; **this site's Spec 11.2 (v5)** | [E2] Demir 2000 |
-| ③ 3-dB linewidth | $\Delta f_{3\mathrm{dB}}=\kappa^2/(2\pi)$ | Hz | $19.9$ mHz | laser/spectroscopy | Outfit 3; [E2] |
+| ③ 3-dB linewidth | $\Delta f_{3\mathrm{dB}}=\kappa^2/(2\pi)$ | Hz | $19.9$ mHz | laser/spectroscopy | Outfit Three; [E2] |
 | ④ $S_\phi$ coefficient | $S_\phi=2\kappa^2/(2\pi f)^2$ (single-sided) | $\text{rad}^2/\text{Hz}$ | $b_{-2}=6.33\times10^{-3}$ | RF/IC | [P1] Eq.(21) p.185 (the $/4$ version) |
 | ④ $\mathcal{L}$@1MHz | $\mathcal{L}_{/2}=\kappa^2/\Delta\omega^2$; $\mathcal{L}_{/4}=\kappa^2/2\Delta\omega^2$ | dBc/Hz | $-145.0$ / $-148.0$ | RF/IC | spec Eq.16; [P1] Eq.(21) |
 | ⑤ white-FM ADEV | $\sigma_y(\tau)=\kappa/(2\pi f_0\sqrt{\tau})$ | — | $1.13\times10^{-11}$@1s | clock/metrology | [E1] Allan 1966; IEEE 1139 |
@@ -372,7 +383,7 @@ self-verified inside the simulation before being converted analytically to 5 GHz
 | (d) $S_\phi$ | $\hat\kappa^2=0.1254$ | plateau of $S_\phi(2\pi f)^2/2$ |
 
 **How to read it**: (a) the blue dots (measured variance) hug the black dashed $\kappa^2\tau$ line, while the red dotted line (where the spec's
-$\mathrm{Var}=2D|t|$ with $D=0.125$ would have to run) sits 2× higher throughout — this is the simulation verdict of Outfit 2's
+$\mathrm{Var}=2D|t|$ with $D=0.125$ would have to run) sits 2× higher throughout — this is the simulation verdict of Outfit Two's
 reconciliation. (b) The spectrum flattens near the carrier, FWHM 20 mHz; same $\kappa^2$. (c) The ADEV is one straight line of
 slope $-1/2$; its horizontal intercept recovers $\kappa$. (d) The $1/f^2$ skirt's coefficient recovers $2\kappa^2$ (single-sided).
 **Four instruments, one number.**
@@ -426,14 +437,14 @@ print(f"{KAPPA2/(2*np.pi**2):.3e}")              # -> 6.333e-03 (b₋₂ coeffic
 > in both conventions, (5) $\sigma_y(1\,\text{s})$.
 
 1. **Protagonist**: $\kappa^2=\dfrac{0.25}{2\times10^{-24}}\times10^{-24}=0.125\ \text{rad}^2/\text{s}$.
-2. **Outfit 1**: $\kappa=\sqrt{0.125}=0.354\ \text{rad}/\sqrt{\text{s}}$;
+2. **Outfit One**: $\kappa=\sqrt{0.125}=0.354\ \text{rad}/\sqrt{\text{s}}$;
    $\kappa_t=0.354/(2\pi\cdot5\times10^9)=1.13\times10^{-11}\ \sqrt{\text{s}}$;
    $\sigma_{\Delta t}(1\,\mu\text{s})=1.13\times10^{-11}\sqrt{10^{-6}}=11.3$ fs.
-3. **Outfit 2**: $D_{\text{甲}}=0.125$, $D_{\text{乙}}=0.0625\ \text{rad}^2/\text{s}$.
-4. **Outfit 3**: $\Delta f_{3\mathrm{dB}}=0.125/(2\pi)=19.9$ mHz.
-5. **Outfit 4**: $\mathcal{L}_{/2}=0.125/3.948\times10^{13}=3.17\times10^{-15}\Rightarrow-145.0$ dBc/Hz;
+3. **Outfit Two**: $D_{\text{甲}}=0.125$, $D_{\text{乙}}=0.0625\ \text{rad}^2/\text{s}$.
+4. **Outfit Three**: $\Delta f_{3\mathrm{dB}}=0.125/(2\pi)=19.9$ mHz.
+5. **Outfit Four**: $\mathcal{L}_{/2}=0.125/3.948\times10^{13}=3.17\times10^{-15}\Rightarrow-145.0$ dBc/Hz;
    $\mathcal{L}_{/4}=-148.0$ dBc/Hz.
-6. **Outfit 5**: $h_0=0.125/(2\pi^2\cdot2.5\times10^{19})=2.53\times10^{-22}\ /\text{Hz}$;
+6. **Outfit Five**: $h_0=0.125/(2\pi^2\cdot2.5\times10^{19})=2.53\times10^{-22}\ /\text{Hz}$;
    $\sigma_y(1\,\text{s})=\sqrt{2.53\times10^{-22}/2}=1.13\times10^{-11}$.
 
 **Dimension-check chain**: $\text{rad}^2/\text{s}\to\sqrt{\ }\to\text{rad}/\sqrt{\text{s}}\to\div\,\omega_0\to\sqrt{\text{s}}\to\times\sqrt{\Delta t}\to\text{s}$ ✓;
@@ -456,7 +467,7 @@ print(round(k2,4), round(k2/(2*np.pi)*1e3,1), round(10*np.log10(k2/dw**2),1),
 | White noise dominant (white-FM segment) | all five outfits interconvert through one $\kappa^2$ | flicker segment: $\mathrm{Var}$ grows nonlinearly, ADEV develops a floor, the line shape is no longer purely Lorentzian — the dictionary fails (each outfit needs its own $1/f^3$ version) |
 | $t\gg T$, multi-period averaging | $\Gamma^2\to\Gamma_{rms}^2$ | shorter than one period the variance shows cyclostationary ripple (lab_23 removes it with overlapping averaging) |
 | Single (or uncorrelated superposed) noise sources | per-source $\kappa^2$'s add | correlated sources (supply/substrate): $\sigma\propto\Delta t$ ([P2] Eq.(9)), not $\sqrt{\Delta t}$ |
-| Small-angle / linearized (Outfit 4) | $\mathcal{L}\approx S_\phi/2$ | near the carrier $\Delta f\lesssim\Delta f_{3\mathrm{dB}}$: the $1/f^2$ divergence is spurious — use Outfit 3's Lorentzian |
+| Small-angle / linearized (Outfit Four) | $\mathcal{L}\approx S_\phi/2$ | near the carrier $\Delta f\lesssim\Delta f_{3\mathrm{dB}}$: the $1/f^2$ divergence is spurious — use Outfit Three's Lorentzian |
 | Free-running (no loop) | pure random walk | inside a PLL the low frequencies get high-passed away: $\mathrm{Var}$ saturates, ADEV bends over (see [pll_noise_budget](/06_design_insights/pll_noise_budget)) |
 | Reporting someone else's data | ask their convention first | changing outfits without reconciling → the classic ×2 ($\mathrm{Var}$ definition) or 3 dB (SSB $/2$ vs $/4$) error |
 
@@ -465,16 +476,16 @@ print(round(k2,4), round(k2/(2*np.pi)*1e3,1), round(10*np.log10(k2/dw**2),1),
 - **[P2] Eq.(8), p.792** ($\sigma=\kappa\sqrt{\Delta t}$), **Eq.(10), p.793** (phase-jitter definition),
   **Eq.(11), p.793** ($\sigma_{\Delta\phi}^2=\Gamma_{rms}^2S_i\Delta T/(2q_{max}^2)$, the protagonist itself, verified),
   **Eq.(12), p.793** ($\kappa=(\Gamma_{rms}/q_{max})\sqrt{S_i/2}$, no $\omega_0$, verified).
-- **[P1] Eq.(11), p.182** (the phase integral, Step 0's starting point), **Eq.(21), p.185** (Outfit 4's SSB $/4$ version).
-- **External literature (not among the five source PDFs)**: [E2] A. Demir, A. Mehrotra, J. Roychowdhury, IEEE TCAS-I,
-  vol. 47, no. 5, pp. 655–674, May 2000 (Outfit 2's convention B and Outfit 3's mechanism); [E1] D. W. Allan,
-  Proc. IEEE, vol. 54, no. 2, pp. 221–230, Feb. 1966 and IEEE Std 1139 (Outfit 5);
+- **[P1] Eq.(11), p.182** (the phase integral, Step 0's starting point), **Eq.(21), p.185** (Outfit Four's SSB $/4$ version).
+- **External literature (not among the 5 source PDFs)**: [E2] A. Demir, A. Mehrotra, J. Roychowdhury, IEEE TCAS-I,
+  vol. 47, no. 5, pp. 655–674, May 2000 (Outfit Two's convention B and Outfit Three's mechanism); [E1] D. W. Allan,
+  Proc. IEEE, vol. 54, no. 2, pp. 221–230, Feb. 1966 and IEEE Std 1139 (Outfit Five);
   G. Di Domenico, S. Schilt, P. Thomann, Applied Optics, vol. 49, no. 25, pp. 4801–4807,
   2010 (the $\Delta f_{3\mathrm{dB}}=\pi S_\nu^0$ cross-check).
 - On-site: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) ($/2$ vs $/4$),
-  [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) (Outfit 3 mechanism),
-  [allan_variance](/02_foundations/allan_variance) (Outfit 5 integration kernel),
-  [lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model) (Outfit 1's toy version).
+  [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) (Outfit Three mechanism),
+  [allan_variance](/02_foundations/allan_variance) (Outfit Five integration kernel),
+  [lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model) (Outfit One's toy version).
 
 ## Key takeaways
 
@@ -493,10 +504,10 @@ print(round(k2,4), round(k2/(2*np.pi)*1e3,1), round(10*np.log10(k2/dw**2),1),
 
 ## Further reading
 
-- Outfit 3's full mechanism (characteristic function → Lorentzian): [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
-- Outfit 5's full derivation (the $\sin^4$ kernel and the slope table): [allan_variance](/02_foundations/allan_variance)
-- Outfit 4's upstream ($1/f^2$ and $/2$ vs $/4$): [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
+- Outfit Three's full mechanism (characteristic function → Lorentzian): [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
+- Outfit Five's full derivation (the $\sin^4$ kernel and the slope table): [allan_variance](/02_foundations/allan_variance)
+- Outfit Four's upstream ($1/f^2$ and $/2$ vs $/4$): [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
 - Frequency-domain ↔ time-domain jitter master table: [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)
 - Apply the whole dictionary to one ideal LC: [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)
-- Outfit 1's toy random walk: [lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model)
+- Outfit One's toy random walk: [lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model)
 - Full external-literature citations: [references](/99_appendix/references)

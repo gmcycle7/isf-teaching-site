@@ -3,6 +3,8 @@ title: 時脈鏈雜訊記帳：×N、÷N、PLL、buffer 一頁查表
 description: 四條時脈鏈記帳規則的嚴格推導——×N 倍頻 +20logN（φ_out=Nφ_in）、÷N 除頻 −20logN（edge-picking）、過 PLL（reference ×N² 且低通、VCO 高通）、buffer/divider 的加成雜訊床（功率相加）——加上一條 100 MHz → ×50 PLL → 5 GHz → ÷2 → 2.5 GHz → buffer 的完整 worked chain：每級在 100 kHz 與 10 MHz 的 L、最終 27.6 fs 積分 jitter、以及 brick-wall 記帳 vs 完整 type-II 整形的誠實對照。
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 # 時脈鏈雜訊記帳：×N、÷N、PLL、buffer 一頁查表
 
 > **先備**：[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)（$S_\phi$、$\mathcal{L}$、phase↔time 換算）、[pll_noise_budget](/06_design_insights/pll_noise_budget)（$\lvert H_{lp}\rvert^2,\lvert H_{hp}\rvert^2$ 與五源預算——本頁直接沿用、**不重推**）、[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)（VCO 那條 $-148$ dBc/Hz 從哪來）｜ **接下來**：[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)、[exercises](/06_design_insights/exercises)
@@ -138,6 +140,15 @@ $$
 ÷2 即 $-20\log_{10}2=-6.02$ dB。**物理意義**：同一個秒數的抖動，攤在 $N$ 倍長的週期上，
 角度小 $N$ 倍。與規則 1 完全對稱：×N 再 ÷N，$\mathcal{L}$ 回到原點，$\sigma_t$（秒）全程不變。
 
+<NumericQuiz
+  prompt="先自己算：理想 ÷2 除頻對 L(f) 的改變量 = ？（以 dB 作答，含負號）"
+  answer={-6.02}
+  tol={0.01}
+  unit="dB"
+  hint="ΔL = −20·log₁₀N，N=2。"
+  solutionNote="−20·log₁₀(2) ≈ −6.02 dB（與規則 1 的 +20log₁₀N 完全對稱）。"
+/>
+
 **失效條件（兩個都重要）**：
 
 1. **取樣摺疊（aliasing）**：$\phi_{out}$ 只在輸出 edge 的時刻有定義——這是一個以 $\sim f_{out}$
@@ -243,6 +254,15 @@ $\sigma_{t,add}=\sqrt{2\times3.16\times10^{-16}\times10^8}\,/(2\pi\times2.5\time
 **Dimension check**：$\sqrt{[\text{rad}^2/\text{Hz}]\cdot[\text{Hz}]}=[\text{rad}]$，
 $[\text{rad}]/[\text{rad/s}]=[\text{s}]$ ✓。（這個 16.0 fs 等下會在 worked chain 的分解裡
 原封不動出現。）
+
+<NumericQuiz
+  prompt="先自己算：buffer 平坦床 L_buf=−155 dBc/Hz、積分頻寬 B=100 MHz、f₀=2.5 GHz 時 σ_t,add = ？（以 fs 作答）"
+  answer={16.0}
+  tol={0.02}
+  unit="fs"
+  hint="σ_t,add = √(2·10^(L_buf/10)·B) / (2π f₀)。"
+  solutionNote="√(2×3.16×10⁻¹⁶×10⁸)/(2π×2.5×10⁹) ≈ 16.0 fs（這個數字會在下方 worked chain 的分解裡再次出現）。"
+/>
 
 四條規則的常數先用一個可核對的 Python 塊釘死（`# ->` 後面就是實跑輸出）：
 

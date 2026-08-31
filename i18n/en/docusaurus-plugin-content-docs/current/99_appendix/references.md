@@ -1,11 +1,11 @@
 ---
-title: 參考文獻 References
+title: References
 description: Full citations for the 5 source PDFs [P1]-[P5], plus external supplementary literature (Leeson 1966, Demir PPV 2000, Kaertner — explicitly flagged as not in the download folder), with citation conventions and a TODO list for manual verification.
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
-# 參考文獻 References
+# References
 
 > **See also**: [glossary](/99_appendix/glossary) (terminology intuition), [equation_index](/01_paper_map/equation_index) (equation ↔ page-number index); external literature is used in [derivation_leeson](/99_appendix/derivation_leeson) ([E1]) and [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv) ([E2], [E3])
 

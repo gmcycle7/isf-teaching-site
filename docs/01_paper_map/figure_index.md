@@ -55,12 +55,15 @@ description: 每張生成圖追溯到 script、function、參數、背後公式�
 | Fig. 12 | [P1] | 185 | $\overline{i^2}/f$ 的 PSD 與 SSB $\mathcal{L}(\Delta f)$，顯示 $1/f^3$、$1/f^2$、noise floor 三段並定義 $1/f^3$ corner | No |
 | Fig. 8 | [P2] `jitter_ring.pdf` | 794 | 單端 ring 的 $\Gamma_{rms}$ 隨級數 $N$ 變化；實線為 [P2] Eq.(16) 於 $\eta=0.75$ 時的 $4/N^{1.5}$，即 $\Gamma_{rms}\propto N^{-3/2}$ 的證據 | No |
 | Fig. 17 | [P2] | 802 | ring phase noise 對對稱（控制）電壓的關係，最小值在對稱點；支持「對稱 → 壓 $1/f$ 上轉」設計法則 | No |
+| Fig. 18 | [P2] | 803 | 附錄 B 的非對稱三角 ring ISF 模型（正/負 lobe 寬度不同）；`asymmetry_corner.png`（lab_33）逐式數值核對 Eqs.(52)–(57) 的依據 | No |
 | Fig. 5 | [P4] `BHongGenTheor-II…` | 2126 | 理想 LC 的 ISF 與 APF、振幅衰減函數及兩者**正交**關係；phase_vs_amplitude_noise 用它說明「為何振幅 noise 衰減」 | No |
+| Fig. 19 | [P3] | 2120 | 17 級單端 ring 用「匹配注入波形」相對同功率正弦注入的鎖定範圍增益（約 2 倍）；`optimal_injection_lock_range.png`（lab_39）數值重現此結果 | No |
 
 > 註：[P1] 的 Fig. 11（noise→phase 全景）也在教學頁被概念引用，但未列入
 > `source_pdf_figures_referenced` 的精確清單；若要逐頁對照請見
 > [paper_001 deep dive](/05_paper_deep_dives/paper_001_general_theory_phase_noise)。
-> [P3]、[P5] 的圖未被本站引用：[P3] 為進階選修，[P5] 與 ISF 無關。
+> [P3] Fig. 19（p.2120）、[P2] Fig. 18（p.803）是 Wave-G 新增 lab（lab_33、lab_39）才引用到的圖，
+> 隨本次盤點一併補上；[P5] 的圖仍未被本站引用（與 ISF 無關）。
 
 ## 每張生成圖在哪些頁用到
 
@@ -81,13 +84,53 @@ description: 每張生成圖追溯到 script、function、參數、背後公式�
 | `symmetric_vs_asymmetric_isf_c0.png` | [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)、[symmetry](/06_design_insights/symmetry) |
 | `white_noise_phase_noise_psd.png` | [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)、[lab_06](/04_simulation_labs/lab_06_white_noise_phase_noise) |
 | `flicker_upconversion_symmetric_vs_asymmetric.png` | [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)、[lab_07](/04_simulation_labs/lab_07_flicker_noise_upconversion) |
-| `phase_noise_to_jitter_integration.png` | [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)、[lab_08](/04_simulation_labs/lab_08_jitter_integration)、[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) |
+| `phase_noise_to_jitter_integration.png` | [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)、[lab_08](/04_simulation_labs/lab_08_jitter_integration)、[numerical_feeling](/04_simulation_labs/numerical_feeling)、[worked_examples](/04_simulation_labs/worked_examples)、[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) |
+| `rf_spectrum_phase_noise_sidebands.png` | [lab_10](/04_simulation_labs/lab_10_rf_spectrum) |
+| `monte_carlo_jitter_histogram.png` | [lab_11](/04_simulation_labs/lab_11_monte_carlo_jitter) |
+| `serdes_eye_ber_bathtub.png` | [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)、[lab_12](/04_simulation_labs/lab_12_serdes_eye_ber)、[worked_examples](/04_simulation_labs/worked_examples) |
+| `pll_cdr_jitter_transfer.png` | [lab_13](/04_simulation_labs/lab_13_pll_cdr_transfer) |
+| `cyclostationary_effective_isf.png` | [lab_14](/04_simulation_labs/lab_14_cyclostationary_isf) |
+| `nonlinear_oscillator_isf.png` | [lab_15](/04_simulation_labs/lab_15_nonlinear_isf) |
+| `leeson_vs_isf_overlay.png` | [lab_16](/04_simulation_labs/lab_16_leeson_vs_isf)、[measurement_and_spurs](/06_design_insights/measurement_and_spurs)、[derivation_leeson](/99_appendix/derivation_leeson) |
+| `design_tradeoff_sweeps.png` | [lab_17](/04_simulation_labs/lab_17_design_tradeoffs) |
+| `lorentzian_carrier_lineshape.png` | [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) |
+| `allan_deviation.png` | [allan_variance](/02_foundations/allan_variance) |
+| `pll_noise_budget.png` | [pll_noise_budget](/06_design_insights/pll_noise_budget) |
+| `cross_coupled_vco_isf.png` | [real_oscillator_topologies](/06_design_insights/real_oscillator_topologies) |
+| `allan_flicker_floor.png` | [allan_variance](/02_foundations/allan_variance) |
+| `am_noise_spectrum.png` | [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) |
+| `aperture_jitter_snr.png` | [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter) |
+| `asymmetry_corner.png` | [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form) |
+| `clock_chain_budget.png` | [clock_chain_budget](/06_design_insights/clock_chain_budget) |
+| `correlated_supply_selection.png` | [lab_34](/04_simulation_labs/lab_34_correlated_supply) |
+| `device_noise_isf_bands.png` | [device_noise_mapping](/06_design_insights/device_noise_mapping) |
+| `diffusion_dictionary.png` | [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary) |
+| `dual_dirac_bathtub.png` | [dj_dual_dirac](/06_design_insights/dj_dual_dirac) |
+| `flicker_lineshape.png` | [beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian) |
+| `floquet_ppv_numeric.png` | [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv) |
+| `fom_limit.png` | [fom_limit](/06_design_insights/fom_limit) |
+| `htm_band_folding.png` | [ltv_htm](/99_appendix/ltv_htm) |
+| `ilfd_lock_ranges.png` | [paper_004_injection_locking_part2](/05_paper_deep_dives/paper_004_injection_locking_part2) |
+| `impulse_phase_decomposition.png` | [impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift) |
+| `injlock_noise_shaping.png` | [injection_locking_noise](/06_design_insights/injection_locking_noise) |
+| `isf_three_methods.png` | [isf_from_waveform](/03_isf_core_theory/isf_from_waveform) |
+| `jitter_kernels_mc.png` | [jitter_kernels](/02_foundations/jitter_kernels) |
+| `jitter_two_regime.png` | [jitter_kernels](/02_foundations/jitter_kernels) |
+| `lock_acquisition.png` | [lab_36](/04_simulation_labs/lab_36_lock_acquisition) |
+| `lock_characteristic_omega.png` | [paper_003_injection_locking_part1](/05_paper_deep_dives/paper_003_injection_locking_part1) |
+| `mos_level1_ring_isf.png` | [lab_32](/04_simulation_labs/lab_32_mos_level1_ring) |
+| `optimal_injection_lock_range.png` | [injection_locking_noise](/06_design_insights/injection_locking_noise) |
+| `pulling_spectrum.png` | [injection_locking_noise](/06_design_insights/injection_locking_noise) |
+| `supply_pushing_ring.png` | [varactor_tuning_supply_pushing](/06_design_insights/varactor_tuning_supply_pushing) |
+| `xcorr_floor.png` | [measurement_and_spurs](/06_design_insights/measurement_and_spurs) |
 
 ## 重點回顧
 
-- 14 張生成圖**全部可追溯**到 script／function／參數／公式／來源；除 jitter 積分圖外
-  皆為 toy model（非 transistor-level）。
-- 8 張 PDF 圖只**引用描述**、不重畫；其中 [P2] Fig. 17（p.802）與 [P4] Fig. 5（p.2126）已對照原始 PDF 核實。
+- 52 張生成圖**全部可追溯**到 script／function／參數／公式／來源，且**沒有孤兒圖**
+  （每張至少被 1 個頁面嵌入）；除 `phase_noise_to_jitter_integration.png` 外，
+  多數為教學 toy／conceptual model，`mos_level1_ring_isf.png` 與
+  `supply_pushing_ring.png` 屬 device-equation-level（MOS Level-1，非 SPICE，比 toy 更接近電路）。
+- 10 張 PDF 圖只**引用描述**、不重畫；其中 [P2] Fig. 17（p.802）與 [P4] Fig. 5（p.2126）已對照原始 PDF 核實。
 - 嵌入語法：`![說明](/figures/<name>.png)`。重跑：`python scripts/run_all_sims.py`。
 
 ## 延伸閱讀
@@ -114,6 +157,41 @@ description: 每張生成圖追溯到 script、function、參數、背後公式�
 | Figure | Generated By | Formula Behind It | Teaching Message | Toy? |
 |---|---|---|---|---|
 | `lorentzian_carrier_lineshape.png` | `lab_18_lorentzian.py` | $S\propto D/(D^2+\Delta\omega^2)$ | 載波是 Lorentzian、近載波轉平 | model |
-| `allan_deviation.png` | `lab_19_allan.py` | $\sigma_y(\tau)$ 斜率 | FM 雜訊的時域指紋 | model |
+| `allan_deviation.png` | `lab_19_allan.py` / `main` | $\sigma_y(\tau)$ 斜率：white FM $\propto\tau^{-1/2}$、flicker FM 平頂、RW FM $\propto\tau^{+1/2}$ | FM 雜訊的時域指紋 | model |
 | `pll_noise_budget.png` | `lab_20_pll_budget.py` | $S_{out}=\sum$ 源×transfer | PLL 預算 + 最佳 BW | model |
 | `cross_coupled_vco_isf.png` | `lab_21_topology_isf.py` | tank vs tail 有效 ISF | tail $c_0,c_2$ 上轉（illustrative） | toy |
+
+## v4 新增圖（Wave-G 補完，26 張）
+
+以下 26 張圖是 v3 之後陸續生成、但先前未列入本頁表格的圖，逐一核對 `simulations/` 內生成腳本
+與 `docs/` 內嵌入頁後補上。分類延續 (a) 的欄位（Generated By / Formula / Source / Teaching Message /
+Toy?），並標明對應論文式（若有）。
+
+| Figure | Generated By (script / function) | Formula Behind It | Source | Teaching Message | Toy? |
+|---|---|---|---|---|---|
+| `allan_flicker_floor.png` | `lab_19_allan.py` / `verify_flicker_floor`（合 `verify_sin4_integrals`） | flicker-FM Allan floor $\sigma_y^2=2\ln2\cdot h_{-1}$；用站上典範例 C 的 $h_{-1}=8.11\times10^{-19}$ 反推、量測 ADEV floor 對照 $\sqrt{2\ln2\,h_{-1}}=1.06\times10^{-9}$，白+flicker 混合驗證轉角 $\tau_{knee}=1/(4\ln2\,f_c)=113\,\mu s$ | 標準隨機過程數學（外部文獻，非 5 篇 PDF） | Allan variance 的絕對值不是只有斜率，flicker floor 有精確閉式常數 | model |
+| `am_noise_spectrum.png` | `lab_28_am_noise.py` / `main` | OU（Ornstein-Uhlenbeck）振幅過程 $S_{a,2s}(\omega)=c\tau_0^2/(1+\omega^2\tau_0^2)$ vs Wiener 相位 $S_{\phi,2s}(\omega)=c/\omega^2$；$\tau_0=2Q/\omega_0$ | [P4] Sec. III-F, p.2128（本站已核實）+ OU 過程（外部：Uhlenbeck & Ornstein 1930） | 振幅雜訊因回復力而收斂（平頂），相位雜訊發散（$1/f^2$）；AM 平頂與 PM 漸近線在轉角 $f_c=f_0/(2Q)$ 交會 | model |
+| `aperture_jitter_snr.png` | `lab_30_aperture_jitter.py` / `main` | ADC aperture jitter：$\text{SNR}_{jitter}=-20\log_{10}(2\pi f_{in}\sigma_t)$，$\text{ENOB}=(\text{SNR}-1.76)/6.02$；用站上典範例 C 的 $\sigma_t=447.9$ fs 做 Monte-Carlo FFT 驗證 | 標準 ADC 理論（外部：Kester MT-007；Walden JSAC 1999），非 5 篇 PDF | 時脈 jitter 直接吃掉 ADC 的 SNR／ENOB；高 $f_{in}$ 對 jitter 更敏感 | model |
+| `asymmetry_corner.png` | `lab_33_asymmetry_corner.py` / `main` | [P2] 附錄 B（p.803）非對稱三角 ring ISF 閉式解 Eqs.(52)–(57)：$\Gamma_{rms}^2$、$\Gamma_{dc}$、$1/f^3$ 轉角 $f_{1/f^3}$ 隨不對稱比 $A=f'_{rise}/f'_{fall}$ 變化 | [P2] Eqs.(52)–(57), p.803；與 [P1] Eq.(24) 有 2 倍慣例差（已標註） | 數值驗證 [P2] 附錄 B 閉式解；轉角對 $A$ 呈對稱 V 形（$\log A$ 對稱） | toy（[P2] 三角近似，非電晶體級；對照 lab_32 見真實偏離） |
+| `clock_chain_budget.png` | `fig_clock_chain.py` / `main` | 時脈鏈記帳：參考 flat floor、PLL ×N（in-band $+20\log_{10}N$）、÷N（$-20\log_{10}N$）、buffer 疊加 floor；全 chain 積分 jitter | 站上典範參數（representative，非特定矽），[P1] Eq.(21) `/4` SSB 慣例 | 一張圖看懂 ×N/÷N/PLL/buffer 對雜訊/jitter 的疊加規則 | model（illustrative chain，非特定設計） |
+| `correlated_supply_selection.png` | `lab_34_correlated_supply.py` / `make_figure` | [P2] Sec. VI, p.797, Eqs.(37)–(38)：相關供電雜訊經 N 級 ISF 相移求和，Fourier 分量只剩 $n=0\ (\mathrm{mod}\ N)$，形成 $N\cdot f_0$ 選頻梳 | [P2] Eqs.(37)–(38), p.797；概念對應 [P2] Fig. 11（bench 量測） | 相關 vs 不相關雜訊上轉的選擇律不同：相關雜訊只在 $k\cdot N f_0$ 附近被搬到載波 | toy（per-stage ISF 為教學三角波，非電晶體萃取） |
+| `device_noise_isf_bands.png` | `fig_device_noise_bands.py` / `main` | ISF 諧波係數 $c_n$ 當作「頻率轉換接收機」的通道增益；device noise PSD 的 DC／$f_0$／$2f_0$ 頻帶各自被 $c_0,c_1,c_2$ 折疊到載波 | [P1] Eqs.(12),(13),(19),(23) | ISF 諧波＝接收通道增益；$c_0$ 上轉近 DC flicker，$c_1,c_2$ 折疊 $f_0,2f_0$ 白噪到 $1/f^2$ 區 | toy（示意用非對稱 ISF，非電晶體萃取） |
+| `diffusion_dictionary.png` | `lab_23_diffusion_dictionary.py` / `main` | 擴散常數字典：$\kappa^2=\Gamma_{rms}^2 S_i/(2q_{max}^2)$ 四種獨立量法互驗——相位方差斜率、Lorentzian FWHM、overlapping ADEV、$S_\phi(f)(2\pi f)^2/2$ 平頂 | [P2] Eq.(8)/(10)/(11)/(12), p.792–793 | $\kappa$、$D$、linewidth、ADEV、$1/f^2$ 係數其實是同一個數字換算法不同 | model（單一 ISF 加權白噪積分，非特定電路） |
+| `dual_dirac_bathtub.png` | `lab_31_dual_dirac.py` / `main` | dual-Dirac jitter 模型：TJ=RJ(高斯)+DJ(bounded)；Q-scale 尾部直線擬合取 $(DJ_{dd},\sigma)$；bathtub BER 與 $TJ_{@BER}=DJ_{dd}+2\,Q^{-1}(BER)\sigma$ | 業界標準（外部：Fibre Channel MJSQ INCITS T11.2；PCIe/OIF-CEI），非 5 篇 PDF | dual-Dirac 用深尾直線外推 TJ@BER；模型參數 $DJ_{dd}$ 小於真實峰對峰 $DJ_{pp}$ | model（標準 DSP/統計方法，非振盪器物理模型） |
+| `flicker_lineshape.png` | `lab_29_flicker_lineshape.py` / `main`（2×2 panels） | white-FM 載波線形為 Lorentzian（FWHM=$D/\pi$）；flicker-FM（$S_\phi\propto1/f^3$）因方差 $\propto t^2\ln t$ 而近似 Gaussian 線核；-10dB/-3dB 半寬比 Lorentzian=3.00、Gaussian=1.8226 | 標準隨機過程/線寬理論（外部文獻） | 白噪→Lorentzian、flicker→近 Gaussian core；線形形狀本身可用來反推雜訊種類 | model |
+| `floquet_ppv_numeric.png` | `lab_25_floquet_numeric.py` / `main` | van der Pol oscillator 的 monodromy matrix、Floquet multiplier、adjoint 系統反向積分萃取週期性左特徵向量 $v_1(t)$，其沿注入軸分量即為 $\Gamma_{ppv}(\theta)/q_{max}=\omega_0 v_{1,y}(\theta)$ | Floquet/adjoint/PPV 理論（外部文獻：Demir 2000 等，非 5 篇 PDF），對照 [P1] ISF 定義 | 數值上直接算出 adjoint/PPV ISF，與 impulse 萃取法、諧波極限 $-\sin\theta$ 三方吻合 | toy（van der Pol，非電晶體級；對照 fig_isf_three_methods） |
+| `fom_limit.png` | `fig_fom_limit.py` / `main`（2 panels） | FOM 天花板：$C_{ref}(T)=-10\log_{10}(kT\cdot1\text{Hz}/1\text{mW})$（300K=173.83dB）；泛用式 $FOM=C_{ref}(T)-10\log_{10}(F_{eff})$；ring [P2] Eq.(23) $F_{eff}=(8/3\eta)(V_{DD}/V_{char})$；LC 由 [P1] Eq.(21) 反推 $F_{eff,LC}$ | [P1] Eq.(21), p.185；[P2] Eqs.(23),(25), p.796 | FOM 有理論天花板，由溫度與 $F_{eff}$（拓樸/製程效率）決定；ring 在 $V_T=0$ 有下界 | model（LC/ring 解析公式代入，非特定電路模擬） |
+| `htm_band_folding.png` | `fig_htm_bandfold.py` / `fig_htm_band_folding` | LPTV 系統的 harmonic transfer matrix：ISF Fourier 係數即每個 fold 的增益 $\tilde c_0=c_0/2$、$\tilde c_{\pm k}=(1/2)c_k e^{\pm j\theta_k}$；頻帶折疊圖 + Toeplitz HTM heatmap | [P1] Eqs.(12),(13), p.183；HTM 框架為外部文獻（Zadeh 1950），非 5 篇 PDF | ISF 諧波＝LTV 系統把任意頻帶折到 $f+kf_0$ 的複數增益，一張圖看懂全部折疊路徑 | toy（示意用教學非對稱 ISF） |
+| `ilfd_lock_ranges.png` | `lab_37_ilfd_lock.py` / `main` | [P4] Eq.(28)–(30), p.2129 M:N 次/超諧波鎖定：$\omega_L=I_{inj}\vert G_N\vert/2$（p.2130），鎖定範圍外拍頻 $\omega_b=N\sqrt{\Delta\omega^2-\omega_L^2}$（Eq.34, p.2130） | [P4] Eqs.(28)–(30),(34), p.2129–2130 | 直接積分未平均的時間同步相位 ODE 驗證：只有共振的第 N 諧波 ISF 分量能鎖定，對稱 ISF（$c_2=0$）不能除以 2 | toy（3 諧波可控 ISF，illustrative） |
+| `impulse_phase_decomposition.png` | `fig_impulse_decomp.py` / `fig_impulse_decomp` | 理想 LC 狀態平面幾何：電荷 impulse 造成純水平的 $\Delta V=\Delta q/C$ 步階，切向分量→永久 $\Delta\phi$、徑向分量→衰減的 $\Delta A$；ZC 處幾乎純切向、peak 處幾乎純徑向 | [P1] Eq.(9) 電荷→電壓步階；Eqs.(10)–(11) phase impulse response | 幾何上直接看出為何理想 LC 的 $\Gamma(\theta)=-\sin\theta$ | toy（理想無損 LC，小信號極限） |
+| `injlock_noise_shaping.png` | `lab_26_injlock_noise.py` / `main` | 注入鎖定振盪器的相位雜訊被一階高通：$\omega_c=\omega_L\cos\theta_{ss}=\sqrt{\omega_L^2-\Delta\omega^2}$；線性化為 OU 過程，$S_\theta(f)=S_n/(\omega_c^2+\omega^2)$ vs 自由運轉 $S_n/\omega^2$ | [P3] Eqs.(30),(34)–(35),(38)–(40), p.2113–2115 | 鎖定的振盪器行為像一階 PLL：自身 $1/f^2$ 裙帶在 $\omega_c$ 以下被壓抑 | model（[P3] 已驗證的確定性拉動方程 + 外加噪聲驅動，噪聲整形部分為本站延伸） |
+| `isf_three_methods.png` | `fig_isf_three_methods.py` / `duel` | [P1] Appendix（pp.192–193）三方法對決：Method A 直接 impulse 量測、Method B 波形閉式解 Eq.(37) $\Gamma=f'/(f'^2+f''^2)$、Method C 一階近似 Eq.(38) $\Gamma_i=f_i'/f'^2_{max}$，van der Pol 測試 | [P1] Eqs.(31)–(38), pp.192–193 | 三方法在近諧波（$\mu=0.2$）一致，在失真波形（$\mu=2.0$）Method B/C 偏離、僅 impulse 法（Method A）仍準 | toy（van der Pol，同 lab_15/lab_25） |
+| `jitter_kernels_mc.png` | `lab_24_jitter_kernels.py` / `make_figure` | 三種 jitter 核：TIE（kernel=1）、N-period（$4\sin^2(\pi fNT)$）、cycle-to-cycle（$16\sin^4(\pi fT)$），單一 $S_\phi$ one-sided 慣例下 Monte-Carlo 對照閉式解 | [P2] Eq.(8), p.792；Eq.(11)/(12), p.793（$\kappa$ 無 $\omega_0$） | 三種 jitter 定義對應三種頻域核；白噪 FM 下 $\sigma_{\Delta\phi}^2(N)=\kappa^2 NT$ 精確成立 | model（標準 DSP kernel 積分 + Monte-Carlo，convention-focused） |
+| `jitter_two_regime.png` | `lab_24_jitter_kernels.py` / `make_figure_two_regime` | 雙區制 jitter 成長 $\sigma(\Delta t)=\sqrt{\kappa^2\Delta t+\zeta^2\Delta t^2}$（[P2] Fig.16, p.802；Eq.(8)/(9), p.792），白噪+flicker FM 混合模擬，斜率 0.5→~1 轉換，corner $\Delta t_c=\kappa^2/\zeta^2$ | [P2] Eq.(8)/(9), p.792；Fig.16, p.802 | 短時間白噪主導（$\sqrt{\Delta t}$），長時間 flicker 主導（$\propto\Delta t$）；corner 可换算成頻域 $1/f^3$ 轉角 | model |
+| `lock_acquisition.png` | `lab_36_lock_acquisition.py` / `main`（2 panels + inset） | Adler 方程確定性鎖定捕獲精確解 $R(\theta(t))=R(\theta_0)e^{-\omega_c t}$（對應 [P3] Eq.(39)–(40) pull-in 頻率）；噪聲誘發 cycle slip 用 Kramers escape rate（外部：Kramers 1940） | [P3] Eqs.(30),(33),(35),(39)–(40), p.2113–2115；Kramers/Risken/Ambegaokar-Halperin（外部，非 5 篇 PDF） | 鎖定捕獲在邊緣附近臨界慢化（$T\sim1/\omega_c$）；噪聲會讓鎖定的振盪器偶爾「滑頻」一整週期 | model（Adler 方程 + white-FM 驅動，washboard potential 為標準隨機理論） |
+| `lock_characteristic_omega.png` | `fig_lock_characteristic.py` / `main` | [P3] Eq.(33), p.2114 廣義 Adler 方程的鎖定特徵函數 $\Omega(\theta)$；正弦注入→對稱鎖定範圍，諧波豐富注入→不對稱鎖定範圍（Adler 方程看不出來的效應） | [P3] Eqs.(26),(33)–(35), p.2113–2114 | 鎖定範圍＝$\Omega(\theta)$ 值域寬度；ISF 諧波豐富時鎖定範圍可以不對稱 | toy（illustrative 諧波富 ISF + 注入波形，理想 LC 部分為精確 $-\sin$） |
+| `mos_level1_ring_isf.png` | `lab_32_mos_level1_ring.py` / `main` | 3 級 CMOS inverter ring，MOS Level-1（Shichman-Hodges 方程級，$\lambda=0$）用 numpy 直接積分；ISF 用 impulse 法萃取（[P1] Eq.(9) $\Delta V=\Delta q/C_L$ + 比較有/無擾動的 threshold-crossing 時間） | [P1] Eq.(9)；ISF 形狀對照 [P2] Fig.5/Fig.6, p.793 與 Eq.(16), p.794 | 電晶體方程級（非 SPICE）萃取的 ISF 呈現 [P2] 預期的 dual-lobe（transition 附近敏感、rail 附近幾乎 0） | device-eq（MOS Level-1 方程積分，比 toy 更接近電路但非 SPICE/BSIM） |
+| `optimal_injection_lock_range.png` | `lab_39_optimal_injection.py` / `main` | [P3] Sec. VI, p.2119–2120：固定 rms 注入電流下，Cauchy-Schwarz 給出最佳注入波形 $i^*_{inj}\propto\Gamma_{tilde}$、最大鎖定範圍 $\omega_L^*=I_{rms}\Gamma_{tilde,rms}$（Eqs.43–45） | [P3] Eqs.(33),(43)–(45), p.2119–2120 | 匹配注入波形（正比於 ISF 本身）比同功率的正弦注入鎖定範圍更大；17 級 ring 增益 ~2.06（呼應 [P3] Fig.19） | toy + [P2] App.B 三角 ring 模型（非電晶體萃取） |
+| `pulling_spectrum.png` | `lab_27_pulling_spectrum.py` / `main` | 鎖定範圍外（$\vert\Delta\omega\vert>\omega_L$）的 Adler 方程積分：拍頻 $\omega_b=\sqrt{\Delta\omega^2-\omega_L^2}$（[P4] Eq.34, p.2130），輸出頻譜為單側幾何衰減梳，比值 $r=\omega_L/(\Delta\omega+\omega_b)$（外部：Armand 1969） | [P3] Eq.(30), p.2113；[P4] Eq.(34), Sec. V-B, p.2130 | injection pulling 頻譜是單側梳，非對稱於注入頻率；一個邊帶剛好落在注入頻率上 | model（確定性 Adler 方程 RK4 積分，無噪聲以突顯 pulling comb） |
+| `supply_pushing_ring.png` | `lab_38_supply_pushing_ring.py` / `main` | MOS Level-1 3 級 ring 的供電推頻 $K_{push}=df_0/dV_{DD}$：靜態掃描 + 動態小信號 $V_{DD}$ 漣波，驗證窄頻 FM 預測 $\beta=K_{push}V_r/f_m$ 與 Bessel 邊帶 $20\log_{10}(J_1(\beta)/J_0(\beta))$ | 電路核心沿用 lab_32（MOS Level-1，非 SPICE）；FM/Bessel 邊帶為標準通訊理論 | 供電雜訊直接調頻振盪器；小信號時邊帶幅度符合窄頻 FM Bessel 公式 | device-eq（同 lab_32 等級，非 SPICE） |
+| `xcorr_floor.png` | `lab_35_xcorr_measurement.py` / `make_figure` | 交叉相關相位雜訊量測：單通道 auto-spectrum 被儀器雜訊蓋過 DUT floor；交叉頻譜 $\langle Y_1 Y_2^*\rangle$ 對 M 段平均後不相關項殘餘以 $1/\sqrt{M}$（即 $-5\log_{10}M$ dB）下降，DUT 相關項不衰減 | 外部量測技術（非 5 篇 PDF）；底層 PSD/cross-spectrum 統計為標準 DSP | 交叉相關量測法能把儀器雜訊壓到遠低於單通道 floor 之下，讓真實 DUT floor 現形 | model（標準 DSP 統計，非振盪器物理模型） |

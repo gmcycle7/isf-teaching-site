@@ -50,11 +50,29 @@ A ring oscillator has $\Gamma_{rms}=0.9$, $c_0=0.3$, device $f_{1/f}=2$ MHz.
 (a) Use [P1] Eq.(24) (the exact form $\Delta\omega_{1/f^3}=\omega_{1/f}c_0^2/(2\Gamma_{rms}^2)$) to find the $1/f^3$ corner $\Delta f_{1/f^3}$.
 (b) If rise/fall symmetrization pushes $c_0$ down to $0.05$, what does the corner become? To achieve corner < 1 kHz, what is the maximum allowed $c_0$?
 
+<NumericQuiz
+  prompt="Try (a) yourself first: Δf_1/f³ = ? (Γ_rms=0.9, c₀=0.3, f_1/f=2 MHz; answer in kHz)"
+  answer={111.1}
+  tol={0.02}
+  unit="kHz"
+  hint="Exact form: Δf_1/f³ = f_1/f · c0²/(2·Γ_rms²)."
+  solutionNote="Δf_1/f³ = 2×10⁶×0.09/1.62 ≈ 1.111×10⁵ Hz = 111.1 kHz. Details in the Exercise 2 solution below."
+/>
+
 ### Exercise 3 (comparison) — $\Gamma_{rms}$ scaling for ring vs LC
 
 (a) Using the [P2] Eq.(16) scaling $\Gamma_{rms}\propto N^{-3/2}$, if the ring stage count is increased from $N=5$ to $N=15$,
 by what factor does $\Gamma_{rms}$ drop? How much does phase noise ($\propto\Gamma_{rms}^2$) improve, in dB?
 (b) In one sentence, explain why LC is usually still cleaner than ring (in terms of the two knobs $\Gamma_{rms}$ and $q_{max}$).
+
+<NumericQuiz
+  prompt="Try (a) yourself first: going from N=5 to N=15, how much does phase noise improve, in dB? (Γ_rms ∝ N⁻¹·⁵; answer in dB, include the sign)"
+  answer={-14.31}
+  tol={0.01}
+  unit="dB"
+  hint="Γ_rms ratio = (15/5)^(-1.5); phase noise ∝ Γ_rms², improvement = 10·log₁₀(ratio²)."
+  solutionNote="ratio = 3^(-1.5) ≈ 0.1925 → 10·log₁₀(0.1925²) ≈ −14.31 dB. Details in the Exercise 3 solution below."
+/>
 
 ### Exercise 4 (design) — PLL optimal loop BW (intuition + numerical)
 

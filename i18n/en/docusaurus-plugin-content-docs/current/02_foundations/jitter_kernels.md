@@ -1,7 +1,9 @@
 ---
 title: Rigorous Derivation of the Jitter Kernels (TIE / N-period / cycle-to-cycle)
-description: Under the single "one-sided S_φ, ∫₀^∞" convention, derive step by step from φ(t+NT)−φ(t) the TIE kernel 1, the period kernel 4sin²(πfNT), and the cycle-to-cycle kernel 16sin⁴(πfT); the white-FM closed form exactly recovers σ_Δφ=κ√(NT) of [P2] Eq.(8)/(11); flicker 1/f³ gets a closed form with a log term; then compose the two-regime σ(Δt)=√(κ²Δt+ζ²Δt²) of [P2] Fig.16, the corner Δt_c=κ²/ζ², and its mapping to the frequency-domain 1/f³ corner; lab_24 Monte Carlo verifies ratios ≈1.00, formally closing the prefactor TODO of worked_examples Example C3.
+description: Under the single "one-sided S_φ, ∫₀^∞" convention, derive step by step from φ(t+NT)−φ(t) the TIE kernel 1, the period kernel 4sin²(πfNT), and the cycle-to-cycle kernel 16sin⁴(πfT); the white-FM closed form exactly recovers σ_Δφ=κ√(NT) of [P2] Eq.(8)/(11); flicker 1/f³ gets a closed form with a log term; then compose the two-regime σ(Δt)=√(κ²Δt+ζ²Δt²) of [P2] Fig.16, the corner Δt_c=κ²/ζ², and its mapping to the frequency-domain 1/f³ corner; lab_24 Monte Carlo verifies ratios ≈1.00, formally closing the prefactor TODO of worked_examples Example C3. New "Paper-native derivation" section transcribes [P2] Appendix A (Eq.(40)–(51), pp.802–803) verbatim and reconciles it factor by factor, replaying the same κ²ΔT along the time-domain autocorrelation route and the frequency-domain kernel route.
 ---
+
+import NumericQuiz from "@site/src/components/NumericQuiz";
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
@@ -139,7 +141,7 @@ $$
 $$
 
 That is the entire origin of the $4\sin^2$ kernel: **one factor of 2 comes from "variance of a difference $=2[R(0)-R(\tau_0)]$",
-the other 2 from the half-angle identity**; the two multiply to 4, with not a single factor to spare. Equivalently, in filter language:
+the other 2 from the half-angle identity**; the two 2's multiply to 4, with not a single factor to spare. Equivalently, in filter language:
 $y(t)=\phi(t+\tau_0)-\phi(t)$ is LTI filtering with $H(f)=e^{j2\pi f\tau_0}-1$,
 
 $$
@@ -359,6 +361,15 @@ $$
   $\sigma_P(1)=5.00\times10^{-6}/(2\pi\times5\times10^9)=0.159$ fs (0.8 ppm of a period);
   at $N=10^4$, $\sigma_{\Delta\phi}=0.50$ mrad, $\sigma_P=15.9$ fs — $\sqrt N$ growth.
 
+<NumericQuiz
+  prompt="Try it yourself first: for the canonical oscillator (κ²=0.125 rad²/s, T=200 ps, f₀=5 GHz), the period jitter σ_P(1) = ? (answer in fs)"
+  answer={0.159}
+  tol={0.02}
+  unit="fs"
+  hint="First find σ_Δφ(1T)=√(κ²T) (rad), then divide by ω₀=2πf₀ to convert to time."
+  solutionNote="σ_Δφ(1T)=√(0.125×2×10⁻¹⁰)=5.00 µrad → σ_P(1)=5.00×10⁻⁶/(2π×5×10⁹)≈0.159 fs (matches the lab_24 MC ratio of 0.999)."
+/>
+
 ### 4.4 The cycle-to-cycle closed form and the $\sqrt2$ relation
 
 Insert the same $S_\phi$ into kernel (c), using 4.1's $\int\sin^4(ax)/x^2\,dx=\pi a/4$ ($a=\pi T$):
@@ -377,6 +388,15 @@ cycle-to-cycle jitter "based on (8)" (and is likewise restricted there to phase 
 If the spectrum is not pure $1/f^2$ (e.g., flicker-dominated), adjacent periods are **correlated** and the $\sqrt2$ fails —
 a quick health check of whether a measurement sits in the white-noise region.
 
+<NumericQuiz
+  prompt="Try it yourself first: with the canonical oscillator's σ_P(1)=0.159 fs, under white-noise-only conditions the cycle-to-cycle σ_c2c = ? (answer in fs)"
+  answer={0.225}
+  tol={0.02}
+  unit="fs"
+  hint="σ_c2c = √2 × σ_P(1) (adjacent-period-length deviations are independent, so variances add)."
+  solutionNote="σ_c2c = √2×0.159 ≈ 0.225 fs (matches the lab_24 MC value of 0.2248 fs, theory 0.2251 fs, ratio 0.999)."
+/>
+
 ### 4.5 Practical corollary: read $\kappa$ off $\mathcal{L}$ in one step (mind which convention's $\mathcal{L}$)
 
 In the $1/f^2$ region, under the time-domain $/2$ convention $\mathcal{L}_{\text{lin}}(\Delta f)=\kappa^2/(2\pi\Delta f)^2$; solving:
@@ -394,6 +414,245 @@ gives $\kappa=0.354$ ✓; mistakenly plugging in the $-148$ of [P1] Eq.(21)'s $/
 Same oscillator, same spectrum — **first ask which bookkeeping the dBc/Hz number uses, then plug it into the formula**.
 
 - **dimension check**: $\text{Hz}\times\sqrt{1/\text{Hz}}=\sqrt{\text{Hz}}=1/\sqrt{\text{s}}$ ✓.
+
+## Paper-native derivation: [P2] Appendix A (the paper's own source for Eq.(11), transcribed verbatim and reconciled factor by factor)
+
+Steps 3 and 4 are this site's own derivation; [P2] actually walks the very same
+ground **twice, once along each route**, in **Appendix A "Relationship Between
+Jitter and Phase Noise"** — it **starts in the right column of p.802 and ends in
+the left column of p.803** (the right column of p.803 onward is Appendix B on
+nonsymmetric edges; don't confuse the two): Eq.(40)–(44) is the white-noise
+time-domain route (= Section 4.2 of this page), Eq.(45)–(49) is the
+autocorrelation + Khinchin route (= this page's Route A), followed by two
+practical corollaries Eq.(50)/(51) (= Section 4.5 and the one-period version of
+4.4). The main text on p.793 states explicitly that Eq.(11)'s source is here
+("As shown in Appendix A, for $\Delta T\gg T$ or $\Delta T=nT$…", immediately
+followed by
+$\sigma_{\Delta\phi}^2=\frac{\Gamma_{rms}^2\cdot\overline{i_n^2}/\Delta f}{2q_{max}^2}\Delta T$).
+What follows is transcribed verbatim from the rendered PDF pages of p.802–803
+(verified under magnification), exactly as printed — printing slips included.
+
+### A.1 The white-noise time-domain route: Eq.(40)–(44) (p.802, right column)
+
+The definition of phase jitter (in the paper's words: "The phase jitter is"):
+
+$$
+\sigma_{\Delta\phi}^2=E\{\Delta\phi^2\}=E\big\{[\phi(t+\Delta T)-\phi(t)]^2\big\}
+\qquad(\text{[P2] Eq.(40), p.802})
+$$
+
+where (the ISF phase integral of [P1], with its limits cut to the observation window):
+
+$$
+\Delta\phi=\int_0^{\Delta T}\frac{\Gamma(\omega_0\tau)}{q_{max}}\,i(\tau)\,d\tau.
+\qquad(\text{Eq.(41)})
+$$
+
+Squaring and exchanging expectation with integration:
+
+$$
+\sigma_{\Delta\phi}^2=\frac{1}{q_{max}^2}\int_0^{\Delta T}\!\!\int_0^{\Delta T}
+\Gamma(\omega_0\tau_1)\,\Gamma(\omega_0\tau_2)\cdot E[i(\tau_1)i(\tau_2)]\,d\tau_1\,d\tau_2.
+\qquad(\text{Eq.(42)})
+$$
+
+The paper writes the white-noise current autocorrelation explicitly as
+$R_{ii}(t_1,t_2)=(1/2)\big(\overline{i_n^2}/\Delta f\big)\delta(t_1-t_2)$;
+substituting it collapses the double integral into a single one:
+
+$$
+\sigma_{\Delta\phi}^2=\frac12\,\frac{\overline{i_n^2}/\Delta f}{q_{max}^2}
+\int_0^{\Delta T}\Gamma^2(\omega_0\tau)\,d\tau
+\qquad(\text{Eq.(43)})
+$$
+
+$$
+\sigma_{\Delta\phi}^2=\frac12\,\frac{\overline{i_n^2}/\Delta f}{q_{max}^2}\,
+\Gamma_{rms}^2\,\Delta T
+\quad\text{for}\quad\Delta T\gg T\ \text{or}\ \Delta T=mT.
+\qquad(\text{Eq.(44)})
+$$
+
+**Eq.(44) is literally the main text's Eq.(11)** (p.793; only the typesetting
+differs), and its coefficient
+$\tfrac12\,(\overline{i_n^2}/\Delta f)\,\Gamma_{rms}^2/q_{max}^2$ is exactly the
+$\kappa^2$ of Section 4.2 (with $S_i\equiv\overline{i_n^2}/\Delta f$) — the
+paper's time-domain route matches 4.2 **symbol for symbol**.
+
+### A.2 The autocorrelation + Khinchin route: Eq.(45)–(51) (p.803, left column)
+
+The paper then switches to the second route — stating up front that timing
+jitter is the standard deviation of the timing uncertainty:
+
+$$
+\sigma_{\Delta\phi}^2=\frac{1}{\omega_0^2}E\big\{[\phi(t+\Delta T)-\phi(t)]^2\big\}
+=\frac{E[\phi^2(t)]}{\omega_0^2}+\frac{[\phi^2(t+\Delta T)]}{\omega_0^2}
+-\frac{E[\phi(t)\phi(t+\Delta T)]}{\omega_0^2}
+\qquad(\text{Eq.(45), as printed})
+$$
+
+$$
+R_\phi(\tau)=E[\phi(t)\phi(t+\Delta T)]
+\qquad(\text{Eq.(46), as printed})
+$$
+
+$$
+\sigma_{\Delta\phi}^2=\frac{2}{\omega_0^2}\big[R_\phi(0)-R_\phi(\Delta T)\big].
+\qquad(\text{Eq.(47)})
+$$
+
+$$
+R_\phi(\tau)=\int_{-\infty}^{\infty}S_\phi(f)\,e^{j2\pi f\tau}\,df
+\qquad(\text{Eq.(48), the Khinchin theorem})
+$$
+
+$$
+\sigma_{\Delta\phi}^2=\frac{8}{\omega_0^2}\int_0^{\infty}S_\phi(f)\sin^2(\pi f\tau)\,df.
+\qquad(\text{Eq.(49)})
+$$
+
+plus the two practical corollaries restricted to white noise (the $1/f^2$
+region) — Eq.(50) is obtained by combining the main text's (6)+(12), and
+Eq.(51) then follows "based on (8)" (i.e., $\sigma=\kappa\sqrt T$); **neither**
+comes from integrating (49):
+
+$$
+\kappa=\frac{\Delta f}{f_0}\cdot10^{-\mathcal{L}\{\Delta f\}/20}
+\qquad(\text{Eq.(50)})
+$$
+
+$$
+\sigma_{CTC}=\frac{f}{f_0^{1.5}}\cdot10^{-\mathcal{L}\{\Delta f\}/20}.
+\qquad(\text{Eq.(51), as printed})
+$$
+
+**As-printed disclosure (verified under magnification; symbol overloading and
+printing slips listed honestly)**:
+
+1. **$\sigma_{\Delta\phi}^2$ does double duty**: in Eq.(40)–(44) the LHS is
+   **phase** jitter (rad²); from Eq.(45) on, the LHS is still printed
+   $\sigma_{\Delta\phi}^2$ yet carries an extra $1/\omega_0^2$, and the text
+   explicitly calls it timing jitter — it is really
+   $\sigma_{\Delta T}^2=\sigma_{\Delta\phi}^2/\omega_0^2$ (s², i.e., the
+   Eq.(10) conversion). This page names $\sigma_{\Delta\phi}$ and
+   $\sigma_{\Delta t}$ separately precisely to defuse this mine.
+2. **The expansion line of Eq.(45) drops two symbols**: the middle term is
+   missing its $E$, and the cross term is missing its factor 2 (the cross term
+   of $[a-b]^2$ is $2ab$; under stationarity the first two terms combine into
+   $2R_\phi(0)$, so landing on Eq.(47) requires the cross term to be
+   $2R_\phi(\Delta T)$). Eq.(47) itself is printed correctly — the slip does
+   not propagate.
+3. **$\tau$ and $\Delta T$ are mixed**: Eq.(46) writes $R_\phi(\tau)$ on the
+   LHS but uses $\Delta T$ on the RHS; the kernel of Eq.(49) is written
+   $\sin^2(\pi f\tau)$, where this $\tau$ is the delay $\Delta T$.
+4. **The numerator of Eq.(51) is printed as $f$**: multiplying Eq.(50)'s
+   (time-version) $\kappa$ by $\sqrt T=f_0^{-0.5}$ gives
+   $\sigma_{CTC}=\kappa\sqrt T$, so the numerator should be the offset
+   frequency $\Delta f$ — the printing swallowed the $\Delta$ (the
+   transcription in "Corresponding papers / equations" is annotated
+   accordingly).
+5. The integration limits $\int_{-\infty}^{\infty}$ of Eq.(48) declare that
+   $S_\phi$ here is a **two-sided** spectrum — the only place in the whole
+   paper where the convention leaks out; the 8 of Eq.(49) therefore has one
+   bookkeeping 2 built in (see the table below).
+
+### A.3 Step-by-step mapping: the paper's two routes ↔ this page's derivation
+
+| [P2] | what that step does | this page's counterpart | factor reconciliation (against the Step 0 table) |
+|---|---|---|---|
+| Eq.(40) | defines phase jitter | Step 2's first-order difference $P_k(N)$ (in phase language) | — |
+| Eq.(41) | $\Delta\phi$ = ISF-weighted window integral | [P1] Eq.(11) as cited in 4.2 (limits changed to the window) | — |
+| Eq.(42) | expands the square into a double integral + $E[i(\tau_1)i(\tau_2)]$ | first line of 4.2 (the general form before substituting the autocorrelation) | holds for any (non-white) autocorrelation |
+| Eq.(43) | white noise $R_{ii}=\tfrac12(\overline{i_n^2}/\Delta f)\delta$ collapses it to a single integral | 4.2's $R_i(\tau)=\tfrac{S_i}{2}\delta(\tau)$ | **the same $\tfrac12$**: one-sided PSD ↔ two-sided flat level |
+| Eq.(44) | $\int\Gamma^2\to\Gamma_{rms}^2\Delta T$ ($\Delta T\gg T$ or $=mT$) | 4.2's parenthetical "exact for integer periods" + 4.3's $\kappa^2NT$ | Eq.(44) = main text Eq.(11) = $\kappa^2\Delta T$ |
+| Eq.(45)–(47) | WSS expansion: variance of a difference $=2[R_\phi(0)-R_\phi(\Delta T)]$ | Route A, step 1 (same equation) | **the 2 of Eq.(47)** = the "variance of a difference" 2 |
+| Eq.(48) | Khinchin theorem (two-sided spectrum, $\int_{-\infty}^{\infty}$) | Route A, step 2 (one-sided cosine version) | $S_\phi^{DS}=S_\phi/2$ |
+| Eq.(49) | $\dfrac{8}{\omega_0^2}\displaystyle\int_0^\infty S_\phi^{DS}\sin^2(\pi f\tau)\,df$ | kernel (b)'s $\dfrac{1}{\omega_0^2}\displaystyle\int_0^\infty S_\phi\,4\sin^2 df$ | **8 = 2 (two-sided→one-sided) × 4 (difference kernel)**, $1/\omega_0^2$ = phase→time — a literal reprise of the Step 0 table's second column |
+| Eq.(50) | reads $\kappa\leftarrow\mathcal{L}$ off the main text's (6)+(12) | 4.5 (the negative exponent = the "dB below carrier" reading, per the v5 note) | takes the $/2$-convention $\mathcal{L}$ |
+| Eq.(51) | $\sigma_{CTC}=\kappa\sqrt T$ (one-period version) | end note of 4.4 (adjacent-difference definition multiplies by another $\sqrt2$) | printed numerator $f$ should read $\Delta f$ |
+
+### A.4 Who skips what (honest bookkeeping in both directions)
+
+**Skipped by [P2], filled in by this page**:
+
+- **The stationarity rigor gap**: Eq.(45)–(47) needs $R_\phi(0)$ finite; a
+  free-running oscillator's $\phi$ is a random walk, so $R_\phi(0)$ diverges
+  (exactly the confession at the start of this page's Route A). The difference
+  $R_\phi(0)-R_\phi(\Delta T)$ is finite and the conclusion survives, but
+  making it rigorous requires this page's **Route B** (which only demands that
+  $\nu=\dot\phi$ be stationary) — the paper does not address this step.
+- **No convention declared**: not one sentence in the paper says whether
+  $S_\phi$ is one- or two-sided; only the integration limits of Eq.(48) give
+  it away. This page's three-column table in Step 0 lays that out in the open
+  (v5 used exactly those limits to infer "two-sided" and reconcile the
+  literature's "coefficient-8 version" with the one-sided $4\sin^2$ kernel).
+- **The two routes are never interlocked in the paper**: Eq.(44) stops in the
+  time domain, Eq.(49) stops in the frequency domain; the paper never
+  substitutes the white-noise spectrum into (49) to check that it lands back
+  on (44). This page's 4.1 integral
+  $\int_0^\infty\sin^2(ax)/x^2\,dx=\pi a/2$ plus the substitution in 4.3 is
+  that missing closed loop (the code below computes both routes — same
+  number).
+- Neither the time-domain flicker $1/f^3$ closed form (Step 5's log formula)
+  nor the c2c $16\sin^4$ kernel (kernel (c); Eq.(51) is only the one-period
+  version) appears in the paper.
+
+**Glossed over by this page, written out in full by [P2]**:
+
+- **The general double integral of Eq.(42)**: Section 4.2 jumps straight to
+  "white-noise δ correlation ⇒ single integral"; the paper writes out the
+  general form
+  $\Gamma(\omega_0\tau_1)\Gamma(\omega_0\tau_2)\,E[i(\tau_1)i(\tau_2)]$ — the
+  starting point that accepts any colored-noise autocorrelation, with white
+  noise merely a special case.
+- **The validity condition printed inside the equation**: Eq.(44)'s "for
+  $\Delta T\gg T$ or $\Delta T=mT$" prints right next to the equals sign the
+  condition for $\int\Gamma^2\to\Gamma_{rms}^2\Delta T$ to be exact; this
+  page's 4.2 only mentions it in a parenthesis. For short or non-integer
+  $\Delta T$ there is an $O(T/\Delta T)$-level $\Gamma^2$ ripple residual.
+
+### A.5 Replaying the white-FM variance along both routes (checkable via # ->)
+
+```python
+import numpy as np
+from simulations.common.isf_utils import gamma_lc_ideal
+
+F0, T = 5e9, 2e-10
+W0 = 2 * np.pi * F0
+QMAX, SI, GRMS = 1e-12, 1e-24, 0.5      # canonical parameters
+N = 100
+DT = N * T                              # ΔT = mT (the validity condition of Eq.(44))
+
+# Route 1: [P2] Appendix A time-domain autocorrelation route —
+# substituting R_ii=(S_i/2)δ into Eq.(42) collapses it to Eq.(43)
+tau = np.linspace(0.0, DT, 200 * N + 1)
+gam = np.sqrt(2.0) * GRMS * gamma_lc_ideal(W0 * tau)     # LC-shaped ISF with Γrms=0.5
+var_43 = 0.5 * SI / QMAX**2 * np.trapezoid(gam**2, tau)  # Eq.(43), numerical integral
+var_44 = 0.5 * SI / QMAX**2 * GRMS**2 * DT               # Eq.(44) = main text Eq.(11)
+print(f"{var_43:.4e}")            # -> 2.5000e-09 rad^2 (Eq.(43), σ²_Δφ @ N=100)
+print(f"{var_43/var_44:.4f}")     # -> 1.0000 (at ΔT=mT, ∫Γ² is exactly Γrms²ΔT)
+
+# Route 2: this page's kernel route — one-sided S_φ=2κ²/(2πf)² times the 4sin²(πfΔT) kernel
+kappa2 = GRMS**2 / QMAX**2 * SI / 2                      # κ²=Γrms²S_i/(2q_max²)
+print(f"{kappa2:.4f}")            # -> 0.1250 rad^2/s (the same prefactor as Eq.(44))
+x = np.linspace(1e-8, 1e4, 4_000_001)                    # x = fΔT
+core = np.trapezoid(np.sin(np.pi * x)**2 / x**2, x) + 0.5 / x[-1]  # tail: sin²→1/2
+var_kernel = 2 * kappa2 * DT / np.pi**2 * core           # = κ²ΔT (the 4.3 analytic value)
+print(f"{var_kernel/var_43:.4f}") # -> 1.0000 (frequency kernel = Appendix A route, same number)
+
+# Reconciling [P2] Eq.(49): 8/ω₀² × two-sided S_φ^DS=κ²/(2πf)², LHS is the time-version variance
+var_49 = 8 / W0**2 * (kappa2 * DT / 4 / np.pi**2) * core
+print(f"{var_49/(kappa2*DT/W0**2):.4f}")   # -> 1.0000 (8 = 2(two-sided→one-sided)×4(kernel))
+print(f"{np.sqrt(var_49)*1e15:.2f} fs")    # -> 1.59 fs (σ_ΔT @ N=100 = √100×0.159 fs)
+```
+
+The first two prints walk [P2] Eq.(43)→(44) (the time-domain autocorrelation
+route); the remaining four walk this page's kernel (b) and the two-sided
+bookkeeping of Eq.(49) — **one oscillator, two routes, one number,
+$\kappa^2\Delta T=2.5\times10^{-9}\ \text{rad}^2$**. Appendix A and Steps 3/4
+of this page are two proofs of the same theorem; the only difference is that
+the paper hides its convention inside the integration limits, while this page
+prints it in Step 0.
 
 ## Step 5: the flicker ($1/f^3$) closed form — the log term and its honesty conditions
 
@@ -428,7 +687,7 @@ where $\mathrm{Ci}(z)=-\int_z^\infty\frac{\cos u}{u}du$ is the cosine integral f
 **Step 4 (small-argument expansion, $bf_l\ll1$)**: $1-\cos(bf_l)\to\tfrac{b^2f_l^2}{2}$,
 $\sin(bf_l)/f_l\to b$, $\mathrm{Ci}(z)=\gamma+\ln z+O(z^2)$ ($\gamma=0.5772\ldots$ is the
 Euler–Mascheroni constant; the Ci series is a standard result — M. Abramowitz and I. A. Stegun,
-*Handbook of Mathematical Functions*, Dover, 1964, Eq. 5.2.16 (external literature, not among the five source PDFs)):
+*Handbook of Mathematical Functions*, Dover, 1964, Eq. 5.2.16 (external literature, not among the 5 source PDFs)):
 
 $$
 J\to\frac{b^2}{4}+\frac{b^2}{2}\big[1-\gamma-\ln(bf_l)\big]
@@ -459,7 +718,7 @@ $$
   while white noise makes jitter $\propto\sqrt{\Delta t}$ — the two segments of slope 1 and 1/2 on a log-log plot ([P2] Fig. 4).
   For the practice of measuring $\kappa$ in the time domain (piecewise slope fitting) see also J. A. McNeill, "Jitter in ring
   oscillators," IEEE J. Solid-State Circuits, vol. 32, no. 6, pp. 870–879, Jun. 1997
-  (external literature, not among the five source PDFs).
+  (external literature, not among the 5 source PDFs).
 
 ## Step 5b: two-regime growth — [P2] Fig.16's $\sigma(\Delta t)=\sqrt{\kappa^2\Delta t+\zeta^2\Delta t^2}$
 
@@ -796,11 +1055,14 @@ integrated only over the 1–100 MHz band. **Same set of formulas, same prefacto
   $6.18/5.95/6.07\times10^{-9}\sqrt{\text{s}}$: p.801;
   slope-1 attribution to device 1/f: p.801 and the end of Section VI, pp.797–798;
   measurement-floor subtraction: Eq.(39), p.801.
-- jitter ← phase spectrum (autocorrelation + Khinchin route): [P2] Eq.(46)–(49), p.803; white-noise special case
+- jitter ← phase spectrum (autocorrelation + Khinchin route): [P2] Eq.(46)–(49), p.803
+  (Appendix A in full, Eq.(40)–(51), starts in the right column of p.802 and ends in the left
+  column of p.803; verbatim transcription and factor-by-factor reconciliation in this page's
+  "Paper-native derivation" section); white-noise special case
   $\kappa$←$\mathcal{L}$: Eq.(50), p.803; cycle-to-cycle "based on (8)": Eq.(51), p.803
   (**these three equations verified verbatim in v5** (p.803 rendering): Eq.(49) $\sigma^2_{\Delta\phi}=\tfrac{8}{\omega_0^2}\int_0^\infty S_\phi\sin^2(\pi f\tau)df$ (with $S_\phi$ per Eq.(48) a **two-sided** spectrum, hence = this page's one-sided $4\sin^2$ kernel);
   Eq.(50) $\kappa=\tfrac{\Delta f}{f_0}\cdot10^{-\mathcal{L}\{\Delta f\}/20}$ — the minus sign in the exponent means the paper reads $\mathcal{L}$ as "dB below the carrier" (a positive number); with signed dBc values one should read $10^{\mathcal{L}/20}=\sqrt{\mathcal{L}_{lin}}$. Numerical interlock: $-100$ dBc/Hz, $\Delta f=1$ MHz, $f_0=5$ GHz → $\kappa_t=2.0\times10^{-9}\ \sqrt{\text{s}}$, fully consistent with Section 6 of this page ✓;
-  Eq.(51) $\sigma_{CTC}=\tfrac{\Delta f}{f_0^{1.5}}\cdot10^{-\mathcal{L}\{\Delta f\}/20}$ — **the printed equation has no $\sqrt2$**: its $\sigma_{CTC}=\kappa\sqrt{T}$ is "the accumulation over one period" (i.e., this page's $\sigma_P$); with the "adjacent-period difference" definition (this page's $16\sin^4$ kernel) multiply by another $\sqrt2$. Both definitions coexist in the literature; this page names them separately.)
+  Eq.(51) $\sigma_{CTC}=\tfrac{f}{f_0^{1.5}}\cdot10^{-\mathcal{L}\{\Delta f\}/20}$ (as printed — the numerator reads $f$; the dimensions of Eq.(50)×$\sqrt T$ show it should read the offset frequency $\Delta f$, the $\Delta$ being a printing omission, see A.2 of the "Paper-native derivation" section) — **the printed equation has no $\sqrt2$**: its $\sigma_{CTC}=\kappa\sqrt{T}$ is "the accumulation over one period" (i.e., this page's $\sigma_P$); with the "adjacent-period difference" definition (this page's $16\sin^4$ kernel) multiply by another $\sqrt2$. Both definitions coexist in the literature; this page names them separately.)
 - SSB $/4$ convention: [P1] Eq.(21), p.185 ($-148$ dBc/Hz); time-domain $/2$ convention $-145$ dBc/Hz:
   the factor-of-2 note in conventions Section 3.
 - Operational versions of the kernels and Example D: [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter);

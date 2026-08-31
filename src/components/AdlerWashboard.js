@@ -217,7 +217,7 @@ export default function AdlerWashboard() {
            onChange={setNoiseAmp} fmt={(v) => v.toFixed(2)} />
 
       <div style={out}>
-        <div style={statusCard}>
+        <div style={statusCard} role="status" aria-live="polite">
           <div style={{fontSize: '0.8rem', opacity: 0.7}}>{isEn ? 'state' : '狀態'}</div>
           <div style={{fontSize: '1.15rem', fontWeight: 800, color: stateColor}}>
             {locked
@@ -237,7 +237,7 @@ export default function AdlerWashboard() {
           </div>
           <div style={{fontSize: '0.8rem'}}>{locked ? 'deg' : '1/ω_L units'}</div>
         </div>
-        <div style={card}>
+        <div style={card} role="status" aria-live="polite">
           <div style={{fontSize: '0.8rem', opacity: 0.7}}>
             {locked ? (isEn ? 'cycle slips' : 'cycle slip 次數') : (isEn ? 'measured beat period' : '量測拍週期')}
           </div>

@@ -12,7 +12,7 @@ SerDes clocking 設計直覺。**繁體中文**，保留必要英文專業詞。
 
 ![social card](static/img/social-card.png)
 
-**規模**：82 頁教學、41 張重現圖、36 個可重跑模擬、6 個互動工具、120+ 個可自動驗證的數值例題
+**規模**：92 頁教學、53 張重現圖、46 個可重跑模擬、20 個互動工具、156 個可自動驗證的數值例題
 （`scripts/verify_examples.py` 全綠）。
 
 技術棧：**Docusaurus 3 + MDX + KaTeX**（數學）＋ **Mermaid**（方塊圖）＋ Python (NumPy/SciPy/Matplotlib) 模擬。
@@ -45,7 +45,7 @@ npm run start          # 開發伺服器，預設 http://localhost:3000
 python scripts/run_all_sims.py
 ```
 
-會執行 `simulations/lab_*.py`，把所有圖輸出到 `static/figures/`（41 張）。
+會執行 `simulations/lab_*.py`，把所有圖輸出到 `static/figures/`（53 張）。
 
 ## Build（產生靜態網站）
 

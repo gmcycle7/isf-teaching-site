@@ -129,7 +129,7 @@ export default function InjectionLockingExplorer() {
            onChange={setG1} fmt={(v) => v.toFixed(2)} />
 
       <div style={out}>
-        <div style={statusCard}>
+        <div style={statusCard} role="status" aria-live="polite">
           <div style={{fontSize: '0.8rem', opacity: 0.7}}>狀態</div>
           <div style={{fontSize: '1.3rem', fontWeight: 800, color: lockColor}}>
             {locked ? 'LOCKED' : 'UNLOCKED'}

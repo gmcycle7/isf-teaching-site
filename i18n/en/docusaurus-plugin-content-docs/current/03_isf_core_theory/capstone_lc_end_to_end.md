@@ -100,12 +100,12 @@ the mathematical ID card of "a current through the capacitor becomes $\dot v$" (
 For the ideal LC, $A_0$ is a constant matrix (a linear circuit), so the "linearization" step is trivial — it is linear to begin with.
 But the rigorous basis for **permanent phase accumulation** is **Floquet theory** (the solution structure of linear systems with periodic coefficients).
 Here we take only the conclusion and map it onto the LC; the full proof is in [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv)
-(that page explicitly marks Floquet/adjoint/PPV as **external literature, not among the five source PDFs**; primary source [E2] Demir 2000).
+(that page explicitly marks Floquet/adjoint/PPV as **external literature, not among the 5 source PDFs**; primary source [E2] Demir 2000).
 
 **Key theorem ([derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv) Step 3)**: differentiate the steady-state solution
 $\mathbf x_s(t)$ with respect to time; $\dot{\mathbf x}_s$ itself is **automatically a solution of the homogeneous perturbation equation**, and it is
 **periodic, with no exponential factor** — corresponding to **Floquet exponent $\lambda_1=0$**. Physically, $\dot{\mathbf x}_s$ is
-the tangential "walk along the trajectory" direction $=$ the phase direction; $\lambda_1=0$ mathematically guarantees that a phase perturbation **neither grows nor decays — it is retained forever**.
+the tangential "walk along the trajectory" direction = the phase direction; $\lambda_1=0$ mathematically guarantees that a phase perturbation **neither grows nor decays — it is retained forever**.
 
 Concrete verification for the LC: $\mathbf x_s(t)=V_{max}\big(\cos\omega_0 t,\ \tfrac{1}{\omega_0 L}\sin\omega_0 t\big)$,
 
@@ -275,6 +275,11 @@ $$
 > **This station delivers**: $\mathcal{L}(1\text{MHz})=-145$ dBc/Hz (true LC value; spec representative value $-148$, a 3 dB gap),
 > plus the closed-form $1/f^2$ $S_\phi(f)$. The next station resolves the "divergence as $\Delta\omega\to0$" paradox.
 
+> **(v8 toolbox)** The $S_\phi$ here is the product of a single "white noise, single-sided, $\int_0^\infty$" convention;
+> for how that convention rigorously yields the TIE / period / cycle-to-cycle jitter kernels, see
+> [jitter_kernels](/02_foundations/jitter_kernels); for converting $\Gamma_{rms}^2/q_{max}^2$ into the diffusion
+> constant $D$, linewidth, ADEV, and the other numbers different communities use, see [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary).
+
 ---
 
 ## Station ⑥: Lorentzian linewidth $\Delta f_{3\mathrm{dB}}$ (resolving the $1/f^2$ divergence paradox)
@@ -282,7 +287,7 @@ $$
 Station ⑤'s $S_\phi\propto1/\Delta\omega^2$ **diverges** as $\Delta\omega\to0$ — yet the total phase power cannot be infinite (carrier power is conserved).
 The contradiction comes from "linearization treating phase as a random walk that can accumulate without bound". The rigorous treatment (phase diffusion →
 carrier autocorrelation → Wiener–Khinchin) yields a **Lorentzian with a finite linewidth**. Full derivation in
-[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) (with **[E2] Demir 2000, not among the five source PDFs**);
+[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) (with **[E2] Demir 2000, not among the 5 source PDFs**);
 here we take the result of spec sec. 11.2 and plug in the numbers.
 
 **The phase diffusion coefficient $D$ (rad²/s)** is fixed by the coefficient of the $1/f^2$ skirt. Match the **single-sided** $S_\phi=4D/\Delta\omega^2$
@@ -332,11 +337,15 @@ $$
 - **Alignment with the 20 mHz of [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) (the 2× is $\Gamma_{rms}^2$ bookkeeping, not an error)**:
   this page uses the **true-LC** $\Gamma_{rms}=1/\sqrt2$ ($\Gamma_{rms}^2=0.5$), giving $D=0.125$ rad²/s and $\Delta f_{3\mathrm{dB}}=D/\pi\approx40$ mHz;
   the example in [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) uses the **spec representative value** $\Gamma_{rms}=0.5$ ($\Gamma_{rms}^2=0.25$), giving
-  $D=0.0625$ rad²/s and $\approx20$ mHz. The two pages differ by **exactly 2×**, entirely because $\Gamma_{rms}^2$ is taken as $0.5$ vs $0.25$ ($D\propto\Gamma_{rms}^2$, so the linewidth also ×2) —
+  $D=0.0625$ rad²/s and $\approx20$ mHz. The two pages differ by **exactly 2×**, entirely because $\Gamma_{rms}^2$ is taken as $0.5$ vs $0.25$ ($D\propto\Gamma_{rms}^2$, so the linewidth also $\times2$) —
   the very same origin as Station ⑤'s $-145$ vs $-148$ dBc/Hz 3 dB gap ($10\log_{10}2$). Both numbers are correct; the only difference is whether $\Gamma_{rms}$ takes the "ideal $-\sin$ value" or the "representative value" — **not an error**.
 
 > **This station delivers**: a finite linewidth $\Delta f_{3\mathrm{dB}}\approx40$ mHz (v5, with the corrected mapping $D=\Gamma_{rms}^2S_i/(4q_{max}^2)$), and the $\Delta\omega\to0$ divergence paradox resolved.
 > Station ⑦'s jitter integration **starts from $f_1\gg\Delta f_{3\mathrm{dB}}$**, so the $1/f^2$ skirt remains safe to use.
+
+> **(v8 toolbox)** This station's Lorentzian rests on the assumption that "the noise driving the phase is white"; for
+> where that assumption breaks down (how flicker FM distorts the lineshape away from Lorentzian, and what an instrument
+> actually measures), see [beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian).
 
 ---
 
@@ -387,7 +396,11 @@ $$
 - **Lower limit dominates**: $\big(\tfrac1{f_1}-\tfrac1{f_2}\big)=10^{-6}-10^{-8}$; $1/f_1$ accounts for 99% — "where you start integrating" decides everything,
   which is exactly the physics of why the CDR/PLL high-pass in Station ⑧ (pushing $f_1$ upward) improves jitter.
 - **Site cross-reference**: $447.9$ fs matches [lab_08](/04_simulation_labs/lab_08_jitter_integration) and
-  example C of [numerical_feeling](/04_simulation_labs/numerical_feeling) digit for digit (numerics $=$ analytics).
+  example C of [numerical_feeling](/04_simulation_labs/numerical_feeling) digit for digit (numerics = analytics).
+
+> **(v8 toolbox)** The $\sigma_t$ here is the "continuous-time" jitter obtained by integrating $S_\phi$; for the
+> closed-form kernels behind **discretely sampled** jitter definitions such as TIE / period / cycle-to-cycle, see
+> [jitter_kernels](/02_foundations/jitter_kernels).
 
 > **This station delivers**: $\sigma_t=447.9$ fs (rms timing jitter). It is the only noise input to the BER formula.
 
@@ -397,7 +410,7 @@ $$
 
 The last station: connect $\sigma_t$ to the communications engineer's **BER bathtub curve**. The receiver samples at the center of each bit;
 the bit period is denoted UI (unit interval). For **RJ (random jitter — Gaussian, unbounded)** only,
-the BER when sampling at an offset $t$ from the eye center is (spec sec. 10.2, standard SerDes model, **not among the five source PDFs**):
+the BER when sampling at an offset $t$ from the eye center is (spec sec. 10.2, standard SerDes model, **not among the 5 source PDFs**):
 
 $$
 \text{BER}(t)=\frac{1}{2}\left[Q\!\left(\frac{\text{UI}/2-t}{\sigma_t}\right)+Q\!\left(\frac{\text{UI}/2+t}{\sigma_t}\right)\right],\qquad
@@ -434,6 +447,10 @@ $$
 ![BER bathtub of a SerDes eye: RJ eats the eye from both sides; larger σ_t means a narrower bathtub](/figures/serdes_eye_ber_bathtub.png)
 
 > **This station delivers**: $\sigma_t=448$ fs at 10 Gb/s and BER $10^{-12}$ $=6.3\%$ UI of eye budget. **End of the spine.**
+
+> **(v8 toolbox)** This station only computes the pure-RJ bathtub; a real eye also has bounded DJ (ISI, duty-cycle
+> distortion, power-supply spurs) to superimpose. For the industry-standard dual-Dirac synthesis
+> TJ$=$DJ$+2Q\cdot$RJ, see [dj_dual_dirac](/06_design_insights/dj_dual_dirac).
 
 ---
 
@@ -505,11 +522,11 @@ Three phase-noise numbers of "different grades" appear along the spine, each wit
   → [P1] Eq.(21) gives $\mathcal{L}$ → Lorentzian linewidth → integrate to $\sigma_t$ → BER bathtub.
 - **Every step rigorous + numerical**: $\omega_0=1/\sqrt{LC}$; $\Gamma_{rms}^2=0.5$; $\mathcal{L}=-145$ dBc/Hz (true LC value, 3 dB above the spec's $-148$);
   $D=0.125$ rad²/s, $\Delta f_{3\mathrm{dB}}=40$ mHz (v5-corrected mapping $D=\kappa^2/2$); $\sigma_t=447.9$ fs; at BER $10^{-12}$ RJ eats 6.3% UI.
-- **Do not mix the three phase-noise numbers**: $-145$/$-148$ are the ideal single-source floor; $-100$ is the real datasheet level (45 dB gap $=$ all the imperfections).
+- **Do not mix the three phase-noise numbers**: $-145$/$-148$ are the ideal single-source floor; $-100$ is the real datasheet level (45 dB gap = all the imperfections).
 - **The design knob runs end to end**: $\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$ (Stations ④⑤) propagates through to jitter (Station ⑦) and the eye budget (Station ⑧);
   20 dB better phase noise $\Rightarrow$ jitter ÷10 $\Rightarrow$ eye budget ÷10.
 - **The divergence paradox is resolved**: Station ⑤'s $1/\Delta\omega^2$ divergence is a linearization artifact; Station ⑥'s Lorentzian gives a finite linewidth with total power conserved.
-- **External literature honestly flagged**: Floquet/PPV (Station ②), Lorentzian (Station ⑥), BER/eye (Station ⑧) are **not among the five source PDFs**
+- **External literature honestly flagged**: Floquet/PPV (Station ②), Lorentzian (Station ⑥), BER/eye (Station ⑧) are **not among the 5 source PDFs**
   and are supplemented from standard references ([E2] Demir 2000, standard SerDes/communications); the ISF core (Stations ③④⑤) comes from [P1].
 
 ## End-to-end numerics (lab_22)
@@ -608,11 +625,11 @@ BER(center)    = 1.0e-300    # -> 1.0e-300
   ($D=0.125$ rad²/s, linewidth $40$ mHz); lines 7–9 Station ⑦ ($\sigma_\phi=14.07$ mrad, $\sigma_t=447.9$ fs);
   the last four lines Station ⑧ (center sampling puts $\text{UI}/2$ at $111.6\,\sigma_t$, so the center BER $\to0$; at BER $10^{-12}$ RJ eats $6.3\%$ UI).
 - **Digit-for-digit agreement with the hand derivation**: $0.5$, $0.125$, $40$ mHz, $447.9$ fs, $6.3\%$ all match Stations ④–⑧'s hand-computed values,
-  proving "formula chain $=$ code chain". The only deliberate difference is $\mathcal{L}$: this section prints the time-domain $/2$ version $-142$, Station ⑤ prints the SSB $/4$ version $-145$;
+  proving "formula chain = code chain". The only deliberate difference is $\mathcal{L}$: this section prints the time-domain $/2$ version $-142$, Station ⑤ prints the SSB $/4$ version $-145$;
   the 3 dB gap is $10\log_{10}2$, rooted in the same factor-of-2 convention, flagged clearly above.
 - **This is a toy / ideal model**: $\Gamma=-\sin\theta$ is the analytic ISF of the lossless ideal LC, single white-noise source, pure RJ; real circuits are
   worse (see the $-100$ dBc/Hz and the 45 dB gap in "The roles of the three sets of numbers" table). BER/eye and the Lorentzian are **external literature,
-  not among the five source PDFs** (standard SerDes, [E2] Demir 2000); the ISF core (Stations ③④⑤) comes from [P1].
+  not among the 5 source PDFs** (standard SerDes, [E2] Demir 2000); the ISF core (Stations ③④⑤) comes from [P1].
 
 ---
 
@@ -627,3 +644,5 @@ BER(center)    = 1.0e-300    # -> 1.0e-300
 - Station ⑦ jitter integration: [lab_08](/04_simulation_labs/lab_08_jitter_integration), [numerical_feeling](/04_simulation_labs/numerical_feeling)
 - Station ⑧ SerDes/BER: [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection), [lab_12](/04_simulation_labs/lab_12_serdes_eye_ber)
 - Why real circuits are worse (45 dB): [effective_isf](/03_isf_core_theory/effective_isf), [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
+
+> **Final exam**: made it through the whole chain? Head to the [final exam](/04_simulation_labs/final_exam) — 10 cross-chapter questions to certify yourself.

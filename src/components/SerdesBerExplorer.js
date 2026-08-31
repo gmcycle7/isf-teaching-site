@@ -21,7 +21,7 @@ const Q = (x) => 0.5 * erfc(x / Math.SQRT2);
 function Slider({label, value, unit, min, max, step, onChange, fmt}) {
   return (
     <div style={{display: 'flex', alignItems: 'center', gap: '0.6rem', margin: '0.3rem 0', flexWrap: 'wrap'}}>
-      <label style={{flex: '0 0 6rem', fontSize: '0.9rem'}}>{label}</label>
+      <label style={{flex: '0 1 6rem', fontSize: '0.9rem'}}>{label}</label>
       <input type="range" min={min} max={max} step={step} value={value}
              onChange={(e) => onChange(parseFloat(e.target.value))} style={{flex: 1}} />
       <span style={{flex: '0 0 5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums'}}>
@@ -72,7 +72,8 @@ export default function SerdesBerExplorer() {
   return (
     <div style={box}>
       <div style={{fontWeight: 600, marginBottom: '0.4rem'}}>SerDes jitter→BER bathtub 探索器（RJ-only）</div>
-      <svg viewBox={`0 0 ${W} ${H}`} style={{width: '100%', height: 'auto', background: 'var(--ifm-background-color)', borderRadius: '6px'}}>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="BER bathtub curve versus sampling offset within the unit interval"
+           style={{width: '100%', height: 'auto', background: 'var(--ifm-background-color)', borderRadius: '6px'}}>
         <line x1={PAD} y1={H - PAD} x2={W - PAD} y2={H - PAD} stroke={axis} strokeWidth="1" />
         <line x1={PAD} y1={PAD} x2={PAD} y2={H - PAD} stroke={axis} strokeWidth="1" />
         <line x1={PAD} y1={y12} x2={W - PAD} y2={y12} stroke="var(--ifm-color-danger, #e5534b)" strokeWidth="1" strokeDasharray="4 3" />

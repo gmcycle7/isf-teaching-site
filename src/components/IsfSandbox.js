@@ -189,7 +189,8 @@ export default function IsfSandbox() {
            onChange={setQ} fmt={(v) => v.toFixed(2)} />
 
       {/* waveform V(θ) */}
-      <svg viewBox={`0 0 ${W} ${PH}`} style={{...svgStyle, marginTop: '0.6rem'}}>
+      <svg viewBox={`0 0 ${W} ${PH}`} role="img" aria-label="Waveform V(theta) over one period"
+           style={{...svgStyle, marginTop: '0.6rem'}}>
         <line x1={PADX} y1={PH / 2} x2={W - PADX} y2={PH / 2} stroke={axis} strokeWidth="1" />
         <line x1={PADX} y1={PADY} x2={PADX} y2={PH - PADY} stroke={axis} strokeWidth="1" />
         <line x1={xZC} y1={PADY} x2={xZC} y2={PH - PADY} stroke={axis} strokeWidth="1" strokeDasharray="4 4" />
@@ -205,7 +206,8 @@ export default function IsfSandbox() {
       </div>
 
       {/* ISF Γ(θ) */}
-      <svg viewBox={`0 0 ${W} ${PH}`} style={svgStyle}>
+      <svg viewBox={`0 0 ${W} ${PH}`} role="img" aria-label="Slope-approximation ISF Gamma(theta) derived from the waveform"
+           style={svgStyle}>
         <line x1={PADX} y1={PH / 2} x2={W - PADX} y2={PH / 2} stroke={axis} strokeWidth="1" />
         <line x1={PADX} y1={PADY} x2={PADX} y2={PH - PADY} stroke={axis} strokeWidth="1" />
         <line x1={xZC} y1={PADY} x2={xZC} y2={PH - PADY} stroke={axis} strokeWidth="1" strokeDasharray="4 4" />
@@ -229,7 +231,8 @@ export default function IsfSandbox() {
       </div>
 
       {/* |c_n| bars */}
-      <svg viewBox={`0 0 ${W} ${BH}`} style={svgStyle}>
+      <svg viewBox={`0 0 ${W} ${BH}`} role="img" aria-label="Fourier coefficient magnitudes c0 through c5 of the ISF"
+           style={svgStyle}>
         <line x1={PADX} y1={BH - 18} x2={W - PADX} y2={BH - 18} stroke={axis} strokeWidth="1" />
         {cn.map((c, n) => {
           const h = (c / barMax) * (BH - 44);

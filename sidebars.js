@@ -14,6 +14,7 @@ const sidebars = {
         '00_overview/notation',
         '00_overview/cheat_sheet',
         '00_overview/build_report',
+        '00_overview/changelog',
       ],
     },
     {
@@ -121,6 +122,7 @@ const sidebars = {
             '04_simulation_labs/lab_32_mos_level1_ring',
             '04_simulation_labs/lab_34_correlated_supply',
             '04_simulation_labs/lab_36_lock_acquisition',
+            '04_simulation_labs/final_exam',
           ],
         },
       ],

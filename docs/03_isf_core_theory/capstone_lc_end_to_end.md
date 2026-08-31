@@ -268,6 +268,11 @@ $$
 > **這一站交付**：$\mathcal{L}(1\text{MHz})=-145$ dBc/Hz（LC 真值；規範代表值 $-148$，差 3 dB），
 > 以及 $1/f^2$ 的 $S_\phi(f)$ 閉式。下一站處理「$\Delta\omega\to0$ 發散」的矛盾。
 
+> **（v8 工具箱）** 這裡的 $S_\phi$ 是「白噪、單邊、$\int_0^\infty$」單一慣例下的產物；
+> 想看這個慣例如何嚴格推出 TIE/period/cycle-to-cycle 三種 jitter 核，見
+> [jitter_kernels](/02_foundations/jitter_kernels)；想把 $\Gamma_{rms}^2/q_{max}^2$ 換算成
+> 擴散常數 $D$、線寬、ADEV 等其他社群慣用的數字，見 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)。
+
 ---
 
 ## 站⑥：Lorentzian 線寬 $\Delta f_{3\mathrm{dB}}$（解 $1/f^2$ 發散矛盾）
@@ -331,6 +336,10 @@ $$
 > **這一站交付**：有限線寬 $\Delta f_{3\mathrm{dB}}\approx40$ mHz（v5 依修正後映射 $D=\Gamma_{rms}^2S_i/(4q_{max}^2)$），並解掉 $\Delta\omega\to0$ 發散矛盾。
 > 站⑦的 jitter 積分**從 $f_1\gg\Delta f_{3\mathrm{dB}}$ 開始**，所以仍可安全用 $1/f^2$ skirt。
 
+> **（v8 工具箱）** 本站的 Lorentzian 建立在「驅動相位的雜訊是白的」這個假設上；這個假設的
+> 邊界（flicker FM 如何讓線形偏離 Lorentzian、儀器實際量到的是什麼）見
+> [beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian)。
+
 ---
 
 ## 站⑦：積分得 $\sigma_t$（rms jitter）
@@ -382,6 +391,10 @@ $$
 - **與本站對應**：$447.9$ fs 與 [lab_08](/04_simulation_labs/lab_08_jitter_integration)、
   [numerical_feeling](/04_simulation_labs/numerical_feeling) 例 C 逐位一致（數值＝解析）。
 
+> **（v8 工具箱）** 這裡的 $\sigma_t$ 是對 $S_\phi$ 積分得到的「連續時間」jitter；若要換成
+> TIE/period/cycle-to-cycle 等**離散取樣**的 jitter 定義與其閉式核，見
+> [jitter_kernels](/02_foundations/jitter_kernels)。
+
 > **這一站交付**：$\sigma_t=447.9$ fs（rms timing jitter）。它是 BER 公式唯一的 noise 輸入。
 
 ---
@@ -427,6 +440,10 @@ $$
 ![SerDes eye 的 BER bathtub：RJ 從兩側啃 eye，σ_t 越大浴缸越窄](/figures/serdes_eye_ber_bathtub.png)
 
 > **這一站交付**：$\sigma_t=448$ fs 在 10 Gb/s、BER $10^{-12}$ 下 $=6.3\%$ UI 的 eye 開銷。**主脊到底。**
+
+> **（v8 工具箱）** 本站只算純 RJ 的 bathtub；真實 eye 還有有界的 DJ（ISI、duty-cycle
+> distortion、電源 spur）要疊加，TJ$=$DJ$+2Q\cdot$RJ 的業界標準 dual-Dirac 合成見
+> [dj_dual_dirac](/06_design_insights/dj_dual_dirac)。
 
 ---
 
@@ -620,3 +637,5 @@ BER(center)    = 1.0e-300    # -> 1.0e-300
 - 站⑦ jitter 積分：[lab_08](/04_simulation_labs/lab_08_jitter_integration)、[numerical_feeling](/04_simulation_labs/numerical_feeling)
 - 站⑧ SerDes/BER：[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)、[lab_12](/04_simulation_labs/lab_12_serdes_eye_ber)
 - 真實電路為何更差（45 dB）：[effective_isf](/03_isf_core_theory/effective_isf)、[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
+
+> **畢業考**：整條鏈走完了？去 [期末總測驗](/04_simulation_labs/final_exam) 用 10 題跨章一條龍驗收自己。

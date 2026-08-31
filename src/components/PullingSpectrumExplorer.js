@@ -247,7 +247,7 @@ export default function PullingSpectrumExplorer() {
       </div>
 
       <div style={out}>
-        <div style={statusCard}>
+        <div style={statusCard} role="status" aria-live="polite">
           <div style={{fontSize: '0.8rem', opacity: 0.7}}>{isEn ? 'state' : '狀態'}</div>
           <div style={{fontSize: '1.15rem', fontWeight: 800, color: stateColor}}>
             {locked ? (isEn ? 'LOCKED — single tone' : 'LOCKED — 單一純音') : (isEn ? 'PULLING — comb' : 'PULLING — 梳狀頻譜')}

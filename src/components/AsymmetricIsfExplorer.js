@@ -152,7 +152,7 @@ export default function AsymmetricIsfExplorer() {
            onChange={setEta} fmt={(v) => v.toFixed(2)} />
 
       {!overlapOk && (
-        <div style={{
+        <div role="status" aria-live="polite" style={{
           fontSize: '0.8rem', color: 'var(--ifm-color-danger)', margin: '0.4rem 0',
           border: '1px solid var(--ifm-color-danger)', borderRadius: '6px', padding: '0.4rem 0.6rem',
         }}>

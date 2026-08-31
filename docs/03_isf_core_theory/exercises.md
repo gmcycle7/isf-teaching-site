@@ -84,6 +84,15 @@ device 的 1/f corner $f_{1/f}=1$ MHz（即 $\omega_{1/f}=2\pi\times10^6$ rad/s�
 用 [P1] Eq.(24) 估 $1/f^3$ corner 頻率 $\Delta f_{1/f^3}$（用 $c_0/c_1$ 近似式）。
 若把電路改成對稱（$c_0\to0.02$），corner 變多少？
 
+<NumericQuiz
+  prompt="先自己算：不對稱情形（c₀=0.2, c₁=1.0）的 1/f³ corner Δf ≈ ？（f_1/f = 1 MHz；以 kHz 作答）"
+  answer={40}
+  tol={0.02}
+  unit="kHz"
+  hint="用近似式 Δf_1/f³ ≈ f_1/f·(c0/c1)²。"
+  solutionNote="Δf_1/f³ ≈ 10⁶×(0.2/1.0)² = 4×10⁴ Hz = 40 kHz。對稱化後（c₀=0.02）降到 400 Hz。詳見下方習題 5 解答。"
+/>
+
 ### 習題 6（推導題）— Fourier 係數的頻率搬移意義
 
 對近 $n\omega_0$ 注入的單音 $i(\tau)=I_0\cos((n\omega_0+\Delta\omega)\tau)$，用積化和差
@@ -97,6 +106,14 @@ device 的 1/f corner $f_{1/f}=1$ MHz（即 $\omega_{1/f}=2\pi\times10^6$ rad/s�
 近似為「方波閘控」：$\alpha(\theta)=1$ 當 $\theta\in[0,\pi)$、$\alpha(\theta)=0$ 當 $\theta\in[\pi,2\pi)$。
 基礎 ISF 仍是 $\Gamma(\theta)=-\sin\theta$。求 effective ISF $\Gamma_{eff}=\Gamma\cdot\alpha$ 的
 $\Gamma_{eff,rms}$，並與全程導通的 $\Gamma_{rms}=1/\sqrt2$ 比較。
+
+<NumericQuiz
+  prompt="先自己算：半週閘控後 Γ_eff,rms = ？（Γ(θ)=−sinθ，α=1 於 [0,π)、0 於 [π,2π)）"
+  answer={0.5}
+  tol={0.02}
+  hint="Γ_eff,rms² = (1/2π)∫₀^π sin²θ dθ = (1/2π)(π/2) = 1/4。"
+  solutionNote="Γ_eff,rms = 1/2 = 0.5（比全程導通的 0.707 低 √2 倍，功率降一半）。詳見下方習題 7 解答。"
+/>
 
 ### 習題 8（設計反推題）— 由 $\mathcal{L}$ 反推 $\Gamma_{rms}/q_{max}$
 

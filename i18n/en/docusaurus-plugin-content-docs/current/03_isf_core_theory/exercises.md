@@ -86,6 +86,15 @@ and the device 1/f corner is $f_{1/f}=1$ MHz (i.e., $\omega_{1/f}=2\pi\times10^6
 Use [P1] Eq.(24) to estimate the $1/f^3$ corner frequency $\Delta f_{1/f^3}$ (with the $c_0/c_1$ approximation).
 If the circuit is made symmetric ($c_0\to0.02$), what does the corner become?
 
+<NumericQuiz
+  prompt="Try it yourself first: for the asymmetric case (c₀=0.2, c₁=1.0), the 1/f³ corner Δf ≈ ? (f_1/f = 1 MHz; answer in kHz)"
+  answer={40}
+  tol={0.02}
+  unit="kHz"
+  hint="Use the approximation Δf_1/f³ ≈ f_1/f·(c0/c1)²."
+  solutionNote="Δf_1/f³ ≈ 10⁶×(0.2/1.0)² = 4×10⁴ Hz = 40 kHz. Symmetrizing (c₀=0.02) drops it to 400 Hz. Details in the Exercise 5 solution below."
+/>
+
 ### Exercise 6 (derivation) — the frequency-translation meaning of the Fourier coefficients
 
 For a single tone injected near $n\omega_0$, $i(\tau)=I_0\cos((n\omega_0+\Delta\omega)\tau)$, use the product-to-sum identity
@@ -99,6 +108,14 @@ A certain noise source conducts only during one half-cycle of the waveform. Appr
 as square-wave gating: $\alpha(\theta)=1$ for $\theta\in[0,\pi)$, $\alpha(\theta)=0$ for $\theta\in[\pi,2\pi)$.
 The base ISF is still $\Gamma(\theta)=-\sin\theta$. Find $\Gamma_{eff,rms}$ of the effective ISF $\Gamma_{eff}=\Gamma\cdot\alpha$,
 and compare with the always-conducting case $\Gamma_{rms}=1/\sqrt2$.
+
+<NumericQuiz
+  prompt="Try it yourself first: after half-cycle gating, Γ_eff,rms = ? (Γ(θ)=−sinθ, α=1 on [0,π), 0 on [π,2π))"
+  answer={0.5}
+  tol={0.02}
+  hint="Γ_eff,rms² = (1/2π)∫₀^π sin²θ dθ = (1/2π)(π/2) = 1/4."
+  solutionNote="Γ_eff,rms = 1/2 = 0.5 (a factor of √2 below the always-conducting 0.707, i.e. half the power). Details in the Exercise 7 solution below."
+/>
 
 ### Exercise 8 (design back-calculation) — $\Gamma_{rms}/q_{max}$ from $\mathcal{L}$
 

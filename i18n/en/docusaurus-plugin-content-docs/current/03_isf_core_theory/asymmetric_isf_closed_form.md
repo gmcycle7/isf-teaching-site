@@ -41,7 +41,7 @@ the ISF for asymmetric rising and falling edges."* The figure plots $\Gamma(x)$ 
 | negative | $1/f'_{fall}$ (depth) | $2/f'_{fall}$ | falling edge |
 
 Here $f'_{rise}$, $f'_{fall}$ are the **maximum slopes of the normalized waveform** ($f(x)$ normalized
-to unit amplitude, $x=\omega_0\tau$) during the rising/falling edges (verbatim: *"where $f'_{rise}$ and
+to amplitude 1, $x=\omega_0\tau$) during the rising/falling edges (verbatim: *"where $f'_{rise}$ and
 $f'_{fall}$ are the maximum slope during the rising and falling edge, respectively"*, p.803).
 
 - **Unit check**: $x=\omega_0\tau$ is $[\text{rad/s}]\cdot[\text{s}]=[\text{rad}]$, and this site treats
@@ -218,7 +218,7 @@ $$
 > the [P2] Eq.(57) value as primary and quotes the [P1] Eq.(24)-convention value (=2×) alongside.
 
 **Interactive exploration**: the widget below lets you drag $N$, $A$, $\eta$, and $f_{1/f}$
-directly and watch $\Gamma_{rms}$, $c_0$, and the corner (from Eq.55–57) update live, alongside
+directly and watch $\Gamma_{rms}$, $c_0$, and the corner (from Eq.(55)–(57)) update live, alongside
 the Fig.18 triangular-lobe shape on the left and the corner-vs-$A$ V-shaped valley on the right
 (the analytic version of the [P2] Fig.17 measured bowl) with the current point marked:
 
@@ -241,8 +241,8 @@ Eq.(57) has three structural properties, each carrying a design message:
    larger 1/f³ noise corner. As a special case, if the rise and fall time are symmetric, A = 1, and the
    1/f³ corner approaches zero."*
 
-> **Reconciling with the "N-independence" conclusion**: [P2]'s main-text Eq.(23) says that at fixed
-> $f_0$ and power, phase noise in the **white-noise (1/f²) region** is approximately N-independent (see
+> **Reconciling with the "$N$-independence" conclusion**: [P2]'s main-text Eq.(23) says that at fixed
+> $f_0$ and power, phase noise in the **white-noise (1/f²) region** is approximately $N$-independent (see
 > the [paper_002 deep dive](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring) and
 > [lc_vs_ring](/06_design_insights/lc_vs_ring)). There is no contradiction: $N$ does not move the
 > **height** of the 1/f² region, but it pushes the 1/f³ **knee** toward lower frequency ($\propto1/N$).
@@ -305,8 +305,8 @@ $$
 
 - **Versus Example 1**: as $A$ worsens from 1.5 to 3, $\Gamma_{rms}$ only rises from 0.2428 to 0.3035
   (+25%, minor damage in the 1/f² region), but $c_0$ goes from $-0.1005$ to $-0.2513$ ($\times2.5$) and
-  the corner jumps from 42.86 kHz to 171.43 kHz (**$\times4.0$, printed by lab_33**; the ratio is
-  convention-free because the factor 2 multiplies and divides out). The height of the 1/f³ skirt
+  the corner jumps from 42.86 kHz to 171.43 kHz (**$\times4.0$, printed by lab_33**; the ratio does not
+  depend on the /2 vs /4 convention, because a factor of 2 multiplies and divides out equally). The height of the 1/f³ skirt
   $\propto c_0^2$ rises by $10\log_{10}(2.5^2)=+8.0$ dB.
 - **Versus the assumed example on [symmetry](/06_design_insights/symmetry)**: that page's illustrative
   $c_0=0.4$, $\Gamma_{rms}=0.5$ give a 320 kHz corner ([P1] Eq.(24) convention); this page computes the
@@ -318,7 +318,7 @@ $$
   tol={0.02}
   unit="×"
   hint="Only (1−A)²/(1−A+A²) in Eq.(57) depends on A: A=1.5 gives 0.25/1.75 = 1/7, A=3 gives 4/7."
-  solutionNote="The corner goes from 42.86 kHz → 171.43 kHz, ratio = (4/7)/(1/7) = 4.0 (printed by lab_33). Under the [P1] Eq.(24) convention both numbers double (85.71 → 342.86 kHz) and the ratio is still 4 — the convention factor cancels in the ratio."
+  solutionNote="The corner goes from 42.86 kHz → 171.43 kHz, ratio = (4/7)/(1/7) = 4.0 (printed by lab_33). Under the [P1] Eq.(24) convention both numbers double (×2, 85.71 → 342.86 kHz) and the ratio is still 4 — the convention factor cancels in the ratio."
 />
 
 ## Simulation verification: lab_33 (closed forms vs numeric integration)

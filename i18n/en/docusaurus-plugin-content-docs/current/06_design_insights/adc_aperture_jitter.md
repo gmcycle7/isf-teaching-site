@@ -3,6 +3,8 @@ title: "ADC aperture jitter: how clock jitter eats SNR and ENOB"
 description: "First-principles derivation of SNR_jitter = -20log10(2π f_in σ_t) and ENOB=(SNR-1.76)/6.02; an honest design table of SNR/ENOB at 1/2.5/5/10 GHz inputs using this site's canonical σ_t=447.9 fs; back-solving 10 ENOB @ 5 GHz to σ_t ≤ 25.4 fs; wiring up the full chain L(Δf)→σ_t→SNR (verified by the lab_30 simulation)."
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 # ADC aperture jitter: how clock jitter eats SNR and ENOB
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -256,6 +258,15 @@ import numpy as np
 print(-20*np.log10(2*np.pi*5e9*447.9e-15))            # -> 37.03
 print((-20*np.log10(2*np.pi*5e9*447.9e-15)-1.76)/6.02) # -> 5.86
 ```
+
+<NumericQuiz
+  prompt="Try it yourself first: at f_in = 5 GHz, σ_t = 447.9 fs, SNR_jitter = ? (answer in dB)"
+  answer={37.03}
+  tol={0.01}
+  unit="dB"
+  hint="SNR = −20·log₁₀(2π f_in σ_t); first find 2π f_in σ_t ≈ 1.407×10⁻² rad."
+  solutionNote="2π×5×10⁹×4.479×10⁻¹³ ≈ 1.407×10⁻² rad → SNR = −20×log₁₀(1.407×10⁻²) ≈ 37.03 dB (corresponding to ENOB ≈ 5.86 bit)."
+/>
 
 **Scaling intuition (reading the table as one straight line)**:
 

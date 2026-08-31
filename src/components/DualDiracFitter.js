@@ -307,7 +307,8 @@ export default function DualDiracFitter() {
               ? `(a) TJ histogram (N=${N_SAMPLES.toLocaleString()}, seeded) — double horn + Gaussian smear`
               : `(a) TJ 直方圖（N=${N_SAMPLES.toLocaleString()}，seeded）— 雙角＋高斯抹圓`}
           </div>
-          <svg viewBox={`0 0 ${QW} 150`} style={svgWrap}>
+          <svg viewBox={`0 0 ${QW} 150`} role="img" aria-label="TJ histogram: dual-Dirac double-horn plus Gaussian smear"
+               style={svgWrap}>
             <line x1={QPAD_L} y1={140} x2={QW - QPAD_R} y2={140} stroke={axisColor} strokeWidth="1" />
             {bins.counts.map((c, i) => {
               const bw = (QW - QPAD_L - QPAD_R) / HB;
@@ -331,7 +332,8 @@ export default function DualDiracFitter() {
           <div style={{fontSize: '0.8rem', opacity: 0.75, marginBottom: '0.2rem'}}>
             {isEn ? '(b) Q-scale bathtub tail — drag the fit-region buttons below' : '(b) Q-scale bathtub 尾巴 — 用下方按鈕拖動擬合區'}
           </div>
-          <svg viewBox={`0 0 ${QW} ${QH}`} style={svgWrap}>
+          <svg viewBox={`0 0 ${QW} ${QH}`} role="img" aria-label="Q-scale bathtub tail with shallow and deep dual-Dirac fit lines"
+               style={svgWrap}>
             <line x1={QPAD_L} y1={QH - QPAD_B} x2={QW - QPAD_R} y2={QH - QPAD_B} stroke={axisColor} strokeWidth="1" />
             <line x1={QPAD_L} y1={QPAD_T} x2={QPAD_L} y2={QH - QPAD_B} stroke={axisColor} strokeWidth="1" />
             {/* horizontal gridlines at Q^-1 for BER decades 1e-3, 1e-6, 1e-9, 1e-12 */}

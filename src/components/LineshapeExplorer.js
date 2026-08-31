@@ -366,7 +366,7 @@ export default function LineshapeExplorer() {
       </div>
 
       {smearedAway && (
-        <div style={{fontSize: '0.82rem', marginTop: '0.6rem', padding: '0.5rem 0.7rem',
+        <div role="status" aria-live="polite" style={{fontSize: '0.82rem', marginTop: '0.6rem', padding: '0.5rem 0.7rem',
           border: '1px dashed var(--ifm-color-emphasis-400)', borderRadius: '6px'}}>
           {isEn
             ? 'RBW ≫ FWHM_true: the flattening / near-Gaussian shoulder is smeared into the analyzer’s own resolution bell — you would read only a wide, featureless hump, not the true lineshape.'

@@ -220,7 +220,7 @@ The lab_19 figure above tells you the three slopes *a priori*. In practice, thou
 
 <AdevLiveExplorer />
 
-**Independent check of the estimator**: switching the generator to pure white FM (random-walk and flicker off) with $h_0=10^{-19}$ and running the same algorithm in Node over 200 re-seeds, the measured/theory ratio (against the closed form $h_0/2\tau$) at every octave falls in the range $0.94$–$1.00$ (worst at the largest $\tau$, where pairs are scarcest — exactly the effect described above); the log–log slope fitted to the 200-seed-averaged curve is $-0.508$ (theory: $\tau^{-1/2}$), and a single run with the default seed (1234) already gives a ratio of $0.993$ at the smallest $\tau$. The widget's "smallest τ measured/theory" readout is a live version of this same self-check.
+**Independent check of the estimator**: switching the generator to pure white FM (random-walk and flicker off) with $h_0=10^{-19}$ and running the same algorithm in Node over 200 re-seeds, the measured/theory ratio (against the closed form $h_0/2\tau$) at every octave of $\tau$ falls in the range $0.94$–$1.00$ (worst at the largest $\tau$, where pairs are scarcest — exactly the effect described above); the log–log slope fitted to the 200-seed-averaged curve is $-0.508$ (theory: $\tau^{-1/2}$), and a single run with the default seed (1234) already gives a ratio of $0.993$ at the smallest $\tau$. The widget's "smallest τ measured/theory" readout is a live version of this same self-check.
 
 ## Worked examples
 
@@ -451,7 +451,7 @@ which is exactly the standard white-PM prefactor (condition $2\pi f_h\tau\gg1$) 
 | **flicker FM** | $h_{-1}/f$ | dimensionless | $2\ln2\cdot h_{-1}$ ($\approx1.386\,h_{-1}$, floor) | — | **derived in-house** ($I_3=\ln2$) |
 | random-walk FM | $h_{-2}/f^{2}$ | $\text{Hz}$ | $\dfrac{2\pi^2}{3}\,h_{-2}\,\tau$ | — | **derived in-house** ($I_4=\pi/3$) |
 
-$f_h$ = high-frequency cutoff of the measurement system (Hz). The whole table agrees entry by entry with the standard tables of **IEEE Std 1139-2008** and **NIST SP 1065** (W. J. Riley, *Handbook of Frequency Stability Analysis*, 2008) (external literature, not among this site's five source PDFs); the flicker-FM, white-FM, and RW-FM rows and the white-PM prefactor have been derived on this page. Per-row unit self-check: every combination of the form $h_\alpha\,\text{Hz}^{(\alpha+1)}$ is dimensionless ✓ (e.g. RW FM: $\text{Hz}\times\text{s}$ ✓; flicker PM: $\text{Hz}^{-2}/\text{s}^2$ ✓).
+$f_h$ = high-frequency cutoff of the measurement system (Hz). The whole table agrees entry by entry with the standard tables of **IEEE Std 1139-2008** and **NIST SP 1065** (W. J. Riley, *Handbook of Frequency Stability Analysis*, 2008) (external literature, not among this site's 5 source PDFs); the flicker-FM, white-FM, and RW-FM rows and the white-PM prefactor have been derived on this page. Per-row unit self-check: every combination of the form $h_\alpha\,\text{Hz}^{(\alpha+1)}$ is dimensionless ✓ (e.g. RW FM: $\text{Hz}\times\text{s}$ ✓; flicker PM: $\text{Hz}^{-2}/\text{s}^2$ ✓).
 
 ### Example 3: computing the flicker floor from the canonical $1/f^3$ corner (with units)
 
@@ -547,12 +547,12 @@ lab_19 (`simulations/lab_19_allan.py`) has been extended to **verify absolute va
 ## Which papers / formulas this maps to
 
 - This page's ADEV definition, $\sigma_y^2=2\int S_y\sin^4(\pi f\tau)/(\pi f\tau)^2 df$, $S_y=(f^2/f_0^2)S_\phi$, and the slope table are all adopted verbatim from spec §11.2 "Allan variance / ADEV".
-- **External literature (not among the five downloaded source PDFs; supplied from standard references)**:
+- **External literature (not among the 5 downloaded source PDFs; supplied from standard references)**:
   - **[E1] D. W. Allan, "Statistics of Atomic Frequency Standards," Proc. IEEE, vol. 54, no. 2, pp. 221–230, Feb. 1966.** (the original ADEV proposal)
   - **IEEE Std 1139** ("IEEE Standard Definitions of Physical Quantities for Fundamental Frequency and Time Metrology—Random Instabilities") and **NIST Special Publication 1065** (W. Riley, "Handbook of Frequency Stability Analysis," 2008) — the standard references for the power-law slope table and the overlapping-ADEV estimator.
   - The above are **IEEE Std 1139-2008** (prior edition 1139-1999) and **NIST SP 1065** (W. J. Riley, *Handbook of Frequency Stability Analysis*, 2008); volume/issue and edition details have been verified.
 - Connection to this site's frequency-domain results: $S_\phi\sim1/f^2$ ([P1] Eq.(21) of [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)) ↔ white FM ↔ ADEV $\tau^{-1/2}$; $1/f^3$ ([P1] Eq.(23) of [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)) ↔ flicker FM ↔ ADEV $\tau^0$ floor.
-- **The complete prefactor table**: the whole table agrees with IEEE Std 1139-2008 and NIST SP 1065 (external literature, not among this site's five source PDFs); of it, **the flicker-FM $2\ln2$ ($I_3=\ln2$), the white-FM $h_0/2\tau$ ($I_2=\pi/4$), the RW-FM $\tfrac{2\pi^2}{3}h_{-2}\tau$ ($I_4=\pi/3$), and the white-PM prefactor are derived on this page**, using nothing beyond the Step-3 integral; the flicker-PM additive constant 1.038 is quoted from the standard. The corner $f_c=3.2$ kHz of Example 3 comes from [P1] Eq.(24) (Example F of [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)).
+- **The complete prefactor table**: the whole table agrees with IEEE Std 1139-2008 and NIST SP 1065 (external literature, not among this site's 5 source PDFs); of it, **the flicker-FM $2\ln2$ ($I_3=\ln2$), the white-FM $h_0/2\tau$ ($I_2=\pi/4$), the RW-FM $\tfrac{2\pi^2}{3}h_{-2}\tau$ ($I_4=\pi/3$), and the white-PM prefactor are derived on this page**, using nothing beyond the Step-3 integral; the flicker-PM additive constant 1.038 is quoted from the standard. The corner $f_c=3.2$ kHz of Example 3 comes from [P1] Eq.(24) (Example F of [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)).
 
 ## Key takeaways
 

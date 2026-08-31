@@ -48,11 +48,29 @@ $q_{max}=1$ pC、$S_i=3.2\times10^{-24}\ \text{A}^2/\text{Hz}$，代入 Eq.(21) 
 (a) 用 [P1] Eq.(24)（精確式 $\Delta\omega_{1/f^3}=\omega_{1/f}c_0^2/(2\Gamma_{rms}^2)$）求 $1/f^3$ corner $\Delta f_{1/f^3}$。
 (b) 若透過 rise/fall 對稱化把 $c_0$ 壓到 $0.05$，corner 變多少？要達 corner < 1 kHz，$c_0$ 最多多少？
 
+<NumericQuiz
+  prompt="先自己算 (a)：Δf_1/f³ = ？（Γ_rms=0.9，c₀=0.3，f_1/f=2 MHz；以 kHz 作答）"
+  answer={111.1}
+  tol={0.02}
+  unit="kHz"
+  hint="精確式 Δf_1/f³ = f_1/f · c0²/(2·Γ_rms²)。"
+  solutionNote="Δf_1/f³ = 2×10⁶×0.09/1.62 ≈ 1.111×10⁵ Hz = 111.1 kHz。詳見下方習題 2 解答。"
+/>
+
 ### 習題 3（比較題）— ring vs LC 的 $\Gamma_{rms}$ scaling
 
 (a) 用 [P2] Eq.(16) 的 scaling $\Gamma_{rms}\propto N^{-3/2}$，問把 ring 級數從 $N=5$ 加到 $N=15$，
 $\Gamma_{rms}$ 降幾倍？相位雜訊（$\propto\Gamma_{rms}^2$）改善幾 dB？
 (b) 一句話說明為何 LC 通常仍比 ring 乾淨（從 $\Gamma_{rms}$ 與 $q_{max}$ 兩個旋鈕談）。
+
+<NumericQuiz
+  prompt="先自己算 (a)：N 從 5 加到 15，相位雜訊改善多少 dB？（Γ_rms ∝ N⁻¹·⁵；以 dB 作答，含負號）"
+  answer={-14.31}
+  tol={0.01}
+  unit="dB"
+  hint="Γ_rms 比值 = (15/5)^(-1.5)；相位雜訊 ∝ Γ_rms²，改善 = 10·log₁₀(比值²)。"
+  solutionNote="比值 = 3^(-1.5) ≈ 0.1925 → 10·log₁₀(0.1925²) ≈ −14.31 dB。詳見下方習題 3 解答。"
+/>
 
 ### 習題 4（設計題）— PLL 最佳 loop BW（直覺 + 數值）
 

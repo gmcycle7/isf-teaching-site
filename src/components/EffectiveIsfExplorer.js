@@ -90,7 +90,7 @@ function Row({label, value, unit, min, max, step, onChange, fmt}) {
   );
 }
 
-function TraceSvg({xs, ys1, ys2, label1, label2, color1, color2, ymin, ymax, height}) {
+function TraceSvg({xs, ys1, ys2, label1, label2, color1, color2, ymin, ymax, height, ariaLabel}) {
   const W = 560, H = height || 130, PAD_L = 34, PAD_R = 10, PAD_T = 10, PAD_B = 18;
   const X = (u) => PAD_L + (u / TWO_PI) * (W - PAD_L - PAD_R);
   const Y = (v) => H - PAD_B - ((v - ymin) / (ymax - ymin)) * (H - PAD_T - PAD_B);
@@ -99,7 +99,8 @@ function TraceSvg({xs, ys1, ys2, label1, label2, color1, color2, ymin, ymax, hei
   const zeroY = Y(0);
   const axis = 'var(--ifm-color-emphasis-400)';
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{width: '100%', height: 'auto', display: 'block',
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={ariaLabel || `${label1}${label2 ? ' and ' + label2 : ''}`}
+         style={{width: '100%', height: 'auto', display: 'block',
          background: 'var(--ifm-background-color)', borderRadius: '6px', marginBottom: '0.35rem'}}>
       <line x1={PAD_L} y1={zeroY} x2={W - PAD_R} y2={zeroY} stroke={axis} strokeWidth="1" />
       <line x1={PAD_L} y1={PAD_T} x2={PAD_L} y2={H - PAD_B} stroke={axis} strokeWidth="1" />
@@ -178,10 +179,12 @@ export default function EffectiveIsfExplorer() {
       <TraceSvg xs={xs} ys1={gamma} ys2={alpha}
                 label1="Γ(x) = −sin x" label2="α(x) (NMF window)"
                 color1="var(--ifm-color-emphasis-700)" color2="#4098ff"
-                ymin={-1.15} ymax={1.15} height={120} />
+                ymin={-1.15} ymax={1.15} height={120}
+                ariaLabel="Fixed ISF Gamma(x) and the noise-modulating function alpha(x) window" />
       <TraceSvg xs={xs} ys1={gammaEff}
                 label1="Γ_eff(x) = Γ(x)·α(x)" color1="var(--ifm-color-primary)"
-                ymin={-1.15} ymax={1.15} height={120} />
+                ymin={-1.15} ymax={1.15} height={120}
+                ariaLabel="Effective ISF Gamma_eff(x), the product of Gamma(x) and alpha(x)" />
 
       <Row label={isEn ? 'Center phase θc' : '中心相位 θ_c'} value={centerDeg} unit="°" min={0} max={360} step={1}
            onChange={setCenterDeg} fmt={(v) => v.toFixed(0)} />

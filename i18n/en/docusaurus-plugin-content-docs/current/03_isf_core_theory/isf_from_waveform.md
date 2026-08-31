@@ -73,6 +73,12 @@ $$
 - **Unit check**: with all states as voltages, $[\Delta\vec X]=$ V and $\dot{\vec X}/|\dot{\vec X}|$ dimensionless → $l$ in V ✓ (a displacement carries the state's units).
 - **Hidden assumption #1**: the inner product requires all state components to share **one unit / one scale**. If the state mixes V and A (e.g., an LC's $v_C,i_L$) you must normalize first — and the choice of normalization changes the answer (see "failure conditions").
 
+The figure below replicates Fig. 29's state-space picture (left) and Fig. 30's three-method comparison (right — the Method C section refers back to it), computed on this site's van der Pol toy:
+
+![Conceptual replica of [P1] Fig. 29 and Fig. 30: left, an actually-integrated van der Pol μ=2.0 state-space trajectory (thick limit cycle, state vector, perturbation vector, re-converging trajectory and Δφ); right, the three ISF computation methods on μ=0.2 in the paper's monochrome style](/figures/p1_fig2930_replica.png)
+
+**Conceptual replica, not a digitization of the originals.** Left: corresponds to [P1] Fig. 29 (p.192), original caption verbatim: *"State-space trajectory of an $n$th-order oscillator."* — the original is an $n$-dimensional schematic hand drawing (no specific system); the replica instead **actually computes** a van der Pol (μ=2.0): thick line = limit cycle, thin line = the genuinely integrated re-converging trajectory after a kick $\Delta x=0.45$ on the $x$ axis (deliberately exaggerated for legibility), with $\Delta\phi$ marked as the same-time gap between the two trajectories and measured from late zero crossings as $-0.768$ rad ($-0.122$ cycles). Right: corresponds to [P1] Fig. 30 (p.193), original caption verbatim: *"ISF's obtained from different methods."*, original plot title *"Calculation of Impulse Sensitivity Function"* — the original's oscillator is not specified; the replica uses the same μ=0.2 vdP (the same machinery as the duel below), with the original's line styles: solid = 1st Method (A), dotted = 2nd Method (B), dashed = 3rd Method (C), and phase zero at the waveform minimum so the positive lobe precedes the negative one (the original's ordering). **Honest difference**: in the paper the 1st and 2nd methods nearly coincide and the dashed 3rd deviates (an $N$-identical-stage ring keeps Eq.(36)'s denominator constant); on this single-node vdP it is Methods B and C that nearly coincide (rms gap 0.134), while the impulse truth A departs near the waveform extrema (AM→PM, see the duel below). Numbers: $\Gamma_{rms}$ A/B/C $=0.7777$/$0.7097$/$0.6758$; rms $|B-A|=0.2365$, rms $|C-A|=0.3219$. Script: `simulations/fig_p1_fig2930_replica.py` (run with `PYTHONPATH=. python simulations/fig_p1_fig2930_replica.py`, about 1 s).
+
 ### Step 2: displacement ÷ speed = time shift — Eq. (32)
 
 A displacement $l$ along the trajectory is equivalent to a time shift of "$l$ divided by the speed
@@ -198,7 +204,8 @@ $$
 verdict (p.193, verbatim): *"Although this method is approximate, it is the easiest to use and allows a
 designer to rapidly develop important insights into the behavior of an oscillator."* [P1] Fig. 30
 (p.193, *"ISF's obtained from different methods"*) plots the three methods together; Method C (dashed)
-deviates in lobe height and detail but gets the shape right.
+deviates in lobe height and detail but gets the shape right (see the right half of the replica figure
+in Method B, Step 1, for its conceptual replica).
 
 - **It is the engine of this site's interactive tool**: [interactive tool 7, the IsfSandbox](/04_simulation_labs/interactive_calculator) (draw a waveform → see its ISF) uses precisely the [P2]-appendix variant of this slope approximation (each edge normalized by its own maximum slope, which is what lets rise/fall asymmetry produce $c_0\neq0$); this page is that widget's rigorous pedigree.
 - The ring closed form of [P2] App. B (Eqs.(52)–(55), $\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\,N^{-1.5}$, see [rms_isf](/03_isf_core_theory/rms_isf)) is essentially the result of integrating Method C's triangular ISF.

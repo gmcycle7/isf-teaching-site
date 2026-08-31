@@ -561,7 +561,7 @@ block of [P1] **all the way through, step by step**. Recommended order:
 |---|---|---|
 | Eq.(10)–(13) ISF and LTV phase response | [isf_definition](/03_isf_core_theory/isf_definition) | The full definition of the ISF; its $2\pi$ periodicity and dimensionlessness built up term by term |
 | Eq.(11) convolution form $\phi(t)=\frac{1}{q_{max}}\int\Gamma\,i_n\,d\tau$ | [convolution_derivation](/03_isf_core_theory/convolution_derivation) | From the impulse response $h_\phi(t,\tau)$ to the superposition integral with no skipped steps, incl. the LTV fingerprint |
-| Eq.(19)–(21) white noise $\to$ 1/f² phase noise | [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) | down-conversion, the factor-8 summation, the famous factor-of-2 SSB bookkeeping controversy |
+| Eq.(19)–(21) white noise $\to$ 1/f² phase noise | [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) | downconversion, the factor-8 summation, the famous factor-of-2 SSB bookkeeping controversy |
 | Eq.(22)–(24) flicker upconversion and the 1/f³ corner | [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion) | why only $c_0$ can upconvert; the complete algebra behind 1/f³ corner $\ne$ device corner |
 | "Use symmetry to suppress $c_0$" among the three design rules | [symmetry](/06_design_insights/symmetry) | how symmetry sets $c_0$, the design knobs, and the experimental cross-check with [P2] Fig. 17 |
 

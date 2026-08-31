@@ -5,9 +5,7 @@ description: Site-wide consistent symbols, units, and the symbol correspondence 
 
 # Unified Notation Table
 
-:::info β English translation
-This page is a **β (beta) English translation** of the Traditional-Chinese original at the same path. The zh-Hant version is authoritative. All mathematics, units, citations ([P1]–[P4]), and links are kept identical to the original.
-:::
+> **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
 Different papers write the same thing with different symbols. This page **unifies** them; every later chapter follows this table.
 If you encounter a different convention in one of the papers, come back here to cross-reference.

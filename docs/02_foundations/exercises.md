@@ -78,12 +78,30 @@ $f_1=10^3$ Hz 到 $f_2=10^6$ Hz 的相位變異 $\sigma_\phi^2$ 與 $\sigma_\phi
 說明兩者相位效果差多少，並一句話講清楚這「為什麼是 LTV 而不是 LTI」。
 取 $\Delta q=1$ fC、$q_{max}=1$ pC。
 
+<NumericQuiz
+  prompt="先自己算 (a)：在過零點 θ=π/2 注入時 Δφ_a = ？（Δq=1 fC，q_max=1 pC；以 mrad 作答，含正負號）"
+  answer={-1}
+  tol={0.02}
+  unit="mrad"
+  hint="Γ(π/2) = −sin(π/2) = −1；Δφ = Γ×Δq/q_max，Δq/q_max = 10⁻³。"
+  solutionNote="Δφ_a = (−1)×10⁻³ rad = −1 mrad。峰值 θ=0 處則 Δφ_b = 0（Γ=0）。詳見下方習題 5 解答。"
+/>
+
 ### 習題 6（設計反推題）— Lorentzian 線寬反推 phase diffusion
 
 某自由運轉振盪器量到的載波 3-dB 線寬（FWHM）$\Delta f_{3\mathrm{dB}}=1$ kHz。
 
 (a) 反推 phase diffusion 係數 $D$（rad²/s）。
 (b) 估計相位累積到變異 $\operatorname{Var}[\Delta\phi]=1\ \text{rad}^2$（相位「跑掉約 1 rad」、相干性大致瓦解）需要多久 $t$。
+
+<NumericQuiz
+  prompt="先自己算 (a)：反推 D = ？（Δf₃dB = 1 kHz；以 rad²/s 作答）"
+  answer={3141.6}
+  tol={0.02}
+  unit="rad²/s"
+  hint="Δf₃dB = D/π ⇒ D = π×Δf₃dB。"
+  solutionNote="D = π×10³ ≈ 3141.6 rad²/s。(b) t = 1/(2D) ≈ 159 µs。詳見下方習題 6 解答。"
+/>
 
 ### 習題 7（概念 + 斜率判讀題）— Allan deviation 斜率
 

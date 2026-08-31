@@ -3,6 +3,8 @@ title: "Clock-chain noise accounting: ×N, ÷N, PLL, buffer — a one-page looku
 description: "Rigorous derivations of the four clock-chain accounting rules — ×N multiplication +20logN (φ_out=Nφ_in), ÷N division −20logN (edge-picking), through a PLL (reference ×N² and lowpassed, VCO highpassed), and the additive noise floor of buffers/dividers (power addition) — plus a complete worked chain 100 MHz → ×50 PLL → 5 GHz → ÷2 → 2.5 GHz → buffer: per-stage L at 100 kHz and 10 MHz, the final 27.6 fs integrated jitter, and an honest brick-wall-accounting vs full type-II-shaping comparison."
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
 # Clock-chain noise accounting: ×N, ÷N, PLL, buffer — a one-page lookup table
@@ -137,6 +139,15 @@ $$
 ÷2 is $-20\log_{10}2=-6.02$ dB. **Physical meaning**: the same jitter in seconds, spread over a period $N$ times longer,
 is an angle $N$ times smaller. Perfectly symmetric with Rule 1: ×N then ÷N brings $\mathcal{L}$ back to where it started, and $\sigma_t$ (seconds) is unchanged throughout.
 
+<NumericQuiz
+  prompt="Try it yourself first: the change in L(f) from an ideal ÷2 divider = ? (answer in dB, include the sign)"
+  answer={-6.02}
+  tol={0.01}
+  unit="dB"
+  hint="ΔL = −20·log₁₀N, with N=2."
+  solutionNote="−20·log₁₀(2) ≈ −6.02 dB (perfectly symmetric with Rule 1's +20log₁₀N)."
+/>
+
 **Failure conditions (both matter)**:
 
 1. **Sampling foldover (aliasing)**: $\phi_{out}$ is defined only at the output edge instants — this is a system sampled at $\sim f_{out}$.
@@ -241,6 +252,15 @@ $\sigma_{t,add}=\sqrt{2\times3.16\times10^{-16}\times10^8}\,/(2\pi\times2.5\time
 =2.51\times10^{-4}/1.571\times10^{10}=16.0$ fs.
 **Dimension check**: $\sqrt{[\text{rad}^2/\text{Hz}]\cdot[\text{Hz}]}=[\text{rad}]$,
 $[\text{rad}]/[\text{rad/s}]=[\text{s}]$ ✓. (This 16.0 fs will reappear, unchanged, in the worked chain's breakdown below.)
+
+<NumericQuiz
+  prompt="Try it yourself first: with a flat buffer floor L_buf=−155 dBc/Hz, integration bandwidth B=100 MHz, f₀=2.5 GHz, σ_t,add = ? (answer in fs)"
+  answer={16.0}
+  tol={0.02}
+  unit="fs"
+  hint="σ_t,add = √(2·10^(L_buf/10)·B) / (2π f₀)."
+  solutionNote="√(2×3.16×10⁻¹⁶×10⁸)/(2π×2.5×10⁹) ≈ 16.0 fs (this number reappears in the worked chain's breakdown below)."
+/>
 
 The four rules' constants are first pinned down with a checkable Python block (the values after `# ->` are actual run output):
 

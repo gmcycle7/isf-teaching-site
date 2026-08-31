@@ -3,6 +3,8 @@ title: The Theoretical Ceiling of FOM
 description: From [P1] Eq.(21) and [P2] Eq.(23), derive "the FOM of any topology can be written as 173.8 − 10log10(F_eff) dB (300 K)"; verify that the reference constant 173.8 corresponds to 1·kT (not 2kT), the ring ceiling is 168.3 dB, the LC ceiling rises with Q, and quantify how many dB good published LC designs and ring designs each sit below their ceiling.
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
 # The Theoretical Ceiling of FOM
@@ -272,6 +274,15 @@ print(round(fom_lc_ceiling(10), 2))                   # -> 197.63 ([P1] Eq.(21) 
 print(round(fom_lc_ceiling(10) - 10*np.log10(2), 2))  # -> 194.62 (time-domain /2 convention; same physics, 3.01 dB lower)
 print(round(fom_lc_ceiling(20), 2))                   # -> 203.65
 ```
+
+<NumericQuiz
+  prompt="Try it yourself first: for an ideal LC with Q=20, F=1+γ (γ=2/3), Γ_rms²=0.5, η_P=1, the ceiling FOM_max = ? (300 K, [P1] /4 convention; answer in dB)"
+  answer={203.65}
+  tol={0.01}
+  unit="dB"
+  hint="FOM_max = C_ref − 10log₁₀(F·Γ_rms²/(2Q²·η_P)), with C_ref=173.83 dB."
+  solutionNote="F=5/3, Γ_rms²=0.5, Q=20 → the bracket = (5/3×0.5)/(2×400) ≈ 1.042×10⁻³ → FOM_max ≈ 173.83+29.82 ≈ 203.65 dB."
+/>
 
 > **Factor-of-2 discipline (which "2," which convention)**: this site records, in
 > [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise), that for the same example-B parameters,

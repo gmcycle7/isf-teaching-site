@@ -10,7 +10,7 @@ const W = 520, H = 200, PAD = 28;
 function Slider({label, value, min, max, step, onChange}) {
   return (
     <div style={{display: 'flex', alignItems: 'center', gap: '0.6rem', margin: '0.3rem 0', flexWrap: 'wrap'}}>
-      <label style={{flex: '0 0 3.2rem', fontSize: '0.9rem'}}>{label}</label>
+      <label style={{flex: '0 1 3.2rem', fontSize: '0.9rem'}}>{label}</label>
       <input type="range" min={min} max={max} step={step} value={value}
              onChange={(e) => onChange(parseFloat(e.target.value))} style={{flex: 1}} />
       <span style={{flex: '0 0 3.2rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums'}}>
@@ -59,7 +59,8 @@ export default function IsfFourierExplorer() {
   return (
     <div style={box}>
       <div style={{fontWeight: 600, marginBottom: '0.4rem'}}>ISF 傅立葉探索器（調 c₀–c₃ 看 Γ(θ) 與 1/f³ corner）</div>
-      <svg viewBox={`0 0 ${W} ${H}`} style={{width: '100%', height: 'auto', background: 'var(--ifm-background-color)', borderRadius: '6px'}}>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="ISF shape Gamma(theta) from Fourier coefficients c0-c3"
+           style={{width: '100%', height: 'auto', background: 'var(--ifm-background-color)', borderRadius: '6px'}}>
         <line x1={PAD} y1={H / 2} x2={W - PAD} y2={H / 2} stroke={axis} strokeWidth="1" />
         <line x1={PAD} y1={PAD} x2={PAD} y2={H - PAD} stroke={axis} strokeWidth="1" />
         <polyline points={poly} fill="none" stroke="var(--ifm-color-primary)" strokeWidth="2" />

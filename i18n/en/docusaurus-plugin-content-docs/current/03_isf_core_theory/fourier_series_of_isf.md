@@ -185,7 +185,7 @@ $$
 
 Absorbing the fixed phase $\theta_n$ into the origin recovers Eq.(16/17). **Conclusion**: the $n$-th Fourier coefficient $c_n$ really does take the noise near $n\omega_0$,
 "multiply it by $\tfrac12 c_n$ and collapse it to $\Delta\omega$" — this is the algebraic proof of frequency translation, matching the mixer picture below.
-(The same down-conversion integral is used again in [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
+(The same downconversion integral is used again in [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
 to accumulate the $1/f^2$ summation.)
 
 - **This is exactly the picture of [P1] Fig. 8 (p.183)**: noise is spread across the bands at $0,\omega_0,2\omega_0,\dots$;
@@ -378,7 +378,7 @@ print("Gamma_rms =", round(gamma_rms(theta, gamma),3))   # -> 0.8
 
 > **Example 2 (one harmonic's contribution to phase noise)**: with the ISF of Example 1, a small tone of amplitude $I_0=1\ \mu\text{A}$
 > is injected at $2\omega_0+\Delta\omega$ (i.e. near the **second harmonic**). Take $q_{max}=1$ pC and $\Delta f=1$ MHz ($\Delta\omega=2\pi\times10^6$ rad/s).
-> Find the phase-modulation amplitude and the relative single-sideband power this noise produces at offset $\Delta\omega$ from the carrier after down-conversion via $c_2$.
+> Find the phase-modulation amplitude and the relative single-sideband power this noise produces at offset $\Delta\omega$ from the carrier after downconversion via $c_2$.
 
 **Step-by-step substitution:**
 

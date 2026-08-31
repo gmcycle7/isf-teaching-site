@@ -1,11 +1,11 @@
 ---
-title: Python 環境與模擬程式庫 Python Environment
+title: Python Environment
 description: How to set up the environment (Python 3.12, numpy/scipy/matplotlib, CJK font Heiti TC), directory layout, running run_all_sims.py, an overview of the common module and its functions, and reproducibility via fixed rng seed.
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
-# Python 環境與模擬程式庫 Python Environment
+# Python Environment
 
 > **See also**: [notation](/00_overview/notation) (symbol conventions for function arguments), the simulation lab pages (e.g. [lab_01](/04_simulation_labs/lab_01_sinusoidal_oscillator)) reference the `common/` functions here | to regenerate all figures: `python scripts/run_all_sims.py`
 

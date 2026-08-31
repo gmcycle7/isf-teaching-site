@@ -3,6 +3,8 @@ title: FOM 的理論天花板
 description: 從 [P1] Eq.(21) 與 [P2] Eq.(23) 推導「任何拓樸的 FOM 都可寫成 173.8 − 10log10(F_eff) dB（300 K）」；驗證參考常數 173.8 對應 1·kT（不是 2kT）、ring 天花板 168.3 dB、LC 天花板隨 Q 上升，並量化好的 LC 發表設計與 ring 各距天花板幾 dB。
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 # FOM 的理論天花板
 
 > **先備**：[tank_swing](/06_design_insights/tank_swing)（FOM 定義與 phase-noise × power 取捨）、[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)（[P1] Eq.(21) 與 factor-of-2 慣例）、[lc_vs_ring](/06_design_insights/lc_vs_ring)（[P2] Eq.(23) ring FOM、$-91$ dBc/Hz 例）｜**接下來**：[real_oscillator_topologies](/06_design_insights/real_oscillator_topologies)、[pll_noise_budget](/06_design_insights/pll_noise_budget)
@@ -264,6 +266,15 @@ print(round(fom_lc_ceiling(10), 2))                   # -> 197.63 （[P1] Eq.(21
 print(round(fom_lc_ceiling(10) - 10*np.log10(2), 2))  # -> 194.62 （時域 /2 慣例；同物理，低 3.01 dB）
 print(round(fom_lc_ceiling(20), 2))                   # -> 203.65
 ```
+
+<NumericQuiz
+  prompt="先自己算：理想 LC、Q=20、F=1+γ（γ=2/3）、Γ_rms²=0.5、η_P=1 時的天花板 FOM_max = ？（300 K，[P1] /4 慣例；以 dB 作答）"
+  answer={203.65}
+  tol={0.01}
+  unit="dB"
+  hint="FOM_max = C_ref − 10log₁₀(F·Γ_rms²/(2Q²·η_P))，C_ref=173.83 dB。"
+  solutionNote="F=5/3、Γ_rms²=0.5、Q=20 → 括號內 = (5/3×0.5)/(2×400) ≈ 1.042×10⁻³ → FOM_max ≈ 173.83+29.82 ≈ 203.65 dB。"
+/>
 
 > **Factor-of-2 紀律（哪個 2、哪個慣例）**：本站在
 > [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) 記錄過：同一組例 B 參數，

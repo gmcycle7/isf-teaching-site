@@ -5,9 +5,7 @@ description: From the white current-noise PSD through ISF weighting and phase in
 
 # How White Noise Becomes 1/f² Phase Noise
 
-:::info β English translation
-This page is a **β (beta) English translation** of the Traditional-Chinese original at the same path. The zh-Hant version is authoritative. All equations, citations ([P1]–[P4]), links, code blocks, and numerical values are kept identical to the original.
-:::
+> **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
 > **Prerequisites**: [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) ($c_n$ folds noise near $n\omega_0$ back onto the carrier), [rms_isf](/03_isf_core_theory/rms_isf) ($\sum c_n^2=2\Gamma_{rms}^2$), [convolution_derivation](/03_isf_core_theory/convolution_derivation) (the phase integral), [stochastic_noise_basics](/02_foundations/stochastic_noise_basics) (white-noise PSD / Parseval).
 >
@@ -96,7 +94,7 @@ $$
 P_{SBC}(\Delta\omega)=10\log_{10}\!\left(\frac{I_0\,c_n}{4q_{max}\,\Delta\omega}\right)^2.
 $$
 
-### Step 3a (worked out explicitly): the down-conversion integral — the slow term survives, the fast term is averaged away
+### Step 3a (worked out explicitly): the downconversion integral — the slow term survives, the fast term is averaged away
 
 Eq.(16/17) above does not appear out of thin air; it is the algebraic result of "down-converting
 the noise near $n\omega_0$ to baseband". We now **work it out for you step by step** — this is exactly the intermediate step that the authoring spec (§10.2) requires.
@@ -148,7 +146,7 @@ $$
 $$
 
 Absorbing the time-independent phase $\theta_n$ into the time origin recovers [P1] Eq.(16/17) above, $\phi(t)\approx\dfrac{I_0 c_n\sin(\Delta\omega t)}{2q_{max}\Delta\omega}$.
-This down-conversion integral (spec §10.2) is the hard core of "the oscillator acting as a mixer": **noise near $n\omega_0$ is moved by the ISF's $n$-th harmonic
+This downconversion integral (spec §10.2) is the hard core of "the oscillator acting as a mixer": **noise near $n\omega_0$ is moved by the ISF's $n$-th harmonic
 to $\Delta\omega$ (the difference-frequency slow term survives), while the sum-frequency fast term at $2n\omega_0$ vanishes automatically.**
 
 - **Unit check**: $\dfrac{[\text{A}]\cdot(\text{dimensionless})}{[\text{C}]\cdot[\text{rad/s}]}=\dfrac{\text{A}}{\text{A}\cdot\text{s}}\cdot\text{s}\cdot\text{rad}^{-1}$ —
@@ -495,7 +493,7 @@ $$
 
 - **Feel for the number**: this is the theoretical floor for a "**single** ideal white-noise source", about $-148$ dBc/Hz @ 1 MHz. Real circuits have **multiple**
   noise sources (several transistors, tail, load), cyclostationary gating (see
-  [effective_isf](/03_isf_core_theory/effective_isf)), and close-in flicker up-conversion (see
+  [effective_isf](/03_isf_core_theory/effective_isf)), and close-in flicker upconversion (see
   [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)); actual values are **higher** (closer to 0).
 - **Cross-page consistency**: with the clean time-domain version ($/2$ instead of $/4$), the same parameters give $\approx-145.0$ dBc/Hz — exactly 3 dB apart
   ($10\log_{10}2$) — the numerical face of the factor-of-2 above.
@@ -689,7 +687,7 @@ $$
 
 **Result:** $\mathcal{L}_{total}(1\,\text{MHz})\approx-145.0\ \text{dBc/Hz}$.
 
-- **What just happened arithmetically**: A and B have equal power, so together they give exactly
+- **What just happened arithmetically**: $A$ and $B$ have equal power, so together they give exactly
   **twice the power** $\Rightarrow 10\log_{10}2\approx3.01$ dB, so $\mathcal{L}_{total}\approx\mathcal{L}_A+3.0\ \text{dB}=-148.0+3.0=-145.0$ dBc/Hz.
   Device B's contribution to the total noise, expressed as "how much worse than A alone," is
   **X = 3.0 dB** — not the 0 dB you'd wrongly conclude by reasoning that "$\Gamma_{eff,B,rms}$ is only half" and therefore negligible.

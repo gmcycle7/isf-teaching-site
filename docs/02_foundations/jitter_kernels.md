@@ -1,7 +1,9 @@
 ---
 title: Jitter 核的嚴格推導（TIE / N-period / cycle-to-cycle）
-description: 在「單邊 S_φ、∫₀^∞」單一慣例下，從 φ(t+NT)−φ(t) 一步步推出 TIE 核 1、period 核 4sin²(πfNT)、cycle-to-cycle 核 16sin⁴(πfT)；白噪 FM 封閉式精確回收 [P2] Eq.(8)/(11) 的 σ_Δφ=κ√(NT)；flicker 1/f³ 給含 log 項的封閉式；再合成 [P2] Fig.16 的兩段式 σ(Δt)=√(κ²Δt+ζ²Δt²)、corner Δt_c=κ²/ζ² 與頻域 1/f³ corner 的映射；lab_24 Monte-Carlo 驗證比值 ≈1.00，正式關閉 worked_examples 例 C3 的前置常數 TODO。
+description: 在「單邊 S_φ、∫₀^∞」單一慣例下，從 φ(t+NT)−φ(t) 一步步推出 TIE 核 1、period 核 4sin²(πfNT)、cycle-to-cycle 核 16sin⁴(πfT)；白噪 FM 封閉式精確回收 [P2] Eq.(8)/(11) 的 σ_Δφ=κ√(NT)；flicker 1/f³ 給含 log 項的封閉式；再合成 [P2] Fig.16 的兩段式 σ(Δt)=√(κ²Δt+ζ²Δt²)、corner Δt_c=κ²/ζ² 與頻域 1/f³ corner 的映射；lab_24 Monte-Carlo 驗證比值 ≈1.00，正式關閉 worked_examples 例 C3 的前置常數 TODO。新增「論文原生推導」節：[P2] Appendix A（Eq.(40)–(51)，p.802–803）逐字轉錄與逐因子對帳，時域自相關路與頻域核路重演同一顆 κ²ΔT。
 ---
+
+import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # Jitter 核的嚴格推導：TIE、N-period、cycle-to-cycle
 
@@ -355,6 +357,15 @@ $$
   $\sigma_P(1)=5.00\times10^{-6}/(2\pi\times5\times10^9)=0.159$ fs（週期的 0.8 ppm）；
   $N=10^4$ 時 $\sigma_{\Delta\phi}=0.50$ mrad、$\sigma_P=15.9$ fs——$\sqrt N$ 成長。
 
+<NumericQuiz
+  prompt="先自己算：canonical 振盪器（κ²=0.125 rad²/s，T=200 ps，f₀=5 GHz）的 period jitter σ_P(1) = ？（以 fs 作答）"
+  answer={0.159}
+  tol={0.02}
+  unit="fs"
+  hint="先算 σ_Δφ(1T)=√(κ²T)（rad），再除以 ω₀=2πf₀ 換成時間。"
+  solutionNote="σ_Δφ(1T)=√(0.125×2×10⁻¹⁰)=5.00 µrad → σ_P(1)=5.00×10⁻⁶/(2π×5×10⁹)≈0.159 fs（與 lab_24 MC 比值 0.999 吻合）。"
+/>
+
 ### 4.4 cycle-to-cycle 封閉式與 $\sqrt2$ 關係
 
 把同一條 $S_\phi$ 代入核 (c)，用 4.1 的 $\int\sin^4(ax)/x^2\,dx=\pi a/4$（$a=\pi T$）：
@@ -371,6 +382,15 @@ $$
 cycle-to-cycle jitter 的 Eq.(51) 是同一件事（該處同樣限定 phase noise 在 $1/f^2$ 區域）。
 若譜不是純 $1/f^2$（例如 flicker 主導），相鄰週期**相關**，$\sqrt2$ 不成立——這是判斷
 量測是否落在白噪區的快速體檢。
+
+<NumericQuiz
+  prompt="先自己算：canonical 振盪器 σ_P(1)=0.159 fs，白噪限定下 cycle-to-cycle σ_c2c = ？（以 fs 作答）"
+  answer={0.225}
+  tol={0.02}
+  unit="fs"
+  hint="σ_c2c = √2 × σ_P(1)（相鄰週期長度偏差獨立，方差相加）。"
+  solutionNote="σ_c2c = √2×0.159 ≈ 0.225 fs（與 lab_24 MC 0.2248 fs、理論 0.2251 fs 吻合，ratio 0.999）。"
+/>
 
 ### 4.5 實用推論：從 $\mathcal{L}$ 一步讀出 $\kappa$（注意是哪個慣例的 $\mathcal{L}$）
 
@@ -389,6 +409,207 @@ $\mathcal{L}=\tfrac12S_\phi$（時域 $/2$）慣例的數字——canonical 振�
 同一顆振盪器、同一條譜，**先問清楚 dBc/Hz 是哪種記帳再代公式**。
 
 - **dimension check**：$\text{Hz}\times\sqrt{1/\text{Hz}}=\sqrt{\text{Hz}}=1/\sqrt{\text{s}}$ ✓。
+
+## 論文原生推導：[P2] Appendix A（Eq.(11) 的紙上出處，逐字轉錄＋逐因子對帳）
+
+第 3、4 步是本站自己的推導；其實 [P2] 在 **Appendix A "Relationship Between
+Jitter and Phase Noise"** 把同一件事**用兩條路各走了一遍**——它**起於 p.802 右欄、
+收於 p.803 左欄**（p.803 右欄起是 Appendix B 的非對稱邊沿推導，別搞混）：
+Eq.(40)–(44) 是白噪時域路（＝本頁 4.2）、Eq.(45)–(49) 是自相關＋Khinchin 路
+（＝本頁路 A），末尾附兩條實用推論 Eq.(50)/(51)（＝本頁 4.5 與 4.4 的一週期版）。
+主文 p.793 明說 Eq.(11) 的出處就是這裡（"As shown in Appendix A, for
+$\Delta T\gg T$ or $\Delta T=nT$…"，緊接著給出
+$\sigma_{\Delta\phi}^2=\frac{\Gamma_{rms}^2\cdot\overline{i_n^2}/\Delta f}{2q_{max}^2}\Delta T$）。
+以下逐字轉錄自 p.802–803 的 PDF 渲染頁（放大核對），照排如實——包括印刷滑失。
+
+### A.1 白噪時域路：Eq.(40)–(44)（p.802 右欄）
+
+phase jitter 的定義（原文："The phase jitter is"）：
+
+$$
+\sigma_{\Delta\phi}^2=E\{\Delta\phi^2\}=E\big\{[\phi(t+\Delta T)-\phi(t)]^2\big\}
+\qquad(\text{[P2] Eq.(40), p.802})
+$$
+
+其中（把 [P1] 的 ISF 相位積分限截到觀測窗）：
+
+$$
+\Delta\phi=\int_0^{\Delta T}\frac{\Gamma(\omega_0\tau)}{q_{max}}\,i(\tau)\,d\tau.
+\qquad(\text{Eq.(41)})
+$$
+
+平方、期望與積分交換：
+
+$$
+\sigma_{\Delta\phi}^2=\frac{1}{q_{max}^2}\int_0^{\Delta T}\!\!\int_0^{\Delta T}
+\Gamma(\omega_0\tau_1)\,\Gamma(\omega_0\tau_2)\cdot E[i(\tau_1)i(\tau_2)]\,d\tau_1\,d\tau_2.
+\qquad(\text{Eq.(42)})
+$$
+
+白噪電流的自相關原文明寫為
+$R_{ii}(t_1,t_2)=(1/2)\big(\overline{i_n^2}/\Delta f\big)\delta(t_1-t_2)$，
+代入後雙重積分塌成單重：
+
+$$
+\sigma_{\Delta\phi}^2=\frac12\,\frac{\overline{i_n^2}/\Delta f}{q_{max}^2}
+\int_0^{\Delta T}\Gamma^2(\omega_0\tau)\,d\tau
+\qquad(\text{Eq.(43)})
+$$
+
+$$
+\sigma_{\Delta\phi}^2=\frac12\,\frac{\overline{i_n^2}/\Delta f}{q_{max}^2}\,
+\Gamma_{rms}^2\,\Delta T
+\quad\text{for}\quad\Delta T\gg T\ \text{or}\ \Delta T=mT.
+\qquad(\text{Eq.(44)})
+$$
+
+**Eq.(44) 字面就是主文 Eq.(11)**（p.793，僅排版不同），其係數
+$\tfrac12\,(\overline{i_n^2}/\Delta f)\,\Gamma_{rms}^2/q_{max}^2$ 正是本頁 4.2 的
+$\kappa^2$（$S_i\equiv\overline{i_n^2}/\Delta f$）——論文的時域路與 4.2
+**一個符號都不差**。
+
+### A.2 自相關＋Khinchin 路：Eq.(45)–(51)（p.803 左欄）
+
+論文接著換第二條路——開頭明說 timing jitter 是時間不確定度的標準差：
+
+$$
+\sigma_{\Delta\phi}^2=\frac{1}{\omega_0^2}E\big\{[\phi(t+\Delta T)-\phi(t)]^2\big\}
+=\frac{E[\phi^2(t)]}{\omega_0^2}+\frac{[\phi^2(t+\Delta T)]}{\omega_0^2}
+-\frac{E[\phi(t)\phi(t+\Delta T)]}{\omega_0^2}
+\qquad(\text{Eq.(45)，照排如此})
+$$
+
+$$
+R_\phi(\tau)=E[\phi(t)\phi(t+\Delta T)]
+\qquad(\text{Eq.(46)，照排如此})
+$$
+
+$$
+\sigma_{\Delta\phi}^2=\frac{2}{\omega_0^2}\big[R_\phi(0)-R_\phi(\Delta T)\big].
+\qquad(\text{Eq.(47)})
+$$
+
+$$
+R_\phi(\tau)=\int_{-\infty}^{\infty}S_\phi(f)\,e^{j2\pi f\tau}\,df
+\qquad(\text{Eq.(48)，Khinchin 定理})
+$$
+
+$$
+\sigma_{\Delta\phi}^2=\frac{8}{\omega_0^2}\int_0^{\infty}S_\phi(f)\sin^2(\pi f\tau)\,df.
+\qquad(\text{Eq.(49)})
+$$
+
+以及兩條白噪（$1/f^2$ 區）限定的實用推論——Eq.(50) 由主文 (6)+(12) 組合而得、
+Eq.(51) 再 "based on (8)"（即 $\sigma=\kappa\sqrt T$）接上；**都不是**由積分 (49) 而得：
+
+$$
+\kappa=\frac{\Delta f}{f_0}\cdot10^{-\mathcal{L}\{\Delta f\}/20}
+\qquad(\text{Eq.(50)})
+$$
+
+$$
+\sigma_{CTC}=\frac{f}{f_0^{1.5}}\cdot10^{-\mathcal{L}\{\Delta f\}/20}.
+\qquad(\text{Eq.(51)，照排如此})
+$$
+
+**照排聲明（渲染放大核對；符號重載與排印滑失都如實列出）**：
+
+1. **$\sigma_{\Delta\phi}^2$ 一符兩用**：Eq.(40)–(44) 的 LHS 是**相位** jitter（rad²）；
+   Eq.(45) 起 LHS 印的還是 $\sigma_{\Delta\phi}^2$，卻多了 $1/\omega_0^2$、原文也明說是
+   timing jitter——實為 $\sigma_{\Delta T}^2=\sigma_{\Delta\phi}^2/\omega_0^2$（s²，
+   即 Eq.(10) 的換算）。本頁把 $\sigma_{\Delta\phi}$ 與 $\sigma_{\Delta t}$ 分開命名，
+   就是為了拆掉這顆地雷。
+2. **Eq.(45) 展開行漏了兩個記號**：中項漏印 $E$、交叉項漏印係數 2（$[a-b]^2$ 的
+   交叉項是 $2ab$；平穩下前兩項合為 $2R_\phi(0)$，要落到 Eq.(47) 交叉項非
+   $2R_\phi(\Delta T)$ 不可）。Eq.(47) 本身印刷正確——滑失沒有傳染下去。
+3. **$\tau$ 與 $\Delta T$ 混用**：Eq.(46) LHS 寫 $R_\phi(\tau)$、RHS 用 $\Delta T$；
+   Eq.(49) 的核寫 $\sin^2(\pi f\tau)$，這個 $\tau$ 就是延遲 $\Delta T$。
+4. **Eq.(51) 分子印作 $f$**：由 Eq.(50) 的 $\kappa$（時間版）乘 $\sqrt T=f_0^{-0.5}$
+   得 $\sigma_{CTC}=\kappa\sqrt T$，分子應是 offset 頻率 $\Delta f$——印刷把
+   $\Delta$ 吃掉了（「對應的 paper / 公式」節的轉錄已同步標注）。
+5. Eq.(48) 的積分限 $\int_{-\infty}^{\infty}$ 宣告了此處 $S_\phi$ 是**雙邊**譜——
+   全文唯一洩漏慣例的地方，Eq.(49) 的 8 因此內建一顆記帳的 2（見下表）。
+
+### A.3 逐步對照：論文的兩條路 ↔ 本頁的推導
+
+| [P2] | 那一步在做什麼 | 本頁對應 | 因子對帳（對第 0 步表） |
+|---|---|---|---|
+| Eq.(40) | 定義相位 jitter | 第 2 步的一階差分 $P_k(N)$（相位語言） | — |
+| Eq.(41) | $\Delta\phi$＝ISF 加權的窗積分 | 4.2 引用的 [P1] Eq.(11)（積分限改成窗） | — |
+| Eq.(42) | 平方展開成雙重積分＋$E[i(\tau_1)i(\tau_2)]$ | 4.2 第一行（代入自相關前的一般式） | 對任意（非白）自相關都成立 |
+| Eq.(43) | 白噪 $R_{ii}=\tfrac12(\overline{i_n^2}/\Delta f)\delta$ 塌成單重積分 | 4.2 的 $R_i(\tau)=\tfrac{S_i}{2}\delta(\tau)$ | **同一顆 $\tfrac12$**：單邊 PSD ↔ 雙邊平坦位準 |
+| Eq.(44) | $\int\Gamma^2\to\Gamma_{rms}^2\Delta T$（$\Delta T\gg T$ 或 $=mT$） | 4.2 括號註「整數週期精確」＋4.3 的 $\kappa^2NT$ | Eq.(44)＝主文 Eq.(11)＝$\kappa^2\Delta T$ |
+| Eq.(45)–(47) | WSS 展開：差的變異數 $=2[R_\phi(0)-R_\phi(\Delta T)]$ | 路 A 第 1 步（同式） | **Eq.(47) 的 2**＝「差的變異數」的 2 |
+| Eq.(48) | Khinchin 定理（雙邊譜、$\int_{-\infty}^{\infty}$） | 路 A 第 2 步（單邊 cos 版） | $S_\phi^{DS}=S_\phi/2$ |
+| Eq.(49) | $\dfrac{8}{\omega_0^2}\displaystyle\int_0^\infty S_\phi^{DS}\sin^2(\pi f\tau)\,df$ | 核 (b) 的 $\dfrac{1}{\omega_0^2}\displaystyle\int_0^\infty S_\phi\,4\sin^2 df$ | **8＝2（雙邊→單邊）×4（差分核）**，$1/\omega_0^2$＝相位→時間——第 0 步表第二欄字面重現 |
+| Eq.(50) | 由主文 (6)+(12) 讀出 $\kappa\leftarrow\mathcal{L}$ | 4.5（負指數＝「低於載波 dB 數」讀法，v5 註） | 吃 $/2$ 慣例的 $\mathcal{L}$ |
+| Eq.(51) | $\sigma_{CTC}=\kappa\sqrt T$（一週期版） | 4.4 末註（相鄰差定義再乘 $\sqrt2$） | 印刷分子 $f$ 應讀 $\Delta f$ |
+
+### A.4 誰跳過了什麼（兩個方向都記帳）
+
+**[P2] 跳過、本頁補上的**：
+
+- **平穩性的 rigor gap**：Eq.(45)–(47) 需要 $R_\phi(0)$ 有限；自由振盪器的 $\phi$
+  是隨機漫步，$R_\phi(0)$ 發散（正是本頁路 A 開頭的坦白）。差
+  $R_\phi(0)-R_\phi(\Delta T)$ 有限、結論不受影響，但嚴格化要走本頁**路 B**
+  （只要求 $\nu=\dot\phi$ 平穩）——論文沒有處理這一步。
+- **慣例不聲明**：$S_\phi$ 單邊還是雙邊，全文沒有一句話；只有 Eq.(48) 的積分限
+  洩底。本頁第 0 步的三欄表就是把這件事攤開（v5 正是靠這個積分限反推，才把
+  「文獻 8 係數版」對上單邊 $4\sin^2$ 核）。
+- **兩條路在論文裡沒有互鎖**：Eq.(44) 停在時域、Eq.(49) 停在頻域；論文從未把
+  白噪譜代入 (49) 驗證會回到 (44)。本頁 4.1 的
+  $\int_0^\infty\sin^2(ax)/x^2\,dx=\pi a/2$ ＋ 4.3 的代入就是補上的閉環
+  （下方 code 把兩路各算一遍，同一個數）。
+- flicker $1/f^3$ 的時域封閉式（第 5 步的 log 式）與 c2c 的 $16\sin^4$ 核
+  （核 (c)；Eq.(51) 只是一週期版）論文都沒有給。
+
+**本頁帶過、[P2] 寫全的**：
+
+- **Eq.(42) 的一般雙重積分**：本頁 4.2 直接跳「白噪 δ 相關 ⇒ 單重積分」；論文把
+  $\Gamma(\omega_0\tau_1)\Gamma(\omega_0\tau_2)\,E[i(\tau_1)i(\tau_2)]$ 的一般式
+  明寫出來——那是任何色噪自相關都能接的起點，白噪只是特例。
+- **成立條件印在式子裡**：Eq.(44) 的 "for $\Delta T\gg T$ or $\Delta T=mT$" 把
+  「$\int\Gamma^2$ 換 $\Gamma_{rms}^2\Delta T$ 何時精確」印在等號旁；本頁 4.2 只在
+  括號裡帶過。短或非整數 $\Delta T$ 時有 $O(T/\Delta T)$ 級的 $\Gamma^2$ 漣漪殘差。
+
+### A.5 兩路重演白噪 FM 變異數（# -> 可驗證）
+
+```python
+import numpy as np
+from simulations.common.isf_utils import gamma_lc_ideal
+
+F0, T = 5e9, 2e-10
+W0 = 2 * np.pi * F0
+QMAX, SI, GRMS = 1e-12, 1e-24, 0.5      # canonical 參數
+N = 100
+DT = N * T                              # ΔT = mT（Eq.(44) 的成立條件）
+
+# 路線一：[P2] Appendix A 時域自相關路——Eq.(42) 代 R_ii=(S_i/2)δ 塌成 Eq.(43)
+tau = np.linspace(0.0, DT, 200 * N + 1)
+gam = np.sqrt(2.0) * GRMS * gamma_lc_ideal(W0 * tau)     # Γrms=0.5 的 LC 形 ISF
+var_43 = 0.5 * SI / QMAX**2 * np.trapezoid(gam**2, tau)  # Eq.(43) 數值積分
+var_44 = 0.5 * SI / QMAX**2 * GRMS**2 * DT               # Eq.(44) ＝主文 Eq.(11)
+print(f"{var_43:.4e}")            # -> 2.5000e-09 rad^2（Eq.(43)，σ²_Δφ @ N=100）
+print(f"{var_43/var_44:.4f}")     # -> 1.0000（ΔT=mT 時 ∫Γ² 精確 = Γrms²ΔT）
+
+# 路線二：本頁核路——單邊 S_φ=2κ²/(2πf)² 乘 4sin²(πfΔT) 核
+kappa2 = GRMS**2 / QMAX**2 * SI / 2                      # κ²=Γrms²S_i/(2q_max²)
+print(f"{kappa2:.4f}")            # -> 0.1250 rad^2/s（與 Eq.(44) 前置常數同一顆）
+x = np.linspace(1e-8, 1e4, 4_000_001)                    # x = fΔT
+core = np.trapezoid(np.sin(np.pi * x)**2 / x**2, x) + 0.5 / x[-1]  # 尾巴 sin²→1/2
+var_kernel = 2 * kappa2 * DT / np.pi**2 * core           # = κ²ΔT（4.3 節解析值）
+print(f"{var_kernel/var_43:.4f}") # -> 1.0000（頻域核 = Appendix A 自相關路，同一數）
+
+# 對帳 [P2] Eq.(49)：8/ω₀² × 雙邊譜 S_φ^DS=κ²/(2πf)²，LHS 是時間版變異數
+var_49 = 8 / W0**2 * (kappa2 * DT / 4 / np.pi**2) * core
+print(f"{var_49/(kappa2*DT/W0**2):.4f}")   # -> 1.0000（8 = 2(雙邊→單邊)×4(核)）
+print(f"{np.sqrt(var_49)*1e15:.2f} fs")    # -> 1.59 fs（σ_ΔT @ N=100 = √100×0.159 fs）
+```
+
+前兩個 print 走 [P2] Eq.(43)→(44)（時域自相關路），其餘四個走本頁核 (b) 與
+Eq.(49) 的雙邊記帳版——**同一顆振盪器、兩條路、同一個數
+$\kappa^2\Delta T=2.5\times10^{-9}\ \text{rad}^2$**。Appendix A 與本頁第 3/4 步
+是同一個定理的兩份證明；差別只在論文把慣例藏在積分限裡、本頁把它印在第 0 步。
 
 ## 第 5 步：flicker（$1/f^3$）的封閉式——log 項與它的誠實條件
 
@@ -750,11 +971,13 @@ $10^{10}$ Hz 以上尾巴（那裡核平均值 2、$1/f^2$ 譜仍有 ~5% 的變�
   best-fit vs Eq.(12)/(35) 理論值 $6.18/5.95/6.07\times10^{-9}\sqrt{\text{s}}$：p.801；
   slope-1 歸因 device 1/f：p.801 與 Section VI 結尾 pp.797–798；
   量測底噪扣除：Eq.(39), p.801。
-- jitter ← phase spectrum（自相關＋Khinchin 路線）：[P2] Eq.(46)–(49), p.803；白噪特例
+- jitter ← phase spectrum（自相關＋Khinchin 路線）：[P2] Eq.(46)–(49), p.803
+  （Appendix A 全文 Eq.(40)–(51) 起 p.802 右欄、收 p.803 左欄；逐字轉錄與逐因子
+  對帳見本頁「論文原生推導」節）；白噪特例
   $\kappa$←$\mathcal{L}$：Eq.(50), p.803；cycle-to-cycle「based on (8)」：Eq.(51), p.803
   （**此三式已於 v5 逐字核實**（p.803 渲染）：Eq.(49) $\sigma^2_{\Delta\phi}=\tfrac{8}{\omega_0^2}\int_0^\infty S_\phi\sin^2(\pi f\tau)df$（$S_\phi$ 依 Eq.(48) 為**雙邊**譜，故＝本頁單邊 $4\sin^2$ 核）；
   Eq.(50) $\kappa=\tfrac{\Delta f}{f_0}\cdot10^{-\mathcal{L}\{\Delta f\}/20}$——指數的負號表示論文把 $\mathcal{L}$ 讀成「低於載波的 dB 數」（正值）；以帶號 dBc 值代入應讀 $10^{\mathcal{L}/20}=\sqrt{\mathcal{L}_{lin}}$。數值互鎖：$-100$ dBc/Hz、$\Delta f=1$ MHz、$f_0=5$ GHz → $\kappa_t=2.0\times10^{-9}\ \sqrt{\text{s}}$，與本頁第 6 節完全一致 ✓；
-  Eq.(51) $\sigma_{CTC}=\tfrac{\Delta f}{f_0^{1.5}}\cdot10^{-\mathcal{L}\{\Delta f\}/20}$——**印刷式無 $\sqrt2$**：其 $\sigma_{CTC}=\kappa\sqrt{T}$ 是「一個週期的累積」（即本頁的 $\sigma_P$）；若取「相鄰週期差」定義（本頁 $16\sin^4$ 核）則再乘 $\sqrt2$。兩種定義並存於文獻，本頁已分開命名。）
+  Eq.(51) $\sigma_{CTC}=\tfrac{f}{f_0^{1.5}}\cdot10^{-\mathcal{L}\{\Delta f\}/20}$（照排——分子印作 $f$；由 Eq.(50)×$\sqrt T$ 的因次可知應讀 offset 頻率 $\Delta f$，$\Delta$ 為印刷遺漏，見「論文原生推導」節 A.2）——**印刷式無 $\sqrt2$**：其 $\sigma_{CTC}=\kappa\sqrt{T}$ 是「一個週期的累積」（即本頁的 $\sigma_P$）；若取「相鄰週期差」定義（本頁 $16\sin^4$ 核）則再乘 $\sqrt2$。兩種定義並存於文獻，本頁已分開命名。）
 - SSB $/4$ 慣例：[P1] Eq.(21), p.185（$-148$ dBc/Hz）；時域 $/2$ 慣例 $-145$ dBc/Hz：
   規範第 3 節 factor-of-2 註記。
 - 核的操作版與例 D：[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)；

@@ -5,8 +5,11 @@ description: 這次自動建置讀了哪些 PDF、產生了什麼、哪些成功
 
 # Build Report 建置報告
 
-本頁誠實記錄建置結果與限制。可用 `python scripts/check_site_quality.py` 隨時重新檢查。
+本頁誠實記錄建置結果與限制（**目前狀態**）。可用 `python scripts/check_site_quality.py` 隨時重新檢查。
 （注意：本頁刻意不在內文放裸的數學錢字號，以免被 Markdown 當公式處理。）
+
+> **想看逐版演進歷史？** 完整 v1→v8 版本紀錄（含每次稽核、修正事件、部署備註的詳細過程）
+> 已搬到獨立頁面 → **[Changelog 版本歷史](/00_overview/changelog)**。本頁只保留「現在的答案」。
 
 ## 1. 總共讀到幾篇 PDF？
 
@@ -30,212 +33,136 @@ description: 這次自動建置讀了哪些 PDF、產生了什麼、哪些成功
 ## 3. 哪些公式成功轉成 LaTeX？
 
 [P1]（general.pdf）的核心方程式 **Eq.(1),(9),(10),(11),(12),(13),(15)–(24)** 全部由
-**高解析度渲染頁面 → 人工逐條對照**轉成 LaTeX，逐字用於教學頁與 `extracted/*.json`。
-v2 另補上逐步代數展開（down-conversion 積分、factor-8 求和、L≈½S_φ 小角 PM、jitter 高通核、
-flicker 1/f³ corner、Parseval 三類項），以及兩個推導附錄（Floquet/PPV、Leeson↔ISF）。
+**高解析度渲染頁面 → 人工逐條對照**轉成 LaTeX，逐字用於教學頁與 `extracted/*.json`；
+另有逐步代數展開（down-conversion 積分、factor-8 求和、L≈½S_φ 小角 PM、jitter 高通核、
+flicker 1/f³ corner、Parseval 三類項）與兩個推導附錄（Floquet/PPV、Leeson↔ISF）。
+歷次擴充的細節見 [changelog](/00_overview/changelog)（v1、v2 條目）。
 
-## 4. 哪些公式需要 manual verification？
+## 4. 哪些公式現在的狀態是什麼（已核實 / 仍 TODO）？
 
-**[P2] ring 常數已於 v3 對照原始 PDF（高解析度渲染）逐字核實並更正，並於 v7 就 Eq.(16) 的根號範圍再次重核**：
-- Eq.(16)：$\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot\dfrac{1}{N^{1.5}}$ ⇒ $\Gamma_{rms}\propto N^{-3/2}$（$\Gamma_{rms}^2\propto N^{-3}$；根號只蓋常數 $2\pi^2/(3\eta^3)$，$N^{-1.5}$ 在根號外）。
-  [P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；正文「$1/N^{1.5}$ dependence of $\Gamma_{rms}$」、$\eta=0.75$ 時正文給出的 $\approx4/N^{1.5}$ 錨點（即 [P2] Fig.8 的實線）與 App.B Eq.(52)+(54) 的獨立代數三重驗證）。
-  **誠實歷史**：v1 原寫 $\Gamma_{rms}\propto N^{-3/2}$（正確）；v3 稽核誤把根號範圍看錯，「更正」成
-  $N^{-3/4}$ 並誤標「已核實」——與 FOM $8/(3\gamma)$ 事件同型的誤讀；v7 對照論文正文、$\eta=0.75$
-  數值錨與 App.B 三重交叉驗證後**修回** $N^{-3/2}$ 並記錄本次事件。
-- Eq.(23) FOM：$\mathcal{L}\approx\frac{8}{3\eta}\frac{kT}{P}\frac{V_{DD}}{V_{char}}(f_0/\Delta f)^2$。
-  前置係數是 $8/(3\eta)$（$\eta$ 為級延遲比例常數 Eq.(14)，$\approx 1$）；$\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入，並補回漏掉的 $V_{DD}/V_{char}$ 因子；$V_T=0$ 下限 Eq.(25) $\frac{16\gamma}{3\eta}$。
-  （v2 曾誤改為 $8/(3\gamma)$ 並誤標「逐字核實」，v3 已對照原始 PDF p.796 更正。）
-- Eq.(8)/(11)/(12)：$\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$（Eq.8，先前誤標 Eq.10）、$\kappa=(\Gamma_{rms}/q_{max})\sqrt{(\overline{i_n^2}/\Delta f)/2}$（Eq.12）。
-- Eq.(17)/(18) 每級雜訊 $4kT\gamma\mu C_{ox}(W/L)\Delta V$、Eq.(21) 功率 $P=2\eta N V_{DD}q_{max}f_0$ 皆已核實。
+**[P2] ring 常數**（Eq.16 Γrms 的 N-scaling、Eq.23 FOM 前置係數）與 **[P3]/[P4] injection & APF**
+公式（廣義 Adler Eq.(30)/(35)、APF Fig.5/Eq.(18)–(22)）**皆已對照原始 PDF 逐字核實**，目前站上
+的權威版本：
 
-**[P3]/[P4] injection & APF 公式也已於 v3 對照原始 PDF 逐字核實**：
-- **[P3]** Eq.(26) $\tilde\Gamma=\Gamma/q_{max}$；廣義 Adler Eq.(30),(33) $\frac{d\theta}{dt}=(\omega_0-\omega_{inj})+\Omega(\theta)$，
-  $\Omega(\theta)=\frac{1}{T_{osc}}\int\tilde\Gamma(\omega_0 t+\theta)i_{inj}dt$；正弦退化 Eq.(34)、lock range Eq.(35) $\omega_L=\frac12 I_{inj}|\tilde\Gamma_1|$。
-- **[P4]** amplitude decay $d(t,\phi)=e^{-t/\tau_0}$、$\tau_0=2Q/\omega_{osc}$（Sec. III-F p.2128 正文；Eq.(25) 本身是 $\Lambda=\tau_0\tilde\Lambda$）；Eq.(26) ideal-LC 基波
-  $\tilde\Gamma_1=\frac{1}{q_{max}}\angle90°$、$\tilde\Lambda_1=\frac{\tau_0}{q_{max}}\angle0°$（quadrature）；Eq.(27) amplitude-corrected Adler。
+- Eq.(16)：$\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot\dfrac{1}{N^{1.5}}$ ⇒ $\Gamma_{rms}\propto N^{-3/2}$（$\Gamma_{rms}^2\propto N^{-3}$；根號只蓋常數 $2\pi^2/(3\eta^3)$，$N^{-1.5}$ 在根號外）。[P2] Eq.(16), p.794。
+- Eq.(23) FOM：$\mathcal{L}\approx\frac{8}{3\eta}\frac{kT}{P}\frac{V_{DD}}{V_{char}}(f_0/\Delta f)^2$。前置係數是 $8/(3\eta)$（$\eta$ 為級延遲比例常數 Eq.(14)，$\approx 1$）；$\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入；$V_T=0$ 下限 Eq.(25) $\frac{16\gamma}{3\eta}$。
+- Eq.(8)/(11)/(12)：$\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$（Eq.8）、$\kappa=(\Gamma_{rms}/q_{max})\sqrt{(\overline{i_n^2}/\Delta f)/2}$（Eq.12）。
+- Eq.(17)/(18) 每級雜訊 $4kT\gamma\mu C_{ox}(W/L)\Delta V$、Eq.(21) 功率 $P=2\eta N V_{DD}q_{max}f_0$。
+- **[P3]** Eq.(26) $\tilde\Gamma=\Gamma/q_{max}$；廣義 Adler Eq.(30),(33)；lock range Eq.(35) $\omega_L=\frac12 I_{inj}|\tilde\Gamma_1|$。
+- **[P4]** amplitude decay $\tau_0=2Q/\omega_{osc}$；Eq.(26) ideal-LC 基波 quadrature；Eq.(27) amplitude-corrected Adler。
 
-以下仍標 ⚠️ / `TODO`（外部文獻或次要細節，非核心 ISF/injection 物理）：
+這些常數的**演變過程**（含兩次被抓到的誤讀、誰在哪一版修正）記錄在
+[changelog 的誠實三次誤讀事件摘要](#5-三次誤讀更正事件摘要)與
+[changelog](/00_overview/changelog) 的 v3/v4/v7 條目。
 
-- **外部文獻（不在 5 篇 PDF 內）**：Leeson 1966、Demir et al. 2000（PPV）、Kärtner 1990 的正式卷期／頁碼。
+以下仍標 ⚠️ / `TODO`（外部文獻或次要細節，非核心 ISF/injection 物理，刻意保留）：
+
+- **外部文獻（不在 5 篇 PDF 內）**：Leeson 1966、Demir et al. 2000（PPV）、Kärtner 1990 的正式卷期／頁碼（卷期／頁碼／公式記號已查證；period/cycle-to-cycle jitter 核已在 [jitter_kernels](/02_foundations/jitter_kernels) 自行從第一性推導＋Monte-Carlo 驗證，不再依賴外部慣例）。
 - **[P2]** Fig.17 對稱電壓圖的確切座標軸；**[P4]** dual-modulus prescaler 的級數分配細節（Sec. VIII）。
 - **[P5]**（sense amplifier，與 ISF 無關，刻意未轉錄）。
 - **[P4]** APF 的確切定義式與傅立葉展開（Sec. III-D, p.2127）；Fig. 3 子圖標題。
-- **外部文獻（不在 5 篇 PDF 內）**：Leeson 1966、Demir et al. 2000（PPV）、Kärtner 1990 ——
-  卷期／頁碼／公式記號已查證；period/cycle-to-cycle jitter 核已於 **v5** 在 [jitter_kernels](/02_foundations/jitter_kernels) **自行從第一性推導＋Monte-Carlo 驗證**（不再依賴外部慣例）。
-
-**v3 audit corrections（對照原始 PDF 的稽核更正）**：ring FOM 前置係數重新訂正為 $8/(3\eta)$（min $16\gamma/(3\eta)$，見上）；**[P4]** ISF/APF 圖由 Fig. 3 更正為 Fig. 5（p.2126）；citation 頁碼更正：**[P2]** Fig.17（對稱電壓圖）p.802、**[P4]** Sec. VIII p.2135、**[P1]** Fig.4 p.181、$f_0=1/(2N\tau_D)$ 改引 Eq.(15)；TODO 關閉：**[P1]** cyclostationary $i_n(t)=i_{n0}(t)\alpha(\omega_0 t)$、$\Gamma_{eff}=\Gamma\cdot\alpha$（Sec. II-D, Eq.(25)–(27), p.186）與廣義 Adler（**[P3]** Eq.(30)/(35)）皆已核實；另修 2 個程式 bug：lab_05 的 Parseval DC 項應以 $(c_0/2)^2$ 計入、`accumulated_jitter_curve` 呼叫缺 `f0`/誤用 `max_lag` 已修正。
 
 可用 `python scripts/check_site_quality.py` 掃出所有 `TODO:` 標記。
 
-## 5. 哪些圖是從 paper 重新產生的 conceptual simulation？
+## 5. 三次誤讀更正事件摘要
+
+本站曾發生 **3 次「稽核誤把已核實內容改錯、還誤標成已核實」的事件**，每次都靠回頭放大原始 PDF ×
+數值錨 × 獨立代數三重交叉驗證才抓回來：
+
+1. **ring FOM 前置係數**：v2 誤改 $8/(3\gamma)$（誤標「逐字核實」）→ v4 對照 PDF p.796 修回 $8/(3\eta)$。
+2. **Lorentzian 線寬的 D 映射**：v3 把方差成長率 κ² 誤當擴散常數 D → v5 用 MC＋解析擬合裁決修回 $D=\kappa^2/2$。
+3. **[P2] Eq.(16) Γrms 的 N-scaling**：v3 誤讀根號範圍、把 v1 原本正確的 $N^{-3/2}$「更正」成 $N^{-3/4}$ → v7 對照論文正文「$1/N^{1.5}$」用語、$\eta=0.75$ 數值錨、App.B 代數三重驗證後修回 $N^{-3/2}$。
+
+完整事件細節（含每次錯在哪、怎麼發現、修正後全站哪些頁面連動更新）見
+[changelog](/00_overview/changelog) 的 v2/v3、v4、v5、v7 條目。
+
+## 6. 哪些圖是從 paper 重新產生的 conceptual simulation？
 
 全部圖都是用 Python **重新產生的概念模擬**（非從 PDF 擷取點陣圖），重現 [P1]/[P2] 的機制。
 對應關係見 [figure_index](/01_paper_map/figure_index)。
 
-## 6. 哪些圖只是 toy model（非 transistor-level）？
+## 7. 哪些圖只是 toy model（非 transistor-level）？
 
 絕大多數為 toy / 概念模型（明確標註非 transistor-level）。少數純數學圖（jitter 積分、
 Leeson↔ISF 疊圖、設計掃描、PLL transfer、BER bathtub）為公式計算，與解析式一致。
 
-## 7. 哪些章節已經完整？
+## 8. 哪些章節已經完整？
 
-- **00 導覽 / 01 論文地圖 / 02 基礎 / 03 ISF 核心理論**（公式已驗證，v2 補逐步推導與例題）
-- **04 模擬實驗**：numerical_feeling、worked_examples 例題庫、互動工具（3 widget）、lab_01–lab_17
-- **05 逐篇精讀（5 篇）/ 06 設計直覺 / 99 附錄（含 Floquet-PPV、Leeson、HTM 推導）**
+全部 7 大章（00 導覽／01 論文地圖／02 基礎／03 ISF 核心理論／04 模擬實驗／05 逐篇精讀／
+06 設計直覺／99 附錄）皆已完整，公式已驗證、含逐步推導、worked example、互動 widget、
+習題（含完整解答）。內容範圍演進見 [changelog](/00_overview/changelog)。
 
-> **v3 深化（研究所等級）**：新增 **Lorentzian 線寬**（解 1/f² 在 Δf→0 發散矛盾）、
-> **Allan variance / ADEV**（時域頻率穩定度）、**嚴格頻譜推導**（cyclostationary 自相關→Wiener-Khinchin）、
-> **PLL 完整雜訊預算 + 最佳 loop BW**、**真實拓樸 ISF**（cross-coupled VCO tail 上轉、Colpitts、ring stage）、
-> **量測與 spur**、**LTV/HTM** 附錄、**Capstone**（ideal LC 從 state equations 一路到 BER）、
-> 以及 **02/03/06 三章成套習題（含完整解答）**。配 4 個新模擬（lab_18–21）。
+## 9. 哪些章節仍有 TODO？
 
-## 8. 哪些章節仍有 TODO？
+核心理論的 TODO 已全數關閉（見上方第 4 點）。剩下的 `TODO` 都是**刻意保留的「外部文獻範圍」
+標註**（如 period-jitter kernel 慣例出處、標準 LC-VCO 設計常識）與 transistor-level 排除聲明
+（見第 12 點 3–4），不影響核心理論正確性。可用 `python scripts/check_site_quality.py` 掃出所有
+`TODO:`。
 
-**v4 Deep 稽核（見 11c）已關掉絕大多數**：[P2] ring 常數（FOM `8/(3η)`、Γrms `Eq.16`）、
-[P3]/[P4] 的引用與頁碼（廣義 Adler `Eq.(30)/(35)`、APF `Fig.5`/`Eq.(18)–(22)`）、cyclostationary
-`[P1] Eq.(25)–(27)`、外部文獻 DOI，皆已對照原始 PDF 逐字核實。剩下的 `TODO` 多是**刻意保留的
-「外部文獻範圍」標註**（如 period-jitter kernel 慣例、標準 LC-VCO 設計常識）與 transistor-level
-排除聲明（見第 12 點 3–4），不影響核心理論正確性。可用 `python scripts/check_site_quality.py` 掃出所有 `TODO:`。
+## 10. `npm run build` 是否成功？
 
-## 9. `npm run build` 是否成功？
-
-**成功**（Docusaurus 3.10.1）。最新數字（v2）見本頁最後的「自動檢查結果」一節與
-`npm run build` 輸出：**0 broken links、0 KaTeX 警告**。數學渲染逐頁掃描通過
+**成功**（Docusaurus 3.10.1，雙語 zh+en）：**0 broken links、0 KaTeX 警告**。數學渲染逐頁掃描通過
 （無殘留原始 LaTeX、無 KaTeX parse error；程式碼區塊內的 matplotlib 錢字號屬正常）。
 
-歷史修正：曾修兩類渲染 bug——(a) 多行 display math 的圍欄未獨立成行，導致 micromark 連鎖
-吃掉後續公式（已用 normalizer 全站修正並設為固定流程）；(b) 數學內誤用 HTML 實體
-（gt/lt entity）→ 已改回數學用的大於/小於符號。
+歷史修正（渲染 bug 類）記錄在 [changelog](/00_overview/changelog) 的 v2 條目。
 
-## 10. `python scripts/run_all_sims.py` 是否成功？
+## 11. `python scripts/run_all_sims.py` 是否成功？
 
-**成功**：**36/36 通過（29 labs + 7 個 `fig_*` 腳本），產生 41 張圖**到 `static/figures/`（v4 再增 4 張概念圖：impulse ΔV 分解、HTM band-folding、device-noise→ISF bands、lock characteristic Ω(θ)）。關鍵驗證：
-Lorentzian 模擬頻譜吻合理論、近載波轉平；Allan deviation 三種 FM 斜率精準落在 −1/2、0、+1/2；
-PLL 最佳 loop BW≈6.9 MHz、σ_t≈259 fs。另：
-數值法萃取 ISF 與理論 −sinθ 最大誤差 ~0.001；白噪 S_φ 與 1/f² 線吻合約 3 個十倍頻；
-jitter 積分數值=解析（447.9 fs）。
+**成功**：**45 個模擬腳本（38 個 lab_* ＋ 7 個 fig_*）全數通過**，產生 52 張圖到
+`static/figures/`。關鍵驗證：Lorentzian 模擬頻譜吻合理論、近載波轉平；Allan deviation 三種
+FM 斜率精準落在 −1/2、0、+1/2；PLL 最佳 loop BW≈6.9 MHz、σ_t≈259 fs；數值法萃取 ISF 與理論
+−sinθ 最大誤差 ~0.001；白噪 S_φ 與 1/f² 線吻合約 3 個十倍頻；jitter 積分數值=解析（447.9 fs）。
 
-## 11. `check_site_quality.py` 檢查結果
+## 12. 現在的站點規模與例題 QA
 
-最新一次檢查的數字見終端輸出（pages / figures present / required figs missing /
-content issues / soft warnings / open TODOs / build）。v2 後品質腳本新增：8 張新必備圖、
-核心/設計頁「≥2 numeric example」軟性警告。
+**站點規模：90 頁 × 2 語系、52 圖、45 個模擬、20 個互動元件。**
 
-## 11b. 例題數值 QA（v3）
+`scripts/verify_examples.py` 把 docs 內每個有「標準答案」(`# ->`) 的 Python 例題實際跑一遍對數值：
+**144 個可驗證 block 中 133 個自動通過、0 個不符、0 個錯誤**；其餘為驗證器對註解裡的公式常數
+（如 $2\Gamma_{rms}^2$ 的「2」）或對照用數字的誤判，經人工確認正確。`check_site_quality.py`
+掃描：pages / figures present / required figs missing / content issues / soft warnings / open
+TODOs 的最新數字見終端輸出。
 
-新增 `scripts/verify_examples.py`：把 docs 內每個有「標準答案」(`# ->`) 的 Python 例題實際跑一遍對數值。**80 個可驗證 block 中 65 個自動通過、0 個錯誤**；其餘 14 個經人工確認正確（驗證器對註解裡的公式常數如 $2\Gamma_{rms}^2$ 的「2」、或對照用數字如「遠小於 447.9 fs」誤判）。過程修了真實 bug：`np.trapz`→`np.trapezoid`（NumPy 2.0）×3、壞掉的 `import`（補 `simulations/__init__.py` 使套件可匯入）、2 個寫錯的例題數值（effective_isf 的 $c_2$、PLL 最佳 BW 的 $S_{ref}$）。並修了 **dark-mode 圖**：matplotlib PNG 在深色模式加白底卡片（`.markdown img` CSS）。
+演進細節（每一版新增了什麼、什麼時候修了什麼 bug）見 [changelog](/00_overview/changelog)。
 
-## 11c. Deep 稽核改善流程（v4，研究式多-agent harness）
+## 誠實與 TODO 原則
 
-第四輪用「研究式多-agent harness」對全站做深度稽核與修正，分階段、每階段後跑 gate
-（`run_all_sims` + `verify_examples` + `check_site_quality` + `npm run build` + 數學掃描）：
+- toy model 一律標明「這是 pedagogical toy model，非 transistor-level」。
+- 來自外部文獻（PPV / adjoint / Floquet / Leeson / Demir）一律標「不在下載的 5 篇 PDF 內，
+  以標準文獻補充」。
+- 不確定的常數/figure/citation 一律寫 `TODO: manual verification needed ...`，不用猜的湊數字。
+- [P5] 一律誠實說明它是 sense amplifier 論文、與 ISF 無關，只當邊角概念橋樑。
+- 任何「稽核聲稱的更正」在套用到全站前，必須本人放大原始 PDF、比對數值錨、與獨立代數
+  三重驗證——本站有 3 次真實發生過的反例（見上方第 5 點），此原則不是紙上談兵。
+- 論文本身的印刷勘誤（如 [P2] Fig.16 的 ζ=2.5e5 應為 2.5e-5、[P1] p.191 的 "58.8 fF" 應為
+  fC）也誠實標注，不悄悄「校正」掉不提。
 
-1. **WF-1 多透鏡稽核**：7 個 lens（correctness / pedagogy / citation / consistency / completeness /
-   figure / code）＋逐頁深讀，產出 ~45 條結構化發現。
-2. **WF-2 PDF 引用驗證**：對每條引用發現**實際渲染原始 PDF 頁面逐字核對**（adversarial）。
-3. **WF-3 修正**：每頁一個 owner agent 套用統一校訂 spec；新增 **3 頁**（varactor 調諧／supply pushing、
-   quadrature／coupled-oscillator、tank Q 與能量回補）、**lab_22 端到端模擬**、**4 張概念圖**、
-   **3 個互動 widget**（injection-locking Adler、Allan deviation、PLL loop-BW），與全站導覽
-   （breadcrumb／延伸閱讀／goal-based landing）。
-4. **WF-4 + round-2/3 複審**：逐頁深讀抓回 round-1 殘留與新 bug，再修。
+## 下一步建議人工確認
 
-關鍵成果（皆對照原始 PDF 核實）：
-
-- **環形 FOM 前置係數 `8/(3γ)→8/(3η)` 再更正**（v2 曾誤改並誤標「逐字核實」；γ 僅透過
-  `V_char=ΔV/γ` 進入），worked 例題 `−89.2→−91.0 dBc/Hz`、與理想 LC 差 57 dB。
-- **`[P4]` ISF／APF 圖 `Fig.3→Fig.5, p.2126`**；APF 定義 Eq.(18)–(22)、理想 LC quadrature
-  Eq.(26) p.2128（非舊標的「Eq.25/26/27」）。
-- 引用頁碼／式號更正：`Fig.17 p.800→p.802`、`Sec.VIII p.1163→p.2135`、`Fig.4 p.182→p.181`、
-  `f₀=1/(2Nτ_D)` 引用 `Eq.(14)→Eq.(15)`（Eq.14 其實是正規化級延遲 `t̂_D`）。
-- 關掉可關的 TODO：cyclostationary `[P1] Eq.(25)–(27) p.186`、廣義 Adler `[P3] Eq.(30)/(35)`、
-  Γrms `Eq.(16) p.794`；統一「週期穩態（cyclostationary）」中文詞。
-- 程式 bug：lab_05 Parseval DC 重複計（`c₀²→c₀²/2`，修後 = `2Γ²rms`）、`accumulated_jitter_curve`
-  壞掉的呼叫簽章；lab_06/07/15 加數值一致性指標；lab_10/20 圖修正；`verify_examples` 收緊正規式。
-- **誠實擋下一個假修正**：稽核宣稱「κ Eq.(12) 漏了 ω₀」，放大原始 PDF p.793 確認 Eq.(12) 本來就
-  沒有 ω₀——κ√Δt 是**相位** jitter `σ_Δφ`（Eq.11），**時間** jitter 才 `÷ω₀`（Eq.10）；未亂改。
-- 外部文獻補上經 CrossRef 查證 DOI：Leeson 1966（10.1109/PROC.1966.4682）、Demir PPV 2000
-  （10.1109/81.847872）、Kärtner 1990（10.1002/cta.4490180505）、Adler 1946（10.1109/JRPROC.1946.229930）。
-
-**收斂（loop is dry）**：3 輪稽核所有實質發現皆已處理；`verify_examples` 88 個可驗證 block 中
-**73 通過、0 錯誤**，其餘 13 為驗證器對「公式常數／上下文數字／刻意留白習題」的誤判（人工確認正確）。
-最終站台規模 **74 頁、30 圖、25 模擬腳本、6 互動 widget**；最終 gate：build 綠燈、0 broken link、
-0 KaTeX error、0 內容問題、0 軟性警告。
-
-> **過程限制（誠實交代）**：WF-4 的平行 fix-agent 多次遇到 **Anthropic 端伺服器限流**（"not your
-> usage limit"，非帳號用量上限），故引用類與機械式修正改以 inline 直接完成並逐項驗證。
-
-## 11d. v5 理論深化波（12 項）＋一個被抓到的 factor-2
-
-**v5 新增 12 項理論單元**（8 新頁＋2 頁擴充＋9 個新 lab＋2 個 fig 腳本），每項都是「推導頁＋實跑模擬拿到數字才寫進頁面」：
-
-1. **[diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)**：κ↔D↔線寬↔ADEV↔S_φ 五件衣服一次對帳（lab_23 一次模擬、四路萃取同一個 0.125）。
-2. **[jitter_kernels](/02_foundations/jitter_kernels)**：TIE／period／cycle-to-cycle 核（4sin²、16sin⁴）第一性推導＋MC（理論/實測比 0.999–1.001）；白噪閉式精確重現 [P2] Eq.(8)。**關掉全站最後一個理論 TODO**。
-3. **Floquet/PPV 數值化**（[derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv) 擴充 + lab_25）：算 monodromy（μ₁=1.000000）、adjoint 萃取 v₁、與 impulse 法 ISF 疊圖 rms 0.0016——「PPV=ISF」從散文變成算出來的事實。
-4. **[injection_locking_noise](/06_design_insights/injection_locking_noise)**（lab_26/27）：鎖定＝一階 PLL（自身雜訊高通、reference 低通、corner=ω_L cosθ_ss）＋ pulling 的不對稱 beat 頻譜。
-5. **AM 雜訊完整譜**（[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) 擴充 + lab_28）：OU 過程 → 平頂 Lorentzian（corner=ω₀/2Q）。
-6. **[beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian)**（lab_29）：flicker 下線形偏離 Lorentzian（近 Gaussian core）＋「自由振盪器嚴格上沒有 S_φ」的非平穩性。
-7. **[adc_aperture_jitter](/06_design_insights/adc_aperture_jitter)**（lab_30）：SNR=−20log₁₀(2πf·σ_t) 推導＋447.9 fs 的 ENOB 表。
-8. **[dj_dual_dirac](/06_design_insights/dj_dual_dirac)**（lab_31）：dual-Dirac、TJ@BER、DJ_δδ≤DJ_pp 的誠實差異。
-9. **[clock_chain_budget](/06_design_insights/clock_chain_budget)**：×N/÷N/PLL/buffer 四條記帳規則＋整鏈 worked example。
-10. **[fom_limit](/06_design_insights/fom_limit)**：FOM 天花板 = 173.8−10log₁₀F_eff dB@300K（自算驗證，非記憶值）。
-
-> **v5 的 factor-2 戰果**：jitter_kernels 的 MC 交叉檢查抓到**規範 11.2 的 D 映射錯 2 倍**——v3 把方差成長率 κ²（[P2] Eq.11）誤當擴散常數 D 塞進 Δf=D/π。經 lab_23 與獨立 MC＋Lorentzian 擬合裁決（擬合 FWHM/κ²·2π=0.992），**全站修正**：D=Γ²rms·S_i/(4q²max)=κ²/2；代表值線寬 40→**19.9 mHz**、真 LC 80→**39.8 mHz**、−100 dBc/Hz 錨點 1257→**628 Hz**（lorentzian／capstone／lab_22／規範 11.2 同步更新）。scaling 與 −145/−148 dBc/Hz 均不受影響。
-
-## 11e. v6：互動、內容、英文版與門面（C+D 波）
-
-- **互動**：三章習題共 9 題即時作答（NumericQuiz）；isf_definition 的 **impulse→相位動畫**（切向/徑向分解、ghost 參考、Δφ 累積）；**ISF 沙盒**（拉波形→即時 c_n/Γrms/L/corner，slope 近似、正弦錨點 −145 dBc/Hz 驗證）；learning_path 進度打勾（localStorage）；7 本可下載 Jupyter notebooks（nbclient 全數執行驗證）。
-- **內容**：lab_32 **MOS Level-1 方程級 ring**（Shichman–Hodges，impulse 法萃取真 ISF；Parseval 1.7308 vs 1.7309；能量集中在 transition，符合 [P2]）；sampling/sub-sampling PLL、crystal/MEMS 參考源、**常見錯誤陳列室**（12 條全取材本站抓過的錯）。
-- **英文版 β**：en locale＋語言切換器＋UI 翻譯＋7 頁核心翻譯（其餘 fallback 中文）。
-- **門面/bug**：favicon＋logo＋og 社群卡；**手機水平捲動修復**（滑桿列 flexWrap，375px 實測歸零）；LICENSE（內容 CC BY-NC-SA 4.0／程式 MIT）；README、repo topics、editUrl。
-- **[P2] p.803 逐字核實**：Eq.(45)–(51) 轉錄；(49) 的 8 係數＝雙邊譜（與 jitter_kernels 單邊 4sin² 核精確等價）；(50) κ 數值互鎖 2.0×10⁻⁹√s；(51) 印刷無 √2（定義差異註明）。
-- **Lighthouse 基線**（線上站）：Performance 89 / Accessibility 93 / SEO 100。
-- 誠實不採用（量測後還原）：搜尋索引 zh-only（僅 −2%）、PNG 無損重編碼（+10%）。
-- 部署備註：雙語 build ~200MB，Pages 曾卡 "building" 35 分，`POST /pages/builds` 重建後 30 秒完成——大型部署卡住時用此招。
-
-## 11f. v7：[P2] Eq.(16) ring $\Gamma_{rms}$ 的 N-scaling 重核（根號範圍誤讀修正）
-
-**裁決**（三重證據鎖死，對照 p.794/p.803 高倍渲染親驗）：[P2] Eq.(16) 的正確讀法是根號**只蓋常數**，
-即 $\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot(1/N^{1.5})$，故 $\Gamma_{rms}\propto N^{-3/2}$（而非 v3 誤改的
-$N^{-3/4}$）。三重證據：(1) 論文正文明言「$1/N^{1.5}$ dependence of $\Gamma_{rms}$」；(2) $\eta=0.75$
-數值錨——正文給出 solid line $\approx4/N^{1.5}$，代入 $\sqrt{2\pi^2/(3\cdot0.75^3)}=3.95\approx4$ ✓（若
-$N^{1.5}$ 在根號內則得 $4/N^{0.75}$，與正文矛盾）；(3) App.B Eq.(52)+(54) 獨立代數推出
-$\Gamma_{rms}^2\propto N^{-3}$，與 $N^{-3/2}$ 一致。**歷史**：v1 原寫 $N^{-3/2}$（正確），v3 稽核把根號
-範圍看錯、誤改為 $N^{-3/4}$ 並誤標「已核實」，v7 對照原文修回並記錄本次事件（與 FOM $8/(3\gamma)$
-誤讀事件同型）。全站受影響頁面（real_oscillator_topologies、waveform_slope、references 等）已同步
-修正指數與相關數值（如 $N{=}5\to15$ 的比例由 $0.4387$／$-7.16$ dB 改為 $0.1925$／$-14.31$ dB）；
-Eq.(23) FOM 的 N-independence、$8/(3\eta)$、$\kappa$、Eq.(15) $f_0$、Eq.(17)/(18)/(21) 均不受影響。
-
-## 11g. v8：增補三波（A/B/C/D 全做）
-
-**23 個單元全數完成**（困難→fable、機械/互動→sonnet；每單元同步寫入英文版）：
-
-- **論文 verbatim（7）**：App.B 非對稱 ISF 閉式 Eq.(52)–(57)（lab_33，閉式 vs 數值 1.6e-9；corner∝1/N 新設計律；另抓到 [P1] Eq.24 vs [P2] Eq.7 的 DC 記帳 2× 差，兩頁誠實雙列）；[P1] 附錄三種 ISF 算法 Eq.(31)–(38)（三法對決；誠實揭露閉式法 O(μ) isochron-shear 誤差）；差動 ring 隨 N 變差（Eq.31–35, p.796）；[P3] 最佳注入波形 Eq.(43)–(45)（Cauchy–Schwarz，lab_39）；相關供電 N·f₀ 選擇律 Eq.(37)–(38)（lab_34）；[P4] M:N 次諧波鎖定 Eq.(28)–(30)（lab_37；c₂=0 不能 ÷2）；[P3] impulse-train 鎖定 Eq.(19)–(23)。
-- **推導/例題（5）**：Flicker ADEV floor＝√(2ln2·h₋₁)（∫sin⁴u/u³=ln2 嚴格證＋lab_19 驗絕對值）；[P2] Fig.16 兩段式 jitter（lab_24 Part 5；**發現論文印刷勘誤 ζ=2.5e5 應為 2.5e-5**，6× 放大驗證後誠實標注）；PLL peaking 閉式（ζ=0.707→2.09 dB @0.786fₙ）＋fractional-N ΔΣ 第三項；[P1] Sec.V 真矽 ring 全數字重演（**發現論文 p.191 "58.8 fF" 量綱勘誤應為 fC**）；大角度 Bessel 邊帶梯＋多源 superposition 例題。
-- **互動（8 新 widget，全部雙語）**：AsymmetricIsfExplorer（2646 組合掃描 0 NaN）、AdlerWashboard（washboard 位能＋cycle-slip 計數）、PullingSpectrumExplorer（內建 radix-2 FFT，ω_b 誤差 0.59%@r=1.5）、HtmFoldingExplorer、DualDiracFitter、EffectiveIsfExplorer、LineshapeExplorer（RBW 抹平）、AdevLiveExplorer（有限資料誤差棒）。
-- **新模擬（6）**：lab_33 非對稱 corner、lab_34 相關供電選擇律、lab_35 cross-correlation 量測（floor∝1/√M）、lab_36 鎖定捕獲＋Kramers 逃逸、lab_38 K_push 第一性（2.936 GHz/V，FM 邊帶比 1.002）、lab_39 最佳注入。
-
-站點規模：**90 頁×2 語系、52 圖、45 個模擬、20 個互動元件、144 個可驗證例題（133 自動通過、0 錯）**。
-
-## 12. 下一步建議人工確認
-
-1. ~~用原始 PDF 核對 [P2]/[P3]/[P4] 的確切常數與方程形式~~ → **v4 已完成**（見 11c：FOM、APF、
-   各 Fig／Eq 頁碼皆逐字核對原始 PDF）。
-2. ~~補外部文獻（Leeson、Demir PPV、Kärtner、Adler）的正式卷期／頁碼／DOI~~ → **v4 已完成**（見 11c）。
+1. ~~用原始 PDF 核對 [P2]/[P3]/[P4] 的確切常數與方程形式~~ → **已完成**（見上方第 4 點與
+   [changelog](/00_overview/changelog) v3/v4/v7）。
+2. ~~補外部文獻（Leeson、Demir PPV、Kärtner、Adler）的正式卷期／頁碼／DOI~~ → **已完成**
+   （見 [changelog](/00_overview/changelog) v4）。
 3. 若要 transistor-level 精度：用 Spectre PSS+PNoise/PXF 或 adjoint 法，從真實 LC-VCO /
    ring-VCO 萃取 ISF 與 cyclostationary α(x)，取代 toy 模型。（仍為刻意排除的範圍）
 4. 校準互動計算器與各 toy 模型的絕對數值到實際製程。
 
-## 13. 部署上線
+## 部署上線
 
 以 **GitHub Pages（project page）** 公開上線：
 
 - 網站：`https://gmcycle7.github.io/isf-teaching-site/`
 - 原始碼（public）：`https://github.com/gmcycle7/isf-teaching-site`
 - `baseUrl` 設為 `/isf-teaching-site/`；KaTeX CSS／字型經 webpack 打包（baseUrl-safe、完全離線）。
-- 部署機制：本機 `npm run build` 後將 `build/` 推到 `gh-pages` 分支（含 `.nojekyll`），Pages 由該分支供應；
-  每次更新重 build + force-push `gh-pages` 即可——已封裝成一鍵腳本 **`./scripts/deploy.sh`**（只需 `repo`
-  權限，不需 `workflow` scope）。
-- **版權處理**：5 篇論文**全文與 PDF 不入庫**（`.gitignore` 排除 `extracted/raw_text/` 與 `*.pdf`）；
-  footer 與各頁標註版權屬原作者，內容為教學用途。
+- 部署機制：本機 `npm run build` 後將 `build/` 推到 `gh-pages` 分支（含 `.nojekyll`），Pages 由該
+  分支供應；已封裝成一鍵腳本 **`./scripts/deploy.sh`**（只需 `repo` 權限，不需 `workflow` scope）。
+- **版權處理**：5 篇論文**全文與 PDF 不入庫**（`.gitignore` 排除 `extracted/raw_text/` 與
+  `*.pdf`）；footer 與各頁標註版權屬原作者，內容為教學用途。
 - CI（選配）：`.github/workflows/deploy.yml` 已備；需 token `workflow` 權限
   （`gh auth refresh -s workflow`）才能推送 workflow 檔，啟用 push-to-deploy 自動部署。
+
+部署過程中的個別事件（如大型部署卡住的排解方式）見 [changelog](/00_overview/changelog)。
+
+---
+
+> **完整版本歷史（v1→v8，含每次稽核與修正的詳細過程）** → **[Changelog 版本歷史](/00_overview/changelog)**

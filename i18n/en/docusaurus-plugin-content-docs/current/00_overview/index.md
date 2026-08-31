@@ -4,7 +4,7 @@ description: From paper to design intuition — home page of the Impulse Sensiti
 slug: /
 ---
 
-> 🌐 English translation (β). Most other pages are currently in Traditional Chinese — they will show in Chinese until translated.
+> **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
 # ISF and Oscillator Phase Noise: From Paper to Design Intuition
 

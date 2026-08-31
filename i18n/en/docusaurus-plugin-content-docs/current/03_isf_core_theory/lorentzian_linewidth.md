@@ -39,7 +39,7 @@ This page follows the complete step-by-step Lorentzian derivation of spec 11.2 t
 is **external literature**, corresponding mainly to **[E2] A. Demir, A. Mehrotra, and J. Roychowdhury,
 "Phase Noise in Oscillators: A Unifying Theory and Numerical Methods for Characterization,"
 IEEE Trans. Circuits Syst. I, vol. 47, no. 5, pp. 655–674, May 2000 (DOI: 10.1109/81.847872)**,
-**not among the five source PDFs downloaded on this site** (volume/issue/pages/DOI verified; see [E2] in [references](/99_appendix/references)).
+**not among the 5 source PDFs downloaded on this site** (volume/issue/pages/DOI verified; see [E2] in [references](/99_appendix/references)).
 [P1] itself obtains $1/f^2$ by linearization but never addresses the $\Delta\omega\to0$ divergence; the phase-diffusion
 model of Demir et al. is exactly the standard tool that fills that gap.
 
@@ -320,7 +320,7 @@ yourself how the "flattening" gets smeared away by the instrument's own resoluti
 
 **How to read it**: fix a single spec point $\mathcal{L}(10\,\text{kHz})$ and toggle white FM / flicker FM to see
 how different FWHM_true is (tens-to-hundreds of Hz for white FM versus thousands of Hz for flicker FM — up to a
-100× difference for the same number); then drag the RBW slider to the right and watch when the gray dashed curve
+hundredfold difference for the same number); then drag the RBW slider to the right and watch when the gray dashed curve
 (true lineshape) and the blue solid curve (RBW-convolved "measured" trace) part ways — once RBW is much larger
 than the linewidth, all you measure is a wide, featureless hump, and the flattening / near-Gaussian shoulder
 information is gone.
@@ -448,7 +448,7 @@ Full library: `simulations/common/noise_utils.py`, `simulations/lab_18_lorentzia
 
 ## Which papers / equations this corresponds to
 
-- **This page's mechanism (phase diffusion → exponential autocorrelation → Lorentzian → linewidth $D/\pi$) is external literature, not among the five source PDFs**:
+- **This page's mechanism (phase diffusion → exponential autocorrelation → Lorentzian → linewidth $D/\pi$) is external literature, not among the 5 source PDFs**:
   [E2] Demir–Mehrotra–Roychowdhury 2000 (DOI 10.1109/81.847872, see [references](/99_appendix/references)).
 - **The far-offset $1/f^2$ asymptote** and **the link $D=\Gamma_{rms}^2S_i/(4q_{max}^2)$** connect back to [P1] Eq.(21), p.185
   (see [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)).
@@ -469,7 +469,7 @@ Full library: `simulations/common/noise_utils.py`, `simulations/lab_18_lorentzia
   so linewidth $=\dfrac{\Gamma_{rms}^2}{4\pi q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}=\dfrac{\kappa^2}{2\pi}$ — the same knobs as $\mathcal{L}$ (v5-corrected mapping).
 - Canonical: 5 GHz, $-100$ dBc/Hz@1MHz → $D\approx1.97\times10^3\ \text{rad}^2/\text{s}$, linewidth $\approx628$ Hz;
   representative-value ISF example → $D=0.0625$, linewidth $\approx20$ mHz (true LC: $D=0.125$, $\approx40$ mHz).
-- The whole machinery is [E2] Demir 2000 external literature, not among the five source PDFs (DOI verified).
+- The whole machinery is [E2] Demir 2000 external literature, not among the 5 source PDFs (DOI verified).
 
 ## Further reading
 

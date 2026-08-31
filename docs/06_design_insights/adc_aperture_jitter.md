@@ -3,6 +3,8 @@ title: ADC aperture jitter：時脈 jitter 如何吃掉 SNR 與 ENOB
 description: 從第一原理推導 SNR_jitter = -20log10(2π f_in σ_t) 與 ENOB=(SNR-1.76)/6.02；用本站 canonical σ_t=447.9 fs 算出 1/2.5/5/10 GHz 輸入的 SNR/ENOB 設計表；反推 10 ENOB @ 5 GHz 需 σ_t ≤ 25.4 fs；把 L(Δf)→σ_t→SNR 整條鏈接起來（lab_30 模擬驗證）。
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 # ADC aperture jitter：時脈 jitter 如何吃掉 SNR 與 ENOB
 
 > 先備：[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)（$\mathcal{L}\to S_\phi\to\sigma_\phi\to\sigma_t$ 四步鏈）、[lab_08_jitter_integration](/04_simulation_labs/lab_08_jitter_integration)（447.9 fs 怎麼積出來）｜接下來：[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)、[exercises](/06_design_insights/exercises)
@@ -253,6 +255,15 @@ import numpy as np
 print(-20*np.log10(2*np.pi*5e9*447.9e-15))            # -> 37.03
 print((-20*np.log10(2*np.pi*5e9*447.9e-15)-1.76)/6.02) # -> 5.86
 ```
+
+<NumericQuiz
+  prompt="先自己算：f_in = 5 GHz、σ_t = 447.9 fs 時 SNR_jitter = ？（以 dB 作答）"
+  answer={37.03}
+  tol={0.01}
+  unit="dB"
+  hint="SNR = −20·log₁₀(2π f_in σ_t)；先算 2π f_in σ_t ≈ 1.407×10⁻² rad。"
+  solutionNote="2π×5×10⁹×4.479×10⁻¹³ ≈ 1.407×10⁻² rad → SNR = −20×log₁₀(1.407×10⁻²) ≈ 37.03 dB（對應 ENOB ≈ 5.86 bit）。"
+/>
 
 **scaling 手感（把表讀成一條直線）**：
 

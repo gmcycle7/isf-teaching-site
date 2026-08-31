@@ -329,7 +329,7 @@ export default function ImpulseAnimation() {
         <button type="button" style={btn} onClick={toggleRun}>{running ? (isEn ? 'Pause' : '暫停') : (isEn ? 'Play' : '播放')}</button>
         <button type="button" style={btn} onClick={reset}>{isEn ? 'Reset' : '重設'}</button>
       </div>
-      <div style={{fontSize: '0.82rem', opacity: 0.8, minHeight: '1.3em'}}>
+      <div role="status" aria-live="polite" style={{fontSize: '0.82rem', opacity: 0.8, minHeight: '1.3em'}}>
         {isEn
           ? (s.armed
               ? `Injection armed: Δq will fire when the dot reaches θ_inj = ${thetaInjDeg}° (Γ = ${gammaLive.toFixed(3)})`

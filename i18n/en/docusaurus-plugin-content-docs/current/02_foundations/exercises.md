@@ -82,12 +82,30 @@ and (b) at the waveform **peak** ($\theta=0$). Using $\Delta\phi=\Gamma(\theta)\
 show how much the two phase effects differ, and explain in one sentence why this is "LTV, not LTI".
 Take $\Delta q=1$ fC, $q_{max}=1$ pC.
 
+<NumericQuiz
+  prompt="Try (a) yourself first: at the zero-crossing θ=π/2, Δφ_a = ? (Δq=1 fC, q_max=1 pC; answer in mrad, include the sign)"
+  answer={-1}
+  tol={0.02}
+  unit="mrad"
+  hint="Γ(π/2) = −sin(π/2) = −1; Δφ = Γ×Δq/q_max, and Δq/q_max = 10⁻³."
+  solutionNote="Δφ_a = (−1)×10⁻³ rad = −1 mrad. At the peak θ=0, Δφ_b = 0 (Γ=0). Details in the Exercise 5 solution below."
+/>
+
 ### Exercise 6 (reverse design) — phase diffusion from the Lorentzian linewidth
 
 A free-running oscillator's measured carrier 3-dB linewidth (FWHM) is $\Delta f_{3\mathrm{dB}}=1$ kHz.
 
 (a) Back-solve the phase-diffusion coefficient $D$ (rad²/s).
 (b) Estimate how long $t$ it takes for the phase to accumulate a variance $\operatorname{Var}[\Delta\phi]=1\ \text{rad}^2$ (the phase has "wandered by about 1 rad" and coherence has largely collapsed).
+
+<NumericQuiz
+  prompt="Try (a) yourself first: back-solve D = ? (Δf₃dB = 1 kHz; answer in rad²/s)"
+  answer={3141.6}
+  tol={0.02}
+  unit="rad²/s"
+  hint="Δf₃dB = D/π ⇒ D = π×Δf₃dB."
+  solutionNote="D = π×10³ ≈ 3141.6 rad²/s. (b) t = 1/(2D) ≈ 159 µs. Details in the Exercise 6 solution below."
+/>
 
 ### Exercise 7 (concept + slope reading) — Allan deviation slopes
 

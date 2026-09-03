@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkisf_teaching_site=globalThis.webpackChunkisf_teaching_site||[]).push([[4737],{34737(e,i,s){s.d(i,{createPieServices:()=>a.f});var a=s(10532);s(69302)}}]);

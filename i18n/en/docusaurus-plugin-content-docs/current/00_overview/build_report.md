@@ -61,7 +61,7 @@ and in the v3/v4/v7 entries of the [changelog](/00_overview/changelog).
 The following remain flagged ⚠️ / `TODO` (external literature or secondary details, not core
 ISF/injection physics, deliberately retained):
 
-- **External literature (not among the five source PDFs)**: formal volume/issue/page numbers for Leeson 1966, Demir et al. 2000 (PPV), Kärtner 1990 (volume/issue/page numbers and equation notation have been checked; the period/cycle-to-cycle jitter kernels have been derived in-house from first principles and Monte-Carlo verified at [jitter_kernels](/02_foundations/jitter_kernels), no longer relying on external conventions).
+- **External literature (not among the 5 source PDFs)**: formal volume/issue/page numbers for Leeson 1966, Demir et al. 2000 (PPV), Kärtner 1990 (volume/issue/page numbers and equation notation have been checked; the period/cycle-to-cycle jitter kernels have been derived in-house from first principles and Monte-Carlo verified at [jitter_kernels](/02_foundations/jitter_kernels), no longer relying on external conventions).
 - **[P2]** exact axes of the Fig.17 symmetric-voltage plot; **[P4]** stage-allocation details of the dual-modulus prescaler (Sec. VIII).
 - **[P5]** (sense amplifier, unrelated to ISF, deliberately not transcribed).
 - **[P4]** exact defining equation and Fourier expansion of the APF (Sec. III-D, p.2127); Fig. 3 subplot captions.
@@ -140,7 +140,7 @@ See the [changelog](/00_overview/changelog) for evolution details (what was adde
 
 - Toy models are always flagged as "a pedagogical toy model, not transistor-level."
 - Content from external literature (PPV / adjoint / Floquet / Leeson / Demir) is always flagged as
-  "not among the five downloaded PDFs, supplemented from standard literature."
+  "not among the 5 downloaded PDFs, supplemented from standard literature."
 - Uncertain constants/figures/citations are always written as `TODO: manual verification needed ...`
   — never guessed to fill a gap.
 - [P5] is always honestly explained as a sense-amplifier paper unrelated to ISF, used only as a

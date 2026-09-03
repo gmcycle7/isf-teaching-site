@@ -1,6 +1,6 @@
 ---
 title: Tank Q and Energy Restoration
-description: "Derive the quality factor Q cleanly from the parallel RLC tank — three equivalent forms (R_p√(C/L), ω0 R_p C, R_p/(ω0 L)) and the energy definition Q = ω0 · stored energy / dissipated power; show that the active core must supply −R to cancel the tank loss R_p, and that this same R_p is the physical origin of the 4kT/R_p thermal-noise current; connect to phase noise (high Q → narrow band → steep phase slope) and to the Q↔Γrms/qmax correspondence, plus the practical ceiling on on-chip inductor Q. RLC/Q are standard textbook material (external, not among the five source PDFs)."
+description: "Derive the quality factor Q cleanly from the parallel RLC tank — three equivalent forms (R_p√(C/L), ω0 R_p C, R_p/(ω0 L)) and the energy definition Q = ω0 · stored energy / dissipated power; show that the active core must supply −R to cancel the tank loss R_p, and that this same R_p is the physical origin of the 4kT/R_p thermal-noise current; connect to phase noise (high Q → narrow band → steep phase slope) and to the Q↔Γrms/qmax correspondence, plus the practical ceiling on on-chip inductor Q. RLC/Q are standard textbook material (external, not among the 5 source PDFs)."
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -17,7 +17,7 @@ This page answers three questions:
 2. A real tank always has loss $R_p$, so the oscillation decays — how does the active core restore it with $-R$? And why is that cancelled $R_p$ precisely the source of the tank thermal noise $4kT/R_p$?
 3. How does $Q$ connect to phase noise? Why "high $Q$ → narrow band → steep phase slope → less noise per unit offset," and why is this the same thing as the ISF's $\Gamma_{rms}/q_{max}$?
 
-> **Honesty note (read first)**: this page's **RLC tank, definition of $Q$ with its three equivalent forms, and $4kTR$ thermal noise** are all **standard circuit-theory / microwave-engineering textbook material (external literature, not among the five source PDFs)** — e.g., Razavi, *RF Microelectronics*; Pozar, *Microwave Engineering*; Lee, *The Design of CMOS RFICs*. This site does not reinvent these constants; it only derives them cleanly and connects them to the verified ISF results within the five PDFs ([P1] Eq.(21), etc.). Every connection to [P1]/[P2] is tagged with paper id + equation.
+> **Honesty note (read first)**: this page's **RLC tank, definition of $Q$ with its three equivalent forms, and $4kTR$ thermal noise** are all **standard circuit-theory / microwave-engineering textbook material (external literature, not among the 5 source PDFs)** — e.g., Razavi, *RF Microelectronics*; Pozar, *Microwave Engineering*; Lee, *The Design of CMOS RFICs*. This site does not reinvent these constants; it only derives them cleanly and connects them to the verified ISF results within the 5 PDFs ([P1] Eq.(21), etc.). Every connection to [P1]/[P2] is tagged with paper id + equation.
 
 ## Step 1: the parallel RLC tank and the three equivalent forms of $Q$
 
@@ -172,14 +172,14 @@ $$
 $$
 
 - **Reading**: doubling $Q$ → phase noise improves by $10\log_{10}(2^2)=6.02$ dB. This is the **same inverse-square law** as [tank_swing](/06_design_insights/tank_swing)'s "double $q_{max}$ → −6 dB" — $Q$ and $q_{max}$ are two independent levers that each "pay off quadratically" toward low phase noise.
-- **Note**: the shaping expression $\big(\tfrac{\omega_0}{2Q\Delta\omega}\big)^2$ belongs to the Leeson model (**external literature, not among the five source PDFs**; see [derivation_leeson](/99_appendix/derivation_leeson)).
+- **Note**: the shaping expression $\big(\tfrac{\omega_0}{2Q\Delta\omega}\big)^2$ belongs to the Leeson model (**external literature, not among the 5 source PDFs**; see [derivation_leeson](/99_appendix/derivation_leeson)).
 
 **(c) Q ↔ Γrms/qmax equivalence (this site's core correspondence).** [derivation_leeson](/99_appendix/derivation_leeson) (Step 5, comparison table) asserts: Leeson's $\dfrac{1}{2Q}$ and the ISF's $\dfrac{\Gamma_{rms}}{q_{max}}$ describe **the same thing** — "the efficiency of converting tank/device noise into phase skirts." Putting the two $1/f^2$ results side by side makes it clear:
 
 | Model | $1/f^2$ phase skirt | "noise → phase" efficiency factor | Source |
 |---|---|---|---|
-| Leeson (external, not among the five PDFs) | $\propto\big(\dfrac{\omega_0}{2Q\,\Delta\omega}\big)^2$ | $\dfrac{1}{2Q}$ (high $Q$ → low efficiency → less noise) | [E1] Leeson 1966 |
-| ISF ([P1], within the five PDFs) | $\dfrac{\Gamma_{rms}^2}{q_{max}^2}\cdot\dfrac{\overline{i_n^2}/\Delta f}{4\Delta\omega^2}$ | $\dfrac{\Gamma_{rms}}{q_{max}}$ (small → less noise) | [P1] Eq.(21), p.185 |
+| Leeson (external, not among the 5 PDFs) | $\propto\big(\dfrac{\omega_0}{2Q\,\Delta\omega}\big)^2$ | $\dfrac{1}{2Q}$ (high $Q$ → low efficiency → less noise) | [E1] Leeson 1966 |
+| ISF ([P1], within the 5 PDFs) | $\dfrac{\Gamma_{rms}^2}{q_{max}^2}\cdot\dfrac{\overline{i_n^2}/\Delta f}{4\Delta\omega^2}$ | $\dfrac{\Gamma_{rms}}{q_{max}}$ (small → less noise) | [P1] Eq.(21), p.185 |
 
 The correspondence:
 
@@ -236,7 +236,7 @@ print(f"f0={w0/2/np.pi/1e9:.2f}GHz  Q={Q_1:.2f},{Q_2:.2f},{Q_3:.2f}  "
 # -> f0=5.00GHz  Q=9.99,9.99,9.99  BW=500MHz  in2=5.27e-23 A^2/Hz
 ```
 
-(The RLC/Q/thermal-noise formulas in this example are all standard textbook material — external, not among the five source PDFs; how $q_{max}$, $\Gamma_{rms}$, and Eq.(21) hook up is covered in [tank_swing](/06_design_insights/tank_swing) and [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise).)
+(The RLC/Q/thermal-noise formulas in this example are all standard textbook material — external, not among the 5 source PDFs; how $q_{max}$, $\Gamma_{rms}$, and Eq.(21) hook up is covered in [tank_swing](/06_design_insights/tank_swing) and [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise).)
 
 ## Step 5: the practical ceiling — on-chip inductor Q and parasitics
 
@@ -253,7 +253,7 @@ In theory you could keep raising $Q$ by making $R_p$ large, but in a silicon pro
 - **Design implication**: because on-chip $Q$ is stuck at ~10–20, LC-oscillator phase-noise improvements often come **not from raising $Q$ (there is little headroom) but from enlarging the swing to raise $q_{max}$** — exactly the theme of [tank_swing](/06_design_insights/tank_swing). The design knob "raising tank $Q$ is nearly-free swing" (at the same $I_{bias}$, larger $R_p$ → larger swing $\approx\tfrac{4}{\pi}I_{bias}R_p$) has its upper limit locked by this inductor-$Q$ ceiling.
 - **Why rings do not rely on $Q$**: a ring oscillator has no resonant tank at all (no $Q$); it uses the number of stages $N$ and per-stage current/swing as levers instead — another reason the ISF's $\Gamma_{rms}/q_{max}$ framework (which needs no $Q$) is more general than Leeson (see [lc_vs_ring](/06_design_insights/lc_vs_ring)).
 
-> **Honesty note**: this section's typical inductor-$Q$ values (5–20), skin/proximity effects, substrate loss, and varactor $Q$ are all **standard RFIC design knowledge (external, not among the five source PDFs; e.g., Lee, *CMOS RFICs*; Razavi, *RF Microelectronics*; Niknejad's inductor work)**. Exact numbers vary widely across process generations; only order-of-magnitude feel is given here. TODO: to cite a specific process's inductor-$Q$ curves, consult that process's documentation.
+> **Honesty note**: this section's typical inductor-$Q$ values (5–20), skin/proximity effects, substrate loss, and varactor $Q$ are all **standard RFIC design knowledge (external, not among the 5 source PDFs; e.g., Lee, *CMOS RFICs*; Razavi, *RF Microelectronics*; Niknejad's inductor work)**. Exact numbers vary widely across process generations; only order-of-magnitude feel is given here. TODO: to cite a specific process's inductor-$Q$ curves, consult that process's documentation.
 
 ## Applicability and failure conditions
 
@@ -271,11 +271,11 @@ In theory you could keep raising $Q$ by making $R_p$ large, but in a silicon pro
 - The energy definition $Q=\omega_0\,E_{stored}/P_{diss}$ agrees exactly with the above (substituting $v=V_p\cos\omega_0 t$ yields $\omega_0 R_p C$; $V_p^2$ cancels entirely).
 - Without an active core the energy decays as $\propto e^{-\omega_0 t/Q}$; the active core uses **$-R$ (negative conductance $G_m\ge1/R_p$) to cancel $R_p$'s energy loss**, but **cannot cancel $R_p$'s thermal noise**.
 - $R_p$ is the physical source of the tank thermal-noise current $4kT/R_p$ (single-sided PSD, A²/Hz); $R_p=Q\,R_0$, hence $4kT/R_p\propto 1/Q$.
-- $Q=\omega_0/\Delta\omega_{3\mathrm{dB}}$: high $Q$ → narrow band → steep phase slope $-2Q/\omega_0$ → frequency clamped → phase noise $\propto1/Q^2$ (−6 dB per doubling of $Q$; Leeson, external, not among the five source PDFs).
+- $Q=\omega_0/\Delta\omega_{3\mathrm{dB}}$: high $Q$ → narrow band → steep phase slope $-2Q/\omega_0$ → frequency clamped → phase noise $\propto1/Q^2$ (−6 dB per doubling of $Q$; Leeson, external, not among the 5 source PDFs).
 - **$Q\leftrightarrow\Gamma_{rms}/q_{max}$**: Leeson's $1/(2Q)$ and [P1] Eq.(21)'s $\Gamma_{rms}/q_{max}$ are the same "noise → phase" efficiency; high $Q$ = low $\Gamma_{rms}/q_{max}$ = low phase noise. The ISF version also holds for rings, which have no $Q$.
 - Example: $L=1$ nH, $C=1.013$ pF, $R_p=314\ \Omega$ → $f_0=5$ GHz, $Q=10$, $\Delta f_{3\mathrm{dB}}=500$ MHz, $4kT/R_p\approx5.3\times10^{-23}$ A²/Hz.
 - Practical ceiling: on-chip spiral-inductor $Q$ is only ~5–20 (metal $R_s$, skin/proximity, substrate loss, varactor), so LC phase-noise reduction usually shifts to enlarging the swing instead ([tank_swing](/06_design_insights/tank_swing)).
-- Sources: RLC/$Q$/$4kTR$ are standard textbook material (**external literature, not among the five source PDFs**); the $1/Q^2$ shaping is Leeson's (external); $\Gamma_{rms}/q_{max}$ and Eq.(21) are [P1] (within the five PDFs, verified verbatim).
+- Sources: RLC/$Q$/$4kTR$ are standard textbook material (**external literature, not among the 5 source PDFs**); the $1/Q^2$ shaping is Leeson's (external); $\Gamma_{rms}/q_{max}$ and Eq.(21) are [P1] (within the 5 PDFs, verified verbatim).
 
 ## Further reading
 

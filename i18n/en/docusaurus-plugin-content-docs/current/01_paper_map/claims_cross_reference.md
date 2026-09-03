@@ -32,7 +32,7 @@ whether it needs manual comparison against the PDF (`Verify?`), and **which page
 | **C10** The same ISF that determines phase noise also determines injection locking/pulling; a single first-order (generalized Adler) equation predicts lock range, locked phase, and stability. | [P3] (Hong Part I, 2019) Eq.(30), p.2113 / Eq.(35), p.2114 | high (equation verified) | No | [paper_003_injection_locking_part1](/05_paper_deep_dives/paper_003_injection_locking_part1), [equation_index](/01_paper_map/equation_index) |
 | **C11** Amplitude effects under injection are described by the **APF** (amplitude perturbation function, the amplitude analogue of the ISF, units $\mathrm{A^{-1}}$); in an ideal LC the ISF and APF are **orthogonal**. | [P4] (Hong Part II, 2019) Fig.5, p.2126; orthogonality Eq.(26), p.2128 | high (equation verified) | No | [paper_004_injection_locking_part2](/05_paper_deep_dives/paper_004_injection_locking_part2), [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) |
 | **C12** The cross-coupled-inverter sense-amplifier paper is **unrelated to ISF/phase noise**; the only conceptual link is the cross-coupled-pair regeneration/positive-feedback mechanism shared with latches/LC. | [P5] (Hajimiri–Heald, ISCAS 1998) | high (clearly off-topic by title/abstract) | No | [paper_005_sense_amplifier](/05_paper_deep_dives/paper_005_cross_coupled_sense_amp), [paper_summary_table](/01_paper_map/paper_summary_table), [build_report](/00_overview/build_report) |
-| **C13** PPV/adjoint/Floquet is the rigorous mathematical foundation of the ISF, coming from the broader literature (Demir 2000 DOI 10.1109/81.847872, Kärtner 1990 DOI 10.1002/cta.4490180505), **not among the five source PDFs**; citation volume/issue/page/DOI have been checked. | external (**not in the source folder**) | high (sourcing statement) | ✓ citation | [effective_isf](/03_isf_core_theory/effective_isf), [equation_index](/01_paper_map/equation_index), [references](/99_appendix/references) |
+| **C13** PPV/adjoint/Floquet is the rigorous mathematical foundation of the ISF, coming from the broader literature (Demir 2000 DOI 10.1109/81.847872, Kärtner 1990 DOI 10.1002/cta.4490180505), **not among the 5 source PDFs**; citation volume/issue/page/DOI have been checked. | external (**not in the source folder**) | high (sourcing statement) | ✓ citation | [effective_isf](/03_isf_core_theory/effective_isf), [equation_index](/01_paper_map/equation_index), [references](/99_appendix/references) |
 
 ## Claims consistent across papers (mutually corroborating, high confidence)
 
@@ -64,7 +64,7 @@ this site retains a `TODO:` marker:
   (If some pages on this site write a **minus** sign in front of the averaged term, that is because this site's $\Gamma$ uses the opposite sign convention to [P3]; numerically equivalent.)
 - **C11**: the APF is verified against [P4]: decomposition $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$ = Eq.(18), definition $\Delta(\phi):=\int_0^\infty D\,d\tau$ (units $\mathrm{A^{-1}}$) = Eq.(19), both on p.2126; ISF/APF orthogonality in an ideal LC = Eq.(26), p.2128.
 - **C13**: this is the **sourcing statement** itself — the point is to honestly flag PPV/adjoint/Floquet as **external literature**,
-  **not among the five source PDFs**; the citation volume/issue/page/DOI have been checked online (see references [E2]–[E4]).
+  **not among the 5 source PDFs**; the citation volume/issue/page/DOI have been checked online (see references [E2]–[E4]).
 
 > **Confidence vs Verify — the difference**: `high (equation verified)` (e.g. C3, C5, and the verbatim-verified
 > C7/C8/C10/C11 from v3) means the equation's LaTeX has been checked against the rendered pages and the original PDFs. C13's ✓ citation is a reminder
@@ -75,7 +75,7 @@ this site retains a `TODO:` marker:
 - All 13 teaching claims are filed against their source papers and confidence levels; C1–C12 are high confidence (C7/C8/C10/C11 verified verbatim in v3), only C13 carries ✓ citation (external literature — verify yourself).
 - **Cross-paper agreement**: C2 ([P1]+[P4]), C3↔C6 ([P1]+[P2] same ratio), C4/C5 ([P1] theory + [P2] measurement).
 - **Verified verbatim**: ring constants (C7/C8, [P2] Eq.(16)/(23)), injection/APF forms (C10 [P3] Eq.(30)/(35), C11 [P4] Eq.(18)/(19)/(26)); external-literature sourcing (C13) is verify-yourself.
-- PPV/adjoint/Floquet (C13) is **not among the five source PDFs** — external literature, honestly flagged.
+- PPV/adjoint/Floquet (C13) is **not among the 5 source PDFs** — external literature, honestly flagged.
 
 ## Further reading
 

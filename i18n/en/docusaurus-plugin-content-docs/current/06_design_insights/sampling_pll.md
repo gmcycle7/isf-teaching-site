@@ -9,7 +9,7 @@ import SubSamplingPllExplorer from "@site/src/components/SubSamplingPllExplorer"
 
 # Sampling / sub-sampling PLL — kicking the divider out of the loop
 
-> **Prerequisites**: [pll_noise_budget](/06_design_insights/pll_noise_budget) (the five-source budget, where the in-band floor $S_{ref}N^2+S_{cp}$ comes from), [clock_chain_budget](/06_design_insights/clock_chain_budget) (the $+20\log_{10}N$ bookkeeping for ×N, $\phi_{out}=N\phi_{in}$), [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter) (aperture math: sampling error = slope × timing error) ｜ **Next**: [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection), [exercises](/06_design_insights/exercises)
+> **Prerequisites**: [pll_noise_budget](/06_design_insights/pll_noise_budget) (the five-source budget, where the in-band floor $S_{ref}N^2+S_{cp}$ comes from), [clock_chain_budget](/06_design_insights/clock_chain_budget) (the $+20\log_{10}N$ bookkeeping for ×N, $\phi_{out}=N\phi_{in}$), [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter) (aperture math: sampling error = slope × timing error) | **Next**: [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection), [exercises](/06_design_insights/exercises)
 
 The conclusion of [pll_noise_budget](/06_design_insights/pll_noise_budget) was: for the classic
 charge-pump PLL, the **in-band floor is set jointly by reference$\times N^2$ and the

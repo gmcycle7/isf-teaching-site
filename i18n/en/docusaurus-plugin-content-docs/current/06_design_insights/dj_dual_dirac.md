@@ -102,7 +102,7 @@ $P(V\gt v)=Q\!\big(\tfrac{v-\mu}{\sigma}\big)$ — **the argument of $Q$ is alwa
 **Deep-tail asymptotic form (one integration by parts)**:
 
 $$
-Q(x)\approx\frac{e^{-x^2/2}}{x\sqrt{2\pi}}\quad(x\gg1,\ \text{相對誤差約}\ 1/x^2)
+Q(x)\approx\frac{e^{-x^2/2}}{x\sqrt{2\pi}}\quad(x\gg1,\ \text{relative error}\ \sim 1/x^2)
 $$
 
 Use it to estimate $Q(7.03)$ by hand: exponent $7.034^2/2=24.7$, $e^{-24.7}\approx1.8\times10^{-11}$,
@@ -163,7 +163,7 @@ With lab_31's numbers ($\mathrm{DJ}_{\delta\delta}=3.16$ ps, $\sigma=1.03$ ps, r
 this ratio is $\approx e^{-25.6}\approx8\times10^{-12}$ — completely negligible. So **the deep tail is just a single Gaussian with weight ½**:
 
 $$
-T_{\delta\delta}(x)\approx\frac12\,Q\!\Big(\frac{x-\mu}{\sigma}\Big)\qquad(x\ \text{在右深尾})
+T_{\delta\delta}(x)\approx\frac12\,Q\!\Big(\frac{x-\mu}{\sigma}\Big)\qquad(x\ \text{in the deep right tail})
 $$
 
 **The Q-scale straight line — the principle behind extracting $(\mathrm{DJ}_{\delta\delta},\sigma)$.** Invert the expression above:
@@ -223,7 +223,7 @@ $$
 At BER $=10^{-12}$, $\mathrm{TJ}=\mathrm{DJ}_{\delta\delta}+14.07\,\sigma$. Horizontal eye opening
 $=UI-\mathrm{TJ}(\mathrm{BER})$.
 
-- **Dimension check**: $[\text{s}]+[\text{無因次}]\times[\text{s}]=[\text{s}]$ ✓.
+- **Dimension check**: $[\text{s}]+[\text{dimensionless}]\times[\text{s}]=[\text{s}]$ ✓.
 - **Physical meaning**: the DJ part **does not change with BER** (bounded, eaten once); the RJ part grows slowly as $Q^{-1}$
   while the BER tightens ($10^{-12}\to10^{-15}$ only moves from $14.07\sigma$ to $15.88\sigma$ — the logarithmic
   growth of the Gaussian tail).
@@ -261,7 +261,7 @@ Because $u\le A$ and $Q$ is strictly decreasing, the integrand satisfies pointwi
 Split the integral into the right half ($u\gt0$, total mass ½) and the left half ($u\le0$, whose deep-tail contribution is smaller by another factor of $e^{-Ax/\sigma^2}$):
 
 $$
-T(x)\ \le\ \frac12\,Q\!\Big(\frac{x-A}{\sigma}\Big)+\underbrace{\frac12\,Q\!\Big(\frac{x}{\sigma}\Big)}_{\text{指數小}}
+T(x)\ \le\ \frac12\,Q\!\Big(\frac{x-A}{\sigma}\Big)+\underbrace{\frac12\,Q\!\Big(\frac{x}{\sigma}\Big)}_{\text{exponentially small}}
 $$
 
 Equality holds only when the entire right-half mass is concentrated at $u=A$ (i.e. a two-point distribution like DCD). Flip to the Q-scale:
@@ -379,7 +379,7 @@ $$
 \begin{aligned}
 \mathrm{TJ}&=\mathrm{DJ}_{\delta\delta}+2\,Q^{-1}(10^{-12})\,\sigma_t=3\ \text{ps}+14.07\times0.4479\ \text{ps}\\
 &=3\ \text{ps}+6.30\ \text{ps}=9.30\ \text{ps},\\[4pt]
-\text{eye 開度}&=UI-\mathrm{TJ}=100-9.30=90.7\ \text{ps}=0.907\ UI.
+\text{eye opening}&=UI-\mathrm{TJ}=100-9.30=90.7\ \text{ps}=0.907\ UI.
 \end{aligned}
 $$
 

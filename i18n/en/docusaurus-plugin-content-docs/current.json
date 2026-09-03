@@ -54,5 +54,17 @@
   "sidebar.mainSidebar.doc.Lab 17 — 設計掃描進階": {
     "message": "Lab 17 — Design Sweeps (Advanced)",
     "description": "The label for the doc item Lab 17 — 設計掃描進階 in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.振盪器設計 Oscillator design": {
+    "message": "Oscillator design",
+    "description": "06 sub-category"
+  },
+  "sidebar.mainSidebar.category.注入與頻率轉換 Injection & frequency conversion": {
+    "message": "Injection & frequency conversion",
+    "description": "06 sub-category"
+  },
+  "sidebar.mainSidebar.category.系統與量測 System & measurement": {
+    "message": "System & measurement",
+    "description": "06 sub-category"
   }
 }

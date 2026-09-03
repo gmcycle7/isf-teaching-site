@@ -7,7 +7,7 @@ description: 12 real, verifiable common mistakes in phase-noise / jitter work �
 
 # Common Mistakes Showroom: 12 Real-World Landmines
 
-> Prerequisites: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) · [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) ｜ Next: [exercises](/06_design_insights/exercises) · [cheat_sheet](/00_overview/cheat_sheet)
+> Prerequisites: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) · [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) | Next: [exercises](/06_design_insights/exercises) · [cheat_sheet](/00_overview/cheat_sheet)
 
 This page does not teach new formulas. It lays out 12 mistakes that **actually happen**
 in phase noise / jitter work and that cost you a factor of

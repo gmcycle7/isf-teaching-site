@@ -379,13 +379,13 @@ Hand-integrating with canonical formulas 18/19 ($\mathcal{L}\to S_\phi=2\times10
 
 $$
 \begin{aligned}
-\text{in-band 床:}\quad
+\text{in-band floor:}\quad
 \sigma_{\phi,1}^2&=2\times10^{-13.204}\times(10^6-10^4)=1.250\times10^{-13}\times9.9\times10^5
 =1.238\times10^{-7}\ \text{rad}^2,\\[2pt]
-\text{VCO 裙邊:}\quad
+\text{VCO skirt:}\quad
 \sigma_{\phi,2}^2&=2\times10^{-15.402}\,(10^6)^2\!\left(\frac{1}{10^6}-\frac{1}{10^8}\right)
 =7.9\times10^{-10}\ \text{rad}^2,\\[2pt]
-\text{buffer 床:}\quad
+\text{buffer floor:}\quad
 \sigma_{\phi,3}^2&=2\times10^{-15.5}\times(10^8-10^4)=6.32\times10^{-8}\ \text{rad}^2,\\[4pt]
 \sigma_\phi&=\sqrt{1.238\times10^{-7}+7.9\times10^{-10}+6.32\times10^{-8}}
 =4.33\times10^{-4}\ \text{rad},\\[2pt]

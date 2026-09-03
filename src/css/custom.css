@@ -68,3 +68,151 @@ blockquote {
     vertical-align: middle;
   }
 }
+
+/* ============================================================
+   B3: print / PDF friendliness (Cmd/Ctrl+P on any page — see the
+   printing hint blockquote in docs/00_overview/cheat_sheet.md).
+
+   Class names below are Docusaurus v3 *stable* theme classes
+   (.navbar, .theme-doc-sidebar-container, .theme-doc-toc-desktop/mobile,
+   .footer, .theme-doc-footer-edit-meta-row, .theme-back-to-top-button) —
+   not CSS-module hashes like `docItemCol_VOVn` — so this survives
+   rebuilds without needing to inspect build/ output again.
+   ============================================================ */
+@media print {
+  /* 1) Force the light palette regardless of the dark-mode toggle.
+     Every widget card in src/components/*.js (and Infima itself) paints
+     backgrounds/text via var(--ifm-color-emphasis-*) etc.; re-pointing the
+     variables here repaints the WHOLE page — prose, tables, widget cards —
+     to white-bg/dark-text in one place, even when printed straight out of
+     dark mode (values are Infima's own light-theme defaults). */
+  :root,
+  :root[data-theme='dark'] {
+    --ifm-background-color: #ffffff !important;
+    --ifm-background-surface-color: #ffffff !important;
+    --ifm-font-color-base: #1c1e21 !important;
+    --ifm-color-primary: #1f6feb !important;
+    --ifm-color-emphasis-0: #ffffff !important;
+    --ifm-color-emphasis-100: #f5f6f7 !important;
+    --ifm-color-emphasis-200: #ebedf0 !important;
+    --ifm-color-emphasis-300: #dadde1 !important;
+    --ifm-color-emphasis-400: #ccd0d5 !important;
+    --ifm-color-emphasis-500: #bec3c9 !important;
+    --ifm-color-emphasis-600: #8d949e !important;
+    --ifm-color-emphasis-700: #606770 !important;
+    --ifm-color-emphasis-800: #444950 !important;
+    --ifm-color-emphasis-900: #1c1e21 !important;
+    --ifm-color-emphasis-1000: #000000 !important;
+    --ifm-code-background: #f6f7f8 !important;
+  }
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  /* 2) Sensible print font: the site's own UI sans stack (CJK-capable),
+     sized for paper instead of a 16px screen viewport. */
+  body,
+  .markdown {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, 'Noto Sans TC', 'PingFang TC',
+      'Microsoft JhengHei', sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  /* 3) Chrome that means nothing on paper: navbar, sidebar, TOC (desktop
+     right-rail + mobile collapsible), footer, "edit this page" row, and
+     the floating back-to-top button (position:fixed — some browsers
+     repeat fixed elements on every printed page, so it must be killed
+     explicitly rather than left to "it's usually invisible"). */
+  .navbar,
+  .navbar-sidebar__backdrop,
+  .theme-doc-sidebar-container,
+  .theme-doc-toc-desktop,
+  .theme-doc-toc-mobile,
+  .footer,
+  .theme-doc-footer-edit-meta-row,
+  .theme-back-to-top-button {
+    display: none !important;
+  }
+
+  /* 4) Widget controls vs. widget output. The interactive *Explorer /
+     *Calculator components (src/components/*.js) are plain <div style=...>
+     wrappers with no shared class name, so target by input type instead:
+     sliders and buttons are genuinely inert once frozen on paper (a
+     stranded slider thumb or a "Randomize" button does nothing), so hide
+     them — the SVG plot they drove is left alone (still visible), and so
+     is each slider's own <label>/value readout, which now reads as a
+     plain-text record of the parameters behind that frozen plot.
+     Checkboxes and text inputs (ProgressChecklist, NumericQuiz) are left
+     alone on purpose: a browser prints those as real checked/unchecked
+     boxes or a blank fill-in box, which is meaningful on paper in a way a
+     dragged slider position is not. */
+  .markdown input[type='range'],
+  .markdown select,
+  .markdown button {
+    display: none !important;
+  }
+
+  /* 5) Code blocks: Prism's live light/dark theme is applied as literal
+     per-token inline `style="color:#…"` (see
+     node_modules/@docusaurus/theme-classic .../CodeBlock/Content/index.js —
+     it is NOT var()-driven), so the palette override in (1) cannot reach
+     it. Flatten explicitly to plain black-on-white so a dark-mode print
+     never renders a near-black, ink-heavy code block. */
+  .theme-code-block,
+  .theme-code-block pre,
+  .theme-code-block code,
+  .theme-code-block pre *,
+  .theme-code-block code * {
+    background: #ffffff !important;
+    color: #1c1e21 !important;
+    text-shadow: none !important;
+  }
+
+  /* 6) Don't split a formula, a table, or a figure across a page break. */
+  .katex-display,
+  .markdown table,
+  .markdown img {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .katex-display {
+    /* Nothing can be scrolled on paper — let an over-wide equation run
+       past the margin instead of silently clipping at the old
+       overflow-x:auto boundary. */
+    overflow-x: visible !important;
+  }
+
+  /* 7) External links: show the destination, since a printed page has no
+     hover/click. Internal cross-references (relative hrefs, or absolute
+     links back to this site's own domain) stay silent — repeating
+     "/isf-teaching-site/…" after every in-site link would be noise, not
+     help. */
+  .markdown a[href^='http']:not([href*='gmcycle7.github.io'])::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+    font-weight: normal;
+    word-break: break-all;
+  }
+
+  /* 8) <details>/<summary> exercise answers (e.g. 02_foundations/exercises.md,
+     04_simulation_labs/final_exam.md): a *closed* <details> cannot be
+     force-opened from pure CSS — its content is UA-hidden, not merely
+     display:none, so no selector here can reveal it. Keep the <summary>
+     question visible (default browser behavior already does this) and say
+     so explicitly, rather than silently printing a page of blank collapsed
+     answers. */
+  .markdown details > summary::after {
+    content: '（列印/存 PDF 時，收合的內容不會自動展開；如需完整解答，請先在瀏覽器中點開每個 ▸，再列印。）';
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--ifm-color-emphasis-700);
+  }
+  html[lang='en'] .markdown details > summary::after {
+    content: '(Collapsed sections stay collapsed when printing — expand each ▸ in the browser first if you need the full printed answer.)';
+  }
+}

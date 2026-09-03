@@ -75,7 +75,7 @@ That is, the equations only know "the state $\mathbf{z}$", not "what time it is"
 
 - **Math used**: an autonomous system $\dot{\mathbf{z}}=F(\mathbf{z})$ is invariant under time translation (time-translation invariance). Displacement along the limit cycle corresponds exactly to this degree of freedom.
 - **Physical meaning**: no external clock tells the oscillator "which phase it should be at". Sliding along the loop (= changing phase) **costs no energy and is opposed by no restoring force**. This is why phase is a **marginally stable (neutrally stable)** degree of freedom — corresponding to the system having one **zero eigenvalue (Floquet exponent = 0)**.
-- **Contrast with amplitude**: the direction perpendicular to the loop (amplitude) corresponds to a **negative eigenvalue**, so perturbations decay exponentially back onto the loop. (Rigorous Floquet/PPV theory is **not among the five downloaded PDFs** — it is external literature, e.g. Demir et al.; this site uses only the geometric intuition. See the supplementary note in [effective_isf](/03_isf_core_theory/effective_isf).)
+- **Contrast with amplitude**: the direction perpendicular to the loop (amplitude) corresponds to a **negative eigenvalue**, so perturbations decay exponentially back onto the loop. (Rigorous Floquet/PPV theory is **not among the 5 downloaded PDFs** — it is external literature, e.g. Demir et al.; this site uses only the geometric intuition. See the supplementary note in [effective_isf](/03_isf_core_theory/effective_isf).)
 
 One-sentence summary: **phase is the only state direction of an oscillator with no restoring force**, so noise affects phase permanently and cumulatively, whereas its effect on amplitude is temporary and gets absorbed.
 

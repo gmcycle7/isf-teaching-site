@@ -129,7 +129,7 @@ For reverse lookup (from each figure's `used_in`):
 ## Key takeaways
 
 - All 52 generated figures are **fully traceable** to script/function/parameters/formula/source, and **none are orphaned**
-  (every one is embedded on at least one page). Except for `phase_noise_to_jitter_integration.png`, most are teaching
+  (every one is embedded on at least 1 page). Except for `phase_noise_to_jitter_integration.png`, most are teaching
   toy/conceptual models; `mos_level1_ring_isf.png` and `supply_pushing_ring.png` are device-equation-level
   (MOS Level-1, not SPICE — closer to a real circuit than a toy).
 - The 10 PDF figures are only **cited and described**, never redrawn; among them [P2] Fig. 17 (p.802) and [P4] Fig. 5 (p.2126) have been verified against the original PDFs.

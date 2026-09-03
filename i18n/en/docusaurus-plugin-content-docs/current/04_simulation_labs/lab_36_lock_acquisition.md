@@ -476,7 +476,7 @@ moderate barrier), Euler step-size bias (halving $d\tau$ moves the slip rate by 
 `dt_halving = 1.053`), and statistics at $x=9$ with only 56 events (error bar ±13%).
 **The exponent (the physics) is accurate to 0.7%; the prefactor (asymptotics + numerics) is
 off by a tenth** — exactly what Kramers theory should look like. The inset shows a single
-walker at $\Delta U/D=5$: long plateaus (dithering inside a well) plus integer stair steps
+walker's $\theta/2\pi$ at $\Delta U/D=5$: long plateaus (dithering inside a well) plus integer stair steps
 (one $2\pi$ slide per slip) — a slip is a discrete event, not a continuous drift; the plateau
 lengths are exponentially distributed, which is also why counting integer jumps of
 $\mathrm{floor}((\theta-\theta_u)/2\pi)$ is the cleanest method (constant inside a well,

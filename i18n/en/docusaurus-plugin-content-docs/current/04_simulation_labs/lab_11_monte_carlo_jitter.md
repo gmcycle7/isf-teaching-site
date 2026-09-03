@@ -69,7 +69,7 @@ $$
 - **Why it's Gaussian**: a sum of $\Delta N$ independent increments tends to Gaussian by the central
   limit theorem (and since each increment is already Gaussian, the sum is exactly Gaussian).
 - **Dimension check**: $\sigma_{edge}$ is in s, $\sqrt{\Delta N}$ is dimensionless ($\Delta N$ is a
-  period count), so $\sigma_{\Delta t}$ is in s &#10003;.
+  period count), so $\sigma_{\Delta t}$ is in s ✓.
 
 **Linking to [P2] Eq.(8).** Convert the accumulated period count into accumulated time
 $\Delta t=\Delta N\cdot T=\Delta N/f_0$:
@@ -81,7 +81,7 @@ $$
 i.e., [P2] Eq.(8), p.792, $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$, with $\kappa=\sigma_{edge}\sqrt{f_0}$.
 
 - **Dimension check ($\kappa$)**: $[\text{s}]\cdot[\text{Hz}]^{1/2}=[\text{s}]\cdot[\text{s}^{-1/2}]=[\text{s}^{1/2}]$,
-  consistent with the unit $\sqrt{s}$ given for $\kappa$ in the canonical symbol table &#10003;.
+  consistent with the unit $\sqrt{s}$ given for $\kappa$ in the canonical symbol table ✓.
 
 ## 3. Block diagram
 

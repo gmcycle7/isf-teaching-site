@@ -194,7 +194,7 @@ is the number-one pitfall, and ISF simulations require particular care:
 - The signature white noise → 1/f² result: [P1] Eq.(21), p.185; factor-of-2 note in spec §3.
 - flicker → 1/f³ (the same integrator acting on a 1/f input): [P1] Eqs.(22),(23), p.185.
 - Figure: `white_noise_phase_noise_psd.png` (lab_06), corresponding to spec §4.
-- The DSP tools (Welch / aliasing / windowing) are standard signal processing, **not among the five source PDFs**; supplied from standard
+- The DSP tools (Welch / aliasing / windowing) are standard signal processing, **not among the 5 source PDFs**; supplied from standard
   references.
 
 ## Key takeaways

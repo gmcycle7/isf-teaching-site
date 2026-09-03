@@ -24,7 +24,6 @@ module.exports = async function createConfig() {
     projectName: 'isf-teaching-site',
 
     onBrokenLinks: 'warn',
-    onBrokenMarkdownLinks: 'warn',
     onBrokenAnchors: 'warn',
 
     i18n: {
@@ -36,6 +35,7 @@ module.exports = async function createConfig() {
     },
 
     markdown: {
+      hooks: {onBrokenMarkdownLinks: 'warn'},
       mermaid: true,
     },
     themes: [

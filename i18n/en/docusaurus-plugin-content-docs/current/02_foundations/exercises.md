@@ -27,7 +27,7 @@ Core formulas involved (all from the spec and this chapter's pages, using the sa
 - rms jitter: $\sigma_t=\dfrac{1}{2\pi f_0}\sqrt{\displaystyle\int_{f_1}^{f_2}S_\phi(f)\,df}$ (spec Eq. 19)
 - SSB↔phase PSD (small-angle): $\mathcal{L}(\Delta f)\approx\tfrac12 S_\phi(\Delta f)$ (spec Eq. 16)
 - Parseval: $\displaystyle\sum_{n=0}^{\infty}c_n^2=\frac{1}{\pi}\int_0^{2\pi}\lvert\Gamma(x)\rvert^2dx=2\,\Gamma_{rms}^2$ ([P1] Eq.(20), p.185)
-- Lorentzian linewidth (FWHM): $\Delta f_{3\mathrm{dB}}=\dfrac{D}{\pi}$, phase diffusion $\operatorname{Var}[\Delta\phi(t)]=2D\lvert t\rvert$ (spec §11.2; linked to [E2] Demir 2000, not among the five source PDFs)
+- Lorentzian linewidth (FWHM): $\Delta f_{3\mathrm{dB}}=\dfrac{D}{\pi}$, phase diffusion $\operatorname{Var}[\Delta\phi(t)]=2D\lvert t\rvert$ (spec §11.2; linked to [E2] Demir 2000, not among the 5 source PDFs)
 - Allan slope reference: white FM $\to\tau^{-1/2}$, flicker FM $\to\tau^{0}$, random-walk FM $\to\tau^{+1/2}$ (spec §11.2; Allan is external literature)
 
 ---
@@ -288,7 +288,7 @@ $$
 \Delta\phi_b=0\times10^{-3}=0\ \text{rad}.
 $$
 
-**Result**: injection at the zero-crossing produces a phase step of $\lvert\Delta\phi\rvert=1$ mrad; injection at the peak produces **zero** phase step
+**Result**: injection at the zero-crossing produces a phase step of $\lvert\Delta\phi\rvert=1$ mrad; injection at the peak produces **0** phase step
 (there the charge only changes the amplitude, which is subsequently pulled back by amplitude restoring).
 
 **Why this is LTV, not LTI**: the impulse response of an **LTI (linear time-invariant)** system depends only on the
@@ -313,7 +313,7 @@ for name, theta in [("zero-crossing", np.pi/2), ("peak", 0.0)]:
 <details>
 <summary><strong>Exercise 6 solution</strong> (phase diffusion from the Lorentzian linewidth)</summary>
 
-> Note: Lorentzian linewidth and phase diffusion are **external literature** ([E2] Demir 2000), **not among the five source PDFs**;
+> Note: Lorentzian linewidth and phase diffusion are **external literature** ([E2] Demir 2000), **not among the 5 source PDFs**;
 > the formulas are taken verbatim from spec §11.2.
 
 **(a) Back-solve $D$.** FWHM linewidth (spec §11.2):
@@ -350,7 +350,7 @@ print(D, "rad^2/s ;", t*1e6, "us")   # -> 3141.6 rad^2/s ; 159.2 us
 <details>
 <summary><strong>Exercise 7 solution</strong> (reading Allan-deviation slopes)</summary>
 
-> Note: The Allan variance is **external literature** (Allan 1966), **not among the five source PDFs**; the slope table is taken verbatim from spec §11.2.
+> Note: The Allan variance is **external literature** (Allan 1966), **not among the 5 source PDFs**; the slope table is taken verbatim from spec §11.2.
 
 **Slope reference (spec §11.2).** On a log–log $\sigma_y(\tau)$ plot:
 

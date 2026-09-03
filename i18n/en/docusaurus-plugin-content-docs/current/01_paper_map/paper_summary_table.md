@@ -11,8 +11,8 @@ The source folder contains **5 PDFs**. This page lays them out in a single table
 which paper is the ISF core, which extends to rings, which covers injection, which is actually **off-topic**, and which equations
 are the same thing written differently, plus which notation differs and needs to be unified.
 
-> **Honesty note (up front)**: of these 5, four are Hajimiri-series oscillator phase-noise/
-> injection papers, and **one (`Hajimiri_ISCS_98.pdf` = [P5]) is actually a cross-coupled
+> **Honesty note (up front)**: of these 5, 4 are Hajimiri-series oscillator phase-noise/
+> injection papers, and **1 (`Hajimiri_ISCS_98.pdf` = [P5]) is actually a cross-coupled
 > sense-amplifier paper, unrelated to ISF** — this site treats it only as a footnote. Also, the frequently co-mentioned
 > **PPV / adjoint / PSS / PNoise / Floquet** topics have **no** dedicated paper among these 5 PDFs
 > — they belong to external literature and are honestly flagged below.

@@ -73,7 +73,7 @@ $$
   Each sideband's power relative to the carrier is $(\phi_p/2)^2$; summing over the continuous
   spectrum of $\phi(t)$ produces the skirt.
 - **Dimension check**: $\phi$ and $\phi_p$ are in rad (dimensionless), $P/P_{\max}$ is dimensionless,
-  and $10\log_{10}$ of that gives dBc &#10003;. The offset $\Delta f$ and $f$ share units (this lab
+  and $10\log_{10}$ of that gives dBc ✓. The offset $\Delta f$ and $f$ share units (this lab
   uses normalized units).
 
 ## 3. Block diagram

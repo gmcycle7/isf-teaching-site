@@ -7,7 +7,7 @@ description: Map transistor white/flicker noise onto ISF harmonics and c0/Gamma_
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
-> **Prerequisites**: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) (white → 1/f²), [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion) (flicker → 1/f³), [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) ($c_0$, $c_n$) ｜ **Next**: [symmetry](/06_design_insights/symmetry), [tank_swing](/06_design_insights/tank_swing), [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)
+> **Prerequisites**: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) (white → 1/f²), [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion) (flicker → 1/f³), [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) ($c_0$, $c_n$) | **Next**: [symmetry](/06_design_insights/symmetry), [tank_swing](/06_design_insights/tank_swing), [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)
 
 This page **collects the scattered design intuition from earlier pages into a single map**: how does the
 noise (white and flicker) of one transistor end up as the oscillator's phase noise? The key is two things —

@@ -100,7 +100,7 @@ $$
   bounded while phase noise diverges".
 
 > **Verified**: $d(t,\phi)=e^{-t/\tau_0}$ and $\tau_0=2Q/\omega_{osc}$ come from the body text of [P4] Sec. III-F, p.2128 (the unnumbered expression immediately before Eq.(25); Eq.(25) itself is the APF relation $\Lambda(\phi)=\tau_0\,\tilde\Lambda(\phi)$).
-> (Decay rates for more general oscillators belong to the Floquet/PPV framework, **not among the five downloaded PDFs**; see [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv).)
+> (Decay rates for more general oscillators belong to the Floquet/PPV framework, **not among the 5 downloaded PDFs**; see [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv).)
 
 - **Why "decays" equals "suppressed"**: think of amplitude noise as a convolution with $h_A$.
   Because $d(t-\tau)$ is integrable and returns to zero, past amplitude perturbations **do not
@@ -254,7 +254,7 @@ A process of this kind — "exponential restoration + white-noise drive" — is 
 **Ornstein–Uhlenbeck (OU) process**.
 
 > **Honesty note**: the OU process and the solution below are **standard stochastic-process
-> mathematics** (external literature, not among the five source PDFs):
+> mathematics** (external literature, not among the 5 source PDFs):
 > G. E. Uhlenbeck and L. S. Ornstein, "On the Theory of the Brownian Motion," *Physical
 > Review*, vol. 36, pp. 823–841, 1930. The only ingredient taken from the papers on this site is
 > the **decay time constant** $\tau_0=2Q/\omega_0$ ([P4] Sec. III-F, p.2128, verified verbatim);
@@ -559,7 +559,7 @@ R=10 crossover sim [MHz]     = 83.31       # -> 83.31
 | Condition | When it holds | When it fails |
 |---|---|---|
 | Small-perturbation linearization ($\lvert a\rvert\ll1$) | OU model valid | Large perturbations enter nonlinear limiting; the spectrum departs from the Lorentzian |
-| Single amplitude decay mode, $\tau_0=2Q/\omega_0$ | Corner sits exactly at $f_0/2Q$ | Non-LC topologies / multiple modes have different decay rates (the general case belongs to the Floquet framework, not among the five source PDFs) |
+| Single amplitude decay mode, $\tau_0=2Q/\omega_0$ | Corner sits exactly at $f_0/2Q$ | Non-LC topologies / multiple modes have different decay rates (the general case belongs to the Floquet framework, not among the 5 source PDFs) |
 | White-noise drive | The flat top is flat | Flicker AM superposes a $1/f$ rise inside the flat top |
 | AM–PM ignored (Section 4) | AM and PM stay separate | AM leaks into PM via $\partial\omega/\partial A$; close-in degrades |
 | SA measurement (collects both AM+PM) | The total-sideband formula of 5.5 applies | Phase-detector measurements reject AM; the AM flat top is invisible |

@@ -63,9 +63,9 @@ Fix $\Delta q$ and sweep the injection phase $\theta=\omega_0\tau$: $\Delta\phi$
 
 | Injection phase $\theta$ | Waveform position | $\Gamma(\theta)=-\sin\theta$ | Result |
 |---|---|---|---|
-| $0$ | Peak (zero slope) | $0$ | $\Delta\phi=0$, pure amplitude change |
+| $0$ | Peak (0 slope) | $0$ | $\Delta\phi=0$, pure amplitude change |
 | $\pi/2$ | Falling zero crossing (most negative slope) | $-1$ | $\vert \Delta\phi\vert $ maximum |
-| $\pi$ | Trough (zero slope) | $0$ | $\Delta\phi=0$, pure amplitude change |
+| $\pi$ | Trough (0 slope) | $0$ | $\Delta\phi=0$, pure amplitude change |
 | $3\pi/2$ | Rising zero crossing (most positive slope) | $+1$ | $\vert \Delta\phi\vert $ maximum, opposite sign |
 
 - **Physical reason (continuing Step 4 of oscillator_phase)**: the size of the phase shift is set by the component of the voltage jump **projected onto the tangential direction of the limit cycle**. At a zero crossing the state velocity (tangent) lies exactly along the voltage axis, so a fixed $\Delta V$ turns almost entirely into tangential displacement → maximum $\Delta\phi$; at the peak the tangent is perpendicular to the voltage axis, so $\Delta V$ is almost entirely radial (pure amplitude) → $\Delta\phi\approx 0$. The tangential component is $\propto\sin\theta$, hence $\Gamma(\theta)=-\sin\theta$ for a sinusoid.
@@ -91,7 +91,7 @@ The upper half of the figure below is the impulse response of an LTI system (a s
 **How to read this figure**:
 
 - **Upper half (LTI)**: the three curves, overlaid, have exactly the same shape — only the starting points are shifted: "the system ignores absolute time".
-- **Lower half (LTV)**: all three are steps ($u(t-\tau)$, retained permanently), but **the step heights differ**: at $\tau=0$, $\Gamma=-\sin 0=0$ (injected at the peak: zero step height, no phase shift); at $\tau=0.25$, $\Gamma=-\sin(\pi/2)=-1$ (injected at the zero crossing: maximum step height, negative); at $\tau=0.5$, $\Gamma=-\sin(\pi)=0$ (injected at the trough: zero step height).
+- **Lower half (LTV)**: all three are steps ($u(t-\tau)$, retained permanently), but **the step heights differ**: at $\tau=0$, $\Gamma=-\sin 0=0$ (injected at the peak: 0 step height, no phase shift); at $\tau=0.25$, $\Gamma=-\sin(\pi/2)=-1$ (injected at the zero crossing: maximum step height, negative); at $\tau=0.5$, $\Gamma=-\sin(\pi)=0$ (injected at the trough: 0 step height).
 - **Message**: the LTV "shape" is fixed (always a step, because phase has no restoring force), but the "strength" is periodically time-varying — and that is exactly the ISF.
 
 The next figure sweeps the step height continuously over the injection phase (the phase sweep of [lab_04](/04_simulation_labs/numerical_feeling)) — effectively drawing that table column as a continuous curve; the numerics nearly coincide with the theoretical $-\sin\theta$:

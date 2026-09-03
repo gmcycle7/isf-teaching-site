@@ -331,7 +331,7 @@ from standard literature) remains optional — read it before starting Step 10 i
      BER. The finale.
 - **Prerequisites**: Steps 7–9; Step 10 (the jitter kernels and the diffusion
   dictionary are used repeatedly); Step 11 helps too (sampling_pll already appeared
-  there).
+  in Step 11).
 - **Expected outcome**: you can draw up — and defend — a clock noise budget: from the
   reference to the sampler, every stage's $\mathcal{L}(f)$ and the final jitter have a
   traceable source.

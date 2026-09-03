@@ -103,8 +103,8 @@ The five source papers and external supplements are in [references](/99_appendix
 per-paper close readings are in the [paper deep dives](/05_paper_deep_dives/); the paper
 map is in [paper_summary_table](/01_paper_map/paper_summary_table).
 
-> **Honest disclosure**: the source folder contains 5 PDFs. Four of them are Hajimiri-series
-> oscillator phase noise / injection papers, but **one (`Hajimiri_ISCS_98.pdf`) is actually a
+> **Honest disclosure**: the source folder contains 5 PDFs. 4 of them are Hajimiri-series
+> oscillator phase noise / injection papers, but **1 (`Hajimiri_ISCS_98.pdf`) is actually a
 > cross-coupled sense amplifier paper, unrelated to the ISF**. This site labels it honestly
 > and uses it only as a side note. See the
 > [build_report](/00_overview/build_report) for details.

@@ -224,7 +224,7 @@ $$
   (**Verified verbatim in v5 against the rendered original [P2] p.803 PDF**: Eq.(48) $R_\phi(\tau)=\int_{-\infty}^{\infty}S_\phi(f)e^{j2\pi f\tau}df$ — a **two-sided** spectrum;
   Eq.(49) $\sigma^2_{\Delta\phi}=\dfrac{8}{\omega_0^2}\int_0^\infty S_\phi(f)\sin^2(\pi f\tau)\,df$.
   Converting with $S_{os}=2S_{ds}$: $\tfrac{8}{\omega_0^2}S_{ds}\sin^2=\tfrac{1}{\omega_0^2}S_{os}\cdot4\sin^2$ — **exactly equivalent to this page's one-sided $4\sin^2$ kernel**,
-  the verbatim confirmation of the conjecture above that "the literature's coefficient-8 version uses a two-sided $S_\phi$".)
+  the verbatim confirmation of the conjecture above that "the literature's coefficient-$8$ version uses a two-sided $S_\phi$".)
 - **dimension check**: the kernel is dimensionless; the rest as in kernel (a) ✓.
 
 ### Kernel (c): cycle-to-cycle — second-order difference, kernel $16\sin^4(\pi fT)$

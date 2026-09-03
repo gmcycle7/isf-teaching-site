@@ -10,6 +10,15 @@ description: "One-page quick reference: core formulas, canonical numbers, unit c
 The most frequently used formulas, numbers and knobs of the whole site, condensed onto
 one page. Every entry links back to its full derivation page.
 
+> 🖨 **Print / save as PDF**: press `Cmd+P` (macOS) or `Ctrl+P` (Windows/Linux) in a
+> desktop browser to save **this page** as a PDF or send it straight to a printer — this
+> works on every page of the site, not just the cheat sheet. The navbar, sidebar,
+> right-hand table of contents, and footer hide themselves automatically; the controls
+> on interactive widgets (sliders, buttons) hide too, but whatever SVG plot a widget is
+> currently showing stays in the printout. Collapsed `<details>` blocks (e.g. the
+> worked solutions in [exercises](/02_foundations/exercises)) do **not** auto-expand —
+> open every ▸ in the browser first if you need them on paper.
+
 ## Core formulas (all verified against the original PDFs)
 
 | Topic | Formula | Source |

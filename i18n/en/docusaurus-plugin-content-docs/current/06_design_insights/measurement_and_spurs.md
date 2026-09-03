@@ -7,7 +7,7 @@ description: Three methods for measuring L(f) (direct spectrum-analyzer method, 
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
-> **Prerequisites**: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) ($\mathcal{L}\approx\tfrac12 S_\phi$, the $1/f^2$ mid-band, useful for back-solving $S_i$), [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) (the mechanism by which a spur is downconverted through the ISF's $n$-th harmonic $c_n$), [symmetry](/06_design_insights/symmetry) (back-solving $c_0/c_1$ symmetry from the $1/f^3$ corner) ｜ **Next**: [real_oscillator_topologies](/06_design_insights/real_oscillator_topologies), [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
+> **Prerequisites**: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) ($\mathcal{L}\approx\tfrac12 S_\phi$, the $1/f^2$ mid-band, useful for back-solving $S_i$), [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) (the mechanism by which a spur is downconverted through the ISF's $n$-th harmonic $c_n$), [symmetry](/06_design_insights/symmetry) (back-solving $c_0/c_1$ symmetry from the $1/f^3$ corner) | **Next**: [real_oscillator_topologies](/06_design_insights/real_oscillator_topologies), [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
 
 The previous chapters carried phase noise from the ISF all the way to $\mathcal{L}(\Delta f)$ (SSB phase
 noise, units dBc/Hz) — all as "theoretical prediction." This page returns to the test bench and answers

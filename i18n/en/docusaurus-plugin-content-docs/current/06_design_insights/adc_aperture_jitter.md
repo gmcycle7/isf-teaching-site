@@ -9,7 +9,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
-> Prerequisites: [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) (the $\mathcal{L}\to S_\phi\to\sigma_\phi\to\sigma_t$ four-step chain), [lab_08_jitter_integration](/04_simulation_labs/lab_08_jitter_integration) (how the 447.9 fs is integrated) ｜ Next: [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection), [exercises](/06_design_insights/exercises)
+> Prerequisites: [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) (the $\mathcal{L}\to S_\phi\to\sigma_\phi\to\sigma_t$ four-step chain), [lab_08_jitter_integration](/04_simulation_labs/lab_08_jitter_integration) (how the 447.9 fs is integrated) | Next: [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection), [exercises](/06_design_insights/exercises)
 
 ## The problem: you swapped in a 12-bit ADC — why didn't the high-frequency SNR improve at all?
 

@@ -43,8 +43,8 @@ checks out (if $N^{1.5}$ were inside the radical this would instead give $4/N^{0
 the text); (3) App.B Eq.(52)+(54) independently derives $\Gamma_{rms}^2\propto N^{-3}$, consistent
 with $N^{-3/2}$. **History**: v1 originally wrote $N^{-3/2}$ (correct); the v3 audit misread the
 radical's scope and "corrected" it to $N^{-3/4}$, mislabeling it "verified" — the same type of
-misreading as the FOM $8/(3\gamma)$ incident. v7 restored $N^{-3/2}$ after cross-checking the body
-text, the $\eta=0.75$ numerical anchor, and App.B, and recorded the incident here. All affected
+misreading as the FOM $8/(3\gamma)$ incident. v7 checked it against the original
+text, restored it, and recorded the incident here. All affected
 pages site-wide (real_oscillator_topologies, waveform_slope, references, etc.) have had the
 exponent and related numbers corrected in step (e.g. the $N{=}5\to15$ ratio changed from $0.4387$ /
 $-7.16$ dB to $0.1925$ / $-14.31$ dB). The N-independence of the Eq.(23) FOM, $8/(3\eta)$, $\kappa$,
@@ -148,7 +148,7 @@ CSS).
   verbatim"); corrected against the original PDF p.796 to $8/(3\eta)$ ($\eta$ is the stage-delay
   proportionality constant of Eq.(14), $\approx 1$; $\gamma$ enters only through
   $V_{char}=\Delta V/\gamma$); the $V_T=0$ lower bound Eq.(25) is $\frac{16\gamma}{3\eta}$.
-- Eq.(16) $\Gamma_{rms}$'s N-scaling: at the time, this audit misread the radical's scope and
+- Eq.(16) $\Gamma_{rms}$'s N-scaling: at the time, the v3 audit misread the radical's scope and
   "corrected" v1's originally-correct $N^{-3/2}$ to $N^{-3/4}$, mislabeling it "verified" — this
   misreading was not fixed until **v7**, which cross-checked the paper's body text, the numerical
   anchor, and App.B (see the v7 entry above).
@@ -196,7 +196,7 @@ theory.
 The following remained flagged ⚠️ / `TODO` (external literature or secondary details, not core
 ISF/injection physics):
 
-- **External literature (not among the five source PDFs)**: formal volume/issue/page numbers for
+- **External literature (not among the 5 source PDFs)**: formal volume/issue/page numbers for
   Leeson 1966, Demir et al. 2000 (PPV), Kärtner 1990 — volume/issue/page numbers and equation
   notation were checked in v4; the period/cycle-to-cycle jitter kernels were, in **v5**, **derived
   in-house from first principles and Monte-Carlo verified** at
@@ -211,8 +211,8 @@ ISF/injection physics):
 
 After the core equations of [P1] (general.pdf) — Eq.(1),(9),(10),(11),(12),(13),(15)–(24) — were all
 converted to LaTeX via high-resolution page rendering and manual line-by-line comparison, v2 added
-step-by-step algebraic expansions (downconversion integral, factor-8 summation, $\mathcal{L}\approx
-\frac12 S_\phi$ small-angle PM, jitter high-pass kernel, flicker 1/f³ corner, the three classes of
+step-by-step algebraic expansions (downconversion integral, factor-8 summation, $\mathcal{L}\approx\frac12 S_\phi$
+small-angle PM, jitter high-pass kernel, flicker 1/f³ corner, the three classes of
 Parseval terms), plus two derivation appendices (Floquet/PPV, Leeson↔ISF).
 
 Added 8 new simulation figures (`lab_10`–`lab_17`: RF spectrum sidebands, Monte Carlo jitter

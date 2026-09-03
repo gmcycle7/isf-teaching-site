@@ -738,6 +738,9 @@ $\omega_c$——**同功耗下雜訊抑制頻寬的上限也 ×G**，這才是 S
 - 二階迴路版的同一件事（ref 低通/VCO 高通、最佳頻寬）：[pll_noise_budget](/06_design_insights/pll_noise_budget)、[lab_13](/04_simulation_labs/lab_13_pll_cdr_transfer)
 - 自由跑振盪器近載波的「另一種治法」（Lorentzian 線寬）：[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
 - 白噪 FM 驅動 $S_n=\Gamma_{rms}^2S_i/q_{max}^2$ 的出處：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
+- 次諧波（×N）注入的離散時間版——同一個 $\omega_c$ 換成 realignment factor $\beta$、鎖定振盪器＝一階 PLL 的離散版：[subharmonic_injection](/06_design_insights/subharmonic_injection)
+- 對偶的另一半——M:N 除頻（ILFD）的完整推導：[injection_locked_division](/06_design_insights/injection_locked_division)
+- 大注入下的精確暫態解、APF 驅動的振幅暫態與大注入 pulling 頻譜：[paper_004_large_injection_transient](/05_paper_deep_dives/paper_004_large_injection_transient)
 
 ### 外部文獻（不在下載的 5 篇 PDF 內）
 

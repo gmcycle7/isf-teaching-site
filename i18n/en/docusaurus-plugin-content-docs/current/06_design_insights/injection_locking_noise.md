@@ -873,6 +873,13 @@ cares about.
   [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
 - Source of the white FM drive $S_n=\Gamma_{rms}^2S_i/q_{max}^2$:
   [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
+- The discrete-time version of subharmonic (×N) injection — the same $\omega_c$ recast as a
+  realignment factor $\beta$, the discrete-time cousin of "locked oscillator = first-order PLL":
+  [subharmonic_injection](/06_design_insights/subharmonic_injection)
+- The other half of the duality — the full derivation of M:N division (ILFD):
+  [injection_locked_division](/06_design_insights/injection_locked_division)
+- Exact large-injection transients, the APF-driven amplitude transient, and the large-injection
+  pulling spectrum: [paper_004_large_injection_transient](/05_paper_deep_dives/paper_004_large_injection_transient)
 
 ### External literature (not among the five downloaded source PDFs)
 

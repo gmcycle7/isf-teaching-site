@@ -117,7 +117,7 @@ Historical fixes (the rendering-bug class) are recorded in the v2 entry of the [
 
 ## 11. Does `python scripts/run_all_sims.py` succeed?
 
-**Yes**: **all 45 simulation scripts (38 `lab_*` + 7 `fig_*`) pass**, producing 52 figures in
+**Yes**: **all 49 simulation scripts (38 `lab_*` + 7 `fig_*`) pass**, producing 56 figures in
 `static/figures/`. Key validations: the simulated Lorentzian spectrum matches theory, flattening near
 the carrier; Allan deviation slopes for the three FM types land precisely at −1/2, 0, +1/2; PLL
 optimal loop BW≈6.9 MHz, σ_t≈259 fs; numerically extracted ISF vs theoretical −sinθ max error ~0.001;
@@ -125,7 +125,7 @@ white-noise S_φ matches the 1/f² line over ~3 decades; jitter integration nume
 
 ## 12. Current site size and example QA
 
-**Site size: 90 pages × 2 locales, 52 figures, 45 simulations, 20 interactive components.**
+**Site size: 97 pages × 2 locales, 56 figures, 49 simulations, 21 interactive components.**
 
 `scripts/verify_examples.py` actually runs every Python worked example in docs that has a "reference
 answer" (`# ->`) and checks the numbers: **of 144 verifiable blocks, 133 pass automatically, 0

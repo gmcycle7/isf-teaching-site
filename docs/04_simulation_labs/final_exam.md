@@ -1,15 +1,15 @@
 ---
 title: 期末總測驗：5 GHz LC VCO 到 25 Gb/s SerDes 一條龍
-description: 跨章期末測驗——同一個設計故事（5 GHz LC VCO 進 25 Gb/s SerDes link）串起 10 題：impulse→Δφ、Eq.(21) 白噪 L、κ² 與 Lorentzian 線寬、App.B 1/f³ corner、jitter 積分 447.9 fs、period jitter 閉式、÷2＋buffer 床記帳、PLL peaking 2.09 dB、aperture SNR、dual-Dirac TJ@1e-12。每題附 NumericQuiz 即時作答、逐步解答（帶單位＋慣例旗標＋來源頁）、文末 Python 附錄一鍵重算全部答案。
+description: 跨章期末測驗——同一個設計故事（5 GHz LC VCO 進 25 Gb/s SerDes link）串起 11 題：impulse→Δφ、Eq.(21) 白噪 L、κ² 與 Lorentzian 線寬、App.B 1/f³ corner、jitter 積分 447.9 fs、period jitter 閉式、÷2＋buffer 床記帳、PLL peaking 2.09 dB、aperture SNR、dual-Dirac TJ@1e-12、加碼題：注入鎖定倍頻（ILCM）的 1/N lock range。每題附 NumericQuiz 即時作答、逐步解答（帶單位＋慣例旗標＋來源頁）、文末 Python 附錄一鍵重算全部答案。
 ---
 
 import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # 期末總測驗：5 GHz LC VCO 到 25 Gb/s SerDes 一條龍
 
-> **先備**：[capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)（全站主脊一條龍）與三章成套習題——[02 基礎章](/02_foundations/exercises)、[03 核心理論章](/03_isf_core_theory/exercises)、[06 設計章](/06_design_insights/exercises)（先做完再來）｜**接下來**：無——這是最後一頁。10 題全對，你畢業了。
+> **先備**：[capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)（全站主脊一條龍）與三章成套習題——[02 基礎章](/02_foundations/exercises)、[03 核心理論章](/03_isf_core_theory/exercises)、[06 設計章](/06_design_insights/exercises)（先做完再來）｜**接下來**：無——這是最後一頁。11 題全對，你畢業了。
 
-這不是又一份習題集。這是**一場考試**：一個設計故事、10 個關卡，從單一電荷脈衝打進
+這不是又一份習題集。這是**一場考試**：一個設計故事、11 個關卡，從單一電荷脈衝打進
 LC tank 的那一瞬間，一路走到 SerDes 鏈路在 BER $=10^{-12}$ 的 eye 開度。每一題都只考
 一個「乾淨的數字」，但每個數字都得跨章調度——你需要 [P1] 的 ISF、[P2] 的 κ 與 App. B
 閉式、擴散字典的換裝、時脈鏈的四條記帳規則、PLL 閉環代數、與 dual-Dirac 外插。
@@ -446,7 +446,7 @@ print(round(10*np.log10(10**(L_div/10) + 10**(-155.0/10)), 2))    # -> -154.95
 
 ---
 
-## 第 3 幕：迴路與鏈路（題 8–10）
+## 第 3 幕：迴路與鏈路（題 8–11）
 
 ### 題 8 — PLL 的鼓包稅（type-II peaking 閉式）
 
@@ -622,9 +622,79 @@ print(round(qinv, 3), round(tj*1e12, 2))   # -> 7.034 7.3
 
 </details>
 
+### 題 11 — 加碼題：如果不走 PLL，直接注入鎖定倍頻呢？
+
+畢業前的最後一個岔路。題 7–9 選的是「PLL ×50 → ÷2 → buffer」這條路。有學弟問：
+「如果乾脆不用 PLL，直接把 $f_{ref}=250$ MHz 的參考脈衝（$q_{inj}=50$ fC）打進同一顆
+$5$ GHz LC VCO（$q_{max}=1$ pC）做 $N=20$ 倍頻的 injection-locked clock multiplier
+（ILCM，注入鎖定倍頻器），這條路的半 lock range 有多寬？」用
+[subharmonic_injection](/06_design_insights/subharmonic_injection) 的 impulse-train 算術
+（[P3] Sec. IV footnote 7 的離散版）求 $f_L$。
+
+<NumericQuiz
+  prompt="先自己算：q_inj = 50 fC 的參考脈衝直接打進 f₀ = 5 GHz、q_max = 1 pC 的 LC VCO 做 N = 20 倍頻（ILCM），半 lock range f_L = ？（以 MHz 作答）"
+  answer={1.989}
+  tol={0.01}
+  unit="MHz"
+  hint="Δω_L = (q_inj/q_max)/(N·T₀)，f_L = Δω_L/(2π)；T₀ = 200 ps。"
+  solutionNote="f_L = 0.05/(2π×20×200 ps) = 1.989 MHz——同一根脈衝要替 N = 20 個週期買單，lock range ∝ 1/N。詳見下方解答。"
+/>
+
+<details>
+<summary><strong>題 11 完整解答</strong>（ILCM 的 $1/N$ lock range，取代 PLL 的另一條路）</summary>
+
+**第 1 步（[P3] footnote 7 的離散算術，完整推導見
+[subharmonic_injection](/06_design_insights/subharmonic_injection) 第 2 節）**：每 $N$ 個振盪
+週期吃一次 kick，固定點存在的條件（弱注入、$\Gamma=-\sin$ 的特例）是
+
+$$
+\Delta\omega_L=\frac{q_{inj}\,\vert\tilde\Gamma\vert_{max}}{NT_0}\ \xrightarrow{\ \Gamma=-\sin\ }\ \frac{q_{inj}}{q_{max}}\cdot\frac{1}{NT_0}=\frac{q_{inj}}{q_{max}}\cdot\frac{f_0}{N}.
+$$
+
+**逐步代入（帶單位）**：
+
+$$
+\frac{q_{inj}}{q_{max}}=\frac{50\ \text{fC}}{1\ \text{pC}}=0.05\quad(\text{弱注入}\ll1\ \checkmark),\qquad
+T_0=\frac{1}{f_0}=200\ \text{ps},\qquad NT_0=20\times200\ \text{ps}=4\ \text{ns},
+$$
+
+$$
+\Delta\omega_L=\frac{0.05}{4\times10^{-9}\ \text{s}}=1.25\times10^{7}\ \text{rad/s},\qquad
+f_L=\frac{\Delta\omega_L}{2\pi}=1.989\ \text{MHz}.
+$$
+
+**結果**：$f_L=1.989$ MHz（canonical 例 1，[subharmonic_injection](/06_design_insights/subharmonic_injection)）。
+
+**Dimension check**：無因次 $\div$ s $=$ rad/s；rad/s $\div2\pi=$ Hz ✓。
+
+**故事收尾（為什麼本卷最後選了 PLL、不是 ILCM）**：分數 lock range
+$f_L/(Nf_{ref})=(q_{inj}/q_{max})/(2\pi N)=3.98\times10^{-4}$ ＝ **398 ppm**——比 PVT
+造成的自由跑頻率不確定度（百分級）小兩個數量級，代表這顆 VCO 得先被拉到 $398$ ppm 之內
+ILCM 才鎖得住，實務上要另外配一個頻率追蹤迴路（FLL）。反觀題 8 的 type-II PLL：PFD
+天生自帶寬頻率捕獲，不需要額外的 FLL——這正是本卷第 2 幕最終選 PLL 而非 ILCM 的理由。
+但 ILCM 也不是沒有代價可省：它完全沒有 divider／CP，in-band 雜訊記帳走的是
+$N^2S_{ref}\vert H_{ref}\vert^2$（$H_{ref}$ 是一階離散低通），跟題 3 的 PLL in-band
+$N^2S_{ref}\vert H_{lp}\vert^2$ 系出同門但機制不同——兩條路殊途同歸都是 $\times N^2$，
+只是「怎麼把 divider 踢出去」的手法不一樣。
+
+**慣例旗標**：本題數字取 $\delta$-pulse（impulse-train）idealization，與
+[subharmonic_injection](/06_design_insights/subharmonic_injection) 的 canonical 例 1 一致；
+若計入 $10$ ps 有限脈寬的 sinc 修正則降為 $1.981$ MHz（差 $0.4\%$，本題不計）。
+
+```python
+qinj, qmax, f0, N = 50e-15, 1e-12, 5e9, 20
+T0 = 1 / f0
+dwL = (qinj/qmax) / (N*T0)
+fL = dwL / (2*np.pi)
+print(round(fL/1e6, 3))                     # -> 1.989
+print(round((qinj/qmax)/(2*np.pi*N), 6))    # -> 0.000398 (398 ppm，分數 lock range)
+```
+
+</details>
+
 ---
 
-## 畢業檢定：Python 附錄（一次重算全部 10 題）
+## 畢業檢定：Python 附錄（一次重算全部 11 題）
 
 在專案根目錄以 `PYTHONPATH=.` 執行；每個 `# ->` 都是實跑輸出，與各題解答逐字一致。
 
@@ -690,9 +760,17 @@ qinv = float(np.sqrt(2)*erfcinv(2*1e-12))
 tj = 1e-12 + 2*qinv*st
 print(round(qinv, 3), round(tj*1e12, 2))           # -> 7.034 7.3
 print(round((40e-12 - tj)*1e12, 1), round((40e-12 - tj)/40e-12, 2))  # -> 32.7 0.82
+
+# --- 題 11（加碼）: ILCM 的 1/N lock range（[P3] footnote 7 離散算術）
+qinj, qmax_ilcm, N_ilcm = 50e-15, 1e-12, 20
+T0_ilcm = 1 / f0
+dwL = (qinj/qmax_ilcm) / (N_ilcm*T0_ilcm)
+fL = dwL / (2*np.pi)
+print(round(fL/1e6, 3))                             # -> 1.989
+print(round((qinj/qmax_ilcm)/(2*np.pi*N_ilcm), 6))  # -> 0.000398
 ```
 
-## 重點回顧（帶著走的 10 個數字）
+## 重點回顧（帶著走的 11 個數字）
 
 | 題 | 考點 | 答案 | 慣例旗標 |
 |---|---|---|---|
@@ -706,8 +784,9 @@ print(round((40e-12 - tj)*1e12, 1), round((40e-12 - tj)/40e-12, 2))  # -> 32.7 0
 | 8 | type-II peaking | 2.09 dB @ $0.786f_n$ | $10\log_{10}$ 功率，無 SSB 之事 |
 | 9 | aperture SNR @ 2.5 GHz | 43.05 dB（6.86 bit） | 公式 convention-free；$\sigma_t$ 守恆過 ÷2 |
 | 10 | dual-Dirac TJ@$10^{-12}$ | 7.30 ps（eye 0.82 UI） | per-Gaussian $Q^{-1}=7.034$ |
+| 11（加碼） | ILCM 的 $1/N$ lock range | $f_L=1.989$ MHz（398 ppm） | $\delta$-pulse idealization；含脈寬 sinc 修正為 1.981 MHz |
 
-10 題全對——恭喜畢業。你已經能從一顆電荷脈衝，一路記帳到 SerDes link 的 eye margin。
+11 題全對——恭喜畢業。你已經能從一顆電荷脈衝，一路記帳到 SerDes link 的 eye margin。
 
 ## 延伸閱讀（每題的深入版）
 
@@ -721,4 +800,5 @@ print(round((40e-12 - tj)*1e12, 1), round((40e-12 - tj)/40e-12, 2))  # -> 32.7 0
 - 題 8：[pll_noise_budget](/06_design_insights/pll_noise_budget)
 - 題 9：[adc_aperture_jitter](/06_design_insights/adc_aperture_jitter)
 - 題 10：[dj_dual_dirac](/06_design_insights/dj_dual_dirac)、[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)
+- 題 11：[subharmonic_injection](/06_design_insights/subharmonic_injection)、[lab_40_subharmonic_injection](/04_simulation_labs/lab_40_subharmonic_injection)
 - 全程嚴格版主脊：[capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)

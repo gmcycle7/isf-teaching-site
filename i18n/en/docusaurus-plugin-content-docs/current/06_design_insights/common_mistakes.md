@@ -1,15 +1,15 @@
 ---
-title: "Common Mistakes Showroom: 12 Real-World Landmines"
-description: 12 real, verifiable common mistakes in phase-noise / jitter work — κ² mistaken for D, SSB /4 vs /2 mixed up, single-sideband PSD plugged into the wrong jitter kernel, ΔV/slope intuition inverting the ISF, corner confusion, 8/(3γ) misremembered, forgetting the ×2 in an integral, treating the 1/f² divergence as physical, DJ_pp plugged into the TJ formula, RBW smearing out close-in noise, ÷2 mistaken for halving the jitter in seconds, applying √N to flicker — each with a physical explanation, the correct version, and an on-site reference.
+title: "Common Mistakes Showroom: 13 Real-World Landmines"
+description: 13 real, verifiable common mistakes in phase-noise / jitter work — κ² mistaken for D, SSB /4 vs /2 mixed up, single-sideband PSD plugged into the wrong jitter kernel, ΔV/slope intuition inverting the ISF, corner confusion, 8/(3γ) misremembered, forgetting the ×2 in an integral, treating the 1/f² divergence as physical, DJ_pp plugged into the TJ formula, RBW smearing out close-in noise, ÷2 mistaken for halving the jitter in seconds, applying √N to flicker, assuming a pure-sine subharmonic injection would lock — each with a physical explanation, the correct version, and an on-site reference.
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
-# Common Mistakes Showroom: 12 Real-World Landmines
+# Common Mistakes Showroom: 13 Real-World Landmines
 
 > Prerequisites: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) · [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) | Next: [exercises](/06_design_insights/exercises) · [cheat_sheet](/00_overview/cheat_sheet)
 
-This page does not teach new formulas. It lays out 12 mistakes that **actually happen**
+This page does not teach new formulas. It lays out 13 mistakes that **actually happen**
 in phase noise / jitter work and that cost you a factor of
 **2, 3 dB, or $\sqrt2$** when they do — several of which this site itself made during
 drafting and review, then fixed by simulation adjudication (we leave the correction
@@ -36,6 +36,7 @@ work through each entry.
 | 10 | RBW too wide when measuring close-in | High by 2.5 dB in this example (and can be worse) | [measurement_and_spurs](/06_design_insights/measurement_and_spurs) |
 | 11 | Assuming jitter (in seconds) also halves after ÷2 | The time value **does not change by a single fs** | [clock_chain_budget](/06_design_insights/clock_chain_budget) |
 | 12 | Applying the white-noise $\sqrt N$ accumulation law to flicker | Underestimates by ~3× at $N=10$ | [jitter_kernels](/02_foundations/jitter_kernels) |
+| 13 | Assuming a pure-sine subharmonic injection would lock | Lock range $=0$ at first order (not just narrower) | [subharmonic_injection](/06_design_insights/subharmonic_injection) |
 
 ---
 
@@ -370,11 +371,41 @@ closed-form flicker expression and the log-band caveat), [lab_03](/04_simulation
 [allan_variance](/02_foundations/allan_variance) (the ADEV version of the same story:
 white FM $\tau^{-1/2}$ vs flicker FM $\tau^0$).
 
+## 13. Assuming a pure-sine subharmonic injection would lock — a pure sine has no $N$-th harmonic
+
+**❌ Wrong claim**: "I inject a clean sine at $f_{ref}=f_0/N$ into the oscillator; it's the
+same generalized-Adler restoring force as fundamental injection locking, so it should lock
+to $f_0=Nf_{ref}$." — treating an injection-locked clock multiplier (ILCM, the multiplier
+direction) as fundamental locking with just a different injection frequency.
+
+**💥 Why it's wrong**: term-by-term averaging of [P4] Eq.(29)–(30) gives the selection rule
+$k=mN$ — the multiplier ($M=1$, $N\ge2$) restoring force $\Omega(\theta)$ is supplied only
+by "the injection waveform's $N$-th harmonic" times "the ISF's fundamental" (see
+[subharmonic_injection](/06_design_insights/subharmonic_injection), Section 1). A pure sine
+$i_{inj}=I_{inj}\cos(\omega_{inj}t)$ has only the $k=1$ harmonic; for $N\ge2$, $\vert I_N\vert=0$,
+so after first-order averaging $\Omega(\theta)\equiv0$ — **there is no restoring force at all,
+and the lock range is identically zero**, not just narrow. (If a real circuit occasionally
+still locks, that's the oscillator's own nonlinearity mixing up an $N$-th harmonic of
+$f_{ref}$ — [P4] footnote 10 states explicitly that this is outside the Eq.(28)–(30)
+framework and cannot be relied on by design.)
+
+**✅ Correct version**: to build the multiplier direction (ILCM), the injection waveform
+itself must carry the $N$-th harmonic — use a pulse generator (a narrow pulse), not a clean
+sine; the pulse width $\tau_p\ll T_0$ (the *output* period, not the reference period) is
+needed to keep enough $\vert I_N\vert\propto\mathrm{sinc}(f_0\tau_p)$. Canonical example
+($f_0=5$ GHz, $N=20$, $q_{inj}=50$ fC, $\tau_p=10$ ps) gives $f_L=1.981$ MHz; lab_40's
+numerical check at the same rms current: the pulse train locks at 15/15 grid points, a pure
+sine locks at 0/15 — completely unable to lock at first order, not merely less efficient.
+
+**📍 On-site reference**: [subharmonic_injection](/06_design_insights/subharmonic_injection)
+(Section 1, Step 4, "a pure sine cannot lock"), [lab_40_subharmonic_injection](/04_simulation_labs/lab_40_subharmonic_injection)
+(experiment (c)'s numerical verification).
+
 ---
 
 ## Common root cause: three factor-of-2 families + one LTI habit
 
-Of the 12 landmines, 7 (1, 2, 3, 7, 9's $2Q^{-1}$, 11, 12) are fundamentally
+Of the 13 landmines, 7 (1, 2, 3, 7, 9's $2Q^{-1}$, 11, 12) are fundamentally
 **bookkeeping-convention** issues, grouped into three families (see
 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary) for details):
 
@@ -393,7 +424,7 @@ every number, "which convention is this? does the approximation still hold here?
 
 ## One-shot reconciliation: verification code for every number on this page
 
-Below, every number from the 12 landmines that can be verified in one line is
+Below, every number from the 13 landmines that can be verified in one line is
 recomputed (run with `PYTHONPATH=. python3 <this-file>` from the project root; the DJ
 numbers in Mistake 9 are produced by `simulations/lab_31_dual_dirac.py`, see
 [dj_dual_dirac](/06_design_insights/dj_dual_dirac)):

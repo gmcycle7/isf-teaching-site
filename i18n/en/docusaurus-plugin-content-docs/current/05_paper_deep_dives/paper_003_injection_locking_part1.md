@@ -325,6 +325,12 @@ print(1/((q_inj/q_max)*np.cos(theta)))        # -> 128.45830271877517
   limit cycle — that is the subject of Part II's APF ([P4]).
 - **Subharmonic**: the impulse may also land once every $M$ periods ([P3] footnote 7, p.2112) — the same arithmetic
   with the drift accumulated over $M$ periods; this is the discrete picture of subharmonic locking.
+  > **[P3] footnote 7, verbatim** (p.2112): "...injection could also occur every $M$ periods
+  > ($M$ a positive integer), corresponding to subharmonic locking."
+  > In other words: **when $T_{inj}=N\cdot T_0$ (injecting once every $N$ oscillation periods)
+  > that is exactly subharmonic locking** — swap the paper's $M$ for the site's usual
+  > multiplication ratio $N$ and expand term by term; the closed-form lock range lives on the
+  > [subharmonic_injection](/06_design_insights/subharmonic_injection) page.
 - **Very strong kicks**: when the multiplier leaves the unit interval ($\tfrac{q_{inj}}{q_{max}}\lvert\Gamma'\rvert\ge2$) the discrete map goes unstable — the averaged ODE cannot see this.
 
 > **Verified**: Sec. IV's Eq.(19), (20), (21), (22), (23) plus footnote 7 (subharmonic) and footnote 9

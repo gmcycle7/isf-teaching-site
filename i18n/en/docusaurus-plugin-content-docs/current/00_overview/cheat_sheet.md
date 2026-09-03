@@ -144,6 +144,16 @@ $$
 
 A half-wave-symmetric ISF ($c_2=c_4=\cdots=0$) means ÷2 cannot lock at first order — the same differential-node symmetry that's good news for phase noise is bad news for ILFD (fix: switch to the tail node to pick up $c_2$).
 
+### Subharmonic multiplication (×N, ILCM): $\omega_L$, $\beta$, corner — [subharmonic_injection](/06_design_insights/subharmonic_injection)
+
+The other half of the duality: at $N=1$, locking is carried by the injection waveform's own $N$-th harmonic (not the ISF's). Canonical: $f_0=5$ GHz, $q_{max}=1$ pC, $N=20$ ($f_{ref}=250$ MHz), $q_{inj}=50$ fC.
+
+| Quantity | Formula | Canonical value |
+|---|---|---|
+| Multiplier lock range | $\omega_L=\tfrac12\vert I_N\vert\vert\tilde\Gamma_1\vert$ (impulse train: $\Delta\omega_L=\dfrac{q_{inj}}{q_{max}}\cdot\dfrac{f_0}{N}$) | $f_L=1.989$ MHz |
+| Realignment factor | $\beta\equiv-q_{inj}\tilde\Gamma'(\theta_{ss})$ (stable for $0\lt\beta\lt2$, converges in $\approx1/\beta$ injections) | $0.0498$ |
+| Noise corner | $f_c\approx\beta f_{ref}/2\pi$ (= $\Delta f_L$ at lock center) | $2.09$ MHz |
+
 ### ADEV floor: $\sqrt{2\ln2\cdot h_{-1}}$ — [allan_variance](/02_foundations/allan_variance)
 
 $$

@@ -23,7 +23,7 @@ limitations → 與其他 paper 關係 → what to remember）。核心理論的
 | **[P1]** | A General Theory of Phase Noise in Electrical Oscillators | 1998 | **ISF 核心基礎**（定義、推導、設計法則） | 核心 | [paper_001](/05_paper_deep_dives/paper_001_general_theory_phase_noise) |
 | **[P2]** | Jitter and Phase Noise in Ring Oscillators | 1999 | ISF 套到 ring：jitter、$N$-scaling、symmetry | 核心延伸 | [paper_002](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring) |
 | **[P3]** | Injection Locking & Pulling—Part I（time-synchronous） | 2019 | 同一個 ISF 推出**廣義 Adler 方程**、lock range | 進階 | [paper_003](/05_paper_deep_dives/paper_003_injection_locking_part1) |
-| **[P4]** | Injection Locking & Pulling—Part II（APF / 頻率除法） | 2019 | 引入 **APF**（振幅版 ISF）、ILFD | 進階 | [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2) |
+| **[P4]** | Injection Locking & Pulling—Part II（APF / 頻率除法） | 2019 | 引入 **APF**（振幅版 ISF）、ILFD | 進階 | [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2) ・ 續篇 [大注入模型與暫態](/05_paper_deep_dives/paper_004_large_injection_transient)（v10） |
 | **[P5]** | Design Issues in Cross-Coupled Inverter Sense Amplifier | 1998 | **與 ISF／phase noise 無關**（見下） | 邊角 | [paper_005](/05_paper_deep_dives/paper_005_cross_coupled_sense_amp) |
 
 ## 標準引用字串（請逐字使用）

@@ -229,6 +229,10 @@ M:N 版重演。
   $\omega_L\ll\omega_0$；強注入要加上一節的 APF 修正（Eq.(27) 的分母）與振幅動態。
 - $M\neq1$（subharmonic 注入、倍頻器）需要注入訊號的第 $M$ 諧波——正弦注入沒有諧波，實務上靠
   **振盪器內部混頻**產生；[P4] footnote 10, p.2129 明說這不在框架內（部分由其引文 [25] 的模型處理）。
+  本站把倍頻方向獨立成一頁：假設注入波形自帶第 $N$ 諧波（脈衝產生器即可），從本頁 Eq.(29)
+  直接推出倍頻閉式 $\omega_L=\tfrac12\vert I_N\vert\vert\tilde\Gamma_1\vert$——見
+  [subharmonic_injection](/06_design_insights/subharmonic_injection)；除頻方向（本節主線）
+  的完整教學頁在 [injection_locked_division](/06_design_insights/injection_locked_division)。
 - 「$c_2=0$ 不能 ÷2」是一階結論：更高階的混頻仍可能留下極小的殘餘 lock range（在 lab_37 的偵測
   底線之下）。
 
@@ -314,6 +318,9 @@ function 拉回，ISF 對應的相位擾動則永久留下。本站在
   功耗低；用 ISF/APF 的第 $N$ 諧波設計除數與 lock range。
 - **dual-modulus prescaler**：靠 quadrature 注入方案在同一條 inverter-chain ring 上切換除數，
   省功耗。
+- **大注入與暫態的剩料**：Mirzaei 廣義 Adler（Eq.(8)–(9)）、精確 pull-in/pulling 閉式解
+  （Eq.(31)–(34)）、APF 驅動的振幅暫態（dip→overshoot）與大注入 pulling 頻譜的完整逐步推導、
+  數值驗證收在 [paper_004_large_injection_transient](/05_paper_deep_dives/paper_004_large_injection_transient)。
 
 ## Limitations
 

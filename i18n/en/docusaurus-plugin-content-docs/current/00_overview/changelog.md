@@ -17,6 +17,27 @@ Newest version first.
 
 ---
 
+## v10: Subharmonic injection, the injection/frequency-conversion mini-chapter, growth-debt payoff
+
+**Rollback points**: `v9-stable` (`ab33656`) / branch `backup/v9-stable` / v9 live gh-pages `0bd6af7b4`; intermediate `v10-w1-partial` (`dd35ce7`).
+
+- **Subharmonic injection (headline)**: [subharmonic_injection](/06_design_insights/subharmonic_injection) — from [P3] p.2112 (impulse train every M periods = subharmonic locking, transcribed verbatim) and [P4] Eq.(28)–(30): only the N-th harmonic of the injection waveform couples to the ISF fundamental ($\omega_L=\tfrac12\lvert I_N\rvert\lvert\tilde\Gamma_1\rvert$) ⇒ **a pure sub-harmonic sinusoid does not lock to first order**; impulse-train route $\Delta\omega_L\propto1/N$; realignment factor $\beta=-q_{inj}\tilde\Gamma'(\theta_{ss})$; discrete-time noise loop, corner, closed-form output jitter (MC ratio 0.999); ILCM vs PLL vs sub-sampling table. Two brief assumptions corrected honestly: the ring's edge comes from $q_{max}$ (×100), not ISF slope; no interior optimum in N at fixed $f_0$ (the real optimum is in β). lab_40 (six experiments: 1/N slope −1.000, pulse train 15/15 locks vs pure sine 0/15, measured β 0.0486 vs 0.0498, spur error ≤0.01 dB) + SubharmonicInjectionExplorer widget.
+- **Standalone ILFD page**: [injection_locked_division](/06_design_insights/injection_locked_division) (divider↔multiplier duality; M:N noise corner $\omega_c=N\sqrt{\omega_L^2-\Delta\omega^2}$ = [P4] Eq.(32)).
+- **[P4] large-injection model & transients**: [paper_004_large_injection_transient](/05_paper_deep_dives/paper_004_large_injection_transient) + lab_41.
+- **Theory map**: [theory_map](/00_overview/theory_map) (236 breadcrumb edges, 56-node mermaid).
+- **Growth debt**: chapter 06 regrouped into 3 sub-categories and 3 orphaned sidebar entries restored; print CSS; GitHub Discussions + issue templates; deprecation warning fixed; EN full parity pass over 91 pages (8 fixes).
+- **Pagefind evaluation: NO-GO** (Chinese recall ~1% on core terms; report in `scripts/pagefind_integration_patch.md`); current search kept.
+- Process note: fable 5 hit 529 overload three times; the S2 page was finished by sonnet from the already-verified simulation; an unquoted `: ` in the EN lab_40 front matter broke the en build again — fixed and now part of the gate.
+- Scale: **97 pages × 2 locales, 56 figures, 49 simulations, 21 interactive components, 160 checkable examples (147 auto-pass / 0 errors)**.
+
+## v9: growth-debt payoff + learning path v2 + EN audit + paper finishers (G1–G4)
+
+- equation_index 28→62 rows; figure_index 52→53 figures, zero orphans; cheat_sheet v2; `scripts/update_stats.py` keeps facade stats in sync; build_report slimmed + this changelog split out.
+- learning_path 9→12 steps (12-item progress checklist); quizzes 10→33; [final_exam](/04_simulation_labs/final_exam) (10 cross-chapter questions); capstone toolbox pointers.
+- EN: 92-file terminology audit (0 real drift; 4 files fixed), 16-page parity spot-check all pass; widget a11y (12 components).
+- [P2] Appendix A as a teaching asset (actual location p.802–803); [P1] Fig.29/30 conceptual replica.
+- Scale: 92 pages × 2, 53 figures, 46 sims, 20 widgets, 156 examples (145/0/0).
+
 ## v8: three enhancement waves (A/B/C/D, all delivered)
 
 **All 23 units delivered** (hard units → fable, mechanical/interactive units → sonnet; every unit

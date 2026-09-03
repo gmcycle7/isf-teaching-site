@@ -94,6 +94,15 @@ $N=1000$，$+60$ dB）可能逼近 1 rad，$\mathcal{L}\approx\tfrac12 S_\phi$ �
 [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)）；(2) **邊帶重疊**——offset 接近
 $f_{ref}/2$ 時第 $N\pm1$ 諧波的裙帶混進帶通；(3) 真實倍頻器有自己的加成床（規則 4）。
 
+> **ILCM 補充**：本規則假設「無記憶非線性＋帶通」——這種倍頻器**不創造雜訊**，只把輸入的
+> excess phase 原封不動放大 $N$ 倍。真實的 injection-locked clock multiplier（ILCM，注入鎖定
+> 倍頻器）不是這種機器：它是**一顆被鎖定的振盪器**，載波路徑仍是確定性的 $\phi_{out}\approx N\phi_{in}$
+> （in-band 參考雜訊照樣吃 $N^2S_{ref}$、$+20\log_{10}N$，與本規則一致），但**它自己的自由跑
+> 相位雜訊被一階離散時間迴路高通整形**（corner $\approx\beta f_{ref}/2\pi$，$\beta$=每根參考
+> 脈衝的 realignment factor）取代了本規則「乾淨常數移位」的假設——offset 越過 corner，輸出
+> 雜訊由 ILCM 自己的振盪器品質決定，不再是 $+20\log_{10}N$ 能描述的。完整推導見
+> [subharmonic_injection](/06_design_insights/subharmonic_injection)。
+
 ## 規則 2：理想 ÷N 除頻 —— $-20\log_{10}N$ 的嚴格出處
 
 [quadrature_and_coupled_oscillators](/06_design_insights/quadrature_and_coupled_oscillators) 頁在

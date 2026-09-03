@@ -108,17 +108,17 @@ Leeson↔ISF 疊圖、設計掃描、PLL transfer、BER bathtub）為公式計�
 
 ## 11. `python scripts/run_all_sims.py` 是否成功？
 
-**成功**：**45 個模擬腳本（38 個 lab_* ＋ 7 個 fig_*）全數通過**，產生 52 張圖到
+**成功**：**49 個模擬腳本全數通過**，產生 56 張圖到
 `static/figures/`。關鍵驗證：Lorentzian 模擬頻譜吻合理論、近載波轉平；Allan deviation 三種
 FM 斜率精準落在 −1/2、0、+1/2；PLL 最佳 loop BW≈6.9 MHz、σ_t≈259 fs；數值法萃取 ISF 與理論
 −sinθ 最大誤差 ~0.001；白噪 S_φ 與 1/f² 線吻合約 3 個十倍頻；jitter 積分數值=解析（447.9 fs）。
 
 ## 12. 現在的站點規模與例題 QA
 
-**站點規模：90 頁 × 2 語系、52 圖、45 個模擬、20 個互動元件。**
+**站點規模：97 頁 × 2 語系、56 圖、49 個模擬、21 個互動元件。**
 
 `scripts/verify_examples.py` 把 docs 內每個有「標準答案」(`# ->`) 的 Python 例題實際跑一遍對數值：
-**144 個可驗證 block 中 133 個自動通過、0 個不符、0 個錯誤**；其餘為驗證器對註解裡的公式常數
+**160 個可驗證 block 中 147 個自動通過、0 個不符、0 個錯誤**；其餘為驗證器對註解裡的公式常數
 （如 $2\Gamma_{rms}^2$ 的「2」）或對照用數字的誤判，經人工確認正確。`check_site_quality.py`
 掃描：pages / figures present / required figs missing / content issues / soft warnings / open
 TODOs 的最新數字見終端輸出。

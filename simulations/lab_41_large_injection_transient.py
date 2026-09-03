@@ -135,7 +135,7 @@ def fit_decay_rate(tau, dev, lo=1e-3, hi=1e-1):
 def main():
     t_start = time.time()
     a = A_STR
-    print("[lab_40] large-injection LC model + transients ([P4] Sec. III-E/F, V)")
+    print("[lab_41] large-injection LC model + transients ([P4] Sec. III-E/F, V)")
     print(f"  canonical: f0 = {F0/1e9:.0f} GHz, qmax = {QMAX*1e12:.0f} pC, Q = {Q:.0f}, "
           f"I_inj = {I_INJ*1e3:.1f} mA")
     print(f"  I_max = w0*qmax = {I_MAX*1e3:.2f} mA ; I_osc = I_max/Q = {I_OSC*1e3:.4f} mA ; "
@@ -298,7 +298,7 @@ def main():
         wb_ = 2 * np.pi * M / (t1 - t0)
         sel = (tau_ >= t0) & (tau_ <= t1)
         tt, ee = tau_[sel], env[sel]
-        return {k: abs(np.trapz(ee * np.exp(-1j * k * wb_ * tt), tt) / (t1 - t0)) for k in ks}, wb_
+        return {k: abs(np.trapezoid(ee * np.exp(-1j * k * wb_ * tt), tt) / (t1 - t0)) for k in ks}, wb_
 
     def spectrum_for_plot(env, dt_):
         w = np.hanning(env.size)
@@ -326,6 +326,11 @@ def main():
           f"k3-k2 {db(lv_i[3], lv_i[2]):+.2f} dB")
     print(f"      APF-added DC term a/2 = {a/2:.4f} -> k0 line (ISF+APF) / k0 line (ISF-only) = "
           f"{lv_a[0]/lv_i[0]:.3f} ; k2 ratio = {lv_a[2]/lv_i[2]:.3f}")
+    # attribution: is the augmented model's mirror line from the AM factor or from theta(t) itself?
+    lv_e, _ = fourier_lines(np.exp(1j * th_p_apf), taup, th_p_apf, ks)
+    print(f"      augmented e^(j theta) alone (no AM factor): k0 {db(lv_e[0], lv_e[1]):+.2f}, "
+          f"k2 {db(lv_e[2], lv_e[1]):+.2f}, mirror {db(lv_e[-1], lv_e[1]):+.1f} dB  "
+          f"(mirror line comes from the non-Adler theta(t), not from the AM factor)")
     wb_meas_isf, wb_meas_apf = wb_fi, wb_fa
 
     # ------------------------------------------------------------------
@@ -403,7 +408,7 @@ def main():
     axd.set_title(rf"(d) pulled 頻譜（$\Delta\omega=2\omega_L$）：APF 把 k=0 與 k=2 線抬高")
     axd.legend(loc="upper right", fontsize=8)
 
-    fig.suptitle("lab_40：[P4] 大注入 LC 模型（ISF/(1+A)）的鎖定捕獲、振幅暫態與 pulling 頻譜", fontsize=13)
+    fig.suptitle("lab_41：[P4] 大注入 LC 模型（ISF/(1+A)）的鎖定捕獲、振幅暫態與 pulling 頻譜", fontsize=13)
     savefig(fig, "large_injection_transient.png")
     print(f"\n  runtime {time.time()-t_start:.1f} s")
 

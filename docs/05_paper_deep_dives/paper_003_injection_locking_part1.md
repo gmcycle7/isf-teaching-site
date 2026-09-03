@@ -298,6 +298,11 @@ print(1/((q_inj/q_max)*np.cos(theta)))        # -> 128.45830271877517
   limit cycle——那是 Part II APF 的主題（[P4]）。
 - **Subharmonic**：脈衝也可以每 $M$ 個週期打一根（[P3] footnote 7, p.2112）——同一套算術、
   漂移改成累積 $M$ 個週期，這就是 subharmonic locking 的離散圖像。
+  > **[P3] footnote 7 原文**（p.2112）："...injection could also occur every $M$ periods
+  > ($M$ a positive integer), corresponding to subharmonic locking."
+  > 換句話說：**當 $T_{inj}=N\cdot T_0$（每 $N$ 個振盪週期注入一次）就是 subharmonic
+  > locking**——把上面的 $M$ 換成本站慣用的倍頻比 $N$，逐項展開、算出閉式 lock range
+  > 見 [subharmonic_injection](/06_design_insights/subharmonic_injection) 頁。
 - **超強 kick**：乘子出界（$\tfrac{q_{inj}}{q_{max}}\lvert\Gamma'\rvert\ge2$）時離散映射失穩——平均化 ODE 看不到這件事。
 
 > **已核實**：Sec. IV 的 Eq.(19)、(20)、(21)、(22)、(23) 與 footnote 7（subharmonic）、footnote 9

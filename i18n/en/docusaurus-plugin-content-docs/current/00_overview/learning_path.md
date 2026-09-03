@@ -268,10 +268,19 @@ from standard literature) remains optional — read it before starting Step 10 i
   4. [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2) — the APF
      (the amplitude counterpart of the ISF, claim **C11**) and M:N subharmonic
      locking / ILFD.
-  5. [quadrature_and_coupled_oscillators](/06_design_insights/quadrature_and_coupled_oscillators)
+  5. [injection_locked_division](/06_design_insights/injection_locked_division) — the ÷N
+     direction of M:N locking gets its own page: the lock range rides the ISF's $N$-th
+     harmonic, and half-wave symmetry can't divide by 2.
+  6. [subharmonic_injection](/06_design_insights/subharmonic_injection) — the other half
+     of the duality: multiplication rides the injection waveform's own $N$-th harmonic,
+     with a realignment factor $\beta$ and discrete-time noise shaping.
+  7. [lab_40](/04_simulation_labs/lab_40_subharmonic_injection) — an independent numerical
+     check of subharmonic injection: lock range $\propto1/N$, $\beta$'s ODE step response,
+     and the closed-form output jitter.
+  8. [quadrature_and_coupled_oscillators](/06_design_insights/quadrature_and_coupled_oscillators)
      — mutual injection = two Adler equations: the QVCO's coupling-strength ↔
      phase-error ↔ phase-noise triangular trade-off and that famous $\sim3$ dB.
-  6. [sampling_pll](/06_design_insights/sampling_pll) — sampling the zero crossing =
+  9. [sampling_pll](/06_design_insights/sampling_pll) — sampling the zero crossing =
      sampling the ISF's most sensitive point: sub-sampling makes the divider noise
      vanish and the CP noise no longer $\times N^2$.
 - **Prerequisites**: Steps 6 and 8; catching up on

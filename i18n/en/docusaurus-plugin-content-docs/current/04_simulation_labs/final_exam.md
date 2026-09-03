@@ -1,6 +1,6 @@
 ---
 title: "Final Exam: A 5 GHz LC VCO into a 25 Gb/s SerDes, End to End"
-description: "Cross-chapter final exam — one design story (a 5 GHz LC VCO into a 25 Gb/s SerDes link) threads 10 questions: impulse→Δφ, Eq.(21) white-noise L, κ² and the Lorentzian linewidth, App. B 1/f³ corner, jitter integration to 447.9 fs, the period-jitter closed form, ÷2 + buffer-floor accounting, PLL peaking 2.09 dB, aperture SNR, and dual-Dirac TJ@1e-12. Every question comes with an instant NumericQuiz, a step-by-step solution (with units + convention flags + source pages), and a Python appendix that recomputes all answers in one run."
+description: "Cross-chapter final exam — one design story (a 5 GHz LC VCO into a 25 Gb/s SerDes link) threads 11 questions: impulse→Δφ, Eq.(21) white-noise L, κ² and the Lorentzian linewidth, App. B 1/f³ corner, jitter integration to 447.9 fs, the period-jitter closed form, ÷2 + buffer-floor accounting, PLL peaking 2.09 dB, aperture SNR, dual-Dirac TJ@1e-12, and a bonus question on the 1/N lock range of an injection-locked clock multiplier (ILCM). Every question comes with an instant NumericQuiz, a step-by-step solution (with units + convention flags + source pages), and a Python appendix that recomputes all answers in one run."
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -9,9 +9,9 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # Final Exam: A 5 GHz LC VCO into a 25 Gb/s SerDes, End to End
 
-> **Prerequisites**: [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end) (the site-wide spine, end to end) and the three chapter exercise sets — [02 Foundations](/02_foundations/exercises), [03 Core Theory](/03_isf_core_theory/exercises), [06 Design Insights](/06_design_insights/exercises) (finish those first) | **Next**: none — this is the last page. Get all 10 right and you graduate.
+> **Prerequisites**: [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end) (the site-wide spine, end to end) and the three chapter exercise sets — [02 Foundations](/02_foundations/exercises), [03 Core Theory](/03_isf_core_theory/exercises), [06 Design Insights](/06_design_insights/exercises) (finish those first) | **Next**: none — this is the last page. Get all 11 right and you graduate.
 
-This is not yet another problem set. It is **an exam**: one design story, 10 checkpoints,
+This is not yet another problem set. It is **an exam**: one design story, 11 checkpoints,
 from the instant a single charge impulse hits the LC tank all the way to the eye opening of a
 SerDes link at BER $=10^{-12}$. Each question asks for exactly one "clean number", but every
 number requires cross-chapter dispatch — you will need [P1]'s ISF, [P2]'s κ and the App. B
@@ -485,7 +485,7 @@ print(round(10*np.log10(10**(L_div/10) + 10**(-155.0/10)), 2))    # -> -154.95
 
 ---
 
-## Act 3: Loop and link (Questions 8–10)
+## Act 3: Loop and link (Questions 8–11)
 
 ### Question 8 — The PLL's peaking tax (type-II peaking closed form)
 
@@ -677,9 +677,87 @@ print(round(qinv, 3), round(tj*1e12, 2))   # -> 7.034 7.3
 
 </details>
 
+### Question 11 — Bonus: what if we skip the PLL and injection-lock a multiplier instead?
+
+One last fork before graduation. Questions 7–9 took the "PLL ×50 → ÷2 → buffer" route. A
+junior colleague asks: "what if we skip the PLL entirely and drive the same $5$ GHz LC VCO
+($q_{max}=1$ pC) directly with an $f_{ref}=250$ MHz reference pulse train ($q_{inj}=50$ fC)
+as an $N=20$ injection-locked clock multiplier (ILCM)? How wide is that route's half lock
+range?" Use the impulse-train arithmetic of
+[subharmonic_injection](/06_design_insights/subharmonic_injection) (the discrete version of
+[P3] Sec. IV footnote 7) to find $f_L$.
+
+<NumericQuiz
+  prompt="Work it out first: a q_inj = 50 fC reference pulse drives an f₀ = 5 GHz, q_max = 1 pC LC VCO directly as an N = 20 injection-locked clock multiplier (ILCM); half lock range f_L = ? (answer in MHz)"
+  answer={1.989}
+  tol={0.01}
+  unit="MHz"
+  hint="Δω_L = (q_inj/q_max)/(N·T₀), f_L = Δω_L/(2π); T₀ = 200 ps."
+  solutionNote="f_L = 0.05/(2π×20×200 ps) = 1.989 MHz — the same one pulse has to pay for N = 20 periods' worth of drift; lock range ∝ 1/N. See the full solution below."
+/>
+
+<details>
+<summary><strong>Question 11 — full solution</strong> (the ILCM's $1/N$ lock range, the other route in place of the PLL)</summary>
+
+**Step 1 (the discrete arithmetic of [P3] footnote 7; full derivation on
+[subharmonic_injection](/06_design_insights/subharmonic_injection), Section 2)**: one kick
+every $N$ oscillation periods; the fixed point exists (weak injection, the $\Gamma=-\sin$
+special case) when
+
+$$
+\Delta\omega_L=\frac{q_{inj}\,\vert\tilde\Gamma\vert_{max}}{NT_0}\ \xrightarrow{\ \Gamma=-\sin\ }\ \frac{q_{inj}}{q_{max}}\cdot\frac{1}{NT_0}=\frac{q_{inj}}{q_{max}}\cdot\frac{f_0}{N}.
+$$
+
+**Step-by-step substitution (with units)**:
+
+$$
+\frac{q_{inj}}{q_{max}}=\frac{50\ \text{fC}}{1\ \text{pC}}=0.05\quad(\text{weak injection}\ll1\ \checkmark),\qquad
+T_0=\frac{1}{f_0}=200\ \text{ps},\qquad NT_0=20\times200\ \text{ps}=4\ \text{ns},
+$$
+
+$$
+\Delta\omega_L=\frac{0.05}{4\times10^{-9}\ \text{s}}=1.25\times10^{7}\ \text{rad/s},\qquad
+f_L=\frac{\Delta\omega_L}{2\pi}=1.989\ \text{MHz}.
+$$
+
+**Result**: $f_L=1.989$ MHz (canonical Example 1 on
+[subharmonic_injection](/06_design_insights/subharmonic_injection)).
+
+**Dimension check**: dimensionless $\div$ s $=$ rad/s; rad/s $\div2\pi=$ Hz ✓.
+
+**Closing the fork (why this exam picked the PLL, not the ILCM)**: the fractional lock range
+$f_L/(Nf_{ref})=(q_{inj}/q_{max})/(2\pi N)=3.98\times10^{-4}$ = **398 ppm** — two orders of
+magnitude smaller than the percent-level free-running frequency uncertainty from PVT, meaning
+this VCO would first have to be pulled to within 398 ppm before the ILCM could even lock; in
+practice that means bolting on a frequency-locked loop (FLL). Question 8's type-II PLL, by
+contrast, has a PFD with wide-range frequency acquisition built in — no auxiliary FLL needed.
+That is exactly why this exam's Act 2 settled on the PLL rather than the ILCM. But the ILCM
+isn't without its own savings: it has no divider or CP at all, and its in-band noise
+bookkeeping runs through $N^2S_{ref}\vert H_{ref}\vert^2$ ($H_{ref}$ a first-order
+discrete-time low-pass) — the same family as Question 3's PLL in-band term
+$N^2S_{ref}\vert H_{lp}\vert^2$, but a different mechanism: both routes converge on
+$\times N^2$, they just kick the divider out by different means.
+
+**Convention flag**: this question's numbers use the $\delta$-pulse (impulse-train)
+idealization, matching the canonical Example 1 on
+[subharmonic_injection](/06_design_insights/subharmonic_injection); including the sinc
+correction for a finite $10$ ps pulse width lowers it to $1.981$ MHz (a $0.4\%$ difference,
+ignored here).
+
+```python
+qinj, qmax, f0, N = 50e-15, 1e-12, 5e9, 20
+T0 = 1 / f0
+dwL = (qinj/qmax) / (N*T0)
+fL = dwL / (2*np.pi)
+print(round(fL/1e6, 3))                     # -> 1.989
+print(round((qinj/qmax)/(2*np.pi*N), 6))    # -> 0.000398 (398 ppm, the fractional lock range)
+```
+
+</details>
+
 ---
 
-## Graduation check: Python appendix (recompute all 10 questions in one run)
+## Graduation check: Python appendix (recompute all 11 questions in one run)
 
 Run from the project root with `PYTHONPATH=.`; every `# ->` is actual printed output,
 matching each solution word for word.
@@ -746,9 +824,17 @@ qinv = float(np.sqrt(2)*erfcinv(2*1e-12))
 tj = 1e-12 + 2*qinv*st
 print(round(qinv, 3), round(tj*1e12, 2))           # -> 7.034 7.3
 print(round((40e-12 - tj)*1e12, 1), round((40e-12 - tj)/40e-12, 2))  # -> 32.7 0.82
+
+# --- Q11 (bonus): the ILCM's 1/N lock range ([P3] footnote 7 discrete arithmetic)
+qinj, qmax_ilcm, N_ilcm = 50e-15, 1e-12, 20
+T0_ilcm = 1 / f0
+dwL = (qinj/qmax_ilcm) / (N_ilcm*T0_ilcm)
+fL = dwL / (2*np.pi)
+print(round(fL/1e6, 3))                             # -> 1.989
+print(round((qinj/qmax_ilcm)/(2*np.pi*N_ilcm), 6))  # -> 0.000398
 ```
 
-## Key takeaways (10 numbers to carry with you)
+## Key takeaways (11 numbers to carry with you)
 
 | Q | Tested skill | Answer | Convention flag |
 |---|---|---|---|
@@ -762,8 +848,9 @@ print(round((40e-12 - tj)*1e12, 1), round((40e-12 - tj)/40e-12, 2))  # -> 32.7 0
 | 8 | type-II peaking | 2.09 dB @ $0.786f_n$ | $10\log_{10}$ of power, no SSB business |
 | 9 | aperture SNR @ 2.5 GHz | 43.05 dB (6.86 bit) | formula convention-free; $\sigma_t$ conserved through ÷2 |
 | 10 | dual-Dirac TJ@$10^{-12}$ | 7.30 ps (eye 0.82 UI) | per-Gaussian $Q^{-1}=7.034$ |
+| 11 (bonus) | ILCM's $1/N$ lock range | $f_L=1.989$ MHz (398 ppm) | $\delta$-pulse idealization; 1.981 MHz with the finite-pulse sinc correction |
 
-All 10 correct — congratulations, you graduate. You can now account for a single charge
+All 11 correct — congratulations, you graduate. You can now account for a single charge
 impulse all the way to a SerDes link's eye margin.
 
 ## Further reading (the deep-dive page for each question)
@@ -778,4 +865,5 @@ impulse all the way to a SerDes link's eye margin.
 - Q8: [pll_noise_budget](/06_design_insights/pll_noise_budget)
 - Q9: [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter)
 - Q10: [dj_dual_dirac](/06_design_insights/dj_dual_dirac), [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)
+- Q11: [subharmonic_injection](/06_design_insights/subharmonic_injection), [lab_40_subharmonic_injection](/04_simulation_labs/lab_40_subharmonic_injection)
 - The fully rigorous spine: [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)

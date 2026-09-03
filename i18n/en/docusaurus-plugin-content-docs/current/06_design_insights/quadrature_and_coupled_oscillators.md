@@ -71,7 +71,9 @@ $90^\circ$ apart
 frequency divider)** — inject $2f_0$ into an $f_0$ oscillator and lock via the **2nd harmonic** of the ISF
 down to $f_0$ (this is exactly the ILFD of
 [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2),
-subharmonic locking).
+subharmonic locking). The full lock-range derivation ($\omega_L=I_{inj}\vert\tilde\Gamma_N\vert/2$) and
+the "half-wave symmetry can't divide by 2" payoff have their own page:
+[injection_locked_division](/06_design_insights/injection_locked_division).
 
 - **How it generates quadrature**: the two complementary outputs of the $\div 2$ (or the four nodes of a differential ÷2) are naturally $90^\circ$ apart;
   **quadrature accuracy is set by circuit symmetry, independent of tank detuning** — its biggest advantage over the QVCO.

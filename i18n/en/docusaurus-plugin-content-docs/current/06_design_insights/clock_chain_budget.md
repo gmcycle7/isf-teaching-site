@@ -93,6 +93,17 @@ into a Lorentzian (the linewidth diffusion constant $D$ is magnified by $N^2$, s
 [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)); (2) **sideband overlap** — for offsets near
 $f_{ref}/2$ the skirts of the $N\pm1$ harmonics mix into the bandpass; (3) real multipliers have their own additive floor (Rule 4).
 
+> **ILCM addendum**: this rule assumes a "memoryless nonlinearity + bandpass" — that kind of multiplier
+> **creates no noise**; it just scales the input's excess phase by $N$, unchanged. A real injection-locked
+> clock multiplier (ILCM) is not that machine: it is **a locked oscillator**, so the carrier path is still
+> deterministically $\phi_{out}\approx N\phi_{in}$ (in-band reference noise still eats $N^2S_{ref}$,
+> $+20\log_{10}N$, consistent with this rule) — but **its own free-running phase noise is high-pass shaped
+> by a first-order discrete-time loop** (corner $\approx\beta f_{ref}/2\pi$, where $\beta$ is the
+> realignment factor per reference pulse), replacing this rule's "clean constant shift" assumption. Past the
+> corner, the output noise is set by the ILCM's own oscillator quality — no longer something
+> $+20\log_{10}N$ describes. Full derivation:
+> [subharmonic_injection](/06_design_insights/subharmonic_injection).
+
 ## Rule 2: ideal ÷N division — the rigorous origin of $-20\log_{10}N$
 
 The [quadrature_and_coupled_oscillators](/06_design_insights/quadrature_and_coupled_oscillators) page, in the

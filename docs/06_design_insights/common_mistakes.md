@@ -1,13 +1,13 @@
 ---
-title: 常見錯誤陳列室：12 個真實地雷
-description: 12 個 phase-noise / jitter 工作中真實、可驗證的常見錯誤——κ² 誤當 D、SSB /4 與 /2 混用、單邊譜塞錯 jitter 核、ΔV/斜率直覺推反 ISF、corner 混淆、8/(3γ) 錯記、積分忘 ×2、把 1/f² 發散當物理、DJ_pp 誤入 TJ 公式、RBW 抹平 close-in、÷2 以為秒數減半、對 flicker 用 √N——每條附物理解釋、正確版與站內出處。
+title: 常見錯誤陳列室：13 個真實地雷
+description: 13 個 phase-noise / jitter 工作中真實、可驗證的常見錯誤——κ² 誤當 D、SSB /4 與 /2 混用、單邊譜塞錯 jitter 核、ΔV/斜率直覺推反 ISF、corner 混淆、8/(3γ) 錯記、積分忘 ×2、把 1/f² 發散當物理、DJ_pp 誤入 TJ 公式、RBW 抹平 close-in、÷2 以為秒數減半、對 flicker 用 √N、純弦波次諧波注入誤以為會鎖——每條附物理解釋、正確版與站內出處。
 ---
 
-# 常見錯誤陳列室：12 個真實地雷
+# 常見錯誤陳列室：13 個真實地雷
 
 > 先備：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) · [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) ｜ 接下來：[exercises](/06_design_insights/exercises) · [cheat_sheet](/00_overview/cheat_sheet)
 
-這一頁不教新公式。它陳列 12 個在 phase noise / jitter 工作裡**真的會犯、犯了就是
+這一頁不教新公式。它陳列 13 個在 phase noise / jitter 工作裡**真的會犯、犯了就是
 2 倍、3 dB 或 $\sqrt2$** 的錯誤——其中好幾個是本站自己在撰寫與審校過程中踩過、
 再用模擬裁決修正的（我們把修正紀錄誠實留在各頁）。每一條都是同一個格式：
 
@@ -30,6 +30,7 @@ description: 12 個 phase-noise / jitter 工作中真實、可驗證的常見錯
 | 10 | RBW 太寬量 close-in | 本例偏高 2.5 dB（且可更糟） | [measurement_and_spurs](/06_design_insights/measurement_and_spurs) |
 | 11 | ÷2 後以為 jitter（秒）也減半 | 秒數其實**一顆 fs 都沒變** | [clock_chain_budget](/06_design_insights/clock_chain_budget) |
 | 12 | 對 flicker 用白噪 $\sqrt N$ 累積律 | $N=10$ 時低估 ~3 倍 | [jitter_kernels](/02_foundations/jitter_kernels) |
+| 13 | 純弦波次諧波注入以為會鎖 | 一階內 lock range $=0$（不是變窄） | [subharmonic_injection](/06_design_insights/subharmonic_injection) |
 
 ---
 
@@ -304,11 +305,35 @@ log-band caveat）、[lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_mod
 [allan_variance](/02_foundations/allan_variance)（同一件事的 ADEV 版：white FM
 $\tau^{-1/2}$ vs flicker FM $\tau^0$）。
 
+## 13. 純弦波次諧波注入以為會鎖——純正弦沒有第 $N$ 諧波
+
+**❌ 錯誤講法**：「我把乾淨的 $f_{ref}=f_0/N$ 正弦電流打進振盪器，跟基波注入鎖定同一套
+廣義 Adler 恢復力，應該就能鎖到 $f_0=Nf_{ref}$。」——把 injection-locked clock multiplier
+（ILCM，倍頻方向）當成基波鎖定換個注入頻率而已。
+
+**💥 為什麼錯**：[P4] Eq.(29)–(30) 逐項平均給出的選擇律是 $k=mN$——倍頻（$M=1$、$N\ge2$）
+的鎖定力 $\Omega(\theta)$ 只由「**注入波形的第 $N$ 諧波**」×「ISF 基頻」供出（見
+[subharmonic_injection](/06_design_insights/subharmonic_injection) 第 1 節）。純正弦
+$i_{inj}=I_{inj}\cos(\omega_{inj}t)$ 只有 $k=1$ 這一個諧波；$N\ge2$ 時 $\vert I_N\vert=0$，
+一階平均後 $\Omega(\theta)\equiv0$——**沒有任何恢復力，lock range 恆為零**，不是「鎖得很窄」。
+（真實電路若偶爾還是鎖上，那是振盪器自己的非線性把 $f_{ref}$ 混出了 $N$ 次諧波——[P4]
+footnote 10 明說這在 Eq.(28)–(30) 框架外，設計上不能指望它。）
+
+**✅ 正確版**：要做倍頻方向（ILCM），注入波形自己要帶第 $N$ 諧波——用脈衝產生器（窄脈衝）
+而非乾淨正弦；脈寬 $\tau_p\ll T_0$（輸出週期，不是參考週期）才能留住足夠的
+$\vert I_N\vert\propto\mathrm{sinc}(f_0\tau_p)$。canonical 例（$f_0=5$ GHz、$N=20$、
+$q_{inj}=50$ fC、$\tau_p=10$ ps）給 $f_L=1.981$ MHz；lab_40 數值驗證：同一 rms 電流下脈衝串
+15/15 網格點鎖定，換成純正弦則 0/15——一階內完全鎖不上，不是效率差一點。
+
+**📍 站內出處**：[subharmonic_injection](/06_design_insights/subharmonic_injection)（第 1 節
+第 4 步「純正弦鎖不住」）、[lab_40_subharmonic_injection](/04_simulation_labs/lab_40_subharmonic_injection)
+（實驗 (c) 的數值驗證）。
+
 ---
 
 ## 共同病根：三個 factor-of-2 家族 + 一個 LTI 慣性
 
-12 條地雷裡有 7 條（1、2、3、7、9 的 $2Q^{-1}$、11、12）本質上是**記帳慣例**問題，
+13 條地雷裡有 7 條（1、2、3、7、9 的 $2Q^{-1}$、11、12）本質上是**記帳慣例**問題，
 可歸成三家族（詳見 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)）：
 
 1. **單邊 vs 雙邊 PSD**：$S_i/2$ 的 $\delta$ 強度、$2\kappa^2$ 的單邊譜、jitter 核的 8 vs 4。
@@ -322,7 +347,7 @@ $\tau^{-1/2}$ vs flicker FM $\tau^0$）。
 
 ## 一鍵對帳：本頁所有數字的驗證 code
 
-以下把 12 條地雷中可一行驗證的數字全部重算一次（跑法：在專案根目錄
+以下把 13 條地雷中可一行驗證的數字全部重算一次（跑法：在專案根目錄
 `PYTHONPATH=. python3 <此檔>`；錯誤 9 的 DJ 數字由 `simulations/lab_31_dual_dirac.py`
 產生，見 [dj_dual_dirac](/06_design_insights/dj_dual_dirac)）：
 

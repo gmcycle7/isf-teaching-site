@@ -195,6 +195,20 @@ $$
   reference or a higher $f_{ref}$ to lower $N$
   (there's no free lunch, per rule 1 of [clock_chain_budget](/06_design_insights/clock_chain_budget)).
 
+> **ILCM comparison (same "kick the divider/CP out" goal, a completely different mechanism)**:
+> the injection-locked clock multiplier (ILCM) also drives the in-band floor to
+> reference-limited, but by a different route — the sub-sampling PLL is a **continuous-time
+> closed loop** (the divider is reduced to an auxiliary FLL; sampling the zero crossing is the
+> phase detector), while the ILCM is **discrete-time, open-loop injection** (there is no
+> PFD/CP/divider at all — a pulse generator directly "pulls" the phase toward the reference).
+> The in-band bookkeeping converges to the same destination by different paths: sub-sampling
+> gives $N^2S_{ref}\vert H_{lp}\vert^2$ (the divider term disappears, CP is no longer $\times N^2$);
+> the ILCM gives $N^2S_{ref}\vert H_{ref}\vert^2$ with $H_{ref}=\beta/(1-(1-\beta)z^{-1})$, a
+> first-order discrete-time low-pass ($\beta$ = the realignment factor) — **the same $\times N^2$,
+> two completely different ways of kicking the divider out**. The full derivation (lock range,
+> $\beta$, discrete-time noise shaping) is on
+> [subharmonic_injection](/06_design_insights/subharmonic_injection).
+
 ## Step 4: the ISF connection — sampling the zero crossing = sampling where $\lvert\Gamma\rvert$ is largest
 
 This step is where this site's main thread and sub-sampling elegantly intersect. The ISF of
@@ -471,6 +485,7 @@ higher DJ risk" trade that sub-sampling buys is exactly what the system level ne
 - Source of the zero-crossing sensitivity result (ISF): [isf_definition](/03_isf_core_theory/isf_definition), [lab_02](/04_simulation_labs/lab_02_lc_oscillator_toy_model)
 - Distinguishing and measuring spurs vs. random PN: [measurement_and_spurs](/06_design_insights/measurement_and_spurs)
 - The other half of the swing knob (the ISF side): [tank_swing](/06_design_insights/tank_swing), [waveform_slope](/06_design_insights/waveform_slope)
+- The other route to kicking the divider/CP out of the loop — discrete-time injection-locked multiplication (ILCM): [subharmonic_injection](/06_design_insights/subharmonic_injection)
 
 ## External literature (not among the five downloaded PDFs)
 

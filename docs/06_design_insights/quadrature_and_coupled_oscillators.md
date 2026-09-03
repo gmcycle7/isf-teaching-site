@@ -59,7 +59,8 @@ flowchart LR
 的時脈（因為 $\div 2$ 把一個輸入週期映成輸出半週期 $=90^\circ$）；或用 **ILFD（injection-locked
 frequency divider，注入鎖定除頻器）**——把 $2f_0$ 注入一顆 $f_0$ 振盪器，靠 ISF 的**第 2 諧波**鎖定
 到 $f_0$（這正是 [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2) 講的
-ILFD，subharmonic locking）。
+ILFD，subharmonic locking）。完整的 lock range 推導（$\omega_L=I_{inj}\vert\tilde\Gamma_N\vert/2$）
+與「半波對稱鎖不住 ÷2」的 payoff，獨立成頁見 [injection_locked_division](/06_design_insights/injection_locked_division)。
 
 - **怎麼生 quadrature**：$\div 2$ 的兩個互補輸出（或差動 ÷2 的四個節點）天然相差 $90^\circ$，
   **正交精度由電路對稱性決定，與 tank 失諧無關**——這是它相對 QVCO 的最大優點。

@@ -139,6 +139,16 @@ $$
 
 半波對稱 ISF（$c_2=c_4=\cdots=0$）⟹ ÷2 一階內鎖不上——差動節點對稱是 phase-noise 的好消息，卻是 ILFD 的壞消息（解法：換到 tail 節點取 $c_2$）。
 
+### 次諧波倍頻（×N，ILCM）：$\omega_L$、$\beta$、corner — [subharmonic_injection](/06_design_insights/subharmonic_injection)
+
+對偶的另一半：$N=1$ 時靠注入波形自己的第 $N$ 諧波（而非 ISF 諧波）扛起鎖定。canonical：$f_0=5$ GHz、$q_{max}=1$ pC、$N=20$（$f_{ref}=250$ MHz）、$q_{inj}=50$ fC。
+
+| 量 | 公式 | canonical 值 |
+|---|---|---|
+| 倍頻 lock range | $\omega_L=\tfrac12\vert I_N\vert\vert\tilde\Gamma_1\vert$（δ 列：$\Delta\omega_L=\dfrac{q_{inj}}{q_{max}}\cdot\dfrac{f_0}{N}$） | $f_L=1.989$ MHz |
+| realignment factor | $\beta\equiv-q_{inj}\tilde\Gamma'(\theta_{ss})$（$0\lt\beta\lt2$ 穩定，$\approx1/\beta$ 次注入收斂） | $0.0498$ |
+| 雜訊 corner | $f_c\approx\beta f_{ref}/2\pi$（鎖定中心 $=\Delta f_L$） | $2.09$ MHz |
+
 ### ADEV floor：$\sqrt{2\ln2\cdot h_{-1}}$ — [allan_variance](/02_foundations/allan_variance)
 
 $$

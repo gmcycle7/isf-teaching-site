@@ -162,6 +162,16 @@ $$
   要再往下，只能換更乾淨的參考或提高 $f_{ref}$ 降 $N$
   （[clock_chain_budget](/06_design_insights/clock_chain_budget) 的規則 1 沒有免費午餐）。
 
+> **ILCM 對照（同一個「踢出 divider/CP」目標，機制完全不同）**：injection-locked clock
+> multiplier（ILCM，注入鎖定倍頻器）也把 in-band 地板做到 reference-limited，但走的是
+> 另一條路——sub-sampling PLL 是**連續時間閉環**（divider 只剩輔助 FLL、取樣過零點當鑑相器）；
+> ILCM 是**離散時間、開環注入**（沒有 PFD/CP/divider 這回事，脈衝產生器直接把相位「拉」向
+> 參考）。兩者的 in-band 記帳殊途同歸：sub-sampling 是 $N^2S_{ref}\vert H_{lp}\vert^2$（divider
+> 項消失、CP 不再 $\times N^2$）；ILCM 則是 $N^2S_{ref}\vert H_{ref}\vert^2$，$H_{ref}=\beta/(1-(1-\beta)z^{-1})$
+> 為一階離散低通（$\beta$=realignment factor）——**同一個 $\times N^2$，兩種完全不同的「怎麼把 divider
+> 踢出去」**。完整推導（lock range、$\beta$、離散時間雜訊整形）見
+> [subharmonic_injection](/06_design_insights/subharmonic_injection)。
+
 ## 第 4 步：ISF 連結——取樣過零點＝取樣 $\lvert\Gamma\rvert$ 最大的地方
 
 這一步是本站主線與 sub-sampling 的漂亮交會。理想 LC 振盪器輸出 $V=A\cos(\omega_0 t)$ 的
@@ -401,6 +411,7 @@ SerDes 取樣時脈的 jitter 預算裡，in-band 地板往往是大頭
 - 過零點敏感度的 ISF 出處：[isf_definition](/03_isf_core_theory/isf_definition)、[lab_02](/04_simulation_labs/lab_02_lc_oscillator_toy_model)
 - spur vs 隨機 PN 的分辨與量測：[measurement_and_spurs](/06_design_insights/measurement_and_spurs)
 - swing 這個旋鈕的另一半（ISF 端）：[tank_swing](/06_design_insights/tank_swing)、[waveform_slope](/06_design_insights/waveform_slope)
+- 另一條把 divider/CP 踢出迴路的路——離散時間注入鎖定倍頻（ILCM）：[subharmonic_injection](/06_design_insights/subharmonic_injection)
 
 ## 外部文獻（不在下載的 5 篇 PDF 內）
 

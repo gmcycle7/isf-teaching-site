@@ -80,6 +80,19 @@ description: 每條核心公式 → 最終形式、推導頁、來源論文。
 | 61 | ×N / ÷N 相位縮放規則 | 理想 $\times N$：$\mathcal{L}_{out}=\mathcal{L}_{in}+20\log_{10}N$；理想 $\div N$：$\mathcal{L}_{out}=\mathcal{L}_{in}-20\log_{10}N$ | [clock_chain_budget](/06_design_insights/clock_chain_budget) | 標準頻率合成結果（外部文獻）；本站逐步從 $\phi_{out}=N\phi_{in}$ 或 $\phi_{in}/N$ 與 $S_\phi\propto\phi^2$ 推導 | 「規則 1」「規則 2」節 | final |
 | 62 | 注入鎖定 OU 雜訊整形（一階 PLL）與鎖外拍頻 | $S_\theta(\omega)=\dfrac{S_n}{\omega_c^2+\omega^2}$（corner $\omega_c=\sqrt{\omega_L^2-\Delta\omega^2}$）；鎖外 $\omega_b=\sqrt{\Delta\omega^2-\omega_L^2}$（[P4] Eq.34） | [injection_locking_noise](/06_design_insights/injection_locking_noise) | corner 為 [P3] Eq.(40) 之 pull-in frequency 的原生結果；把雜訊掛上 Adler 讀出整形 PSD 為標準注入鎖定雜訊理論（外部文獻：Kurokawa 1973，非本站 5 篇 PDF）；$\omega_b$ 為本站從 Adler 方程分離變數逐步積分導出，與 [P4] Eq.(34), p.2130 一致 | Part A 第 3 步；Part B 第 2 步 | final (verified) |
 
+## v9 新增公式（次諧波／大注入倍頻器）
+
+> 本節整合次諧波注入（ILCM，injection-locked clock multiplier）與 [P4] 大注入剩料波次新增的 headline 公式；LaTeX 逐字取自對應教學頁，不重新推導。
+
+| # | Concept | Final Formula | 推導頁 Derivation | 來源 Source | 站內出處 | Notes |
+|---|---|---|---|---|---|---|
+| 63 | 次諧波（×N）倍頻 lock range——由 [P4] Eq.(29) 推出的閉式 | $\Omega(\theta)\approx\frac12\vert I_N\vert\vert\tilde\Gamma_1\vert\cos\big(\theta+\angle\tilde\Gamma_1-\angle I_N\big),\qquad\omega_L=\frac12\vert I_N\vert\,\vert\tilde\Gamma_1\vert$ | [subharmonic_injection](/06_design_insights/subharmonic_injection) | 本站從 [P4] Eq.(29), p.2129（已核實）代入 $(M,N)_{[P4]}=(N,1)$ 逐項平均推出；與 [P3] Sec. IV footnote 7（p.2112，已核實）的脈衝列算術逐項對帳 | 「路線一」第 3 步 | final (verified) |
+| 64 | realignment factor $\beta$（一根脈衝拉回的比例） | $\beta\equiv-q_{inj}\,\tilde\Gamma'(\theta_{ss})$（穩定 $0\lt\beta\lt2$；$\beta/T_{inj}=\omega_c=-\Omega'(\theta_{ss})$＝[P3] Eq.(40) 的 pull-in frequency） | [subharmonic_injection](/06_design_insights/subharmonic_injection) | 本站從線性化 per-pulse map $\theta_{k+1}=\theta_k+\Delta\omega_0NT_0+q_{inj}\tilde\Gamma(\theta_k)$ 推出（[P3] Sec. IV footnote 7 的離散算術延伸） | 第 3 節 | final (verified) |
+| 65 | 一階離散時間迴路的雜訊 corner（$\Delta\omega=0$ 時 $=\Delta\omega_L$） | $f_c=\dfrac{\beta}{1-\beta}\cdot\dfrac{f_{ref}}{2\pi}\approx\dfrac{\beta f_{ref}}{2\pi}$；精確離散閉式 $f_c'=\dfrac{f_{ref}}{2\pi}\arccos\!\big(1-\dfrac{\beta^2}{2(1+\beta)}\big)$ | [subharmonic_injection](/06_design_insights/subharmonic_injection) | 本站從 $H_{osc}(z)=(1-z^{-1})/(1-(1-\beta)z^{-1})$ 的 $\vert H\vert^2=1/2$ 點求出；與 [injection_locking_noise](/06_design_insights/injection_locking_noise) 的連續版 $\omega_c=\sqrt{\omega_L^2-\Delta\omega^2}$ 在 $f\ll f_{ref}$ 一致 | 第 4.2 節 | final (verified) |
+| 66 | 輸出 jitter 閉式（時間平均相位方差） | $\sigma_{out}^2=\sigma_w^2\Big[\dfrac{(1-\beta)^2}{\beta(2-\beta)}+\dfrac12\Big]=\kappa^2NT_0\cdot\dfrac{1-\beta+\beta^2/2}{\beta(2-\beta)}$（$\sigma_w^2=\kappa^2T_{inj}$；MC 比值 0.999） | [subharmonic_injection](/06_design_insights/subharmonic_injection) | 本站從線性化 map 的幾何級數 $\theta_k^-=\sum_j(1-\beta)^jw_{k-j}$ 逐步推出；$\kappa^2$ 為 [P2] Eq.(11), p.793（已核實）的方差成長率 | 第 4.3 節 | final (verified) |
+| 67 | Generalized Adler（Mirzaei）與大注入 lock range（[P4] Eq.(8)–(9)） | $\dfrac{d\theta}{dt}=\omega_0-\omega_{inj}-\dfrac{\omega_0}{2Q}\dfrac{I_{inj}\sin\theta}{I_{osc}+I_{inj}\cos\theta}$（Eq.8）；$\omega_L=\dfrac{\omega_0}{2Q}\dfrac{I_{inj}}{I_{osc}}\dfrac{1}{\sqrt{1-I_{inj}^2/I_{osc}^2}}$（Eq.9） | [paper_004_large_injection_transient](/05_paper_deep_dives/paper_004_large_injection_transient) | paper_004 (Hong Part II 2019), Sec. III-A, p.2123（逐字轉錄，已核實） | 第 1.1 節 | final (verified) |
+| 68 | 反比於振幅的有效 ISF（[P4] Eq.(13)） | $\tilde\Gamma_{LC}=\dfrac{\tilde\Gamma}{1+A}$ | [paper_004_large_injection_transient](/05_paper_deep_dives/paper_004_large_injection_transient) | paper_004, Sec. III-C, p.2124（逐字轉錄，已核實） | 第 1.2 節 | final (verified) |
+
 ## 圖例
 
 - **final**：該主題的最終結果公式。

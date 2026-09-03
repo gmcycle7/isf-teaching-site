@@ -220,10 +220,16 @@ claim **C13**，**不在這 5 篇 PDF 內**，以標準文獻補充）維持選�
      閉式解、鎖定邊緣的臨界慢化、noise-induced cycle slip。
   4. [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2)——APF
      （振幅版 ISF，claim **C11**）與 M:N 次諧波鎖定／ILFD。
-  5. [quadrature_and_coupled_oscillators](/06_design_insights/quadrature_and_coupled_oscillators)
+  5. [injection_locked_division](/06_design_insights/injection_locked_division)——把 M:N 鎖定的
+     ÷N 方向獨立成一頁：lock range 騎在 ISF 第 $N$ 諧波、半波對稱鎖不住 ÷2。
+  6. [subharmonic_injection](/06_design_insights/subharmonic_injection)——對偶的另一半：倍頻靠
+     注入波形自己的第 $N$ 諧波，realignment factor $\beta$ 與離散時間雜訊整形。
+  7. [lab_40](/04_simulation_labs/lab_40_subharmonic_injection)——次諧波注入的獨立數值驗證：
+     lock range $\propto1/N$、$\beta$ 的 ODE 步階響應、輸出 jitter 閉式。
+  8. [quadrature_and_coupled_oscillators](/06_design_insights/quadrature_and_coupled_oscillators)
      ——互注入＝兩條 Adler：QVCO 的耦合強度↔相位誤差↔phase noise 三角權衡與那個
      $\sim3$ dB。
-  6. [sampling_pll](/06_design_insights/sampling_pll)——取樣過零點＝取樣 ISF 最敏感處：
+  9. [sampling_pll](/06_design_insights/sampling_pll)——取樣過零點＝取樣 ISF 最敏感處：
      sub-sampling 讓 divider 雜訊消失、CP 雜訊不再 $\times N^2$。
 - **先備**：第 6、8 步；建議先補 [effective_isf](/03_isf_core_theory/effective_isf)
   （cyclostationary 修正，見本節開頭）。

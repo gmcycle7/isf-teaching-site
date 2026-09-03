@@ -30,7 +30,7 @@ of the papers.
 | **[P1]** | A General Theory of Phase Noise in Electrical Oscillators | 1998 | **ISF core foundation** (definition, derivation, design rules) | Core | [paper_001](/05_paper_deep_dives/paper_001_general_theory_phase_noise) |
 | **[P2]** | Jitter and Phase Noise in Ring Oscillators | 1999 | ISF applied to rings: jitter, $N$-scaling, symmetry | Core extension | [paper_002](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring) |
 | **[P3]** | Injection Locking & Pulling—Part I (time-synchronous) | 2019 | The same ISF yields the **generalized Adler equation**, lock range | Advanced | [paper_003](/05_paper_deep_dives/paper_003_injection_locking_part1) |
-| **[P4]** | Injection Locking & Pulling—Part II (APF / frequency division) | 2019 | Introduces the **APF** (amplitude counterpart of the ISF), ILFD | Advanced | [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2) |
+| **[P4]** | Injection Locking & Pulling—Part II (APF / frequency division) | 2019 | Introduces the **APF** (amplitude counterpart of the ISF), ILFD | Advanced | [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2) · sequel [large-injection model & transients](/05_paper_deep_dives/paper_004_large_injection_transient) (v10) |
 | **[P5]** | Design Issues in Cross-Coupled Inverter Sense Amplifier | 1998 | **Unrelated to ISF/phase noise** (see below) | Peripheral | [paper_005](/05_paper_deep_dives/paper_005_cross_coupled_sense_amp) |
 
 ## Standard citation strings (use verbatim)

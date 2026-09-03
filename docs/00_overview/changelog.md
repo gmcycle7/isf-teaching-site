@@ -13,6 +13,27 @@ description: v1 → v8 的完整版本演進紀錄，含每一版新增內容、
 
 ---
 
+## v10：Subharmonic injection、注入鎖定頻率轉換小章、成長債清償
+
+**退回點**：`v9-stable`（`ab33656`）／備份分支 `backup/v9-stable`／v9 線上 gh-pages `0bd6af7b4`；中間點 `v10-w1-partial`（`dd35ce7`）。
+
+- **Subharmonic injection（本版主角）**：[subharmonic_injection](/06_design_insights/subharmonic_injection)——從 [P3] p.2112 impulse-train（每 M 週期注入＝subharmonic locking，逐字轉錄）與 [P4] Eq.(28)–(30) 推出倍頻端：只有注入波形的第 N 諧波與 ISF 基波作用（$\omega_L=\tfrac12\lvert I_N\rvert\lvert\tilde\Gamma_1\rvert$）⇒ **純弦波次諧波一階不鎖**；impulse-train 路線 $\Delta\omega_L\propto1/N$；realignment factor $\beta=-q_{inj}\tilde\Gamma'(\theta_{ss})$；離散時間雜訊迴路、corner、閉式輸出 jitter（MC 比 0.999）；ILCM vs PLL vs sub-sampling 對照。誠實修正兩個簡報假設：ring 的優勢來自 $q_{max}$（×100）而非 ISF 斜率；固定 $f_0$ 下 N 無內部最佳點（真正最佳在 β）。lab_40（六組實驗：1/N 斜率 −1.000、pulse-train 15/15 鎖 vs 純弦波 0/15、β 量測 0.0486 vs 0.0498、spur 誤差 ≤0.01 dB）＋ SubharmonicInjectionExplorer widget。
+- **ILFD 獨立頁**：[injection_locked_division](/06_design_insights/injection_locked_division)（除頻↔倍頻對偶；M:N 雜訊 corner $\omega_c=N\sqrt{\omega_L^2-\Delta\omega^2}$＝[P4] Eq.(32)）。
+- **[P4] 大注入模型與暫態**：[paper_004_large_injection_transient](/05_paper_deep_dives/paper_004_large_injection_transient)＋lab_41（Eq.(31) 閉式 vs RK4 差 2e-14；大注入 $\omega_L=\omega_{L0}/\sqrt{1-a^2}$）。
+- **理論地圖**：[theory_map](/00_overview/theory_map)（236 條 breadcrumb 邊、56 節點 mermaid）。
+- **成長債**：06 章 20 頁分 3 組並修回 3 頁遺失的側欄條目；print CSS；GitHub Discussions＋issue 模板；棄用警告修正；EN 全量平價 91 頁（8 處修正）。
+- **Pagefind 評估：NO-GO**（中文核心詞召回 ~1%，報告 `scripts/pagefind_integration_patch.md`），保留現有搜尋。
+- 過程備註：fable 5 三度 529 過載，S2 頁面改由 sonnet 依既有模擬補完；EN lab_40 front matter 未加引號再炸 en build，已修並納入 gate。
+- 規模：**97 頁×2 語系、56 圖、49 模擬、21 互動元件、160 可驗證例題（147 自動過/0 錯）**。
+
+## v9：成長債清償＋學習動線 v2＋EN 稽核＋論文收官（G1–G4）
+
+- equation_index 28→62 列；figure_index 52→53 圖零孤兒；cheat_sheet v2；`scripts/update_stats.py` 門面數字自動同步；build_report 瘦身＋本 changelog 分頁。
+- learning_path 9→12 步（進度打勾 12 項）；quiz 10→33 題；[final_exam](/04_simulation_labs/final_exam)（10 題跨章）；capstone 工具箱指標。
+- EN：92 檔術語稽核（0 真漂移；4 檔修正）、16 頁平價抽查全過；widget a11y（12 元件補 aria）。
+- [P2] Appendix A 教學化（實際位置 p.802–803，簡報頁碼猜錯已照實修）；[P1] Fig.29/30 概念復刻。
+- 規模：92 頁×2、53 圖、46 模擬、20 互動元件、156 例題（145/0/0）。
+
 ## v8：增補三波（A/B/C/D 全做）
 
 **23 個單元全數完成**（困難→fable、機械/互動→sonnet；每單元同步寫入英文版）：

@@ -79,6 +79,15 @@ blockquote {
    not CSS-module hashes like `docItemCol_VOVn` — so this survives
    rebuilds without needing to inspect build/ output again.
    ============================================================ */
+
+/* v10: wide markdown tables scroll inside themselves instead of pushing the page (mobile) */
+.markdown table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 @media print {
   /* 1) Force the light palette regardless of the dark-mode toggle.
      Every widget card in src/components/*.js (and Infima itself) paints

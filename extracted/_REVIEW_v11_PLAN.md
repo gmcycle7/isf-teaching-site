@@ -1,0 +1,910 @@
+<!-- v11 review plan — generated 2026-09-12 by read-only multi-lens workflow wf_c627c4ab-590 (85 agents: 15 lenses, 68 adversarial verifications, 7 refuted, 61 survived → 43 items + 10 rejected). P0 items R11-01..07 spot-checked by hand against source files and general.pdf. -->
+# ISF 教學站 v11 審查計畫（synthesis）
+
+## 執行摘要（5 行）
+1. **強項**：97 頁×2 語系結構平價近乎完美；[P1]–[P4] 核心公式（Eq.21、Eq.16 N^-3/2、Eq.30/33/35、APF Eq.24–26）皆經 PDF 逐字核實，160 例題自動驗證 0 錯；v5–v10 的擴散字典／jitter 核／注入鎖定／次諧波鎖定形成完整的研究所級主脊。
+2. **P0（讀者看得到的錯）**：6 處——CDR jitter tolerance 誤標為 |H_lp|²；isf_definition 與 paper_003 對 [P3] Eq.(30) 符號說法相反；effective_isf 同一情境算出 0.22 與 0.31 兩個 Γ_rms,eff；期末題 7 打入題目給的 −155 也判對且頁尾顯示「±0%」；APF 基波 tilde 位置與 [P4] Eq.(26) 相反且一物三名（Λ̃／Λ／Δ）；首頁仍寫「9 步」但學習路徑已 12 步。
+3. **論文未教的核心段落**：[P1] Sec.III-F（Eq.28–29 收斂回 Leeson、Craninckx–Steyaert 2× 差）、[P2] Sec.V-A 短通道 Eq.27–30 與 Sec.VIII 實測 Table I–III、[P4] Sec.VII ISF shaping（Fig.15–16、Table III–IV）、[P3] Sec.V-H/I 矽驗證＋Eq.6–10／footnote 3。
+4. **系統層缺口（研究所 syllabus 對照）**：charge-pump type-II 設計式（lab_13 承諾但不存在）、ADPLL（TDC/DCO 量化雜訊）、bang-bang CDR／JTOL／SSC、reciprocal mixing／EVM、datasheet 多段 PN 積分、規格驅動設計配方；量測頁缺 xcorr 陷阱。
+5. **元資料漂移**：theory_map 停在 92 頁無 v10 注入群、figure_index 少 2 圖卻宣稱零孤兒、python_environment 列出 5 個不存在的檔名並說 14 張圖、lab_24 notebook 缺 Part 5、glossary 無 v5–v10 詞彙、notation.md 缺整個注入鎖定符號家族且 α／β／Δω／ω_c／τ₀／ζ 多義未消歧、學習路徑孤立了 9 頁被引用為先備的頁面、章節無 landing page。
+
+退回點：施工前先打 tag v10-stable
+
+---
+
+## P0（wave 1）
+| id | 項目 | 檔案 | 具體做法 | 工作量 | 模型 |
+|---|---|---|---|---|---|
+| R11-01 | CDR jitter tolerance 誤標為 \|H_lp\|² | docs/06_design_insights/pll_noise_budget.md:704–706（EN:809–811） | 改為：jitter transfer＝\|H_lp\|²（同頁 L276、lab_13）；jitter tolerance 由誤差轉移 1−H_lp=H_hp 決定，JTOL(f)≈(UI−TJ_eye)/\|H_hp(f)\|；worked：UI=40 ps、σ_t=447.9 fs→TJ=6.30 ps=0.157 UI；f_n=1 MHz、ζ=0.707→JTOL=84 UI@100 kHz／1.19 UI@1 MHz／0.84 UI@10 MHz | S | sonnet |
+| R11-02 | isf_definition 與 paper_003 對 [P3] Eq.(30) 符號說法相反 | docs/03_isf_core_theory/isf_definition.md:204（EN:206）；對照 paper_003…part1.md:328–341 | raw [P3] Eq.(30)（p.2113）為 dθ/dt=ω0−ωinj **+**(1/Tinj)∫Γ̃ i_inj；[P4] Eq.(24) Γ̃=−sinφ/q_max 與本站同號。將 isf_definition 表格列改為加號、刪除「本站 Γ 取與 [P3] 相反符號慣例」 | S | fable |
+| R11-03 | effective_isf 同情境兩個 Γ_rms,eff（0.22 vs 0.31） | docs/03_isf_core_theory/effective_isf.md:206–228 vs 263–309（EN:235–255） | toy 例把 0.707×√0.1≈0.22 改為 √(0.97×0.1)≈0.31（與例題 1 同法）；L 由 −155.1 改 −152.1 dBc/Hz、改善由「約 10 dB」改「約 7.2 dB」（與例題 2(a) 一致）；或刪 toy 段直接指向例題 1/2(a) | S | sonnet |
+| R11-04 | 期末題 7 打 −155 判對、頁尾「±0%」 | docs/04_simulation_labs/final_exam.md:396–403（EN:432–439）；src/components/NumericQuiz.js:175–176 | 題 7 改問 buffer 輸出 L(1 MHz)：−148 → ÷2 −154.02 → 與 −155 床功率相加 = −151.47 dBc/Hz，answer −151.47、tol 0.01；10 MHz 床當家案例移入 details 解答 (b)；更新 hint/solutionNote/重點回顧列 7/Python 附錄:743。NumericQuiz.js 將 Math.round(tol*100) 改為 (tol*100).toFixed(tol<0.01?1:0) | S | sonnet |
+| R11-05 | APF 基波 tilde 位置錯、一物三名 | docs/00_overview/notation.md:69、cheat_sheet.md:36、01_paper_map/equation_index.md:33、05…/paper_004_injection_locking_part2.md:66,69,79,89,98、paper_004_large_injection_transient.md:48,121–122,145,160,378–388、99_appendix/references.md:81,83、01_paper_map/claims_cross_reference.md:63、06…/subharmonic_injection.md:279、extracted/extracted_equations.json（＋5 個 EN 鏡像） | 統一為 [P4] 慣例：Λ̃(φ)＝振幅 ISF（電荷歸一，1/C，Eq.24）；Λ(φ)＝APF＝τ₀Λ̃（1/A，Eq.25）；基波 Γ̃₁=(1/q_max)∠90°、**Λ₁**=(τ₀/q_max)∠0°（Eq.26，無 tilde）；Δ(φ)/Δ₁ 全改 Λ(φ)/Λ₁；notation 主表新增 Λ̃、Λ 兩列；paper_004 加一行「tilde 表電荷歸一，APF 本身不帶 tilde（[P4] 註 6）」；changelog:163 留作歷史 | M | fable |
+| R11-06 | 首頁仍寫「9 步」 | docs/00_overview/index.md:28,37（EN:32,44） | 改「12 步循序路徑（9 步主幹＋3 步進階）」，對齊 learning_path.md 前言「共 12 步」 | S | sonnet |
+| R11-07 | [P1] Eq.(9) 頁碼 p.182→p.181（11 頁）、Eq.(1) p.181→p.180（4 頁）、Eq.(13) ltv_htm p.182→p.183 | paper_001…:66,82、isf_definition:41、capstone:82,457、lab_01:53,187、lab_02:49,191,231、lab_32:104、learning_path:81、jitter_kernels:62、phase_vs_amplitude_noise:27、clock_chain_budget:46、ltv_htm:394、extracted_equations.json:8,16、22 個 EN 鏡像 | 純字串替換（general.txt 頁首 180@106／181@209／182@299／183@402；Eq.(9) 在 line 292 屬 p.181，與 impulse_to_phase_shift:39、derivation_floquet_ppv:51 一致）。**wave 1 內先跑（序列），其餘 wave 1 項目在其後平行** | S | sonnet |
+| R11-08 | lab_24 notebook 缺 Part 5 兩段式 jitter | static/notebooks/lab_24_jitter_kernels.ipynb（mtime 早於 simulations/lab_24_jitter_kernels.py:239–352,474–484） | 執行 `python scripts/make_notebooks.py`（既有機制，make_notebooks.py:48 已列 lab_24）重生 notebook，nbclient 跑一次確認 | S | sonnet |
+
+## P1
+| id | 項目 | 檔案 | 具體做法 | 工作量 | 模型 | wave |
+|---|---|---|---|---|---|---|
+| R11-09 | [P1] Sec.III-F Eq.28–29 收斂回 LTI 模型未教 | docs/99_appendix/derivation_leeson.md（Step 5 表後；EN 鏡像）；證據 general.txt:866–903、`grep -rin craninckx docs i18n` 空 | 新增 Step 6：Γ=−sinθ（c₁=√2、Γ_rms=1/√2）代 Eq.(19)，注入 tank Rp 熱噪 4kT/Rp、q_max=CV0（Eq.28）→ Eq.(29) L=10log(kT·Rp/(Δω²C²V0²))；註明 Craninckx–Steyaert [8]（外部）因假設 AM/PM 等量而大 2×；與既有 F/Q 對映收尾 | S | fable | 2 |
+| R11-10 | [P2] 短通道 Eq.27–30 未推導＋Sec.VIII 實測驗證未教 | docs/05_paper_deep_dives/paper_002_jitter_phase_noise_ring.md（Eq.(23) 節:162 與 Eq.(31)–(35) 節:187 之間；Key figures:260 之後）、docs/01_paper_map/equation_index.md（EN 鏡像）；證據 jitter_ring.txt:528–547、789–993；`grep -n 'Eq\.(27)…(30)'` 空 | (a) 新增「Eq.(27)–(30) 短通道 velocity-saturation 電流/雜訊模型」：由 Eq.(17)+(27) 推 Eq.(28) 雜訊密度、Eq.(29) f0 近似、Eq.(30) V_char=E_cL/γ，用 E_c≈4e6 V/m、γ≈2.5（論文 #3 數字，line ~828）對長通道 γ=2/3 算劣化比，確認 N-independence 不變；(b) 新增「Measured validation (Sec.VIII)」：Table I–III 精簡版（N、W/L、VDD、Idd、f0、預測 vs 實測 L(1 MHz)）＋ #3（Idd=3.47 mA，Eq.6/23/28）與 #12（swing 1.208 V，Eq.6/33/34）兩段 `# ->` Python 重算，誠實註明論文中間數字被 OCR 吃掉、為自洽重算；equation_index 加 [P2] Eq.27–30 列 | L | fable | 2 |
+| R11-11 | [P4] Sec.VII ISF shaping for division 只有一句指標 | docs/06_design_insights/injection_locked_division.md（「設計筆記：怎麼創造 c2」:188–218 之後）、paper_004_injection_locking_part2.md（EN 鏡像）；證據 P4 raw:1001–1120；`grep 'Fig. 15\|Table IV'` 空 | 新增小節：footnote 14/15 半波對稱 Γ̃(x)=−Γ̃(x+π) ⇒ 相鄰半週期二次諧波相位踢互消（Fig.15(a)）、破壞對稱後累積（Fig.15(b)）；ω⁺_L 公式；重現 Table IV canonical／PFET-dominant／NFET-dominant（c₂ 或 η₂、Γ_rms、1.5 mA 模擬 ÷2 lock range）；引用 p.2132–2134 | M | fable | 2 |
+| R11-12 | charge-pump type-II 設計式被 lab_13 承諾但不存在＋PLL jitter–power FOM 缺 | docs/04_simulation_labs/lab_13_pll_cdr_transfer.md §2、docs/06_design_insights/pll_noise_budget.md（L101–103 承諾；L118–120 略去電阻噪；L698–706 後）、docs/06_design_insights/fom_limit.md §0、simulations/common/pll_utils.py（EN 鏡像） | (a) G(s)=(I_cp/2π)(R+1/sC)(K_vco/s)(1/N) → H_lp=(2ζω_n s+ω_n²)/(s²+2ζω_n s+ω_n²)，ω_n=√(I_cp K_vco/(2πNC))、ζ=(R/2)√(I_cp K_vco C/(2πN))；交叉連結 sampling_pll K_cp=I_cp/2π；補 loop-filter 電阻項 S_φ,R=4kTR K_vco²/(2πf)²·\|H_hp\|² 與第三極 C₃；worked：f_n=1 MHz、ζ=0.707、N=100、K_vco=50 MHz/V、I_cp=100 µA → C=1.27 pF、R=178 kΩ；加 `pll_utils.design_type2(fn,zeta,N,Kvco,Icp)`。(b) 在 pll_noise_budget L706 後加「PLL 的 jitter–power FOM」：FOM_jitter=20log(σ_t/1 s)+10log(P/1 mW)，σ_t=259 fs、P=10 mW → −241.7 dB；fom_limit §0 加一列交叉引用；引 Gao et al. JSSC 2009（已在 sampling_pll 引用） | M | fable | 2 |
+| R11-13 | ADPLL（TDC／DCO 量化雜訊）全站缺席 | 新頁 docs/06_design_insights/adpll_tdc_dco.md（＋EN）；證據 `grep -rniE 'ADPLL\|TDC\|DCO'` 僅 pll_noise_budget:683 一句延後 | 依 _AUTHORING_SPEC §7 結構；TDC 帶內床 L_TDC=(2π)²/12·(Δt_res/T_V)²/f_R（重用 pll_noise_budget L540–575 的 ΔΣ 四步與「不乘 N²」、SSB ×2 註記）；DCO L_DCO=(1/12)(Δf_res/Δf)²/f_R·sinc²(Δf/f_R)（重用 varactor 頁 L46–86 積分管線）＋ΔΣ dithering；預算式 S_out=(S_ref N²+S_TDC)\|H_lp\|²+(S_DCO+S_vco)\|H_hp\|²；worked f0=5 GHz、f_R=50 MHz：Δt_res=10/20 ps → −97.8/−91.8 dBc/Hz（vs CP 床 −121.2）；Δf_res=10 kHz@1 MHz → −127.8；外部文獻 Staszewski JSSC 2004／Wiley 2006。sidebars.js 條目與 pll_noise_budget:683 交叉連結由 R11-43 統一補 | L | fable | 2 |
+| R11-14 | SerDes 缺真正的 CDR：bang-bang PD、JTOL mask、SSC 追蹤 | 新頁 docs/06_design_insights/cdr_bang_bang_jtol.md（＋EN）、serdes_clocking_connection.md §6 TODO:156–159 加指標；證據 `grep bang.bang` 僅 lab_36:286 一句 | 依賴 R11-01。K_bb=√(2/π)/σ_j（E[sign(Δt+n)]=erf(Δt/√2σ) 斜率）；一階 BB 更新 φ[k+1]=φ[k]+K_p sign(e)、hunting DJ ±K_p；JTOL(f)=(UI−TJ_eye)/\|1−H(f)\|與 −40/−20 dB/dec mask；SSC 三角 FM；worked：σ_t=447.9 fs、UI=40 ps → K_bb=1.78e12 s⁻¹=71.3/UI；PCIe-style SSC（−0.5%、30 kHz、12.5 GHz）→ 521 UI 峰峰相位 ⇒ JTOL(30 kHz) 需 >5e2 UI（type-II 給 8.4e3 UI@10 kHz）；6-bit PI → 0.625 ps 步；DLL 不累積可作側欄；外部文獻 Lee–Kundert–Razavi JSSC 2004、Walker 2003。**Monte-Carlo lab 與 BbCdrExplorer widget 延後**（見不建議做） | M | fable | 2 |
+| R11-15 | 無規格驅動設計配方（spec→FOM 可行性→LC/ring→Q/C/L/Rp→swing/q_max→L(Δf)→jitter） | 新頁 docs/06_design_insights/design_recipe.md（＋EN）；證據 `grep -rniE '設計流程\|design recipe\|spec.?driven'` 空；fom_limit.md:432 FOM_T 未定義 | 7 步單一 worked：spec L(1 MHz)≤−120@5 GHz、P≤5 mW、TR 10% → FOM_req=187.0 dB → ring 天花板 168.3 不可行（差 18.7）、LC Q=10 197.6 可行 → C=1 pF、L=1.013 nH、Rp=318 Ω → V_max=1 V、q_max=1 pC、I_bias=(π/4)V/Rp=2.47 mA → S_i=4kT(1+γ)/Rp=1.04e-22 → Eq.(21) Γ_rms=1/√2 → −124.8 dBc/Hz（餘裕 4.8 dB，FOM 194.9）→ σ_t(1–100 MHz)=25.7 fs；迭代規則（dB/knob 引 lab_09）；定義 FOM_T=FOM+20log(TR%/10)（外部慣例）；全部 `# ->`。sidebars/fom_limit:302/learning_path step 8 連結由 R11-43 補 | L | fable | 2 |
+| R11-16 | 期末考未覆蓋第 1、4 步；題目無步驟標籤 | docs/04_simulation_labs/final_exam.md（題 1 前:58、重點回顧:775–786、Python 附錄:697–771）、docs/02_foundations/exercises.md、03_isf_core_theory/exercises.md、06_design_insights/exercises.md（＋EN） | 題 0a（step 1）：Q=20、5 GHz，τ₀=2Q/ω₀=1.27 ns（[P4] Sec.III-F p.2128），解答對比「相位永不恢復」；題 0b（step 4）：Γ=−sinθ、q_max=1 pC，Δq₁=1 fC@π/2、Δq₂=3 fC@3π/2 → Δφ=+2 mrad → Δt=63.7 fs；每題加「對應學習路徑：第 N 步」（映射見原 finding）；learning_path 加 pll_noise_budget 由 R11-20 處理 | M | fable | 2 |
+| R11-17 | quadrature_and_coupled_oscillators 是唯一無圖、無可驗證 Python 的理論頁 | 新 simulations/lab_42_coupled_qvco.py、docs/06_design_insights/quadrature_and_coupled_oscillators.md §4 末加「數值驗證」（＋EN）；證據 `grep -n '```'` 僅 mermaid:44；lab_36/37 皆單一 θ | 數值積分互注入廣義 Adler 對（[P3] Eq.(30)/(33) 形式）：重現頁面 worked（m=0.3、Q=10、Δω0/ω0=0.1% → Δφ_IQ≈1.9°）並報實際 vs 近似誤差、反相互注入 90° 穩態；產一張圖。**CoupledQvcoExplorer 與 m 甜蜜點掃描延後** | M | fable | 2 |
+| R11-20 | 學習路徑孤立了被引用為先備的頁面 | docs/00_overview/learning_path.md（＋EN）；證據：`grep -c pll_noise_budget learning_path.md`=0，但 clock_chain_budget 麵包屑「沿用 pll_noise_budget 不重推」；symmetry/lc_vs_ring 先備 tank_swing、device_noise_mapping、tank_Q；beyond_lorentzian 先備 stochastic_noise_basics | Step 1 加 tank_Q_and_energy_restoration；Step 8 依序加 tank_swing→waveform_slope→device_noise_mapping（symmetry/lc_vs_ring 之前）；Step 10 加 stochastic_noise_basics、dsp_view_of_phase_noise 近 Step 9；Step 12 在 clock_chain_budget 前加 pll_noise_budget，並列 real_oscillator_topologies、varactor 為選讀；Step 7:125 加 interactive_calculator；Step 9 讀哪幾頁加 pll_noise_budget（期末題 8、06 習題 4/8 的家）；index.md 隨手查:59–62 加互動工具連結 | M | sonnet | 3a |
+| R11-21 | glossary 無 v5–v10 詞彙 | docs/99_appendix/glossary.md（＋EN）；證據 14 詞 grep -ic 皆 0 | 新增「注入鎖定與量測」表段：realignment factor β、impulse-train locking、washboard、ILFD、dual-Dirac、ADEV、sub-sampling PLL、Lorentzian 線寬、cycle-slip/Kramers、FOM/FOM_jitter、K_push、polyphase、cross-correlation；wave 2 新頁詞（TDC/DCO、JTOL、BBPD、FOM_T）一併補；格式同既有表 | M | sonnet | 3a |
+| R11-22 | python_environment 與 README 的環境描述漂移 | docs/99_appendix/python_environment.md:43–56,60–79,88–114,117–172,250（EN 同位）；README.md:78,89 | §2 以 plot_utils.py:24–29 的 `_cjk_prefs` 探測邏輯取代硬編 Heiti TC＋刪 TODO；§3 修 5 個假檔名（lab_02_lc_toy_model.py 等）並補 pll_utils/serdes_utils/signal_utils/plot_utils；§4 改「run_all_sims 跑全部 lab_*.py+fig_*.py（49 支→56 圖）」，14 列表改標「lab_01–08 示範子集」；§5 補四模組簽章；重點回顧 14→56；README:78 改「24 個 lab 頁」、:89 改「lab_01..lab_41.py（49 個）」 | M | sonnet | 3a |
+| R11-23 | 02/03/04/06 章無 landing page | sidebars.js（`grep -c link:`=0）、i18n/en/docusaurus-plugin-content-docs/current.json:6–44 | 01/02/03/04/06/99 加 `link:{type:'generated-index', title, description, slug:'/<NN_chapter>'}`（描述文字見原 finding）；05 改 `link:{type:'doc', id:'05_paper_deep_dives/index'}` 並移除 sidebars.js:137 重複項；current.json 補 `.link.generated-index.title/.description`；由站主 `npm run build` 確認無 slug 衝突 | S | sonnet | 3a |
+| R11-24 | notation.md 缺整個注入鎖定／PLL／Allan／SerDes 符號家族，且 α、β、Δω、ω_c、τ₀、ζ、L(·)、N、M 多義未消歧 | docs/00_overview/notation.md（＋EN）；證據 `grep -cE '\\beta\|\\omega_c\|\\zeta\|omega_L\|I_\{inj\}'` 皆 0；:34 Δω 標「all」但注入群為失諧；:39 α 只列 NMF | 主表新增：ω_L、I_inj/i_inj、q_inj、ω_inj、θ(t)/θ_ss、Ω(θ)、a、N（÷N/×N，≠ring 級數）、M（M:N vs xcorr 平均數）、Γ̃ 升主表；β（realignment）與 β_[P4]（∠Γ̃₁−∠Λ₁）、FM 指數、MOS β 四義；Δω 列加注入群失諧例外並加 Δω(injection) 列；ω_c 三義（AM ω₀/2Q／注入 ω_L cosθ_ss／PLL 交越）、τ₀ 三義、ζ 二義、ω_n/f_n；α 註明 toy DC 偏移 c₀=2α 與 Allan h_α；L 列註明 L{Δω}/L{Δf}（論文括號）= L(Δf) 同一量；γ、ΔV、V_char、F_eff、K_VCO/K_push、H_lp/H_hp、S_ref/S_vco/S_cp、D（≠[P4] D(τ,φ)）、σ_y/h_α（τ 為平均時間）、RJ/DJ/TJ 各列；τ 列與 Γ 列加碰撞提示。各頁首次使用註記見 R11-40 | M | sonnet | 3a |
+| R11-27 | reciprocal mixing 與 EVM 缺席；「為何相位雜訊重要」只講 SerDes | docs/02_foundations/phase_vs_amplitude_noise.md §1:25–46 後（＋EN）；證據 grep reciprocal/EVM/OFDM 於 zh 為空 | 新小節「接收機視角：reciprocal mixing 與 EVM」：P_n,in=P_blocker+L(Δf)+10logB；L(Δf)≤P_sig−P_blocker−SNR_min−10logB；EVM_rms≈σ_φ=√(2∫L df)、EVM[dB]=20logσ_φ；worked：例 C −100 dBc/Hz、blocker −40 dBm@1 MHz、B=1 MHz → 床 −80 dBm；−148/0 dBm → −88 dBm；σ_φ=14.07 mrad → EVM 1.41%=−37.0 dB（＝adc_aperture_jitter:137 的 37.0 dB，交叉連結由 R11-30 在 adc 頁加）；外部文獻 Razavi RF Microelectronics 2e | M | sonnet | 3a |
+| R11-29 | 量測頁缺 datasheet 多段 PN 積分（12 kHz–20 MHz 帶從未出現）＋xcorr 三陷阱 | docs/06_design_insights/measurement_and_spurs.md §3.2 後:~273、方法 C:136 後（＋EN）、src/components/PhaseNoiseCalculator.js:45,104（選配）；證據 psd_phase_noise_jitter:404 自認「要分段」、`grep '12 kHz\|piecewise'` 空 | (a) §3.3 分段 log–log 閉式：m=log(L_b/L_a)/log(f_b/f_a)，∫=L_a f_a/(m+1)[(f_b/f_a)^{m+1}−1]（m=−1 用 ln）；σ_φ²=2Σ；worked 6 點表 {1k −20,10k −50,100k −80,1M −100,10M −120,100M −139.6}：12 kHz–20 MHz → σ_t=8.45 ps（97% 來自 1/f³ 段）、1–100 MHz → 448.6 fs（重現 447.9）；常見積分帶表（SONET 12k–20M、PCIe CDR 濾波、ADC 自 ~100 Hz）；np.trapezoid `# ->` 對照。(b) 方法 C 三陷阱框：反相關 AM/差模噪使 S_n1n2<0 而床「太好」（Nelson–Hati–Howe RSI 2014，DOI 待查）；M 增大應在 DUT 床飽和（連結 L152–163 表）；spur-included vs excluded：−60 dBc spur → 1.41 mrad → 45 fs@5 GHz vs clock_chain 27.6 fs | M | sonnet | 3a |
+| R11-41 | theory_map 停在 92 頁、缺 v10 注入群 | docs/00_overview/theory_map.md:3,10,22–23,366,378；證據 grep subharmonic=0 但 subharmonic_injection.md:9 等有麵包屑 | 於 wave 2/3 所有新頁（含 R11-13/14/15 及 R11-25 新麵包屑）落地後重跑麵包屑抽取，納入 subharmonic_injection、injection_locked_division、paper_004_large_injection_transient、lab_40/41 與新頁；更新頁數／節點／邊數 | M | sonnet | 4 |
+| R11-42 | figure_index 只列 54/56 圖卻宣稱零孤兒 | docs/01_paper_map/figure_index.md:138（EN:140）；證據 `ls static/figures/*.png`=56、comm 差 p1_fig2930_replica.png（isf_from_waveform:64）、subharmonic_injection_ilcm.png（subharmonic_injection:454） | 加兩列（script fig_p1_fig2930_replica.py:343、fig_subharmonic_injection.py:447）到主表與 used_in 表；54→56；wave 2/3 新圖（R11-17、R11-26）一併登錄 | S | sonnet | 4 |
+| R11-43 | EN 平價＋gate（收尾） | 全部 wave 1–3 新增內容的 EN 鏡像；i18n/en/…/04_simulation_labs/lab_10_rf_spectrum.md、fig_fom_limit 宿主頁、lab_01、lab_11:165 等嵌圖 EN 頁；i18n/en/…/02_foundations/tank_Q_and_energy_restoration.md:82–187、stochastic_noise_basics.md:80,151、03…/flicker_noise_upconversion.md:82,106；sidebars.js（三新頁條目）；pll_noise_budget:683、fom_limit:302、learning_path step 8 連結；證據 46/49 模擬腳本 label 含 CJK、`grep -rn untranslated i18n`=0 | (1) 每張含中文軸標的圖在 EN 頁下加「Translator's note」譯出圖內文字（沿 beyond_lorentzian.md:8 慣例，**不重跑 46 支腳本**）；(2) 三頁 \text{} 中文加同款譯註；(3) 同步 wave 1–3 全部 zh 新增到 EN；(4) sidebars 新增 adpll_tdc_dco、cdr_bang_bang_jtol、design_recipe 條目與交叉連結回填；(5) gate：run_all_sims、verify_examples、check_site_quality、npm run build（站主執行）。**wave 4 最後序列執行** | L | sonnet | 4 |
+
+## P2
+| id | 項目 | 檔案 | 具體做法 | 工作量 | 模型 | wave |
+|---|---|---|---|---|---|---|
+| R11-18 | [P3] 深讀頁四處：矽驗證 Sec.V-H/I 未提、經典 Adler 中間代數跳過、Eq.6–10 未引、footnote 3 限制缺 | docs/05_paper_deep_dives/paper_003_injection_locking_part1.md:79–82、~341、Key figures:389–398 後、Limitations:412–418（＋EN） | (a) :79 前插入複數域 KCL 中間式 jω_inj I_inj e^{−jθ}=[C(jθ''−(ω_inj+θ')²)+1/L]I_osc R_P（Eq.13–14, p.2111）並指明兩近似各丟哪一項才到 Eq.(15)；(b) :341 後加一句 Ω(θ)、ω_L^± 早在 Sec.II-B Eq.(9)–(10) p.2110 定義；(c) Key figures 後加「驗證：模擬與量測」小節：Fig.12–13（6 級 ring／Bose，≈1 GHz，近 Imax 仍吻合）、Fig.14–15 四顆 65-nm 量測 f0（1.32 GHz／1.09 GHz／11.9 MHz／874 MHz）、Fig.16 die photo、論文對強注入偏差的誠實註記；(d) Limitations 加 footnote 3（p.2110–2111）週期內相位變化為開放問題 | M | fable | 2 |
+| R11-19 | class-C/D/F 波形工程只有兩句帶過 | docs/06_design_insights/real_oscillator_topologies.md §(c):311–413 後新增 §(d)（＋EN）、新 simulations/lab_43_classc_classf_isf.py；證據 grep class-C 僅 effective_isf:117,124、fom_limit:289 | class-C：窄脈衝落在 ISF null（延伸 §(b):241–252 Colpitts 論證）＋同 I_bias 基波 I_bias vs 4I_bias/π → ΔL=−20log(π/2)=−3.92 dB；例 B −148 → −151.9 dBc/Hz；class-D：rail-to-rail、q_max 最大、γ 限 F；class-F：ω₀+3ω₀ 諧振 → 準方波 → Γ_rms² 降（lab 產數字，不硬寫）；引 Mazzanti–Andreani 2008、Fanori–Andreani 2013、Babaie–Staszewski 2013；保持拓樸層級 | M | fable | 2 |
+| R11-25 | 麵包屑一致化：9 個 03 章核心頁＋tank_Q 無「先備｜接下來」、2 個 06 頁用自製「前置」段、4 個章尾頁無前指 | docs/03_isf_core_theory/{isf_definition,convolution_derivation,fourier_series_of_isf,white_noise_to_phase_noise,rms_isf,lorentzian_linewidth,flicker_noise_upconversion,effective_isf,capstone_lc_end_to_end}.md、02_foundations/tank_Q_and_energy_restoration.md、06…/quadrature_and_coupled_oscillators.md:6–11、varactor_tuning_supply_pushing.md:7、01_paper_map/claims_cross_reference.md、03…/exercises.md:10、05…/paper_005…md:16、06…/exercises.md:10（＋EN） | 依 diffusion_dictionary.md:10 格式「> 先備：… ｜ 接下來：…」，先備/接下來依 learning_path 步序推得（isf_definition→convolution_derivation 等）；quadrature 接下來 sampling_pll、varactor 接下來 lc_vs_ring；章尾：claims_cross_reference→oscillator_phase、03 exercises→numerical_feeling、paper_005→symmetry、06 exercises→final_exam→math_identities | M | sonnet | 3a |
+| R11-26 | jitter_kernels（1017 行）：App.A 對帳段卡在主推導中、~800 行無圖、Step 0 表先用未定義符號 | docs/02_foundations/jitter_kernels.md:31–58,195–236,413–613（＋EN:1102 行同構）、新 docs/99_appendix/p2_appendix_a_reconciliation.md、新 simulations 小腳本（附於 lab_24） | (a) 413–613「論文原生推導：[P2] Appendix A」整段移至新附錄頁，原處留一段指標；(b) Step 3 三個 boxed 核後插一張 \|H(f)\|²（1、4sin²(πfNT)、16sin⁴(πfT)）圖；(c) Step 0 表前加一句 TIE＝絕對邊沿誤差、N-period＝一階差分（NT）、c2c＝二階差分 | M | sonnet | 3a |
+| R11-28 | 時鐘鏈缺 DLL（不累積）規則與 PI 量化 | docs/06_design_insights/clock_chain_budget.md 規則 4:203–289 後、dj_dual_dirac.md 預算表（＋EN）；證據 `grep -rnw DLL`=0 | 「規則 5：DLL——沒有振盪器就沒有 random walk」：σ²_out=σ²_ref+Nσ²_stage（有界）vs κ√Δt；一階 H(s)=ω_DLL/(s+ω_DLL)；PI b-bit → DJ_pp=UI/2^b（UI=40 ps、6 bit → 0.625 ps）；對照規則 4 的 16.0 fs 床與 4 級 50 fs DLL=100 fs；`# ->`；引 Maneatis JSSC 1996 | M | sonnet | 3a |
+| R11-30 | SerDes 例題止於 25 Gb/s NRZ、ADC 無 12-bit 1 GS/s 案例 | docs/06_design_insights/serdes_clocking_connection.md 例 2 後:~283、adc_aperture_jitter.md 表:227 與 :330 後、simulations/lab_30_aperture_jitter.py（＋EN） | 例 3：28/56 GBd PAM4，UI=35.71/17.86 ps；σ_t=447.9 fs → 0.176/0.353 UI、27.6 fs → 0.011/0.022 UI；加 DJ=1 ps → TJ=7.30 ps=0.204 UI@28 GBd；誠實框（三眼、CDR 濾波規範外部）；ADC 表加 f_in=500 MHz 列（SNR 57.03 dB、ENOB 9.18）、反向例 12 ENOB@500 MHz → σ_t≤63.5 fs → L(1 MHz)≤−117.0；27.6 fs → 81.2 dB/13.2 bit；lab_30 印表加 500 MHz 列；並在 adc_aperture:137 加「此 37.0 dB 即 EVM[dB]」交叉連結（配 R11-27） | S | sonnet | 3a |
+| R11-31 | references.md 外部文獻數自相矛盾 | docs/99_appendix/references.md:8,14,163 vs :148 [E5]、:176 | :8 See-also 加 [E5]/ltv_htm；:14「[E1]–[E4]」→「[E1]–[E5]」；:163「[E1]–[E3]」→「[E1]–[E5]」 | S | sonnet | 3a |
+| R11-32 | 無 robots.txt | 新 static/robots.txt；docusaurus.config.js:20–21 url/baseUrl | `User-agent: *` / `Allow: /` / `Sitemap: https://gmcycle7.github.io/isf-teaching-site/sitemap.xml` | S | sonnet | 3a |
+| R11-33 | 互動工具集線頁：3/7 工具無理論／lab 連結、SerDes 工具 RJ-only 未說明、lab_19/20 為裸文字 | docs/04_simulation_labs/interactive_calculator.mdx:3,35–73（＋EN）；證據 SerdesBerExplorer.js:3–5 純高斯、IsfFourierExplorer.js 只到 c₃、`ls docs/04_simulation_labs | grep lab_19` 空 | 工具 2 加 fourier_series_of_isf/rms_isf/lab_05 連結與「只到 c₃」限制；工具 3 標「純高斯 RJ、無 DJ」＋ serdes_clocking_connection/dj_dual_dirac/lab_12；工具 4 加 paper_003/injection_locking_noise/lab_36 與「正弦注入、弱注入」限制；工具 5/6 改為 `simulations/lab_19_allan.py`（圖在 allan_variance）、`lab_20_pll_budget.py`（圖在 pll_noise_budget）；front matter 描述涵蓋 7 工具（learning_path/index 入口由 R11-20 加） | S | sonnet | 3a |
+| R11-34 | capstone、final_exam、oscillator_phase、lti_vs_ltv 缺「這頁要回答什麼」 | docs/03_isf_core_theory/capstone_lc_end_to_end.md（:7 後）、04…/final_exam.md（:10 後）、02_foundations/oscillator_phase.md、lti_vs_ltv.md（:8 後）（＋EN）；範本 subharmonic_injection.md:12–17 | 依範本插入 blockquote；四段文字已在原 finding 草擬（capstone 4 問含 −145/−148、39.8 mHz、447.9 fs、6.3% UI；final_exam 通過標準 3 條；oscillator_phase 3 問；lti_vs_ltv 3 問含 0 vs −1 mrad）；直接套用並翻譯 | S | sonnet | 3b |
+| R11-35 | white_noise_to_phase_noise 751 行過長 | docs/03_isf_core_theory/white_noise_to_phase_noise.md:248–413,~688–732、新 docs/99_appendix/derivation_autocorrelation_wiener_khinchin.md、psd_phase_noise_jitter.md（＋EN） | 「嚴格頻譜推導」整段移至新附錄頁（沿 derivation_leeson 模式）留一句指標；Worked example 3（多源疊加）移入 psd_phase_noise_jitter 或短例題附錄；主頁縮至 ~400–450 行 | M | sonnet | 3b |
+| R11-36 | 7/10 頁內 NumericQuiz 的答案就印在題目上方 | docs/02_foundations/jitter_kernels.md:357→360、03…/diffusion_dictionary.md:219→224、asymmetric_isf_closed_form.md:278→284、06…/adc_aperture_jitter.md:232–255→259、clock_chain_budget.md:149→152,261→267、fom_limit.md:257–267→270、02_foundations/exercises.md:85（＋EN 同位） | 改問同公式的變體：σ_P(N=100)=1.59 fs；κ²=0.5 → 79.6 mHz；A 1.5→2 比值 2.33；adc 題移到表:228 之上或改未列參數；÷4 → −12.04 dB；B=200 MHz → 22.6 fs；Q=40 → 209.67 dB；exercises:85 hint 刪「= −1」；重跑 quiz_leak 腳本歸零 | S | sonnet | 3b |
+| R11-37 | 17/19 互動 widget 宿主頁無錨定預設值的 NumericQuiz | docs/03_isf_core_theory/effective_isf.md、lorentzian_linewidth.md、02_foundations/allan_variance.md、06…/dj_dual_dirac.md（＋EN）；預設值 EffectiveIsfExplorer.js:122–124（90°,50%,0）、LineshapeExplorer.js:196–198（−71 dBc/Hz, white, RBW 100 Hz）、AdevLiveExplorer.js:196–201、DualDiracFitter.js:201–203（σ 1.0, A 2.0 ps） | 依 asymmetric_isf_closed_form.md:284–291 格式，每頁在 widget 後加一題以 widget 預設值為題（答案由 widget 自身邏輯算出）；優先 effective_isf、lorentzian_linewidth | S | sonnet | 3b |
+| R11-38 | [P1] Sec.IV 兩處設計主張：線性負載歸屬錯給 [P2]；高 Q→對稱 duty→壓 c₀ 未連結 | docs/03_isf_core_theory/flicker_noise_upconversion.md:209（EN:209）、06_design_insights/symmetry.md:~173,196（＋EN）；證據 general.txt:1043–1063 | :209「[P2] 建議」→「[P1] 建議（Sec.IV, p.189；引 [15] Maneatis 1993、[16] Yang et al. 1997）」；symmetry.md duty 列加註「高 Q tank 本身濾除諧波使 duty 趨近 50%，獨立於 Γ_rms 路徑再壓 c₀」 | S | sonnet | 3b |
+| R11-39 | 無「哪種振盪器給哪種工作」選型表 | docs/06_design_insights/lc_vs_ring.md design knobs:308–317 後、serdes_clocking_connection.md §7 交叉連結（＋EN）；證據 `grep -rniE '決策表\|選型表\|which oscillator'` 空（本輪複驗） | 表：應用｜誰濾 VCO（CDR/PLL BW 或無）｜主導規格區｜選擇｜ISF 理由；列：SerDes TX PLL、RX CDR、ADC/DAC 取樣時鐘、RF 合成器（−120…−135 dBc/Hz@1 MHz 量級，標外部經驗值）、低功耗 BLE 級、SoC 數位時鐘、多相／寬範圍、儀器/雷達參考；沿 reference_oscillators.md:311–314 誠實橫幅 | S | sonnet | 3b |
+| R11-40 | 各頁多義符號首次使用註記（配 R11-24） | effective_isf.md:263–348 duty α→d_on；fourier_series_of_isf.md:236、convolution_derivation.md:150、flicker_noise_upconversion.md:265、lab_05:132、injection_locking_noise.md:572（toy α≠NMF）；paper_004_large_injection_transient.md:47（β 定義前移）；subharmonic_injection.md:248、varactor:246、lab_32:81（β 三義）；injection_locking_noise.md:62、lab_36:60（Δω 失諧）；phase_vs_amplitude_noise.md:291（ω_c）、jitter_kernels.md:680（ζ）（＋EN） | 各處一句「本站慣例：此 X 與 … 無關」；效果 effective_isf 內 duty 改用 d_on（占空比）以免與 NMF α 同句相撞 | S | sonnet | 4 |
+
+---
+
+## Wave 執行順序與估時（S=0.5、M=2、L=5 agent-hours）
+- **Wave 1（P0＋機械修正，8 項）**：R11-07 先序列跑（純替換），再平行 R11-01…06、08。S×7＋M×1 = **5.5 h**。打 tag `v11-w1`。
+- **Wave 2（P1 內容，fable，11 項）**：R11-09～R11-19；彼此不共檔（sidebars.js／交叉連結延到 wave 4）。S×1＋M×7＋L×3 = **29.5 h**。
+- **Wave 3a（sonnet，14 項）**：R11-20～R11-33（不含 3b）；彼此不共檔。M×8＋S×6 = **19 h**。
+- **Wave 3b（sonnet，6 項）**：R11-34～R11-39；與 3a 共檔（capstone、jitter_kernels、effective_isf、flicker、serdes、adc）故序列在 3a 之後。S×5＋M×1 = **4.5 h**。
+- **Wave 4（收尾）**：R11-40 → R11-41、R11-42 平行 → R11-43 最後序列（EN 平價＋sidebars＋連結回填＋gate）。S×2＋M×1＋L×1 = **8 h**。
+- **總計 ≈ 66.5 agent-hours**（P0 5.5 h 可單獨先上線）。
+
+## 已檢查、不建議做（含理由）
+- **重跑 46 支模擬腳本改英文軸標、產雙語圖集（圖數 56→112）**：L 級站台改動且會破壞中文圖；改以 EN 頁下「Translator's note」譯圖內文字（R11-43）。
+- **BB-CDR 的 Monte-Carlo lab_42 與 BbCdrExplorer widget**：本輪只做理論頁與 worked（R11-14）；lab/widget 留 v12。
+- **CoupledQvcoExplorer widget 與 m 甜蜜點全掃描**：只做重現頁面 worked 數字的 lab（R11-17）。
+- **reciprocal mixing/EVM 獨立新頁**：內容量一小節即足，改併入 phase_vs_amplitude_noise §1（R11-27），避免再增 sidebars 項。
+- **把 simulations/common 的 gamma_asymmetric(theta, alpha) 參數改名 dc_offset**：牽動 5+ 個 lab，只加註記（R11-40）。
+- **全站把 L{Δω} 改成 L(Δf)**：論文頁保留論文括號寫法，只在 notation.md 註明等價（R11-24）。
+- **每頁加閱讀時間估計**：Docusaurus docs plugin 無原生支援，learning_path 已有「一個下午」估計。
+- **β 消歧在 learning_path.md:226 加註**：large_injection_transient 不在學習路徑上（複驗 grep 為空），該處無需改。
+- **Pagefind 搜尋、CI 啟用、transistor-level/PDK 校準、[P5] 轉錄**：changelog v10 已 NO-GO／需站主權限／刻意排除，本輪未提。
+- **新增「Eq.(9) 頁碼」到 references.md 關鍵公式表**：R11-07 已全站修正，額外表列非必要。
+
+退回點：施工前先打 tag v10-stable
+## 附：機器可讀清單
+```json
+[
+ {
+  "id": "R11-01",
+  "priority": "P0",
+  "title": "CDR jitter tolerance 誤標為 |H_lp|²（那是 jitter transfer；tolerance ∝ 1/|1−H_lp|）",
+  "lens": "syllabus",
+  "files": [
+   "docs/06_design_insights/pll_noise_budget.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/pll_noise_budget.md"
+  ],
+  "proposal": "pll_noise_budget.md L704–706（EN L809–811）：改寫為 CDR jitter TRANSFER＝|H_lp|²（同頁 L276、lab_13）；jitter TOLERANCE 由誤差轉移 1−H_lp=H_hp 決定：JTOL(f)≈(UI−TJ_eye)/|H_hp(f)|，低頻 |H_hp|→0 故容忍度高（type-II −40 dB/dec），高頻只剩眼圖裕度。worked（站台值）：UI=40 ps（final_exam L20）、σ_t=447.9 fs → TJ@1e-12=2·7.03·σ_t=6.30 ps=0.157 UI → 裕度 0.843 UI；f_n=1 MHz、ζ=0.707 → JTOL=84 UI@100 kHz、1.19 UI@1 MHz、0.84 UI@10 MHz（用該頁自己的 |H_hp|² 公式算）。外部文獻標註 Razavi 光通訊 CDR 章（節號待查）。證據：grep -rniE 'jitter tolerance|JTOL|容忍' docs i18n/en 只有此句與兩處無公式提及。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "1"
+ },
+ {
+  "id": "R11-02",
+  "priority": "P0",
+  "title": "isf_definition 與 paper_003 對同一條 [P3] Eq.(30) 給出相反符號說法",
+  "lens": "reader",
+  "files": [
+   "docs/03_isf_core_theory/isf_definition.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/isf_definition.md"
+  ],
+  "proposal": "複驗：raw [P3] line 546–558 Eq.(30) 為 dθ/dt=ω0−ωinj **+**(1/Tinj)∫Γ̃(ωinj t+θ)i_inj dt；[P4] Eq.(24) Γ̃=−sinφ/q_max 與本站 Γ=−sinθ 同號，故 paper_003…part1.md:328–341（加號、同號慣例）正確。修 isf_definition.md:204（EN:206）[P3] 列：方程改為 dφ/dt=Δω+(1/q_max)⟨Γ(θ+φ)i_inj(θ)⟩（並明寫 Δω≡ω0−ω_inj），刪除「本站 Γ 取與 [P3] 相反符號慣例，故平均項前為 −」字句，信心欄保留「已對照原始 PDF」。",
+  "effort": "S",
+  "model": "fable",
+  "wave": "1"
+ },
+ {
+  "id": "R11-03",
+  "priority": "P0",
+  "title": "effective_isf 對同一 10% duty、峰值敏感相位閘控算出 0.22 與 0.31 兩個 Γ_rms,eff（差 3 dB）",
+  "lens": "reader",
+  "files": [
+   "docs/03_isf_core_theory/effective_isf.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/effective_isf.md"
+  ],
+  "proposal": "effective_isf.md:206–228（EN:235–255）toy 數值例子：把 Γ_rms^eff≈0.707×√0.1≈0.22 改為 √(0.97×0.1)≈0.31（與例題 1 :263–290 的窗內局部 ⟨Γ²⟩ 方法一致）；下游 L 由 −155.1 改為 −152.1 dBc/Hz（10log10(0.31²×1e-24/(1e-24×4(2π1e6)²))），「改善約 10 dB」改為「約 7.2 dB」（20log10(0.31/0.707)，與例題 2(a) :296–309 一致）；括號內對規範例 B 的 7.1 dB 比較改為 20log10(0.5/0.31)≈4.2 dB。或直接刪 toy 段、指向例題 1/2(a)。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "1"
+ },
+ {
+  "id": "R11-04",
+  "priority": "P0",
+  "title": "期末題 7 打入題目給的 −155 即判對，且 NumericQuiz 頁尾顯示「±0%」",
+  "lens": "x-assessment_scaffolding",
+  "files": [
+   "docs/04_simulation_labs/final_exam.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/final_exam.md",
+   "src/components/NumericQuiz.js"
+  ],
+  "proposal": "final_exam.md:396–403（EN:432–439）：answer=−154.95、tol=0.001，|−155+154.95|/154.95=3.2e-4 ≤ 1e-3 → 直接輸入床值判對。改問 buffer 輸出 L(1 MHz)：VCO −148@1 MHz → 理想 ÷2 −154.02 → 與 −155 床功率相加 10log10(10^−15.402+10^−15.5)=−151.47 dBc/Hz；answer={-151.47} tol={0.01}；10 MHz 床當家（−174.02→−154.95）移入 <details> 解答 (b)；同步更新 hint(:400)、solutionNote(:401)、重點回顧列 7(:783)、Python 附錄 :743 加 1 MHz 行 '# -> -151.47'。NumericQuiz.js:175–176：`Math.round(tol*100)` 改 `(tol*100).toFixed(tol<0.01?1:0)`。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "1"
+ },
+ {
+  "id": "R11-05",
+  "priority": "P0",
+  "title": "APF 基波寫成 Λ̃₁=τ₀/q_max（tilde 位置與 [P4] Eq.(24)/(26) 相反）且 APF 一物三名 Λ̃／Λ／Δ",
+  "lens": "x-notation_symbol_table",
+  "files": [
+   "docs/00_overview/notation.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/00_overview/notation.md",
+   "docs/00_overview/cheat_sheet.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/00_overview/cheat_sheet.md",
+   "docs/01_paper_map/equation_index.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/01_paper_map/equation_index.md",
+   "docs/05_paper_deep_dives/paper_004_injection_locking_part2.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/05_paper_deep_dives/paper_004_injection_locking_part2.md",
+   "docs/05_paper_deep_dives/paper_004_large_injection_transient.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/05_paper_deep_dives/paper_004_large_injection_transient.md",
+   "docs/99_appendix/references.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/99_appendix/references.md",
+   "docs/01_paper_map/claims_cross_reference.md",
+   "docs/06_design_insights/subharmonic_injection.md",
+   "extracted/extracted_equations.json"
+  ],
+  "proposal": "raw [P4] line 652–677：Eq.(24) Λ̃(φ)=cosφ/q_max,0（振幅 ISF，有 tilde，1/C）；Eq.(25) Λ=τ₀Λ̃（APF 無 tilde，1/A）；Eq.(26) Γ̃₁=(1/q_max)∠90°、Λ₁=(τ₀/q_max)∠0°（無 tilde）。修：(1) notation.md:69（EN:71）「APF Λ̃」→「振幅 ISF Λ̃／APF Λ=τ₀Λ̃」，寫 Λ₁=τ₀/q_max∠0°，主表新增兩列（Λ̃｜振幅 ISF（電荷歸一）｜1/C｜[P4] Eq.(18),(24)；Λ｜APF=∫D dτ=τ₀Λ̃｜1/A｜[P4] Eq.(19),(25)）；(2) 同樣 tilde 修正於 cheat_sheet.md:36、equation_index.md:33、paper_004_injection_locking_part2.md:66,98、references.md:83、subharmonic_injection.md:279（應為振幅 ISF |Λ̃|）、extracted_equations.json APF latex 與 5 個 EN 鏡像；(3) Δ(φ)/Δ₁ 全改 Λ(φ)/Λ₁：paper_004_injection_locking_part2.md:69,79,89、claims_cross_reference.md:63、references.md:81、paper_004_large_injection_transient.md:48,121,122,145,160,378,381,388（＋EN），保留 [P4] 式號；paper_004_injection_locking_part2 加一行「本站慣例：tilde 表電荷歸一（同 Γ̃），APF 本身不帶 tilde（[P4] 註 6）」。changelog.md:163 留作歷史不改。對照渲染 p.2128 逐字核。",
+  "effort": "M",
+  "model": "fable",
+  "wave": "1"
+ },
+ {
+  "id": "R11-06",
+  "priority": "P0",
+  "title": "首頁仍稱「9 步」學習路徑；learning_path 自 v9 起為 12 步",
+  "lens": "x-tooling_meta_drift",
+  "files": [
+   "docs/00_overview/index.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/00_overview/index.md"
+  ],
+  "proposal": "index.md:28 改「完整的 12 步循序路徑（9 步主幹＋3 步進階）見 [循序學習路徑 Learning Path](/00_overview/learning_path)」；:37 改「— 12 步、由淺入深的完整路線（9 步主幹＋3 步進階）」；EN:32 改 'The full 12-step sequential path (a nine-step backbone plus three advanced steps)…'，:44 改 'the complete 12-step route, from basics to advanced'。證據：learning_path.md:11「共 12 步」、標題 第 10/11/12 步於 :174/:208/:250，changelog v9「learning_path 9→12 步」。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "1"
+ },
+ {
+  "id": "R11-07",
+  "priority": "P1",
+  "title": "[P1] Eq.(9) 於 11 頁引為 p.182（實為 p.181，另 2 頁已寫 p.181）；Eq.(1) 引 p.181（實 p.180）；ltv_htm Eq.(13) 引 p.182（實 p.183）",
+  "lens": "consistency",
+  "files": [
+   "docs/05_paper_deep_dives/paper_001_general_theory_phase_noise.md",
+   "docs/03_isf_core_theory/isf_definition.md",
+   "docs/03_isf_core_theory/capstone_lc_end_to_end.md",
+   "docs/04_simulation_labs/lab_01_sinusoidal_oscillator.md",
+   "docs/04_simulation_labs/lab_02_lc_oscillator_toy_model.md",
+   "docs/04_simulation_labs/lab_32_mos_level1_ring.md",
+   "docs/00_overview/learning_path.md",
+   "docs/02_foundations/jitter_kernels.md",
+   "docs/02_foundations/phase_vs_amplitude_noise.md",
+   "docs/06_design_insights/clock_chain_budget.md",
+   "docs/99_appendix/ltv_htm.md",
+   "extracted/extracted_equations.json",
+   "i18n/en/docusaurus-plugin-content-docs/current/05_paper_deep_dives/paper_001_general_theory_phase_noise.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/isf_definition.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/capstone_lc_end_to_end.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/lab_01_sinusoidal_oscillator.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/lab_02_lc_oscillator_toy_model.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/lab_32_mos_level1_ring.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/00_overview/learning_path.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/jitter_kernels.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/phase_vs_amplitude_noise.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/clock_chain_budget.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/99_appendix/ltv_htm.md"
+  ],
+  "proposal": "純字串替換（general.txt 頁首 180@106、181@209、182@299、183@402；Eq.(9) 在 line 292 屬 p.181，與 impulse_to_phase_shift.md:39,169、derivation_floquet_ppv.md:51 一致；Eq.(1) line 117 屬 p.180；Eq.(13) line 422 屬 p.183）：「Eq.(9), p.182」→「Eq.(9), p.181」於 paper_001:82、isf_definition:41、capstone:82,457、lab_01:53,187、lab_02:49,191、lab_32:104；learning_path:81 與 lab_02:231「Eq.(9)–(11), p.182」→「Eq.(9) p.181, Eqs.(10)–(11) p.182」；「Eq.(1), p.181」→「p.180」於 paper_001:66、jitter_kernels:62、phase_vs_amplitude_noise:27、clock_chain_budget:46；ltv_htm:394「Eq.(13)，p.182–183」→「p.183」；extracted_equations.json:8,16 source_paper 字串；22 個 EN 鏡像同位。**wave 1 內先序列執行，其餘 wave 1 項目在其後平行**（避免與 R11-02、R11-05 同檔衝突）。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "1"
+ },
+ {
+  "id": "R11-08",
+  "priority": "P1",
+  "title": "可下載的 lab_24 notebook 是舊快照，缺 Part 5 兩段式 jitter 分析",
+  "lens": "x-tooling_meta_drift",
+  "files": [
+   "static/notebooks/lab_24_jitter_kernels.ipynb",
+   "simulations/lab_24_jitter_kernels.py",
+   "scripts/make_notebooks.py"
+  ],
+  "proposal": "執行 `python scripts/make_notebooks.py`（既有機制；make_notebooks.py:48 已列 lab_24）重生 static/notebooks/lab_24_jitter_kernels.ipynb，納入 simulations/lab_24_jitter_kernels.py 的 _bracket(:239)、part5_two_regime(:244)、make_figure_two_regime(:352) 與 main() :474–484 的呼叫；nbclient 執行一次確認。證據：notebook mtime 1783025751 < 腳本 1783265009，notebook 程式碼 grep 'part5' 為 False；其餘 6 本 notebook 皆同步。python_environment.md 該列描述不需改。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "1"
+ },
+ {
+  "id": "R11-09",
+  "priority": "P1",
+  "title": "[P1] Sec.III-F「既有模型為簡化特例」（Eq.28–29，含 Craninckx–Steyaert 2× 差）全站未教",
+  "lens": "P1",
+  "files": [
+   "docs/99_appendix/derivation_leeson.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/99_appendix/derivation_leeson.md"
+  ],
+  "proposal": "derivation_leeson.md Step 5 對照表（:109–126）後新增「Step 6：[P1] 自己的收斂——Sec.III-F Eq.(28)–(29)」：(1) 理想 LC Γ(θ)=−sinθ（c₀=0、c₁=√2、Γ_rms=1/√2，站台 true-LC 值）代 [P1] Eq.(19)；(2) 注入 tank 並聯電阻噪 i_n²/Δf=4kT/Rp、q_max=C·V0（Eq.28 設定）→ Eq.(29) L{Δω}=10log10(kT·Rp/(Δω²C²V0²))；(3) 論文自述：[8] Craninckx–Steyaert（外部，非 5 篇 PDF）因假設 AM/PM 等量貢獻而恰為本結果 2×，Eq.(19) 已只取相位半；(4) 註明與同頁既有 F/Q 對映收尾。EN 鏡像同步。證據：general.txt:866–903；`grep -rin 'craninckx\\|steyaert' docs i18n` 空；docs 中的 Sec.III-F 命中皆為 [P4]。至多引一句 ≤15 字。",
+  "effort": "S",
+  "model": "fable",
+  "wave": "2"
+ },
+ {
+  "id": "R11-10",
+  "priority": "P1",
+  "title": "[P2] 短通道分支 Eq.(27)–(30) 只剩一句結果；Sec.VIII 實測驗證（Table I–III、#3/#12 worked）全站未教",
+  "lens": "P2",
+  "merged_from": [
+   "[P2] short-channel branch (Eq.27-30) never derived, only a one-clause result",
+   "[P2] Sec.VIII measured validation (Tables I-III, oscillators #3 and #12 worked numbers) is taught nowhere"
+  ],
+  "files": [
+   "docs/05_paper_deep_dives/paper_002_jitter_phase_noise_ring.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/05_paper_deep_dives/paper_002_jitter_phase_noise_ring.md",
+   "docs/01_paper_map/equation_index.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/01_paper_map/equation_index.md"
+  ],
+  "proposal": "(a) 在 paper_002 deep-dive 的「### Eq.(23)」(:162) 與「### Eq.(31)–(35)」(:187) 之間插入「### Eq.(27)–(30)：短通道 velocity-saturation 電流/雜訊模型」：由 Eq.(17)+Eq.(27) 推 Eq.(28) 雜訊密度（如站台已由 Eq.(17) 推 Eq.(18) 之法）、Eq.(29) 短通道 f0 近似、Eq.(30) V_char=E_cL/γ；用論文 #3 數字 E_c≈4e6 V/m、γ≈2.5（jitter_ring.txt ~828–831）對長通道 γ=2/3 算長/短通道劣化倍率，並確認 N-independence 不變；lc_vs_ring.md:166 只加交叉連結不改內容。(b) 在「## Key figures」(:260) 之後新增「## Measured validation（Sec.VIII）」：Table I/II/III 精簡 markdown（N、W/L、VDD、實測 Idd、f0、預測 vs 實測 L(1 MHz)）；#3 單端（Idd=3.47 mA，Eq.6/23/28）與 #12 差動（swing 1.208 V，Eq.6/33/34）兩段 `# ->` Python 重算，誠實註明論文印出的中間數字被 OCR 抽取丟失、為自洽重算非逐字轉錄。(c) equation_index.md 加 [P2] Eq.(27)–(30) 列指向新小節。證據：jitter_ring.txt:528–547、789–993；`grep -n 'Eq\\.(27)…(30)'` 於三檔為空；`grep '^##'` 無量測節。",
+  "effort": "L",
+  "model": "fable",
+  "wave": "2"
+ },
+ {
+  "id": "R11-11",
+  "priority": "P1",
+  "title": "[P4] Sec.VII「ISF Shaping for Frequency Division」（Fig.15–16、Table III–IV）只有一句指標",
+  "lens": "P4",
+  "files": [
+   "docs/06_design_insights/injection_locked_division.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/injection_locked_division.md",
+   "docs/05_paper_deep_dives/paper_004_injection_locking_part2.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/05_paper_deep_dives/paper_004_injection_locking_part2.md"
+  ],
+  "proposal": "injection_locked_division.md「設計筆記：怎麼創造 c2」(:188–218) 之後新增小節：(1) footnote 14/15 半波對稱論證——Γ̃(x)=−Γ̃(x+π) 時相鄰注入半週期的二次諧波相位踢互消（Fig.15(a)），破壞對稱（PFET/NFET-dominant）後淨相位累積（Fig.15(b)）；ω⁺_L:=max_θ[Γ̃((ω_inj/N)t+θ)i_inj(t)]_{NT_inj}；(2) 重現 Table IV canonical／PFET-dominant／NFET-dominant 對照（c₂ 或 η₂、Γ_rms、1.5 mA 注入的模擬 ÷2 lock range）作 worked 設計例；可選 Fig.15/16 概念圖（對稱 vs 非對稱波形＋17 級 ring ISF 前五個 Fourier 係數）；引 [P4] p.2132–2134。paper_004_injection_locking_part2.md 加 Sec.VII 一段與連結。證據：P4 raw:1001–1120；`grep -n 'Fig. 15\\|Fig. 16\\|Table III\\|Table IV'` 於兩檔為空；既有段只用站台 toy 數字 c₂=0.55。",
+  "effort": "M",
+  "model": "fable",
+  "wave": "2"
+ },
+ {
+  "id": "R11-12",
+  "priority": "P1",
+  "title": "lab_13 被 pll_noise_budget 承諾含 charge-pump type-II 設計式推導但全站不存在；PLL jitter–power FOM 缺席",
+  "lens": "syllabus",
+  "merged_from": [
+   "Charge-pump type-II PLL design equations (ω_n, ζ from I_cp, K_vco, R, C, N) are promised in lab_13 but exist nowhere on the site",
+   "PLL jitter–power FOM (the standard synthesizer benchmark) is missing although the site has an oscillator FOM page and a σ_t optimum"
+  ],
+  "files": [
+   "docs/04_simulation_labs/lab_13_pll_cdr_transfer.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/lab_13_pll_cdr_transfer.md",
+   "docs/06_design_insights/pll_noise_budget.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/pll_noise_budget.md",
+   "docs/06_design_insights/fom_limit.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/fom_limit.md",
+   "simulations/common/pll_utils.py"
+  ],
+  "proposal": "(a) lab_13 §2 新增「從電路到 ω_n、ζ：charge-pump type-II 二階環設計式」：G(s)=(I_cp/2π)(R+1/sC)(K_vco/s)(1/N)（K_vco rad/s/V）→ H_lp(s)=(2ζω_n s+ω_n²)/(s²+2ζω_n s+ω_n²)，ω_n=√(I_cp K_vco/(2πNC))、ζ=(R/2)√(I_cp K_vco C/(2πN))；證明重現頁上 |H_lp|²、|H_hp|²；交叉連結 sampling_pll.md:47–51 的 K_cp=I_cp/2π 與 :137 的 S_cp,out=(2πN/I_cp)²S_i,cp；補 loop-filter 電阻項 S_φ,R=4kTR K_vco²/(2πf)²|H_hp|²（關掉 pll_noise_budget:118–120「略去」）與 fractional-N 需要的第三極 C₃（:668–675）；worked：f_n=1 MHz、ζ=0.707、N=100、K_vco=50 MHz/V、I_cp=100 µA → C=1.27 pF、R=178 kΩ（數值驗證 ω_n/2π=1.000 MHz）；pll_utils.py 加 design_type2(fn,zeta,N,Kvco,Icp)→(R,C) 與 `# ->` 區塊。(b) pll_noise_budget.md「與 SerDes 的關聯」(:698–706，R11-01 修改後) 之後加「PLL 的 jitter–power FOM」：FOM_jitter=20log10(σ_t/1 s)+10log10(P/1 mW)；σ_t=259 fs（:424 最佳點）、P=10 mW → −241.7 dB；σ_t 減半 −6 dB、功率減半 −3 dB；state-of-the-art 約 −250 dB 標外部慣例待查證；fom_limit.md §0(:25–43) 加一列交叉引用；引 Gao–Klumperink–Bohsali–Nauta JSSC 44(12) 2009（sampling_pll 已引）。外部文獻標 Gardner 3e、Razavi。依賴：R11-01 先完成（同檔 pll_noise_budget）。ADPLL 交叉連結（:683）由 R11-43 補。",
+  "effort": "M",
+  "model": "fable",
+  "wave": "2"
+ },
+ {
+  "id": "R11-13",
+  "priority": "P1",
+  "title": "全數位 PLL（TDC 量化雜訊、DCO 頻率量化雜訊）全站缺席",
+  "lens": "syllabus",
+  "files": [
+   "docs/06_design_insights/adpll_tdc_dco.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/adpll_tdc_dco.md"
+  ],
+  "proposal": "新頁「全數位 PLL：TDC 與 DCO 的量化雜訊也是同一條 ISF 記帳」（_AUTHORING_SPEC §7 結構，含先備/接下來、這頁要回答什麼）。TDC 帶內床（輸出參考）L_TDC=(2π)²/12·(Δt_res/T_V)²·(1/f_R)，推導完全比照 pll_noise_budget.md:540–575 的 ΔΣ 四步（均勻誤差 ±Δt_res/2、σ²=Δt_res²/12、相位=2πΔt/T_V、白化於 f_R），同樣標 SSB-vs-S_φ ×2 與「S_TDC 不乘 N²」（:577–583）；DCO：L_DCO(Δf)=(1/12)(Δf_res/Δf)²(1/f_R)sinc²(Δf/f_R)（頻率量化→相位積分 1/Δf²，重用 varactor_tuning_supply_pushing.md:46–86 K_VCO²S_v/Δf² 管線，加 ZOH sinc²），再以既有 (1−z⁻¹)^m 整形講 DCO LSB 的 ΔΣ dithering；預算 S_out=(S_ref N²+S_TDC)|H_lp|²+(S_DCO+S_vco)|H_hp|²。worked（f0=5 GHz→T_V=200 ps、f_R=50 MHz 同例 3）：Δt_res=10 ps → −97.8 dBc/Hz、20 ps → −91.8（vs CP 帶內床 −121.2；說明為何需細 TDC/DTC 或 BB-PD）；DCO Δf_res=10 kHz@1 MHz → −127.8 dBc/Hz、每十倍頻降 20 dB。全部 `# ->`。外部文獻：Staszewski et al. JSSC 39(12) 2004 pp.2278–2291；Staszewski & Balsara Wiley 2006（式號待查證）。可選 lab_44（sonnet，v12）。sidebars.js 條目（sampling_pll 之後）、pll_noise_budget:683 交叉連結、learning_path 提及由 R11-43 統一補。證據：`grep -rniE 'ADPLL|TDC|DCO\\b|Staszewski' docs i18n/en` 只有 pll_noise_budget:683/786 一句延後。",
+  "effort": "L",
+  "model": "fable",
+  "wave": "2"
+ },
+ {
+  "id": "R11-14",
+  "priority": "P1",
+  "title": "SerDes 模組缺真正的 CDR：bang-bang PD、JTOL mask、SSC 追蹤、PI 量化",
+  "lens": "syllabus",
+  "files": [
+   "docs/06_design_insights/cdr_bang_bang_jtol.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/cdr_bang_bang_jtol.md",
+   "docs/06_design_insights/serdes_clocking_connection.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/serdes_clocking_connection.md"
+  ],
+  "proposal": "依賴 R11-01。新頁「Bang-bang CDR：把 ISF 的 σ_t 變成 K_bb、JTOL 與 SSC 追蹤」；serdes_clocking_connection.md §6 的 TODO(:156–159) 加一句指向新頁。內容（外部文獻標註）：Alexander PD 輸出 sign(Δt)；高斯輸入 jitter σ_j 下線性化增益 K_bb=∂⟨e⟩/∂Δt=√(2/π)/σ_j（推導 E[sign(Δt+n)]=erf(Δt/(√2σ)) 在 0 的斜率）→ 站台自己的 σ_t 決定 CDR 增益；PI 迴路 φ 步 UI/2^b、一階 BB 更新 φ[k+1]=φ[k]+K_p sign(e)、hunting DJ ±K_p；JTOL(f)=(UI−TJ_eye)/|1−H(f)| 與 −40/−20 dB/dec mask 段；SSC 為 CDR 必須追的三角 FM。worked（站台值）：σ_t=447.9 fs、UI=40 ps → K_bb=1.78e12 s⁻¹=71.3/UI；TJ@1e-12=6.30 ps=0.157 UI → 裕度 0.843 UI；f_n=1 MHz、ζ=0.707 → JTOL=84/1.19/0.84 UI @100 kHz/1 MHz/10 MHz；PCIe-style SSC（−0.5% down-spread、30 kHz 三角、12.5 GHz）→ 峰峰相位=¼T_m·Δf_pk=260 週=521 UI ⇒ JTOL(30 kHz)>~5e2 UI，type-II 1/|H_hp| 給 8.4e3 UI@10 kHz 而一階環不行；6-bit PI → 0.625 ps 步（DJ_pp 項）；DLL 不累積（Maneatis JSSC 1996）作側欄框。引 Lee–Kundert–Razavi JSSC 39(9) 2004；Walker 2003；PCIe Base Spec（版本待查）。**Monte-Carlo lab_42 與 BbCdrExplorer widget 延後至 v12**。sidebars（系統與量測群，serdes_clocking_connection 後）由 R11-43 補。證據：`grep -rniE 'bang.bang|BBPD|Alexander'` 僅 lab_36:286 一句；`grep -rniE 'phase interpolat|相位內插'` 空；SSC 僅 reference_oscillators:428 一句。",
+  "effort": "M",
+  "model": "fable",
+  "wave": "2"
+ },
+ {
+  "id": "R11-15",
+  "priority": "P1",
+  "title": "無規格驅動設計配方：spec → FOM 可行性 → LC/ring → Q/C/L/Rp → swing/q_max/bias → L(Δf) → jitter",
+  "lens": "practitioner",
+  "files": [
+   "docs/06_design_insights/design_recipe.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/design_recipe.md"
+  ],
+  "proposal": "新頁 design_recipe.md（＋EN），7 步單一 worked：Step 0 spec L(1 MHz)≤−120 dBc/Hz@f0=5 GHz、P≤5 mW、TR 10%；Step 1 FOM_req=−L+20log10(f0/Δf)−10log10(P/1 mW)=120+74.0−7.0=187.0 dB；Step 2 對 fom_limit 天花板：ring 168.3 dB → 差 18.7 dB 不可行；LC Q=10 197.6 dB（/4 慣例）→ 餘裕 10.6 dB → 選 LC；Step 3 tank：C=1 pF → L=1/(ω0²C)=1.013 nH、Rp=Q·ω0·L=318 Ω（tank_Q 三種 Q 形式）；Step 4 swing：V_max=1 V（電流限制）→ q_max=C·V_max=1 pC（站台 canonical 自然落出）；I_bias=(π/4)V_max/Rp=2.47 mA、P≈2.5 mW@1 V（tank_swing.md:103 的 4/π，標外部教科書）；Step 5 S_i=4kT(1+γ)/Rp=1.04e-22 A²/Hz（γ=1，F=1+γ 引 fom_limit:462 Hegazi）；Step 6 [P1] Eq.(21) Γ_rms=1/√2 → L(1 MHz)=−124.8 dBc/Hz（餘裕 4.8 dB；FOM 194.9 dB，距天花板 2.7 dB 來自 F=2、η_P<1）；Step 7 1/f² 1–100 MHz 閉式（serdes §2）→ σ_t=25.7 fs，交棒 pll_noise_budget/clock_chain_budget；迭代註記（餘裕<0：提 Q、提 swing 至電壓限制、再接受更多功率，各 knob dB 引 lab_09）；定義 FOM_T=FOM+20log10(TR%/10) 標外部慣例（fom_limit.md:432 目前只點名未定義）。每個數字進 `# ->` 供 verify_examples。sidebars.js（振盪器設計群，fom_limit 之後）、fom_limit.md:302「距離天花板還有幾 dB」與 learning_path step 8 交叉連結由 R11-43 統一補（避免與 R11-12 同檔衝突）。證據：`grep -rniE '設計流程|design recipe|spec.?driven'` 空；exercises.md:31–44、fom_limit:362、adc:281–330、dj_dual_dirac:393–420 皆單旋鈕反推；capstone/final_exam 只從給定 q_max/Γ_rms/S_i 正向。",
+  "effort": "L",
+  "model": "fable",
+  "wave": "2"
+ },
+ {
+  "id": "R11-16",
+  "priority": "P1",
+  "title": "期末考覆蓋 12 步中的 7 步；第 1、4 步全站無任何測驗題；題目無步驟標籤",
+  "lens": "x-assessment_scaffolding",
+  "files": [
+   "docs/04_simulation_labs/final_exam.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/final_exam.md",
+   "docs/02_foundations/exercises.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/exercises.md",
+   "docs/03_isf_core_theory/exercises.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/exercises.md",
+   "docs/06_design_insights/exercises.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/exercises.md"
+  ],
+  "proposal": "(a) 題 0a（第 1 步，oscillator_phase＋tank_Q）：「Q=20、f0=5 GHz 的 LC tank，一顆 impulse 造成的振幅偏差以 τ₀=2Q/ω₀ 指數恢復（[P4] Sec.III-F p.2128）；τ₀=？（ns）」answer 1.27、tol 0.01（2×20/(2π×5e9)=1.273 ns），解答對比「相位永不恢復」。(b) 題 0b（第 4 步，convolution_derivation 疊加）：「理想 LC Γ=−sinθ、q_max=1 pC：同一週期 Δq₁=1 fC@θ=π/2、Δq₂=3 fC@θ=3π/2，淨 Δt=？（fs，f0=5 GHz）」Δφ=(−1+3)×10⁻³=+2 mrad → answer 63.7 fs、tol 0.01。兩題插在 題 1 前(:58)，標「題 0a/0b」避免重編 11 題的重點回顧；補重點回顧表(:775–786)列與 Python 附錄(:697–771)行；EN 鏡像。(c) final_exam 與三本 exercises 每題標題下加「對應學習路徑：第 N 步」（02 ex：Q1 s3、Q2 s9、Q3 s6、Q4 s9、Q5 s2、Q6 s10、Q7 s10、Q8 s9；03 ex：Q1 s3、Q2 s6、Q3 s5、Q4 s8、Q5 s5、Q6 s6、Q7 s11 先備 effective_isf、Q8 s5；06 ex：Q1–3 s8、Q4 s9、Q5–6 s9、Q7 s8、Q8 s9；期末 Q1 s3、Q2 s5、Q3/4/6 s10、Q5 s9、Q7/9/10 s12、Q8 s9(pll_noise_budget)、Q11 s11）。learning_path step 9 加 pll_noise_budget 交由 R11-20。依賴：R11-04 先完成（同檔 final_exam）。證據：`grep -n '卷積|convolution|極限環|limit cycle|切向|徑向'` 於四份題目檔只命中解答散文。",
+  "effort": "M",
+  "model": "fable",
+  "wave": "2"
+ },
+ {
+  "id": "R11-17",
+  "priority": "P1",
+  "title": "quadrature_and_coupled_oscillators 是 03/06 章唯一無圖、無可驗證 Python 的理論頁",
+  "lens": "labs_widgets",
+  "files": [
+   "simulations/lab_42_coupled_qvco.py",
+   "docs/06_design_insights/quadrature_and_coupled_oscillators.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/quadrature_and_coupled_oscillators.md"
+  ],
+  "proposal": "新增 simulations/lab_42_coupled_qvco.py：數值積分 §4 的互注入廣義 Adler 對 dθ_A/dt=(ω0A−ω_ref)+Ω(θ_A−θ_B)、B 對稱（[P3] Eq.(30)/(33) 形式，頁上已用），掃 m 與 Δω0/ω0：(a) 重現頁面 worked（m=0.3、Q=10、Δω0/ω0=0.1% → Δφ_IQ≈(Q/m)(Δω0/ω0)≈1.9°）並報實際 vs 近似誤差；(b) 反相互注入的 90° 穩態鎖；產一張圖（I/Q 相位誤差 vs m、Δω0）存 static/figures/；頁面 §4 末加「數值驗證」小節嵌圖＋`# ->` 區塊＋一題 NumericQuiz（1.9°）。tradeoff 部分引頁尾既有 [E-Andreani-QVCO]/[E-Romano-QVCO] 外部文獻；Adler 力學為 [P3] verbatim。**CoupledQvcoExplorer widget 與 m∼0.2–0.5 甜蜜點全掃描延後 v12**。EN 鏡像。證據：頁面 353 行僅 mermaid 區塊(:44)、無 `![`；`grep -iln 'coupled|mutual|QVCO' simulations/lab_*.py` 僅 lab_21（靜態拓樸）；lab_36/37 皆單一 θ。",
+  "effort": "M",
+  "model": "fable",
+  "wave": "2"
+ },
+ {
+  "id": "R11-18",
+  "priority": "P2",
+  "title": "[P3] 深讀頁四處補強：矽驗證 Sec.V-H/I、經典 Adler 中間代數、Eq.(6)–(10) 引用、footnote 3 限制",
+  "lens": "P3",
+  "merged_from": [
+   "Paper's own silicon validation (Sec. V-H/V-I, Fig.12-16) never mentioned on the site",
+   "Classical-Adler derivation (Eq.11-14) hand-waved despite paper giving the actual algebra, inconsistent with the page's own detailed style",
+   "Original general definition of injection locking and the lock characteristic (Eq.6-10) never cited, even though the site teaches their content under Eq.33 instead",
+   "Paper's own honest limitation about intra-period phase variation (footnote 3, p.2110) missing from the deep-dive's Limitations section"
+  ],
+  "files": [
+   "docs/05_paper_deep_dives/paper_003_injection_locking_part1.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/05_paper_deep_dives/paper_003_injection_locking_part1.md"
+  ],
+  "proposal": "同一檔四處：(a) 「經典 Adler 方程（基準線）」:79–82 在「即得上式」前插入複數域 KCL 中間式 jω_inj I_inj e^{−jθ}=[C(jθ''−(ω_inj+θ')²)+1/L]I_osc R_P（[P3] Eq.(13)–(14), p.2111），明寫 |Δω|≪ω0 與 |θ'|≪ω_inj 各丟哪一項後取實部得 Eq.(15)；可引 Fig.2 LC 示意（p.2111）。(b) :341「其中 Ω(θ) 稱為 lock characteristic（Eq.(33), p.2114）」後加一句：Ω(θ):=Δω|_{dθ/dt=0} 與 ω_L^+=max Ω、ω_L^-=min Ω 早在 Sec.II-B Eq.(9)–(10) p.2110 正式定義，Sec.V 由時間同步平均重推。(c) Key figures(:389–398) 後新增「驗證：模擬與量測」：Sec.V-H Fig.12（6 級差動 ring, f0≈1 GHz）、Fig.13（Bose 弛張振盪器，閉式 ISF Eq.(41)–(42)）在近 I_max 仍追蹤理論；Sec.V-I 四顆 65-nm CMOS 實測 lock range（6 級 ring 1.32 GHz、3/17 級單端 ring 1.09 GHz、Bose 11.9 MHz、astable 874 MHz）、Fig.16 die photo 1×1 mm²；轉述論文對強注入偏差增大的誠實註記（非 transistor-level 模擬，屬論文已發表數字轉錄）。(d) Limitations(:412–418) 加一條：「Injection Locked ⇔ dθ/dt=0」(Eq.8) 為一般定義 Eq.(6)–(7) 的特例，footnote 3（p.2110–2111）指出丟掉的週期內相位變化可能影響高階鎖定性質、列為開放問題。證據：P3 raw:141–260、215、237–270、973–1130；各 grep 皆空。",
+  "effort": "M",
+  "model": "fable",
+  "wave": "2"
+ },
+ {
+  "id": "R11-19",
+  "priority": "P2",
+  "title": "Class-C／D／F LC 振盪器——ISF 波形工程的經典結果——只出現兩處帶過",
+  "lens": "syllabus",
+  "files": [
+   "docs/06_design_insights/real_oscillator_topologies.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/real_oscillator_topologies.md",
+   "simulations/lab_43_classc_classf_isf.py"
+  ],
+  "proposal": "real_oscillator_topologies.md §(c)(:311–413) 後新增 §(d)「波形工程：class-C／class-D／class-F 用 ISF 講」（超過 ~120 行則獨立頁）：(i) class-C：tail 電容＋V_bias<V_th → 每顆電晶體只在 tank 電壓峰（Γ=−sinθ 的 null）導通窄脈衝，Γ_eff=Γ·α 小（重用 effective_isf §2 機制，延伸本頁 §(b):241–252 Colpitts「脈衝落在 ISF null」論證）；且同 I_bias 下基波 tank 電流 I_bias（脈衝極限）vs class-B 方波 4I_bias/π → 振幅 ×π/2 → ΔL=−20log10(π/2)=−3.92 dB（「general result」）；例 B（Γ_rms=1/√2、q_max=1 pC、S_i=1e-24、5 GHz → −148 dBc/Hz@1 MHz SSB/4）→ class-C 同偏壓 −151.9；(ii) class-D：rail-to-rail 方波驅動、q_max 最大、γ 限制 F；(iii) class-F：ω₀ 與 3ω₀ 諧振 → 準方波電壓 → 零交越附近 ISF 壓平（注入處 |Γ| 小），以 lab_43（lab_05 式 Fourier 分析 class-F 準方波導出的 ISF）算 Γ_rms² 降幅，數字由 lab 產生不硬寫；IsfSandbox 作工具。引 Mazzanti–Andreani JSSC 43(12) 2008；Fanori–Andreani JSSC 48(12) 2013；Babaie–Staszewski JSSC 48(12) 2013。保持拓樸層級、不碰 PDK。不改 effective_isf.md（避免衝突）。證據：`grep -rniE 'class.?[CDF]\\b|Mazzanti|Babaie|Fanori'` 僅 effective_isf:117,124、fom_limit:289（表列 :401/410 只寫「1~2 dB」）；real_oscillator_topologies 零命中；lab_43 不存在。",
+  "effort": "M",
+  "model": "fable",
+  "wave": "2"
+ },
+ {
+  "id": "R11-20",
+  "priority": "P1",
+  "title": "學習路徑孤立了被必讀頁明列為先備的頁面；互動工具集線頁與 pll_noise_budget 無入口",
+  "lens": "pedagogy",
+  "merged_from": [
+   "Learning path orphans prerequisite pages that path-required pages explicitly depend on",
+   "Interactive tools hub: 3 of 7 widgets have no theory/lab link, the SerDes tool's RJ-only model is unstated, and the hub is unreachable from learning_path and index (learning_path/index 入口部分)",
+   "Final exam covers 7 of 12 learning-path steps (item d: pll_noise_budget into learning_path)"
+  ],
+  "files": [
+   "docs/00_overview/learning_path.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/00_overview/learning_path.md",
+   "docs/00_overview/index.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/00_overview/index.md"
+  ],
+  "proposal": "learning_path.md：Step 1 讀哪幾頁加 tank_Q_and_energy_restoration；Step 7(:125) 在 numerical_feeling 後加 [interactive_calculator]（滑桿驗證例 A/B/C）；Step 8 讀哪幾頁在 symmetry/lc_vs_ring 前依序加 tank_swing → waveform_slope → device_noise_mapping；Step 9(:~150) 加 pll_noise_budget（期末題 8、06 習題 4/8 的家）；Step 10 加 stochastic_noise_basics（beyond_lorentzian 直接先備）並在 Step 9 附近提 dsp_view_of_phase_noise（psd_phase_noise_jitter 先備）；Step 12 在 clock_chain_budget 前明列 pll_noise_budget（clock_chain_budget 麵包屑「本頁直接沿用、不重推」），並將 real_oscillator_topologies、varactor_tuning_supply_pushing 列為「建議選讀」。index.md 隨手查(:59–62) 加「[互動工具 Interactive Tools](/04_simulation_labs/interactive_calculator) — 七個滑桿工具」。EN 鏡像。依賴：R11-06、R11-07 先完成（同檔 index.md、learning_path.md）。證據：`grep -c pll_noise_budget learning_path.md`=0；symmetry.md/lc_vs_ring.md/beyond_lorentzian.md/clock_chain_budget.md 的「先備」行（grep -n 先備）逐字如 finding 所述；`grep -rn interactive_calculator docs` 不含 learning_path/index。",
+  "effort": "M",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-21",
+  "priority": "P1",
+  "title": "glossary 未更新 v5–v10 注入鎖定／量測詞彙（~10 頁在用）",
+  "lens": "site_eng",
+  "files": [
+   "docs/99_appendix/glossary.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/99_appendix/glossary.md"
+  ],
+  "proposal": "glossary.md（42 列）新增「注入鎖定與量測（Injection Locking & Measurement）」表段，格式同既有 英文/中文/一句話直覺/出處頁：realignment factor β（subharmonic_injection）、impulse-train locking（subharmonic_injection）、washboard potential（lab_36）、ILFD（injection_locked_division）、dual-Dirac（dj_dual_dirac）、ADEV/Allan deviation（allan_variance）、sub-sampling PLL（sampling_pll）、Lorentzian linewidth（lorentzian_linewidth/beyond_lorentzian）、cycle-slip／Kramers escape（lab_36）、cross-correlation measurement（lab_35/measurement_and_spurs）、polyphase filter（quadrature）、FOM／FOM_jitter（fom_limit/pll_noise_budget）、K_push（varactor）；並預留 wave 2 新詞：TDC、DCO、JTOL、BBPD/Alexander PD、FOM_T、design recipe。EN 鏡像。證據：14 詞 `grep -ic` 於 zh/en glossary 皆 0；learning_path.md:54 明示 glossary 為查詞首站；changelog 無 glossary 條目。",
+  "effort": "M",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-22",
+  "priority": "P1",
+  "title": "python_environment.md 與 README 的環境／規模描述漂移（假檔名、14 張圖、硬編字型、缺 4 個 common 模組）",
+  "lens": "x-tooling_meta_drift",
+  "merged_from": [
+   "python_environment.md environment/tooling description drifted from actual simulations/ layout (zh + en)",
+   "README.md's repo-layout tree understates simulation/lab scale by ~5x (stale since early versions)"
+  ],
+  "files": [
+   "docs/99_appendix/python_environment.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/99_appendix/python_environment.md",
+   "README.md"
+  ],
+  "proposal": "python_environment.md（EN 同位）：§2(:43–56) 以 simulations/common/plot_utils.py:24–29 的 `_cjk_prefs=[Heiti TC, Arial Unicode MS, STHeiti, Hiragino Sans GB, Songti SC, PingFang TC]`＋fontManager.ttflist 探測、DejaVu 回退邏輯取代硬編 Heiti TC 片段，刪除已過期的「TODO: manual verification needed」；§3(:60–79) 修 5 個不存在檔名為 lab_02_lc_toy_model.py、lab_03_ring_toy_model.py、lab_04_impulse_sweep.py、lab_05_fourier_isf.py、lab_07_flicker_noise.py，或截短並註「…共 49 個 lab_*/fig_*.py，完整清單見 figure_index」，common/ 清單補 pll_utils.py、serdes_utils.py、signal_utils.py、plot_utils.py；§4(:88–114) 改為 run_all_sims.py 跑全部 lab_*.py+fig_*.py（scripts/run_all_sims.py:23–24 glob；49 支 → 56 PNG），14 列表改標「lab_01–08 示範子集（完整 56 張見 figure_index）」；§5(:117–172) 加 5.4–5.7 四個模組實際函式簽章；重點回顧(:250, EN:268)「14 張」→「56 張」。README.md:78「# 9 個模擬實驗」→「# 24 個 lab 頁面（lab_01..lab_41 + final_exam/interactive_calculator/numerical_feeling/worked_examples）」，:89「lab_01..lab_08.py」→「lab_01..lab_41.py（49 個）」，對齊 :15 的正確總覽。證據：`ls simulations/*.py`=50、`ls static/figures/*.png`=56、`ls docs/04_simulation_labs/*.md`=24、grep 四模組於兩語 python_environment 為 0。",
+  "effort": "M",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-23",
+  "priority": "P1",
+  "title": "02/03/04/06 章側欄分類無 landing page（sidebars.js 零個 link）",
+  "lens": "x-assessment_scaffolding",
+  "files": [
+   "sidebars.js",
+   "i18n/en/docusaurus-plugin-content-docs/current.json"
+  ],
+  "proposal": "sidebars.js 每個章節分類加 link：01/02/03/04/06/99 用 `link:{type:'generated-index', title:'<label>', description:'<一句章旨>', slug:'/<NN_chapter>'}`（02：「相位幾何、LTI vs LTV、PSD/jitter 方言、Allan、jitter 核——ISF 之前必須有的地基」；03：「從 impulse→Δφ 到 Eq.(21)、傅立葉/Parseval、線寬、擴散字典、App.B 閉式、capstone 主脊」；04：「每個 lab 一張圖、一段 Python、一個 # -> 數字；含互動工具與期末總測驗」；06：「把公式翻成設計旋鈕：振盪器設計、注入與頻率轉換、系統與量測」）；05 用 `link:{type:'doc', id:'05_paper_deep_dives/index'}` 並移除 sidebars.js:137 的重複 '05_paper_deep_dives/index' 項。current.json:6–44 之後補 `sidebar.mainSidebar.category.<label>.link.generated-index.title/.description`。全部 97 頁皆有 front-matter description（已驗），卡片頁會完整填充。由站主 `npm run build` 確認新 slug 無衝突（Docusaurus 3.10.1 postProcessor.js:17 支援 generated-index）。R11-43 之後再加三個新頁條目。證據：`grep -c 'link:' sidebars.js`=0；14 個 category 皆無 link。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-24",
+  "priority": "P1",
+  "title": "notation.md 缺整個注入鎖定／PLL／Allan／SerDes 符號家族；α、β、Δω、ω_c、τ₀、ζ、L(·)、N、M 多義未消歧",
+  "lens": "x-notation_symbol_table",
+  "merged_from": [
+   "β carries four meanings (site realignment factor, [P4] Eq.(23) ISF–APF phase angle, FM modulation index, MOS β) — two of them in adjacent learning-path step-11 pages, and [P4]'s β is used before it is defined",
+   "α is overloaded on a single paragraph of effective_isf (scalar duty α=0.1 vs NMF function α(x)) and across fourier_series_of_isf (toy DC-offset α vs NMF α); notation.md declares α only as the NMF",
+   "Δω is declared as 'offset from carrier' in notation.md but the whole injection-locking cluster (learning-path step 11) uses Δω ≡ ω₀−ω_inj (detuning) with no cross-reference",
+   "ω_c, τ₀ and ζ each mean two or three different things on different pages and none of the meanings is in notation.md",
+   "notation.md has no rows for the injection-locking symbol family (ω_L, I_inj, q_inj, ω_inj, θ(t)/θ_ss, Ω(θ), a, N as ×N/÷N ratio, M) that 20+ pages use",
+   "notation.md lacks the ring-FOM, PLL, Allan and SerDes symbol rows (γ, V_char, ΔV, F_eff, K_VCO/K_push, H_lp/H_hp, S_ref/S_vco/S_cp, D, σ_y/h_α, RJ/DJ/TJ) — including two that collide with declared rows (γ vs Γ, Allan τ vs impulse τ)",
+   "L(·) argument notation drifts across the site (L(Δf), L{Δω}, L(Δω), L{Δf}, L(f)) while notation.md only declares L(Δf)"
+  ],
+  "files": [
+   "docs/00_overview/notation.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/00_overview/notation.md"
+  ],
+  "proposal": "只改 notation.md（＋EN；各頁首次使用註記見 R11-40）。主表(:18–46) 之後新增：(1) 注入鎖定家族：ω_L｜半鎖定範圍｜rad/s｜[P3] Eq.(35) ω_L=½I_inj|Γ̃₁|，ideal LC=I_inj/(2q_max)｜鎖定條件 |Δω|≤ω_L、canonical f_L=5 MHz；I_inj/i_inj(t)｜[P3] Eq.(30)；q_inj｜一根脈衝電荷｜C｜[P3] Sec.IV｜canonical 50 fC；ω_inj；θ(t)/θ_ss｜相對相位／穩態 sinθ_ss=Δω/ω_L、穩定支 cosθ_ss>0｜與 ISF 引數 θ=ω₀τ 同軸、與 Fourier 相位 θ_n 無關；Ω(θ)｜lock characteristic｜[P3] Eq.(33)；a=I_inj/I_osc｜[P4] Eq.(8)；N（÷N/×N 比，≠ring 級數 N，jitter 頁 N=週期數）；M（[P4] M:N 諧波數 vs 量測頁 xcorr 平均次數）；Γ̃=Γ/q_max（[P3] Eq.26）升主表。(2) β 兩列：β｜realignment factor（本站/ILCM 慣例，β≡−q_inj Γ̃′(θ_ss)，穩定 0<β<2，ω_c=β/T_inj）；β_[P4]｜∠Γ̃₁−∠Λ₁｜rad｜[P4] Eq.(23) p.2128｜ideal LC 90°；註明 FM 調變指數 β（varactor）、MOS β（lab_32）無關。(3) Δω 列(:34)「all」改註注入群（injection_locking_noise、lab_36、paper_004_*、interactive_calculator）Δω≡ω₀−ω_inj 為失諧、該處 offset 改寫 ω、subharmonic_injection 用 Δω₀；加「Δω (injection)」列。(4) ω_c 三義（AM ω₀/2Q；注入 ω_L cosθ_ss=√(ω_L²−Δω²)；PLL 開環交越）皆非 1/f³ corner；τ₀ 三義（[P4] 2Q/ω_osc；jitter_kernels τ₀=NT；convolution_derivation 脈衝時刻）；ζ 二義（PLL 阻尼 0.707 vs [P2] Fig.16 σ=√(κ²Δt+ζ²Δt²) 係數）；ω_n/f_n 列（peaking 2.09 dB@0.786f_n）。(5) α 列(:39) 註明 toy gamma_asymmetric 的 DC 偏移 α（c₀=2α）與 Allan h_α f^α 指數三者無關。(6) L(Δf) 列(:33) 註「論文寫 L{Δω}/L{Δf}（大括號），站台多用 L(Δf)——同一 SSB 量，Δω=2πΔf」，不做全站替換。(7) 新表段：γ（MOS 熱噪係數 4kTγg_m，長通道 2/3；≠Γ、≠Euler γ；FOM 係數是 8/(3η)）、ΔV、V_char=ΔV/γ、F_eff（天花板 173.8−10log F_eff）、K_VCO/K_push（lab_38 2.936 GHz/V）、H_lp/H_hp（S_out=(S_ref N²+S_cp)|H_lp|²+S_vco|H_hp|²）、D=κ²/2=Γ²rms S_i/(4q²max)（0.0625 rad²/s、Δf=D/π=19.9 mHz；≠[P4] D(τ,φ)）、σ_y(τ)/h_α（τ 為平均時間）、RJ/DJ/TJ（TJ@BER=DJ_δδ+2Q(BER)RJ_rms）；τ 列(:19) 與 Γ 列(:26) 加碰撞提示。依賴 R11-05（同檔 notation.md）。證據：`grep -cE '\\\\beta|\\\\omega_c|\\\\zeta|omega_L|I_\\{inj\\}|gamma\\b|V_\\{char\\}|H_\\{lp\\}' notation.md`=0；ω_L 20 頁、I_inj 19、γ 21、ΔV 28 頁在用。",
+  "effort": "M",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-25",
+  "priority": "P2",
+  "title": "麵包屑一致化：9 個 03 章核心頁＋tank_Q 無「先備｜接下來」；2 個 06 頁用自製「前置」段；4 個章尾頁無前指",
+  "lens": "pedagogy",
+  "merged_from": [
+   "Nine core-spine 03_isf_core_theory pages (learning-path Steps 3-6 and the Step-12 capstone) lack the site's '> 先備 / 接下來' breadcrumb line that newer pages have",
+   "Two 06_design_insights pages use a bespoke bold-prose '前置' paragraph instead of the standard breadcrumb blockquote, breaking the sitewide nav pattern",
+   "4 of 7 chapter closers have no forward pointer to the next chapter"
+  ],
+  "files": [
+   "docs/03_isf_core_theory/isf_definition.md",
+   "docs/03_isf_core_theory/convolution_derivation.md",
+   "docs/03_isf_core_theory/fourier_series_of_isf.md",
+   "docs/03_isf_core_theory/white_noise_to_phase_noise.md",
+   "docs/03_isf_core_theory/rms_isf.md",
+   "docs/03_isf_core_theory/lorentzian_linewidth.md",
+   "docs/03_isf_core_theory/flicker_noise_upconversion.md",
+   "docs/03_isf_core_theory/effective_isf.md",
+   "docs/03_isf_core_theory/capstone_lc_end_to_end.md",
+   "docs/02_foundations/tank_Q_and_energy_restoration.md",
+   "docs/06_design_insights/quadrature_and_coupled_oscillators.md",
+   "docs/06_design_insights/varactor_tuning_supply_pushing.md",
+   "docs/01_paper_map/claims_cross_reference.md",
+   "docs/03_isf_core_theory/exercises.md",
+   "docs/05_paper_deep_dives/paper_005_cross_coupled_sense_amp.md",
+   "docs/06_design_insights/exercises.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/isf_definition.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/convolution_derivation.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/fourier_series_of_isf.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/white_noise_to_phase_noise.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/rms_isf.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/lorentzian_linewidth.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/flicker_noise_upconversion.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/effective_isf.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/capstone_lc_end_to_end.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/tank_Q_and_energy_restoration.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/quadrature_and_coupled_oscillators.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/varactor_tuning_supply_pushing.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/01_paper_map/claims_cross_reference.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/exercises.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/05_paper_deep_dives/paper_005_cross_coupled_sense_amp.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/exercises.md"
+  ],
+  "proposal": "只動 H1 之後的一行（不碰正文，避免與其他項衝突）。格式沿 diffusion_dictionary.md:10「> 先備：[a](…) · [b](…) ｜ 接下來：[c](…)」。(a) 9 個 03 章頁＋tank_Q：先備/接下來依 learning_path 步序（isf_definition：先備 impulse_to_phase_shift｜接下來 convolution_derivation；convolution_derivation → white_noise_to_phase_noise；white_noise → fourier_series_of_isf/rms_isf；rms_isf → lorentzian_linewidth；lorentzian → flicker_noise_upconversion；flicker → effective_isf；effective_isf → capstone；capstone：先備 diffusion_dictionary｜接下來 final_exam；tank_Q：先備 oscillator_phase｜接下來 tank_swing）；isf_definition.md:9 既有「前置閱讀」行改成標準格式。(b) quadrature_and_coupled_oscillators.md:6–11 改為「> **先備**：isf_definition、effective_isf、paper_003、paper_004 ｜ **接下來**：sampling_pll」；varactor_tuning_supply_pushing.md:7 改為 blockquote「> **先備**：white_noise_to_phase_noise、flicker_noise_upconversion、phase_vs_amplitude_noise ｜ **接下來**：lc_vs_ring」（lc_vs_ring.md:8 已前指 varactor）。(c) 章尾前指（沿 02_foundations/exercises.md:10）：claims_cross_reference → oscillator_phase（第 1 步）；03 exercises.md:10 追加「｜接下來：numerical_feeling（第 7 步）」；paper_005.md:16 加「讀完五篇精讀，回到設計層：symmetry（第 8 步）」；06 exercises.md:10 追加「｜接下來：final_exam → math_identities」。EN 鏡像。證據：skeleton_check（`grep '^> 先備'`）於 10 檔為空；`grep -rn '^> \\*\\*先備' docs/06_design_insights/` 15 檔標準格式、兩檔例外；4 章尾檔 `grep '先備|接下來|Next'` 無前指。",
+  "effort": "M",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-26",
+  "priority": "P2",
+  "title": "jitter_kernels（1017 行）：[P2] App.A 對帳段卡在主推導中間、~800 行無圖、Step 0 表先用未定義符號",
+  "lens": "reader",
+  "merged_from": [
+   "jitter_kernels.md (1017 lines/60KB, the longest page on the site) embeds a full '[P2] Appendix A' paper-verbatim reconciliation section in the middle of the core derivation flow",
+   "jitter_kernels.md has zero figures across ~800 lines of pure algebra before the Monte-Carlo section — the three jitter kernels (4sin², 16sin⁴, TIE=1) are never plotted",
+   "jitter_kernels.md Step 0's convention table uses σ_TIE²/σ_P²(N)/σ_c2c² before those quantities are defined on the page"
+  ],
+  "files": [
+   "docs/02_foundations/jitter_kernels.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/jitter_kernels.md",
+   "docs/99_appendix/p2_appendix_a_reconciliation.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/99_appendix/p2_appendix_a_reconciliation.md",
+   "simulations/lab_24_jitter_kernels.py"
+  ],
+  "proposal": "(a) 將 :413–613「論文原生推導：[P2] Appendix A（A.1–A.5）」整段逐字搬到新頁 docs/99_appendix/p2_appendix_a_reconciliation.md（沿 derivation_leeson/derivation_floquet_ppv 模式，加先備/接下來），原處留一段指標「逐字對帳 [P2] Eq.(40)–(51) 見 …」，主頁降到 ~820 行，第 5 步 flicker 緊接白噪閉式；EN 鏡像 (1102 行) 同構處理。(b) 在 Step 3 三個 boxed 核（:195–236）後插入一張圖：TIE(=1)、4sin²(πfNT)、16sin⁴(πfT) 正規化 |H(f)|² vs f（log-log 或線性，標峰值 4/16 與 f→0 的 f²/f⁴ 滾降），由 lab_24_jitter_kernels.py 新增一個 make_figure_kernels() 產生（隨後 R11-08 的 notebook 重生一次）。(c) Step 0 表（:45）前加一句：「TIE＝對理想時鐘的絕對邊沿誤差、N-period＝相位一階差分（間隔 NT）、cycle-to-cycle＝相位二階差分」。依賴 R11-07（同檔 :62 頁碼）。證據：`grep -n '^#'` 413 與 614；`grep -n '!\\['` 僅 828、840；`grep -n 'absolute|一階差分'` 首見 :60/96–98；99_appendix 已有 derivation 附錄頁模式；changelog 只記 v9「App.A 教學化」未記拆頁。",
+  "effort": "M",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-27",
+  "priority": "P1",
+  "title": "reciprocal mixing 與積分相位誤差→EVM 缺席；「為什麼相位雜訊重要」只用 SerDes jitter 論證",
+  "lens": "syllabus",
+  "files": [
+   "docs/02_foundations/phase_vs_amplitude_noise.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/phase_vs_amplitude_noise.md"
+  ],
+  "proposal": "採 sharpened 範圍：不新開頁，在 phase_vs_amplitude_noise.md §1「為什麼相位雜訊重要」(:25–46) 加一條 bullet 與短小節「接收機視角：reciprocal mixing 與 EVM——L(Δf) 與 σ_φ 的另一個客戶」（外部文獻標）：reciprocal mixing 噪床 P_n,in=P_blocker+L(Δf)+10log10(B) [dBm]；LO 需求 L(Δf)≤P_sig−P_blocker−SNR_min−10log10B；EVM（小角、載波回復 BW 外）EVM_rms≈σ_φ=√(2∫L df)、EVM[dB]=20log10σ_φ；SSB/時域 ±3 dB 慣例旗標如 white_noise_to_phase_noise。worked：例 C L(1 MHz)=−100 dBc/Hz、blocker −40 dBm@1 MHz、B=1 MHz → 床 −40−100+60=−80 dBm（−90 dBm 訊號低於床 10 dB）；canonical −148 dBc/Hz、0 dBm blocker → −88 dBm；σ_φ=14.07 mrad → EVM 1.41%=−37.0 dB，即 adc_aperture_jitter.md:137 已印的 37.0 dB（該頁的交叉連結由 R11-30 加）。`# ->` 區塊。引 Razavi RF Microelectronics 2e（節號待查）；EVM≈σ_φ 為標準 OFDM/QAM 結果（引文待查）。依賴 R11-07（同檔 :27 頁碼）。證據：`grep -rniE 'reciprocal mixing|互混|blocker|EVM|OFDM|QAM|星座'` zh 空、EN 僅 ADC/lab_12 的 σ_t 語境。",
+  "effort": "M",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-28",
+  "priority": "P2",
+  "title": "時鐘鏈缺 DLL（無振盪器不累積）規則與相位內插器量化",
+  "lens": "syllabus",
+  "files": [
+   "docs/06_design_insights/clock_chain_budget.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/clock_chain_budget.md",
+   "docs/06_design_insights/dj_dual_dirac.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/dj_dual_dirac.md"
+  ],
+  "proposal": "clock_chain_budget.md 規則 4(:203–289) 後新增「規則 5：DLL——沒有振盪器就沒有 random walk」：延遲線每級加性 jitter σ_stage 在 N 級上正交相加但每個參考邊沿歸零，σ²_t,out=σ²_ref+Nσ²_stage（有界，無 κ√Δt 項）vs PLL/自由 VCO 的 κ²Δt 成長到 f_n；一階 DLL H(s)=ω_DLL/(s+ω_DLL) 低通參考噪、高通延遲線噪但無 1/f² 累積；PI：b-bit 跨一個 UI → 步長 UI/2^b、量化 DJ_pp=UI/2^b（均勻）。worked：UI=40 ps、6-bit → 0.625 ps（0.016 UI）；規則 4 的 16.0 fs 床(:262) vs 4 級 σ_stage=50 fs DLL → 100 fs 加性且不隨時間成長，對照 κ²=0.125 rad²/s 自由 VCO 在 1 µs 的 σ_Δt=√(0.125e-6)/(2π·5e9)=11.3 fs 及 1 ms 時已 356 fs（`# ->`）；dj_dual_dirac.md 預算表加 PI 量化一列並回連。引 Maneatis JSSC 31(11) 1996。依賴 R11-07（clock_chain_budget:46 頁碼）。證據：`grep -rnw DLL`=0；`grep -rniE 'phase interpolat|相位內插'`=0；MDLL 僅 subharmonic_injection:252,607 作 β→1 極限；規則只有 4 條。",
+  "effort": "M",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-29",
+  "priority": "P1",
+  "title": "量測頁缺 datasheet 多段 PN 積分（12 kHz–20 MHz 帶全站未出現）與 cross-correlation 三個實務陷阱",
+  "lens": "practitioner",
+  "merged_from": [
+   "No datasheet-style multi-slope PN integration: every integrated-jitter number on the site uses a single 1/f² segment, and the standard 12 kHz–20 MHz band never appears",
+   "Measurement page omits the two cross-correlation pitfalls a designer actually hits (cross-spectrum collapse from AM/anti-correlated noise; 'floor keeps dropping with M' sanity check) and the spur-included vs spur-excluded integrated-jitter readout"
+  ],
+  "files": [
+   "docs/06_design_insights/measurement_and_spurs.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/measurement_and_spurs.md",
+   "src/components/PhaseNoiseCalculator.js",
+   "simulations/lab_35_xcorr_measurement.py"
+  ],
+  "proposal": "(a) §3.2 後(:~273，worked 之前) 新增「3.3 從 datasheet 表格積分 jitter（分段 log–log 閉式）」：相鄰表點 [f_a,f_b]、L_a,L_b 的斜率指數 m=log10(L_b,lin/L_a,lin)/log10(f_b/f_a)，∫L df=L_a,lin f_a/(m+1)[(f_b/f_a)^{m+1}−1]（m≠−1），m=−1 用 L_a,lin f_a ln(f_b/f_a)；σ_φ²=2Σ（單邊 L=½S_φ）、σ_t=σ_φ/(2πf₀)。worked（f₀=5 GHz、例 C −100@1 MHz 1/f²、§3 例 2 的 100 kHz 1/f³ corner、床 −150）：表 {1k −20, 10k −50, 100k −80, 1M −100, 10M −120, 100M −139.6}；12 kHz–20 MHz → ∫=3.52e-2、σ_φ=265 mrad、σ_t=8.45 ps（97.2% 來自 12k–100k 1/f³ 段）；同表 1–100 MHz → 448.6 fs（重現 447.9，差 0.7 fs 為 −150 床）——同一振盪器隨積分帶差 19×，故自由 VCO 不過電信規格、報 jitter 必附下限；常見積分帶表（SONET/OC-192 12 kHz–20 MHz 標 GR-253 外部待查；PCIe/OIF 用 CDR 濾波 jitter，見 dj_dual_dirac:467；ADC 自 ~10–100 Hz 到 f_s/2）；np.trapezoid `# ->` 對照（8447.4 vs 8447.8 fs）。可選：PhaseNoiseCalculator.js:45,104 加「segment table」模式（6 個可編輯點、f1/f2）。(b) 方法 C 散文末(:136) 後、「#### C 法模擬」(:138) 前插入 boxed「方法 C 的三個陷阱」：(i) cross-spectrum collapse——兩通道反相關噪（AM 經兩 mixer 轉換不同、分配器差模熱噪）以負號進入 S_y1y2=S_φφ+S_n1n2（S_n1n2<0），床「太好」或出現缺口/負實部即可疑，引 Nelson–Hati–Howe RSI 85, 024705 (2014)（DOI 發布前查證）；(ii) 收斂檢查——殘餘應在 DUT 床飽和，若持續 −5log10 M 下降表示仍在量儀器，連結 :152–163 表中 M=256/1024 偏離處；(iii) spur-included vs excluded——spur 以離散相位功率 Σ10^{spur_dBc/10}（×2 雙邊）加進 σ_φ²：−60 dBc 參考 spur → σ_φ=√(2e-6)=1.41 mrad → 45 fs@5 GHz，與 clock_chain_budget.md:508 的 27.6 fs 同量級；可選 lab_35 加反相關 AM 項（負號）重現 collapse 一格。證據：psd_phase_noise_jitter:404、lab_08:191–192 自認單段限制；`grep -rniE '12 kHz|piecewise|折線積分'` 空；`grep -niE 'collapse|anti-?correl|負相關|spur.?(included|excluded)'` 於量測頁空；lab_35:175–244 只有不相關噪。",
+  "effort": "M",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-30",
+  "priority": "P2",
+  "title": "SerDes 例題止於 25 Gb/s NRZ、ADC 頁無 12-bit 1 GS/s 案例；PAM4/28–56 GBd UI 全站未出現",
+  "lens": "practitioner",
+  "files": [
+   "docs/06_design_insights/serdes_clocking_connection.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/serdes_clocking_connection.md",
+   "docs/06_design_insights/adc_aperture_jitter.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/adc_aperture_jitter.md",
+   "simulations/lab_30_aperture_jitter.py"
+  ],
+  "proposal": "(a) serdes_clocking_connection.md 例 2 後(:~283) 加例 3：56 Gb/s PAM4=28 GBd、UI=35.71 ps；112 Gb/s PAM4=56 GBd、UI=17.86 ps；canonical σ_t=447.9 fs → RJ 眼閉 2·7.034·σ_t=6.30 ps=0.176 UI@28 GBd／0.353 UI@56 GBd（不可用）；clock_chain PLL 輸出 27.6 fs → 0.388 ps=0.011/0.022 UI；加 DJ_δδ=1 ps（final_exam 題 10）→ TJ=7.30 ps=0.204 UI@28 GBd；誠實框：PAM4 三眼、~9.5 dB 振幅懲罰與轉態相關 jitter 不談，OIF-CEI/IEEE 802.3ck 以 CDR 濾波模板規範（外部、不轉錄）。(b) adc_aperture_jitter.md 表(:227) 加 f_in=500 MHz 列（1 GS/s Nyquist）：2πf_inσ_t=1.407e-3 rad、SNR=57.03 dB、ENOB=9.18；:330 後加第二反向例：12 ENOB@500 MHz → SNR_req=74.00 dB → σ_t≤63.5 fs → 例 C 形狀 1–100 MHz → L(1 MHz)≤−117.0 dBc/Hz（11 ENOB → 127 fs）；27.6 fs 時鐘 → 81.2 dB/13.2 bit，即 12-bit 1 GS/s 可行但需 PLL 淨化的 LC 時鐘；並在 :137 的 37.0 dB 旁加一句「此值即 EVM[dB]（見 phase_vs_amplitude_noise 接收機視角）」（配 R11-27）；lab_30_aperture_jitter.py 印表加 500 MHz 列以維持 verify_examples 綠燈。全部 `# ->`。證據：`grep -rniE 'PAM.?4|56 ?G|112 ?G|1 ?GS/s|GSPS'` 空；serdes 例只有 :207–243 10 Gb/s、final_exam 25 Gb/s；ADC 表僅 1/2.5/5/10 GHz。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-31",
+  "priority": "P2",
+  "title": "references.md 對外部文獻數量自相矛盾（[E1]–[E3]／[E1]–[E4]／[E1]–[E5]）",
+  "lens": "site_eng",
+  "files": [
+   "docs/99_appendix/references.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/99_appendix/references.md"
+  ],
+  "proposal": "references.md:8 See-also 括號補 [E5]（Zadeh 1950，ltv_htm 所依賴）；:14「外部文獻 [E1]–[E4]」→「[E1]–[E5]」；:163「外部補充用 `[E1]`–`[E3]`」→「`[E1]`–`[E5]`」，對齊 :176 已正確的「[E1]–[E5]」與 :148 的 [E5] 條目。EN 鏡像同位。依賴 R11-05（同檔 :81,83）。證據：`grep -n 'E5\\|E4\\|E3\\|E1' references.md` 逐行如述。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-32",
+  "priority": "P2",
+  "title": "GitHub Pages 部署缺 static/robots.txt",
+  "lens": "site_eng",
+  "files": [
+   "static/robots.txt"
+  ],
+  "proposal": "新增 static/robots.txt：`User-agent: *`／`Allow: /`／`Sitemap: https://gmcycle7.github.io/isf-teaching-site/sitemap.xml`（對應 docusaurus.config.js:20 url、:21 baseUrl）。無需改 config：classic preset 預設 sitemap 外掛仍啟用（`grep -i sitemap docusaurus.config.js` 無覆寫）。證據：`ls static/` 僅 figures img katex notebooks。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-33",
+  "priority": "P2",
+  "title": "互動工具集線頁：3/7 工具無理論/lab 連結、SerDes 工具 RJ-only 未說明、lab_19/lab_20 為裸文字",
+  "lens": "x-assessment_scaffolding",
+  "files": [
+   "docs/04_simulation_labs/interactive_calculator.mdx",
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/interactive_calculator.mdx"
+  ],
+  "proposal": "interactive_calculator.mdx：工具 2(:35–40) 加「理論：fourier_series_of_isf、rms_isf；驗證：lab_05。限制：只到 c₃（IsfFourierExplorer.js:3），Parseval 用截斷級數」；工具 3(:44–49) 加「模型：純高斯 RJ、無 DJ（SerdesBerExplorer.js:3–5；DJ/dual-Dirac 見 dj_dual_dirac）；理論：serdes_clocking_connection；驗證：lab_12」；工具 4(:51–59) 加「理論：paper_003、injection_locking_noise；暫態與 cycle slip：lab_36。限制：正弦注入、ideal-LC Γ̃₁、弱注入」；工具 5/6(:63–73) 的裸文字 'lab_19'/'lab_20' 改為「`simulations/lab_19_allan.py`（圖在 allan_variance）」、「`simulations/lab_20_pll_budget.py`（圖在 pll_noise_budget）」（docs 內無 lab_19/lab_20 頁）；front-matter description(:3) 改為涵蓋七個工具。learning_path step 7 與 index.md 隨手查入口由 R11-20 處理。EN 鏡像。證據：`grep -rn interactive_calculator docs i18n/en src` 不含 learning_path/index；`ls docs/04_simulation_labs | grep 'lab_19\\|lab_20'` 空。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "3a"
+ },
+ {
+  "id": "R11-34",
+  "priority": "P2",
+  "title": "capstone、final_exam、oscillator_phase、lti_vs_ltv 缺房屋範本的「這頁要回答什麼」目標區塊",
+  "lens": "x-assessment_scaffolding",
+  "files": [
+   "docs/03_isf_core_theory/capstone_lc_end_to_end.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/capstone_lc_end_to_end.md",
+   "docs/04_simulation_labs/final_exam.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/final_exam.md",
+   "docs/02_foundations/oscillator_phase.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/oscillator_phase.md",
+   "docs/02_foundations/lti_vs_ltv.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/lti_vs_ltv.md"
+  ],
+  "proposal": "依 subharmonic_injection.md:12–17 格式在先備行後（或 H1 後）插入「> **這頁要回答什麼**：」編號 blockquote，文字已草擬、直接套用（fable 已校數字）：capstone（:7 後）：1. 理想並聯 LC state equations 出發，為何 Floquet 線性化必有 λ₁=0 相位方向；2. 幾何投影如何給 Γ(θ)=−sinθ、Γ_rms=1/√2（Parseval），代 [P1] Eq.(21) 為何 −145 dBc/Hz@1 MHz（規範例 B Γ_rms=0.5 為 −148，差 3 dB）；3. 1/f² 在 Δω→0 的發散怎麼被 Lorentzian Δf₃dB=D/π=39.8 mHz（真 LC，D=0.125 rad²/s）收掉；4. 實測 −100 dBc/Hz@1 MHz 積 1→100 MHz 為何 σ_t=447.9 fs、10 Gb/s BER 1e-12 下吃掉 6.3% UI 怎麼算。final_exam（:10 後）「**通過標準**」：1. 全部題目在 NumericQuiz 容差內作答（不看解答）；2. 每題能說出 SSB /4 或時域 /2 慣例、[P1] Eq.(24) 或 [P2] Eq.(57)；3. 能講出 15.9 fs → −148 dBc/Hz → 19.9 mHz → 447.9 fs → 7.30 ps 鏈每步公式與出處頁。oscillator_phase（:8 後）：1. 相位為何是 limit cycle 上切向座標、無絕對時間基準；2. 為何徑向偏差被拉回、切向永久留下；3. 此幾何如何直接變成 phase noise 與 timing jitter。lti_vs_ltv（:8 後）：1. LTI h(t−τ) 與 LTV h_φ(t,τ) 差在哪；2. 同一 impulse 打波峰 vs 零交越為何相位效果不同（Δq=1 fC、q_max=1 pC：0 vs −1 mrad）；3. 為何此時變性就是 ISF 存在理由。EN 翻譯。閱讀時間估計不做（見 rejected）。依賴 R11-04/R11-16（final_exam）、R11-25（capstone 麵包屑）。證據：_AUTHORING_SPEC.md §7；`grep -l 這頁要回答什麼` 22 頁、labs 21 頁有教學目標，四頁 grep 為空。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "3b"
+ },
+ {
+  "id": "R11-35",
+  "priority": "P2",
+  "title": "white_noise_to_phase_noise（751 行）對第 5 步過長：核心推導混入完整第二套嚴格推導與重量級例題 3",
+  "lens": "reader",
+  "files": [
+   "docs/03_isf_core_theory/white_noise_to_phase_noise.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/white_noise_to_phase_noise.md",
+   "docs/99_appendix/derivation_autocorrelation_wiener_khinchin.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/99_appendix/derivation_autocorrelation_wiener_khinchin.md",
+   "docs/02_foundations/psd_phase_noise_jitter.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/psd_phase_noise_jitter.md"
+  ],
+  "proposal": "(a) 「## 嚴格頻譜推導（cyclostationary 自相關 → Wiener-Khinchin）」(:248–413) 逐字搬到新頁 docs/99_appendix/derivation_autocorrelation_wiener_khinchin.md（沿 derivation_leeson.md 模式，加先備/接下來、sidebars 99 群條目），原處留一句「從零出發的自相關/Wiener-Khinchin 重推見 …」；(b) 「Worked example 3」（多源疊加，:~688–732）移入 psd_phase_noise_jitter.md 例題區或新短附錄；主頁縮至 ~400–450 行，保留 Eq.19→20→21、factor-of-2 註記、例 1/2（learning_path.md:298 快速路線只要求「記住 Eq.(21) 與例 B」）。EN 鏡像同構。依賴 R11-25（同檔麵包屑）。證據：wc 750 行/44 KB；`grep '^## '` 248/415/545/733；changelog 無拆頁紀錄（v3 只記新增嚴格推導，不衝突）。",
+  "effort": "M",
+  "model": "sonnet",
+  "wave": "3b"
+ },
+ {
+  "id": "R11-36",
+  "priority": "P2",
+  "title": "7/10 頁內 NumericQuiz 的精確答案就印在題目上方 40 行內",
+  "lens": "x-assessment_scaffolding",
+  "files": [
+   "docs/02_foundations/jitter_kernels.md",
+   "docs/03_isf_core_theory/diffusion_dictionary.md",
+   "docs/03_isf_core_theory/asymmetric_isf_closed_form.md",
+   "docs/06_design_insights/adc_aperture_jitter.md",
+   "docs/06_design_insights/clock_chain_budget.md",
+   "docs/06_design_insights/fom_limit.md",
+   "docs/02_foundations/exercises.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/jitter_kernels.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/diffusion_dictionary.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/asymmetric_isf_closed_form.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/adc_aperture_jitter.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/clock_chain_budget.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/fom_limit.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/exercises.md"
+  ],
+  "proposal": "改問同公式的變體（已驗數字）：jitter_kernels.md:360（洩漏 :357）→ 問 σ_P(N=100)=√(0.125×100×2e-10)/(2π·5e9)=1.59 fs；diffusion_dictionary.md:224（洩漏 :219,222）→ κ²=0.5 rad²/s → Δf₃dB=79.6 mHz；asymmetric_isf_closed_form.md:284（洩漏 :278）→ A 1.5→2 比值 (1/3)/(1/7)=2.33、tol 0.02；adc_aperture_jitter.md:259（洩漏 :232,243,255；10 GHz 也在表）→ 把 quiz 移到表(:228) 之上，或問表外 f_in；clock_chain_budget.md:152（洩漏 :149）→ 理想 ÷4 → −12.04 dB；:267（洩漏 :261–264）→ B=200 MHz → 22.6 fs；fom_limit.md:270（洩漏 :257,267）→ Q=40 → 209.67 dB；02 exercises.md:85 hint 改「Γ(π/2)=−sin(π/2)；Δq/q_max 是 10⁻³」（刪「= −1」）。同步 prompt/answer/hint/solutionNote 與 EN 鏡像；重跑 quiz_leak.py 至 0。依賴：R11-26（jitter_kernels）、R11-28（clock_chain）、R11-30（adc）在 3a 先完成。證據：quiz_leak.py 解析 36/36 quiz，NumericQuiz.js:176–180 solutionNote 已隱藏，洩漏來自周圍 markdown；26 題習題/期末乾淨。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "3b"
+ },
+ {
+  "id": "R11-37",
+  "priority": "P2",
+  "title": "17/19 互動 explorer 宿主頁沒有錨定 widget 預設值的 NumericQuiz",
+  "lens": "labs_widgets",
+  "files": [
+   "docs/03_isf_core_theory/effective_isf.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/effective_isf.md",
+   "docs/03_isf_core_theory/lorentzian_linewidth.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/lorentzian_linewidth.md",
+   "docs/02_foundations/allan_variance.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/allan_variance.md",
+   "docs/06_design_insights/dj_dual_dirac.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/dj_dual_dirac.md"
+  ],
+  "proposal": "依 asymmetric_isf_closed_form.md:284–291 的 prompt/answer/tol/unit/hint/solutionNote 格式，各頁在 widget 之後加一題，答案由 widget 自身邏輯算出：effective_isf.md：EffectiveIsfExplorer 預設 centerDeg=90、widthPct=50、floor=0（.js:122–124）→ 問 c₀ 或 Γ_rms,eff（用 gammaLc/alphaWindow 精算）；lorentzian_linewidth.md：LineshapeExplorer 預設 L=−71 dBc/Hz、white、RBW=100 Hz（.js:196–198）→ 問讀到的 FWHM；allan_variance.md：AdevLiveExplorer 預設 logHWhite=−19、logHRW=−24、seed=1234（.js:196–201）→ 問某 τ 的 ADEV；dj_dual_dirac.md：DualDiracFitter 預設 σ=1.0 ps、A=2.0 ps（.js:201–203）→ 問 TJ@1e-12=2A+2·7.034σ=18.07 ps。優先 effective_isf、lorentzian_linewidth（主路徑第 6/10 步）。EN 鏡像。依賴 R11-03、R11-25（effective_isf）、R11-28（dj_dual_dirac）。證據：四檔 `grep -c NumericQuiz`=0；19 個非 quiz 元件宿主頁 17 頁為 0。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "3b"
+ },
+ {
+  "id": "R11-38",
+  "priority": "P2",
+  "title": "[P1] Sec.IV 兩處設計主張：「更線性負載」誤歸 [P2]；「高 Q → 對稱 duty → 壓 c₀」未連結",
+  "lens": "P1",
+  "merged_from": [
+   "'Use a more linear load to symmetrize the waveform' is a [P1] Sec. IV claim (citing external refs [15],[16]) but the site attributes it to [P2]",
+   "[P1]'s Sec. IV design claim linking tank Q to waveform symmetry (duty-cycle) and hence to c0/1-f^3 upconversion is never connected on the site"
+  ],
+  "files": [
+   "docs/03_isf_core_theory/flicker_noise_upconversion.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/flicker_noise_upconversion.md",
+   "docs/06_design_insights/symmetry.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/symmetry.md"
+  ],
+  "proposal": "(a) flicker_noise_upconversion.md:209（EN:209）「[P2] 建議用較線性的負載」→「[P1] 建議用較線性的負載（Sec.IV, p.189；[P1] 引 [15] Maneatis 1993、[16] Yang/Farjad-Rad/Horowitz 1997 的 supply-noise-rejection 先例，並指出同一措施也改善低頻噪上轉）」。(b) symmetry.md 設計旋鈕表 duty 列(:~173，EN:~196) 加註：「tank 高 Q 本身即濾除驅動波形高次諧波、讓 duty cycle 趨近 50%，因而同時壓低 c₀／偶次 c_n（[P1] Sec.IV 末）——獨立於它經由 Γ_rms 壓低 1/f² 的路徑；非 50% duty 一般使偶次 c_n 變大」；可在 lc_vs_ring.md Q 段加一句交叉連結（若不衝突）。至多引一句 ≤15 字。依賴 R11-25（flicker 麵包屑）。證據：general.txt:1043–1063；`grep -rn '線性負載|linear load|更線性'` 只有此 bullet；`grep -rn '高.*Q.*對稱|high.*Q.*symmetric|Q.*duty'` 空。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "3b"
+ },
+ {
+  "id": "R11-39",
+  "priority": "P2",
+  "title": "除 SerDes TX/RX 外沒有「哪種振盪器給哪種工作」選型決策表",
+  "lens": "practitioner",
+  "files": [
+   "docs/06_design_insights/lc_vs_ring.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/lc_vs_ring.md",
+   "docs/06_design_insights/serdes_clocking_connection.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/serdes_clocking_connection.md"
+  ],
+  "proposal": "lc_vs_ring.md「design knobs」表(:308–317) 後新增「選型決策表：哪種振盪器給哪種工作」，欄：應用｜誰濾 VCO（CDR/PLL BW 或無）｜主導規格區｜選擇｜ISF 理由；列：SerDes TX PLL（窄 BW、近載波顯 → LC，連 serdes §7）；SerDes RX CDR（寬 BW 高通掉 1/f³ → ring 可，多相免費）；ADC/DAC 取樣時鐘（無 CDR 減免、自 ~100 Hz 積分 → LC＋乾淨參考，連 adc_aperture_jitter、reference_oscillators:424）；RF 合成器 cellular/Wi-Fi（1 MHz spot L 與 spur 主導，2–6 GHz 量級 −120…−135 dBc/Hz@1 MHz 標外部經驗值、不造引文 → LC，fom_limit 天花板檢查）；低功耗 BLE 級（功率優先但 ring 到不了 FOM_req → 仍 LC，用 design_recipe 閘門）；SoC 數位時鐘（寬 BW PLL 內 ring，ps 級規格 → ring 勝面積/調諧）；多相/寬範圍（ring；Γ_rms∝N^-3/2 與選擇無關，lc_vs_ring:114）；儀器/雷達參考（OCXO＋LC 倍頻，clock_chain +20logN）。數值一律量級並沿 reference_oscillators.md:311–314 誠實橫幅；serdes_clocking_connection §7 與 learning_path step 8 加交叉連結。本輪已複驗：`grep -rniE '決策表|選型表|which oscillator|哪種振盪器' docs i18n/en` 為空、lc_vs_ring 標題結構 :308 design knobs 後直接 :318 worked。依賴 R11-30（serdes 例 3）。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "3b"
+ },
+ {
+  "id": "R11-40",
+  "priority": "P2",
+  "title": "各頁多義符號（α、β、Δω、ω_c、ζ）首次使用處加一行本站慣例註記（配 R11-24）",
+  "lens": "x-notation_symbol_table",
+  "files": [
+   "docs/03_isf_core_theory/effective_isf.md",
+   "docs/03_isf_core_theory/fourier_series_of_isf.md",
+   "docs/03_isf_core_theory/convolution_derivation.md",
+   "docs/03_isf_core_theory/flicker_noise_upconversion.md",
+   "docs/04_simulation_labs/lab_05_isf_fourier_coefficients.md",
+   "docs/06_design_insights/injection_locking_noise.md",
+   "docs/05_paper_deep_dives/paper_004_large_injection_transient.md",
+   "docs/06_design_insights/subharmonic_injection.md",
+   "docs/06_design_insights/varactor_tuning_supply_pushing.md",
+   "docs/04_simulation_labs/lab_32_mos_level1_ring.md",
+   "docs/04_simulation_labs/lab_36_lock_acquisition.md",
+   "docs/02_foundations/phase_vs_amplitude_noise.md",
+   "docs/02_foundations/jitter_kernels.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/effective_isf.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/fourier_series_of_isf.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/05_paper_deep_dives/paper_004_large_injection_transient.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/subharmonic_injection.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/injection_locking_noise.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/lab_36_lock_acquisition.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/phase_vs_amplitude_noise.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/jitter_kernels.md"
+  ],
+  "proposal": "在 wave 3 全部完成後執行（同檔多項）。(1) effective_isf.md:263,265,295,348（EN:297,299,329,385）把純量 duty「α=0.1」改名 d_on（占空比）=0.1，使 α(x) 專指 NMF（:288 程式註解若提 α 同步）；(2) toy DC 偏移 α 首次使用處各加一句「此處 α 是 toy ISF Γ=cosθ+α 的 DC 偏移（c₀=2α），與 [P1] 的 NMF α(ω₀t) 無關」：fourier_series_of_isf.md:236、convolution_derivation.md:150、flicker_noise_upconversion.md:265、lab_05:132、injection_locking_noise.md:572；(3) paper_004_large_injection_transient.md:47 表列內聯 β≡∠Γ̃₁−∠Λ₁（[P4] Eq.(23)，R11-05 已改 Λ）或把 :122 定義前移；subharmonic_injection.md:248（EN:261）加「此 β 為 realignment factor，與 [P4] Eq.(23) 的 ISF–APF 相位差 β 無關」；varactor_tuning_supply_pushing.md:246 加「FM 調變指數 β，與注入鎖定 realignment β 無關」；lab_32:81 加「MOS β=μC_ox W/L」；(4) injection_locking_noise.md:62、lab_36:60 加「本頁 Δω 是失諧，非 notation 表的 offset 頻率；offset 一律寫 ω」；(5) phase_vs_amplitude_noise.md:291 加「此 ω_c 是 AM 轉角 ω₀/2Q，與注入鎖定 ω_c=ω_L cosθ_ss 無關」；jitter_kernels.md:680 加「此 ζ 是 [P2] Fig.16 符號，非 PLL 阻尼比」。不改 learning_path（large_injection_transient 不在路徑上）。EN 鏡像。證據：各行號已由 sed 逐一確認（見原三條 notation findings）。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "4"
+ },
+ {
+  "id": "R11-41",
+  "priority": "P1",
+  "title": "theory_map 停在 92 頁／56 節點，整個 v10 注入群（subharmonic_injection、injection_locked_division、paper_004_large_injection_transient、lab_40/41）不在圖上",
+  "lens": "site_eng",
+  "files": [
+   "docs/00_overview/theory_map.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/00_overview/theory_map.md"
+  ],
+  "proposal": "在 wave 2/3 全部新頁與新麵包屑（R11-13/14/15 新頁、R11-25 補的 16 條麵包屑、R11-26/35 新附錄頁）落地後，重跑 theory_map.md 自述的麵包屑抽取流程（「每條邊都從每頁的先備／接下來麵包屑列直接抽取」），納入 subharmonic_injection.md:9、injection_locked_division.md:8、paper_004_large_injection_transient.md:8、lab_40_subharmonic_injection.md:8 等既有麵包屑與新頁（依既有 g_dsg_topo／g_lab_sys 分組規則收攏）；更新 :3 description、:10、:22–23、:366、:378 的「92 頁／56 節點／236 邊」為實際數字（≥100 頁）。EN 鏡像。證據：`grep -n 'subharmonic|injection_locked_division|large_injection_transient|lab_40|lab_41' theory_map.md`=0；build_report §12 為 97 頁；changelog v10 將 theory_map 列為 v10 交付物卻未含同版新增的 4 頁。",
+  "effort": "M",
+  "model": "sonnet",
+  "wave": "4"
+ },
+ {
+  "id": "R11-42",
+  "priority": "P1",
+  "title": "figure_index 只登錄 54/56 張生成圖，卻宣稱「沒有孤兒圖」",
+  "lens": "x-tooling_meta_drift",
+  "files": [
+   "docs/01_paper_map/figure_index.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/01_paper_map/figure_index.md"
+  ],
+  "proposal": "在 wave 2/3 新圖（R11-17 QVCO 圖、R11-19 lab_43 圖、R11-26 jitter 核圖）產生後執行：加 p1_fig2930_replica.png（script simulations/fig_p1_fig2930_replica.py main():343；用於 isf_from_waveform.md:64、EN:78；changelog v8「[P1] Fig.29/30 概念復刻」）與 subharmonic_injection_ilcm.png（fig_subharmonic_injection.py main():447；用於 subharmonic_injection.md:454、EN:480）到主表（近「v5 新增圖」段加「v8/v10 補完」）與 used_in 交叉表；連同新圖一併登錄；:138（EN:140）「54 張生成圖」→ 實際張數（56＋新增）。證據：`ls static/figures/*.png`=56；`grep -o '[A-Za-z0-9_]*\\.png' figure_index.md | sort -u` 54 個真實名；comm -23 恰缺此兩檔。",
+  "effort": "S",
+  "model": "sonnet",
+  "wave": "4"
+ },
+ {
+  "id": "R11-43",
+  "priority": "P1",
+  "title": "EN 平價與 gate 收尾：圖內中文的譯註、\\text{} 中文譯註、wave 1–3 全部新內容的 EN 鏡像、sidebars 新頁條目與交叉連結回填、驗證 gate",
+  "lens": "en_parity",
+  "merged_from": [
+   "All ~46 simulation-generated figures have Chinese text baked into the PNG (axis labels/titles/legends), invisible to EN readers beyond alt text",
+   "Three EN pages carry untranslated Chinese \\text{} labels inside math with no translator's note, unlike two sibling pages that added one for the identical convention-label pattern"
+  ],
+  "files": [
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/lab_10_rf_spectrum.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/lab_01_sinusoidal_oscillator.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/04_simulation_labs/lab_11_monte_carlo_jitter.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/06_design_insights/fom_limit.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/tank_Q_and_energy_restoration.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/02_foundations/stochastic_noise_basics.md",
+   "i18n/en/docusaurus-plugin-content-docs/current/03_isf_core_theory/flicker_noise_upconversion.md",
+   "sidebars.js",
+   "i18n/en/docusaurus-plugin-content-docs/current.json",
+   "docs/06_design_insights/pll_noise_budget.md",
+   "docs/06_design_insights/fom_limit.md",
+   "docs/00_overview/learning_path.md"
+  ],
+  "proposal": "**wave 4 其他項完成後最後序列執行。**(1) 圖內中文：沿 i18n/en/…/beyond_lorentzian.md:8「Translator's note」慣例，在每個嵌入含中文軸標/標題/圖例之 PNG 的 EN 頁圖片下方加一行譯註（只譯圖內實際印出的詞，例：溫度 T (K)=Temperature T (K)、FOM 上限 (dB)=FOM ceiling、品質因數 Q=Quality factor Q、電容電壓/電感電流=capacitor voltage/inductor current、量得 σ=…(理論 … fs)=measured σ (theory … fs)），從高流量圖起：lab_10（lab_10_rf_spectrum.py:79）、fom_limit 宿主頁（fig_fom_limit.py:225–254）、lab_01（:67–70,100–105）、lab_11:165（:117–118）、lab_23，逐步覆蓋 46 支含 CJK 的腳本所嵌的 ~40 頁；**不重跑腳本、不做雙語圖集**。(2) \\text{} 中文：tank_Q_and_energy_restoration.md（:82,87,121,131,187：儲存能量/每週期儲存的能量=stored energy(/period)、耗散功率=dissipated power、包絡=envelope、起振條件=startup condition、載波/雜訊功率正規化=carrier/noise-power normalization）、stochastic_noise_basics.md（:80 單邊 PSD=one-sided PSD、:151 無因次=dimensionless）、flicker_noise_upconversion.md（:82 flicker 只剩 DC=flicker leaves only the DC term、:106 機制（積分器）=mechanism (integrator)、flicker 機制=flicker mechanism）各加一行 Translator's note。(3) wave 1–3 所有 zh 新增/修改（新頁 adpll_tdc_dco、cdr_bang_bang_jtol、design_recipe、p2_appendix_a_reconciliation、derivation_autocorrelation_wiener_khinchin 與所有小節）同步到 EN 鏡像，跑 en_parity.py 至 97+N/97+N 頁全平價。(4) sidebars.js 加 adpll_tdc_dco（sampling_pll 後）、cdr_bang_bang_jtol（serdes_clocking_connection 後）、design_recipe（fom_limit 後）、兩個 99 附錄新頁條目，current.json 加標籤；回填 pll_noise_budget.md:683 → adpll、fom_limit.md:302 → design_recipe、learning_path step 8 → design_recipe、step 12 → cdr/adpll。(5) gate（站主執行或授權）：`python scripts/run_all_sims.py`、`python scripts/verify_examples.py`（目標 0 錯）、`python scripts/check_site_quality.py`、`python scripts/update_stats.py`、`npm run build`（0 broken link、0 KaTeX error）、en build front-matter 引號檢查（v10 事件）；更新 changelog v11 條目與 build_report §12 規模數字。證據：`grep -lP '[\\x{4e00}-\\x{9fff}]' simulations/*.py`=47/50；`grep -rn 'untranslated' i18n/en`=0；三頁 `grep -i translator` 空而 beyond_lorentzian:8、diffusion_dictionary:153 有。",
+  "effort": "L",
+  "model": "sonnet",
+  "wave": "4"
+ }
+]```

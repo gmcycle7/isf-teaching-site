@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkisf_teaching_site=globalThis.webpackChunkisf_teaching_site||[]).push([[2014],{32014(e,i,s){s.d(i,{createTreemapServices:()=>a.d});var a=s(51681);s(69302)}}]);

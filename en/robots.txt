@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gmcycle7.github.io/isf-teaching-site/sitemap.xml

@@ -89,8 +89,8 @@ $$
 $$
 
 - So "larger swing lowers phase noise" and "larger swing lowers jitter" are **the same statement** — they share
-  the core ratio $\Gamma_{rms}^2/q_{max}^2$. ([P2] Eq.(12), p.793 verified verbatim:
-  $\kappa=\dfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\,\overline{i_n^2}/\Delta f}$.)
+  the core ratio $\Gamma_{rms}^2/q_{max}^2$. ([P2] Eq.(12), p.793 as printed:
+  $\kappa_t=\dfrac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\tfrac12\,\overline{i_n^2}/\Delta f}$, the time version with $\omega_0$ in the denominator; phase version $\kappa=\omega_0\kappa_t$, re-verified in v11.)
 
 ## Step 3: two routes to raise $q_{max}$ — increase $V_{max}$ vs. increase $C$
 

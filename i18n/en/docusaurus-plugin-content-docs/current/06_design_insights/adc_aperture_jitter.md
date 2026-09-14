@@ -137,7 +137,13 @@ $$
   applied to an input at frequency $f_{in}$, the equivalent phase scales as
   $\sigma_{\phi,in}=2\pi f_{in}\sigma_t=(f_{in}/f_0)\,\sigma_\phi$. When $f_{in}=f_0=5$ GHz,
   the SNR is directly $-20\log_{10}(\sigma_\phi)=-20\log_{10}(0.01407)=37.0$ dB —
-  **Example C's 14.07 mrad becomes the ADC's SNR unchanged**.
+  **Example C's 14.07 mrad becomes the ADC's SNR unchanged**. The same $\sigma_\phi$ read from a
+  communications-receiver perspective is **EVM[dB]**: $\text{EVM}_{rms}\approx\sigma_\phi$,
+  $\text{EVM}[\text{dB}]=20\log_{10}\sigma_\phi=20\log_{10}(0.01407)=-37.0$ dB — **equal in
+  magnitude, opposite in sign** to this $\text{SNR}_{jitter}=+37.0$ dB (SNR is a power ratio,
+  bigger is better; EVM is an error fraction, more negative is better). Two readings of the same
+  $\sigma_\phi=14.07$ mrad; see the "Receiver perspective" subsection of
+  [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise).
 - **Validity/failure**: holds only when $2\pi f_{in}\sigma_t\ll1$ rad (the first-order Taylor of Step 1) and jitter is the only
   noise term; full conditions in Section 5.
 
@@ -230,10 +236,16 @@ integrated 1→100 MHz; [lab_08](/04_simulation_labs/lab_08_jitter_integration))
 
 | $f_{in}$ | $\sigma_{\phi,in}=2\pi f_{in}\sigma_t$ [rad] | $\text{SNR}_{jitter}$ [dB] | ENOB [bit] |
 |---|---|---|---|
+| 500 MHz | $1.407\times10^{-3}$ | 57.03 | 9.18 |
 | 1 GHz | $2.814\times10^{-3}$ | 51.01 | 8.18 |
 | 2.5 GHz | $7.036\times10^{-3}$ | 43.05 | 6.86 |
 | 5 GHz | $1.407\times10^{-2}$ | 37.03 | 5.86 |
 | 10 GHz | $2.814\times10^{-2}$ | 31.01 | 4.86 |
+
+> **Why add 500 MHz**: it is the **Nyquist frequency** ($f_s/2$) of a **1 GS/s** sampling clock —
+> the most common spec point for a 12-bit, 1 GS/s data converter. The "Second inverse design"
+> section below answers directly: "what does the 12-bit @ 1 GS/s combination demand from clock
+> cleanliness?"
 
 **One row worked by hand (5 GHz) as a worked example**:
 
@@ -257,15 +269,19 @@ $$
 import numpy as np
 print(-20*np.log10(2*np.pi*5e9*447.9e-15))            # -> 37.03
 print((-20*np.log10(2*np.pi*5e9*447.9e-15)-1.76)/6.02) # -> 5.86
+# 500 MHz row (1 GS/s Nyquist, new table row):
+print(2*np.pi*5e8*447.9e-15)                           # -> 1.407e-03
+print(-20*np.log10(2*np.pi*5e8*447.9e-15))              # -> 57.03
+print((-20*np.log10(2*np.pi*5e8*447.9e-15)-1.76)/6.02)  # -> 9.18
 ```
 
 <NumericQuiz
-  prompt="Try it yourself first: at f_in = 5 GHz, σ_t = 447.9 fs, SNR_jitter = ? (answer in dB)"
-  answer={37.03}
+  prompt="Try it yourself first: the same σ_t = 447.9 fs clock, now hitting f_in = 2 GHz (not one of the rows in the table above) — SNR_jitter = ? (answer in dB)"
+  answer={44.99}
   tol={0.01}
   unit="dB"
-  hint="SNR = −20·log₁₀(2π f_in σ_t); first find 2π f_in σ_t ≈ 1.407×10⁻² rad."
-  solutionNote="2π×5×10⁹×4.479×10⁻¹³ ≈ 1.407×10⁻² rad → SNR = −20×log₁₀(1.407×10⁻²) ≈ 37.03 dB (corresponding to ENOB ≈ 5.86 bit)."
+  hint="SNR = −20·log₁₀(2π f_in σ_t); first find 2π f_in σ_t (f_in here is 2/5 of the 5 GHz row above)."
+  solutionNote="2π×2×10⁹×4.479×10⁻¹³ ≈ 5.628×10⁻³ rad → SNR = −20×log₁₀(5.628×10⁻³) ≈ 44.99 dB (corresponding to ENOB ≈ 7.18 bit)."
 />
 
 **Scaling intuition (reading the table as one straight line)**:
@@ -330,6 +346,112 @@ PLL to filter out the close-in part (see design knobs). **Honesty note**: 25.4 f
 in order of magnitude, the best commercial RF-sampling clock chains land at integrated jitter of a few tens of fs
 (an order-of-magnitude statement, not a precise citation), so "10 ENOB @ 5 GHz" is a spec that hugs the practical limit.
 
+## Second inverse design: how clean does the clock need to be for 12-bit @ 1 GS/s (500 MHz Nyquist)?
+
+> **Problem**: a common industry spec combination is a **12-bit, 1 GS/s** data converter. At a sample
+> rate $f_s=1$ GS/s, the Nyquist frequency is $f_{in}=500$ MHz (the row just added to the table above).
+> With jitter as the only contributor, find the aperture-jitter ceiling $\sigma_t$ needed to hold
+> 12 ENOB; then check that requirement against two clocks this site has already verified — canonical
+> Example C (447.9 fs) and the PLL output of
+> [clock_chain_budget](/06_design_insights/clock_chain_budget) (27.6 fs) — to see whether 12-bit
+> @ 1 GS/s is actually achievable.
+
+**Step 1 (ENOB→SNR)**:
+
+$$
+\text{SNR}_{req}=6.02\times12+1.76=74.00\ \mathrm{dB}.
+$$
+
+**Step 2 (invert the formula, $f_{in}=500$ MHz)**:
+
+$$
+\sigma_t=\frac{10^{-\text{SNR}_{req}/20}}{2\pi\times5\times10^{8}}
+=\frac{10^{-74.00/20}}{3.1416\times10^{9}}\ \mathrm{s}
+$$
+
+$$
+\boxed{\ \sigma_t\ \le\ 6.350\times10^{-14}\ \mathrm{s}=63.5\ \mathrm{fs}\ }
+$$
+
+- **Compare to 11 ENOB**: the same method gives $\text{SNR}_{req}=6.02\times11+1.76=67.98$ dB →
+  $\sigma_t\le127.0$ fs — one more bit of requirement tightens the clock budget by roughly half
+  ($127.0/63.5\approx2$, matching the usual 6.02 dB/1 bit rule).
+- **Dimension check**: numerator $10^{-\text{SNR}/20}$ is rad (dimensionless), denominator $2\pi f_{in}$
+  is rad/s, quotient is s ✓.
+- **One-line Python verification**:
+
+```python
+import numpy as np
+for N in (11, 12):
+    snr_req = 6.02*N + 1.76
+    sigma_req = 10**(-snr_req/20) / (2*np.pi*5e8)
+    print(N, snr_req, sigma_req*1e15)
+# -> 11 67.98 127.0
+# -> 12 74.00 63.5
+```
+
+**Step 3 (translate 63.5 fs back into phase-noise language, same $1/f^2$ shape as Example C, 1→100 MHz
+integration bandwidth)**: $\sigma_t$ must be squeezed from 447.9 fs to 63.5 fs, a factor of
+$447.9/63.5=7.05$, i.e. the entire $1/f^2$ skirt shifted down by
+
+$$
+20\log_{10}(447.9/63.5)=20\log_{10}7.05=17.0\ \mathrm{dB}
+\quad\Longrightarrow\quad
+\mathcal{L}(1\,\mathrm{MHz})\ \le\ -100-17.0=-117.0\ \mathrm{dBc/Hz}.
+$$
+
+(11 ENOB only needs $-100-20\log_{10}(447.9/127.0)=-100-11.0\approx-111.0$ dBc/Hz — clearly looser.)
+
+- **One-line Python verification** (reusing the real integration functions from
+  `simulations/common/noise_utils.py`, sweeping $\mathcal{L}(1\,\mathrm{MHz})$ until
+  $\sigma_t\approx63.5$ fs):
+
+```python
+import numpy as np
+from simulations.common.noise_utils import leeson_one_over_f2, integrate_rms_jitter
+
+L_ref = -100 + 20*np.log10(63.5e-15/447.9e-15)   # scaling law, sigma_t ∝ 10^(L/20)
+f = np.logspace(6, 8, 8000)
+L = leeson_one_over_f2(f, L_ref_dbc=L_ref, f_ref=1e6)
+sigma_t, _ = integrate_rms_jitter(f, L, f0=5e9, fmin=1e6, fmax=100e6)
+print(L_ref)          # -> -117.0
+print(sigma_t*1e15)   # -> 63.5
+```
+
+**Step 4 (feasibility check: two clocks this site has already verified, hitting 500 MHz)**:
+
+$$
+\begin{aligned}
+\text{bare VCO (Example C, }\sigma_t=447.9\ \text{fs)}:\quad
+\text{SNR}&=57.03\ \text{dB}\ \Rightarrow\ \text{ENOB}=9.18\ \text{bit}\quad(\text{the 500 MHz table row above, short of 12-bit}), \\[4pt]
+\text{PLL-cleaned (}\sigma_t=27.6\ \text{fs, the integrated-jitter magnitude from clock\_chain\_budget)}:\quad
+\text{SNR}&=-20\log_{10}(2\pi\times5\times10^8\times27.6\times10^{-15})=81.2\ \text{dB} \\
+&\Rightarrow\ \text{ENOB}=(81.2-1.76)/6.02=13.2\ \text{bit}\quad(\text{exceeds the 12-bit requirement}).
+\end{aligned}
+$$
+
+- **One-line Python verification**:
+
+```python
+import numpy as np
+snr = -20*np.log10(2*np.pi*5e8*27.6e-15)
+print(snr)                 # -> 81.2
+print((snr-1.76)/6.02)     # -> 13.2
+```
+
+- **Conclusion**: the bare VCO (447.9 fs, Example C's $1/f^2$ skirt) delivers only 9.18 ENOB at the
+  500 MHz Nyquist point — **not enough** to feed a 12-bit ADC. But the same VCO, run through the
+  [clock_chain_budget](/06_design_insights/clock_chain_budget) PLL chain down to 27.6 fs, delivers
+  13.2 ENOB — **more than enough**. **12-bit @ 1 GS/s is an achievable spec, but only if the clock
+  feeding it has first been cleaned up by a PLL-purified LC VCO** (a bare oscillator does not qualify).
+  This echoes Step 4's conclusion that "the clock is the most expensive part," and is consistent with
+  the gating logic of [design_recipe](/06_design_insights/design_recipe): set the target ENOB/BER
+  first, back-solve the $\sigma_t$ ceiling, then pick the oscillator topology and loop design.
+  **Honesty note**: 27.6 fs is the **same canonical number** computed in
+  [clock_chain_budget](/06_design_insights/clock_chain_budget) for that page's 2.5 GHz output chain
+  (10 kHz–100 MHz integration); it is borrowed here as an order-of-magnitude benchmark for "what a
+  PLL-cleaned clock can achieve," not a freshly derived 1-GS/s-specific clock chain.
+
 ## The full chain: from the phase-noise plot to ENOB
 
 ```mermaid
@@ -376,6 +498,9 @@ $$
 then overlay it with $-20\log_{10}(2\pi f_{in}\sigma_t)$.
 
 ![Aperture jitter SNR: simulation vs formula](/figures/aperture_jitter_snr.png)
+
+
+> **Translator's note**: this figure is generated by a script with Chinese text baked into the image. Annotation/labels/titles read: "10 ENOB 目標\n(5 GHz, 61.96 dB)" = 10-ENOB target (5 GHz, 61.96 dB); "輸入頻率 fin [GHz]" = input frequency fin [GHz]; "(a) aperture-jitter SNR：−6 dB/octave（每倍頻掉 1 bit）" = (a) aperture-jitter SNR: −6 dB/octave (loses 1 bit per octave); "頻率 [GHz]" / "相對載波功率 [dBc]" = frequency [GHz] / power relative to the carrier [dBc]; "(b) FFT 頻譜：fin=…GHz, σt=447.9 fs ⇒ SNR=…dB" = (b) FFT spectrum: fin=…GHz, σt=447.9 fs ⇒ SNR=…dB.
 
 **How to read this figure**:
 
@@ -464,10 +589,14 @@ ends up setting the spec ceiling at both ends of a communication system (the sam
   at $f_{in}=f_0$ it directly recycles Example C's $\sigma_\phi=14.07$ mrad → 37.0 dB.
 - **ENOB $=(\text{SNR}-1.76)/6.02$**: obtained by deriving $\text{SNR}_q=6.02N+1.76$ from $q^2/12$
   and the full-scale sine power, then inverting.
-- **Design table ($\sigma_t=447.9$ fs)**: 1 / 2.5 / 5 / 10 GHz → 51.0 / 43.1 / 37.0 / 31.0 dB
-  → 8.18 / 6.86 / 5.86 / 4.86 bit; **6.02 dB = 1 bit lost per octave**.
-- **Inverse design**: 10 ENOB @ 5 GHz → SNR $\ge61.96$ dB → $\sigma_t\le25.4$ fs
+- **Design table ($\sigma_t=447.9$ fs)**: 500 MHz / 1 / 2.5 / 5 / 10 GHz → 57.0 / 51.0 / 43.1 / 37.0 / 31.0 dB
+  → 9.18 / 8.18 / 6.86 / 5.86 / 4.86 bit; **6.02 dB = 1 bit lost per octave**.
+- **Inverse design one**: 10 ENOB @ 5 GHz → SNR $\ge61.96$ dB → $\sigma_t\le25.4$ fs
   (17.6× cleaner than 447.9 fs = the whole skirt down $-24.9$ dB → $\mathcal{L}(1\,\mathrm{MHz})\le-124.9$ dBc/Hz).
+- **Inverse design two (12-bit @ 1 GS/s, 500 MHz Nyquist)**: 12 ENOB → SNR $\ge74.00$ dB →
+  $\sigma_t\le63.5$ fs → $\mathcal{L}(1\,\mathrm{MHz})\le-117.0$ dBc/Hz; the bare VCO (447.9 fs,
+  9.18 ENOB) falls short, while the PLL-cleaned clock (27.6 fs, 13.2 ENOB) is sufficient —
+  **12-bit @ 1 GS/s is achievable, but only with a PLL-purified LC clock**.
 - **Convention discipline**: upstream of $\sigma_t$, [P1] Eq. (21)'s /4 (SSB) vs the time-domain /2 bookkeeping
   makes $\mathcal{L}$ differ by 3 dB → $\sigma_t$ by $\sqrt2$ → SNR by 3 dB; only a chain-consistent choice is meaningful;
   a jitter-limited SNR must always be reported with the integration bandwidth of $\sigma_t$.

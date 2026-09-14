@@ -5,7 +5,7 @@ description: 從 white current noise PSD 經 ISF 加權與相位積分，逐步�
 
 # 白噪如何變成 1/f² phase noise
 
-> **前置閱讀**：[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)（$c_n$ 把 $n\omega_0$ 附近 noise 折回 carrier）、[rms_isf](/03_isf_core_theory/rms_isf)（$\sum c_n^2=2\Gamma_{rms}^2$）、[convolution_derivation](/03_isf_core_theory/convolution_derivation)（相位積分式）、[stochastic_noise_basics](/02_foundations/stochastic_noise_basics)（白噪 PSD / Parseval）。
+> 先備：[convolution_derivation](/03_isf_core_theory/convolution_derivation) ｜ 接下來：[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) · [rms_isf](/03_isf_core_theory/rms_isf)
 >
 > **動手驗證**：本頁「白噪 → $1/f^2$ phase noise」的時域模擬與理論吻合見 [lab_06](/04_simulation_labs/lab_06_white_noise_phase_noise)。
 
@@ -245,172 +245,11 @@ $$
 - **dimension check 同第 3 步**：$\Gamma_{rms}^2/q_{max}^2$ 帶 $1/\text{C}^2$，乘上 $S_i/\Delta\omega^2$
   的 $\text{A}^2\text{s}/\text{s}^{-2}=\text{A}^2\text{s}^3=\text{C}^2\text{s}$ ✓ 約成 $\text{s}$ → per-Hz。
 
-## 嚴格頻譜推導（cyclostationary 自相關 → Wiener-Khinchin）
-
-前面第 3 步那套「把白噪當成無數獨立小單音、算每根的 sideband 再求和」是 [P1] 的原始路線，
-物理直覺很強、但代數上是**啟發式（heuristic）**的：它在「白噪 $=$ 單音疊加」「factor-8 記帳」
-那幾步用了手算的功率簿記。這一節把同一個結果用**訊號與系統的嚴格機器**重做一遍——
-直接寫下 LTV 輸出相位的**時間平均自相關（time-averaged autocorrelation）**，用 ISF 的傅立葉
-係數展開，讓 $\sum c_n^2=2\Gamma_{rms}^2$ **自己從自相關裡掉出來**，再用 **Wiener-Khinchin 定理**
-取頻譜。讀者若熟悉「LTI 系統 $S_y=|H|^2S_x$」，這節會把它升級成「**LTV / cyclostationary**」版本。
-
-> **為什麼要做這節**：振盪器是**週期時變（periodically time-varying）**系統，它的輸出不是嚴格
-> 平穩（stationary）而是 **cyclostationary（週期穩態，統計量以週期 $T$ 重複）**。對 cyclostationary
-> 過程，正確的譜分析要先對**絕對時間 $t$ 做一個週期平均**，把它「平穩化」，再做 Wiener-Khinchin。
-> 這一節就是老實走完這條路；走完你會看到 $\Gamma_{rms}$ 不是被「湊」出來的，而是自相關的週期平均
-> 的**必然產物**。
-
-### 第 A 步：寫下相位的雙時間自相關（two-time autocorrelation）
-
-從 [P1] Eq.(11) 的相位積分出發，定義 $g(\tau)\equiv\Gamma(\omega_0\tau)/q_{max}$（把 ISF 與
-normalization 併成一個權重核），則 $\phi(t)=\int_{-\infty}^{t}g(\tau)\,i_n(\tau)\,d\tau$。
-但為了乾淨看出頻譜，我們改看**相位的時間導數** $\dot\phi$（瞬時頻率擾動），它的自相關更直接
-（相位本身是非平穩漫步，見 [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)；
-$\dot\phi$ 才是 cyclostationary-平穩的）。由微積分基本定理：
-
-$$
-\dot\phi(t)=g(t)\,i_n(t)=\frac{\Gamma(\omega_0 t)}{q_{max}}\,i_n(t).
-$$
-
-這是一個**乘法型 LTV**：輸入白噪 $i_n(t)$ 被一個**確定的週期權重** $g(t)$ 逐點調制。算它的
-**雙時間自相關**：
-
-$$
-R_{\dot\phi}(t,\,t+\tau)=\big\langle\dot\phi(t)\,\dot\phi(t+\tau)\big\rangle=g(t)\,g(t+\tau)\,\big\langle i_n(t)\,i_n(t+\tau)\big\rangle.
-$$
-
-- **用到的數學**：$g$ 是確定函數（可提到期望外），只有 $i_n$ 是隨機的。
-- **白噪自相關是 delta**：白噪不同時刻不相關，$\langle i_n(t)i_n(t+\tau)\rangle=S_i\,\delta(\tau)$
-  （$S_i=\overline{i_n^2}/\Delta f$ 是其（雙邊）PSD，常數）。代入：
-
-$$
-R_{\dot\phi}(t,\,t+\tau)=g(t)\,g(t+\tau)\,S_i\,\delta(\tau).
-$$
-
-- **關鍵觀察（cyclostationary）**：這個自相關**顯含絕對時間 $t$**（透過 $g(t)g(t+\tau)$），
-  而且以週期 $T$ 重複（$g$ 是 $T$-週期）——這正是 **cyclostationary** 的定義特徵，**不是**平穩。
-  不能直接 Wiener-Khinchin；要先對 $t$ 做週期平均。
-- **單位檢查**：$[g]=1/\text{C}$（$\Gamma$ 無因次 $/q_{max}$），$[g^2 S_i\delta(\tau)]=
-  \text{C}^{-2}\cdot(\text{A}^2/\text{Hz})\cdot(1/\text{s})$。以 $\delta(\tau)$ 帶 $1/\text{s}$、$\text{Hz}^{-1}=\text{s}$，
-  化簡 $=\text{C}^{-2}\text{A}^2=\text{s}^{-2}$，即 $[\dot\phi^2]=(\text{rad/s})^2$ ✓。
-
-### 第 B 步：對絕對時間做週期平均 → 把 cyclostationary 平穩化
-
-cyclostationary 過程的**時間平均自相關**定義為對絕對時間 $t$ 取一個週期的平均：
-
-$$
-\bar R_{\dot\phi}(\tau)=\frac{1}{T}\int_{0}^{T}R_{\dot\phi}(t,\,t+\tau)\,dt=\Big[\frac{1}{T}\int_{0}^{T}g(t)\,g(t+\tau)\,dt\Big]\,S_i\,\delta(\tau).
-$$
-
-中括號裡是權重核 $g$ 的**自相關（確定性、週期）**，記為
-
-$$
-\bar g(\tau)\equiv\frac{1}{T}\int_{0}^{T}g(t)\,g(t+\tau)\,dt=\frac{1}{q_{max}^2}\cdot\frac{1}{T}\int_{0}^{T}\Gamma(\omega_0 t)\,\Gamma(\omega_0(t+\tau))\,dt.
-$$
-
-因為 $\delta(\tau)$ 只在 $\tau=0$ 取值，我們**只需要 $\bar g(0)$**：
-
-$$
-\bar R_{\dot\phi}(\tau)=\bar g(0)\,S_i\,\delta(\tau),\qquad\bar g(0)=\frac{1}{q_{max}^2}\cdot\frac{1}{T}\int_{0}^{T}\Gamma^2(\omega_0 t)\,dt.
-$$
-
-- **用到的物理/數學**：把絕對時間平均掉，等於把振盪器在一個週期內「各個相位的敏感度」平均起來——
-  這正是 cyclostationary 系統「等效平穩化」的標準手法。
-- **這一步就要冒出 $\Gamma_{rms}$ 了**：$\dfrac{1}{T}\int_0^T\Gamma^2(\omega_0t)\,dt$ 就是 ISF 的**均方**。
-
-### 第 C 步：用 ISF 傅立葉係數展開 → $\sum c_n^2=2\Gamma_{rms}^2$ 自然掉出來
-
-把 $\Gamma$ 的傅立葉級數（[P1] Eq.(12)）代進 $\bar g(0)$ 的那個均方積分，**自己**就生出 $\sum c_n^2$。
-先把均方積分換成對相位 $x=\omega_0 t$ 的積分（$dt=dx/\omega_0$，一個週期 $t:0\to T$ 對應 $x:0\to2\pi$）：
-
-$$
-\frac{1}{T}\int_{0}^{T}\Gamma^2(\omega_0 t)\,dt=\frac{1}{2\pi}\int_{0}^{2\pi}\Gamma^2(x)\,dx.
-$$
-
-代入 $\Gamma(x)=\dfrac{c_0}{2}+\sum_{n\ge1}c_n\cos(nx+\theta_n)$ 並平方。用三角函數的**正交性**
-（不同諧波互相積分為零、同諧波 $\int_0^{2\pi}\cos^2=\pi$、DC 項 $\int_0^{2\pi}dx=2\pi$）：
-
-$$
-\frac{1}{2\pi}\int_{0}^{2\pi}\Gamma^2(x)\,dx=\Big(\frac{c_0}{2}\Big)^2+\sum_{n=1}^{\infty}\frac{c_n^2}{2}=\frac{c_0^2}{4}+\frac12\sum_{n=1}^{\infty}c_n^2.
-$$
-
-把 DC 寫成 $n=0$ 項並湊成「半個 $\sum_{n\ge0}c_n^2$」的形式（這是 [P1] Eq.(20) 同一個記帳：
-$c_0$ 那項的係數是 $\tfrac14$，等於 $\tfrac12\cdot\tfrac12$，即把 $c_0^2$ 也納入 $\tfrac12\sum$ 並補回
-DC 的 half-weight），整理得：
-
-$$
-\frac{1}{2\pi}\int_{0}^{2\pi}\Gamma^2(x)\,dx=\Gamma_{rms}^2,\qquad\text{其中}\quad\Gamma_{rms}^2\equiv\frac{1}{2\pi}\int_0^{2\pi}\Gamma^2(x)\,dx.
-$$
-
-這就是 $\Gamma_{rms}$ 的**定義**。再對照 [P1] Eq.(20) 的 Parseval（注意它用 $\tfrac1\pi$ 而非 $\tfrac1{2\pi}$）：
-
-$$
-\sum_{n=0}^{\infty}c_n^2=\frac{1}{\pi}\int_0^{2\pi}\Gamma^2(x)\,dx=2\cdot\frac{1}{2\pi}\int_0^{2\pi}\Gamma^2(x)\,dx=\boxed{\,2\,\Gamma_{rms}^2\,}.
-$$
-
-> **注意（DC 半權重）**：這裡的 $\sum_{n=0}^{\infty}c_n^2$ 中 DC 項是以 $c_0^2/2$（半權重）計入的；
-> 若誤用整權 $c_0^2$，總和會比 $2\Gamma_{rms}^2$ 多出 $c_0^2/2$。這正是 Parseval 對 $\tfrac{c_0}{2}$ 形式 DC
-> 的記帳（$\Gamma$ 級數第一項寫成 $\tfrac{c_0}{2}$，平方後給 $\tfrac{c_0^2}{4}=\tfrac12\cdot\tfrac{c_0^2}{2}$），
-> 詳見 [rms_isf](/03_isf_core_theory/rms_isf)。
-
-**$\sum c_n^2=2\Gamma_{rms}^2$ 就這樣從自相關的週期平均裡自然掉出來**——不需要第 3b 步那種手算的
-factor-8 簿記。差別只在「$\tfrac1\pi$ vs $\tfrac1{2\pi}$」這個 Parseval 慣例帶來的因子 2，與
-[rms_isf](/03_isf_core_theory/rms_isf) 完全一致。於是
-
-$$
-\bar g(0)=\frac{1}{q_{max}^2}\cdot\Gamma_{rms}^2=\frac{\Gamma_{rms}^2}{q_{max}^2}.
-$$
-
-- **物理意義**：$\dot\phi$ 的時間平均自相關強度（$\tau=0$ 的權重）**正比於 $\Gamma_{rms}^2/q_{max}^2$**——
-  振盪器把白噪「攪拌」進相位的有效增益，就是 ISF 的均方除以 $q_{max}^2$。所有 $c_n$ 的細節都被
-  Parseval 收進一個 $\Gamma_{rms}$。
-
-### 第 D 步：Wiener-Khinchin → 相位頻譜 $S_\phi\propto1/\Delta\omega^2$
-
-現在 $\bar R_{\dot\phi}(\tau)=\dfrac{\Gamma_{rms}^2}{q_{max}^2}S_i\,\delta(\tau)$ 已經是**只依賴 $\tau$**
-的平穩自相關了，可以放心套 **Wiener-Khinchin**（自相關的傅立葉變換 $=$ PSD）：
-
-$$
-S_{\dot\phi}(\Delta\omega)=\int_{-\infty}^{\infty}\bar R_{\dot\phi}(\tau)\,e^{-j\Delta\omega\tau}\,d\tau=\frac{\Gamma_{rms}^2}{q_{max}^2}\,S_i\int_{-\infty}^{\infty}\delta(\tau)e^{-j\Delta\omega\tau}d\tau=\frac{\Gamma_{rms}^2}{q_{max}^2}\,S_i.
-$$
-
-$\delta$ 的傅立葉變換是常數 $1$——所以 **$\dot\phi$（瞬時頻率擾動）的頻譜是白的**，強度
-$\Gamma_{rms}^2 S_i/q_{max}^2$。最後一步：相位是頻率的積分，**頻域積分等於除以 $j\Delta\omega$**，
-功率譜要除以 $\Delta\omega^2$：
-
-$$
-S_\phi(\Delta\omega)=\frac{S_{\dot\phi}(\Delta\omega)}{\Delta\omega^2}=\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{S_i}{\Delta\omega^2}\qquad[\text{rad}^2/\text{Hz}].
-$$
-
-這跟前面「時域乾淨版」（factor-of-2 註記裡的）$S_\phi=\Gamma_{rms}^2S_i/(q_{max}^2(2\pi f)^2)$
-**逐字相同**（$\Delta\omega=2\pi f$）。
-
-- **$1/f^2$ 的嚴格出處**：這條 $1/\Delta\omega^2$ **完全來自「$\dot\phi\to\phi$ 的那次積分」**
-  （$1/(j\Delta\omega)$ 濾波器），與本頁開頭的物理直覺一字不差——只是現在是用 Wiener-Khinchin
-  嚴格證出來的，不是手算 sideband 湊出來的。
-- **白噪頻譜的角色**：$\dot\phi$ 白、$\phi$ 才 $1/f^2$——這也解釋了為什麼相位是 random walk
-  （白色頻率擾動的積分 $=$ Wiener process），正是下一頁 Lorentzian 的起點。
-
-### 嚴格版 vs 啟發式版：對照表
-
-| 項目 | 啟發式（第 3 步，[P1] 原路線） | 嚴格（本節，cyclostationary 自相關） |
-|---|---|---|
-| 出發點 | 白噪 $=$ 無數獨立單音 | $\dot\phi=g(t)i_n(t)$ 的雙時間自相關 |
-| 平穩化 | 隱含在「對 $n$ 求和」 | 顯式對絕對時間 $t$ 做週期平均 |
-| $\Gamma_{rms}$ 來源 | Parseval 手動代入（Eq.20） | 週期平均積分 $\tfrac1{2\pi}\int\Gamma^2$ 自然生出 |
-| $\sum c_n^2=2\Gamma_{rms}^2$ | 外加套用 | 從自相關 $\bar g(0)$ 掉出來 |
-| $1/\Delta\omega^2$ 來源 | 單音 sideband 的 $1/\Delta\omega^2$ | $\dot\phi\to\phi$ 積分的 $1/(j\Delta\omega)$ |
-| 取頻譜 | 累加 sideband 功率 | Wiener-Khinchin（自相關 FT） |
-| factor-of-2 | SSB 記帳（$/4$） | 時域乾淨（$/2$）；差 2 同前述 |
-
-> **小結**：嚴格版用「cyclostationary 自相關 → 週期平均 → Wiener-Khinchin」三板斧，把 $\Gamma_{rms}$
-> 與 $1/f^2$ 都變成**機械化的必然結果**。$\sum c_n^2=2\Gamma_{rms}^2$ 不是巧合，而是 ISF 均方的
-> Parseval 化身。這套自相關機器也正是下一頁 [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
-> 的入口：那裡把「$\dot\phi$ 白 ⇒ $\phi$ 是 random walk」推到底，得出**載波自相關
-> $R_x(\tau)=\tfrac12\cos(\omega_0\tau)e^{-D|\tau|}$**，再 Wiener-Khinchin 出 **Lorentzian**——
-> 解開 $1/f^2$ 在 $\Delta\omega\to0$ 的假發散。本節算出的 $S_\phi=\Gamma_{rms}^2S_i/(q_{max}^2\Delta\omega^2)$
-> 正是那裡 $D=\Gamma_{rms}^2S_i/(4q_{max}^2)$ 的來源（本站單邊記帳 $S_\phi=4D/\Delta\omega^2$，雙邊
-> $2D/\Delta\omega^2$；v5 更正，對帳見 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)）。
+> **從零出發的嚴格重推**：上面第 3 步走的是「白噪 = 單音疊加」的啟發式（heuristic）路線；若想看
+> 用**訊號與系統的嚴格機器**（LTV 相位的雙時間自相關 → 對絕對時間做週期平均，把 cyclostationary
+> 平穩化 → Wiener-Khinchin 定理取頻譜）把同一個結果從零重推一遍——讓 $\sum c_n^2=2\Gamma_{rms}^2$
+> **自己從自相關裡掉出來**、不必手算 factor-8 簿記——見附錄
+> [derivation_autocorrelation_wiener_khinchin](/99_appendix/derivation_autocorrelation_wiener_khinchin)。
 
 ## $S_\phi(f)$ 與 $\mathcal{L}(\Delta f)$ 的關係（dBc/Hz 直覺）
 
@@ -609,126 +448,10 @@ print(round(L, 1), "dBc/Hz")   # -> -145.0 dBc/Hz
 （兩題的 Eq.(21) 是 SSB $/4$ 慣例；若用本站 lab_06 的時域乾淨版 $/2$，兩題各再 $+3$ dB——見上面 factor-of-2 註記。
 完整函式庫：`simulations/common/noise_utils.py`、`simulations/common/isf_utils.py`。）
 
-> **例 3（兩個雜訊源相加）**：真實振盪器從來不只一個 noise 源。這題示範**多源 superposition**——
-> 兩個獨立白噪源同時打進同一個理想 LC 節點，該怎麼合成總 phase noise？
-
-**題目設定。** 沿用例 1 的振盪器參數（$f_0=5$ GHz、$\Delta f=1$ MHz、$q_{max}=1$ pC），節點上疊加兩個
-互相獨立（statistically independent）的白噪電流源：
-
-- **Device A**（例如主要跨導管，直接看到完整 ISF）：$\Gamma_{A,rms}=0.5$、$S_{i,A}=\overline{i_{n,A}^2}/\Delta f=1\times10^{-24}\ \text{A}^2/\text{Hz}$。
-- **Device B**（tail 電流源一類的元件，因為 cyclostationary 閘控只在部分相位貢獻雜訊，見
-  [effective_isf](/03_isf_core_theory/effective_isf) 的 $\Gamma_{eff}=\Gamma\alpha$）：等效 $\Gamma_{eff,B,rms}=0.25$
-  （只有 A 的一半，示意用的 illustrative 值）、但電流噪聲功率較大 $S_{i,B}=4\times10^{-24}\ \text{A}^2/\text{Hz}$
-  （例如偏壓電流較大的元件）。
-
-兩者是**不同的物理雜訊源、彼此獨立**（不相關），所以要問的是：合起來的 $\mathcal{L}_{total}(1\text{MHz})$
-是多少？
-
-**第 0 步：為什麼獨立源要在 $S_\phi$（功率）疊加，不能在 dB 疊加。** 每個 noise 源各自經過（可能不同的）
-ISF 加權、獨立地被積分成相位擾動 $\phi_A(t)$、$\phi_B(t)$（見 [P1] Eq.(11)）；節點上的總 excess phase 是
-線性疊加 $\phi(t)=\phi_A(t)+\phi_B(t)$。對獨立（不相關）隨機過程，方差／功率譜疊加、交叉項期望值為零：
-
-$$
-S_{\phi,total}(\Delta\omega)=\big\langle(\phi_A+\phi_B)(\phi_A+\phi_B)\big\rangle_{\text{頻譜}}=S_{\phi,A}(\Delta\omega)+S_{\phi,B}(\Delta\omega)+\underbrace{2\,\text{Re}\langle\phi_A\phi_B^*\rangle}_{=0\ (\text{獨立})}.
-$$
-
-**這就是本題的「一行規則」：獨立源在 $S_\phi$（線性功率）相加，絕不能直接把兩個 dBc/Hz 數字相加或平均。**
-必須先各自轉回 linear、相加、再取一次 $10\log_{10}$。
-
-**第 1 步：Device A 單獨算（就是例 1 的算法，套 [P1] Eq.(21)）。**
-
-$$
-\mathcal{L}_A=10\log_{10}\!\left(\frac{\Gamma_{A,rms}^2}{q_{max}^2}\cdot\frac{S_{i,A}}{4\,\Delta\omega^2}\right),\qquad \Delta\omega=2\pi\times10^6=6.283\times10^6\ \text{rad/s},\ \Delta\omega^2=3.948\times10^{13}.
-$$
-
-$$
-\frac{\Gamma_{A,rms}^2}{q_{max}^2}=\frac{0.25}{10^{-24}}=2.5\times10^{23}\ \text{C}^{-2},\qquad
-\frac{S_{i,A}}{4\Delta\omega^2}=\frac{10^{-24}}{1.579\times10^{14}}=6.332\times10^{-39}.
-$$
-
-括號內線性值 $\ell_A=2.5\times10^{23}\times6.332\times10^{-39}=1.583\times10^{-15}$，
-$\mathcal{L}_A=10\log_{10}(1.583\times10^{-15})\approx-148.0\ \text{dBc/Hz}$（與例 1 一致——同一組參數）。
-
-**第 2 步：Device B 單獨算（同一公式，$\Gamma\to\Gamma_{eff,B,rms}$、$S_i\to S_{i,B}$）。**
-
-$$
-\frac{\Gamma_{eff,B,rms}^2}{q_{max}^2}=\frac{0.25^2}{10^{-24}}=\frac{0.0625}{10^{-24}}=6.25\times10^{22}\ \text{C}^{-2},\qquad
-\frac{S_{i,B}}{4\Delta\omega^2}=\frac{4\times10^{-24}}{1.579\times10^{14}}=2.533\times10^{-38}.
-$$
-
-括號內線性值 $\ell_B=6.25\times10^{22}\times2.533\times10^{-38}=1.583\times10^{-15}$，
-$\mathcal{L}_B=10\log_{10}(1.583\times10^{-15})\approx-148.0\ \text{dBc/Hz}$。
-
-**「你以為 A 主導，其實不然」**：乍看 $\Gamma_{eff,B,rms}=0.25$ 只有 $\Gamma_{A,rms}=0.5$ 的一半，直覺
-會猜 Device B 的 ISF 權重項 $\Gamma_{eff,B,rms}^2/q_{max}^2$ 差了 $4$ 倍（$-6$ dB），B 應該完全被 A 蓋過、
-可以忽略。**但 Device B 的電流噪聲 $S_{i,B}$ 剛好大 $4$ 倍**（$+6$ dB）——兩個 $\pm6$ dB 恰好抵消，
-算出來 $\mathcal{L}_A=\mathcal{L}_B\approx-148.0$ dBc/Hz，**B 與 A 一樣強，貢獻同等重要，完全不可忽略**。
-這正是「只看 $\Gamma_{rms}$ 大小就猜雜訊貢獻」會踩的陷阱：真正決定貢獻大小的是
-$\Gamma_{rms}^2\cdot S_i$ 這個乘積，兩個因子要一起看。
-
-**第 3 步：功率相加（在 linear domain 相加，不是在 dB 相加）。**
-
-$$
-\mathcal{L}_{total}=10\log_{10}\big(\ell_A+\ell_B\big)=10\log_{10}\big(1.583\times10^{-15}+1.583\times10^{-15}\big)=10\log_{10}(3.166\times10^{-15}).
-$$
-
-用等價的「dB 域功率合成公式」（先各自 $10^{L/10}$ 還原成 linear，相加，再取一次 $10\log_{10}$）核對：
-
-$$
-\mathcal{L}_{total}=10\log_{10}\!\Big(10^{\mathcal{L}_A/10}+10^{\mathcal{L}_B/10}\Big)=10\log_{10}\!\Big(10^{-148.0/10}+10^{-148.0/10}\Big).
-$$
-
-**結果：** $\mathcal{L}_{total}(1\,\text{MHz})\approx-145.0\ \text{dBc/Hz}$。
-
-- **算術上發生了什麼**：$A$、$B$ 兩源功率相等，合起來剛好是**兩倍功率** $\Rightarrow 10\log_{10}2\approx3.01$ dB，
-  所以 $\mathcal{L}_{total}\approx\mathcal{L}_A+3.0\ \text{dB}=-148.0+3.0=-145.0$ dBc/Hz。
-  Device B 對總雜訊的貢獻，換算成「比只有 A 時劣化了多少」，就是 **X = 3.0 dB**——
-  而不是被邏輯上「$\Gamma_{eff,B,rms}$ 只有一半」誤導成可忽略的 0 dB。
-- **一句話規則（務必記住）**：**不相關（獨立）雜訊源要在 $S_\phi$／功率上相加，絕不能直接把 dBc/Hz
-  數字相加，也不能取平均。** 兩個相同大小的源功率相加 $=\times2=+3.0$ dB，不是 $+6$ dB（那是電壓/幅度
-  相加、相干疊加才會發生的事，white noise 源之間不相干）。
-
-**Dimension check：** $\ell_A$、$\ell_B$ 分別跟例 1／例 2 一樣是 $\Gamma_{rms}^2/q_{max}^2\cdot S_i/(4\Delta\omega^2)$
-的形式，因次都化簡為 $\text{s}$（per-Hz，見例 1 的 dimension check），兩個同因次的量才能相加；
-相加後仍是 $\text{s}$，取 $10\log_{10}$ 讀作 dBc/Hz ✓。
-
-```python
-import numpy as np
-
-qmax = 1e-12                       # C
-dw = 2*np.pi*1e6                   # rad/s (Δf = 1 MHz)
-
-# Device A: 主要跨導管，看到完整 ISF
-gamma_A, Si_A = 0.5, 1e-24         # (–, A^2/Hz)
-# Device B: tail 元件，cyclostationary 閘控後的等效 Gamma_eff,rms 較小，但電流噪聲較大
-gamma_effB, Si_B = 0.25, 4e-24     # (–, A^2/Hz)
-
-def bracket(gamma_rms, Si, qmax, dw):
-    return (gamma_rms**2 / qmax**2) * (Si / (4 * dw**2))   # [P1] Eq.(21) 括號內線性值
-
-ell_A = bracket(gamma_A, Si_A, qmax, dw)
-ell_B = bracket(gamma_effB, Si_B, qmax, dw)
-L_A = 10*np.log10(ell_A)
-L_B = 10*np.log10(ell_B)
-print(round(L_A, 1), "dBc/Hz  (A alone)")   # -> -148.0 dBc/Hz
-print(round(L_B, 1), "dBc/Hz  (B alone)")   # -> -148.0 dBc/Hz
-
-# 正確作法：功率（linear S_phi）相加，再取一次 log；不是把兩個 dB 數字相加
-L_total_via_linear = 10*np.log10(ell_A + ell_B)
-L_total_via_powersum = 10*np.log10(10**(L_A/10) + 10**(L_B/10))   # 等價寫法，供對照
-print(round(L_total_via_linear, 1), "dBc/Hz  (A+B power-summed)")     # -> -145.0 dBc/Hz
-print(round(L_total_via_powersum, 1), "dBc/Hz  (cross-check)")        # -> -145.0 dBc/Hz
-
-X_dB = L_total_via_linear - L_A   # B 帶來的劣化量：本例中 A、B 貢獻相等
-print(round(X_dB, 1), "dB  (B 的貢獻，即使 Gamma_eff,B,rms 只有 Gamma_A,rms 的一半)")  # -> 3.0 dB
-```
-
-（本例延續 [P1] Eq.(21) 的 SSB $/4$ 慣例，兩源公式相同、只是各自代入自己的 $\Gamma_{rms}$（或
-$\Gamma_{eff,rms}$）與 $S_i$ 後在**功率**上相加；若改用 lab_06 時域乾淨版 $/2$，$\mathcal{L}_A$、$\mathcal{L}_B$、
-$\mathcal{L}_{total}$ 三者會一起各加 $3$ dB，彼此的 **3.0 dB 差距不變**——這再次呼應前面 factor-of-2
-註記：常數慣例不影響 scaling／相對關係。多源 superposition 的完整規則與 cyclostationary $\Gamma_{eff}$
-的推導見 [effective_isf](/03_isf_core_theory/effective_isf)；完整函式庫：`simulations/common/noise_utils.py`、
-`simulations/common/isf_utils.py`。）
+> **例 3（兩個雜訊源相加）移到哪了**：真實振盪器從來不只一個 noise 源；「多源 superposition」
+> （兩個獨立白噪源疊加、$S_\phi$ 功率相加而非 dB 相加）的完整例題現在放在
+> [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) 的 Worked examples **例 E**，
+> 沿用本頁例 1 的參數，邏輯不變。
 
 ## 重點回顧
 
@@ -744,7 +467,9 @@ $\mathcal{L}_{total}$ 三者會一起各加 $3$ dB，彼此的 **3.0 dB 差距�
 
 - 上游積分：[convolution_derivation](/03_isf_core_theory/convolution_derivation)
 - $\Gamma_{rms}$ 與 Parseval：[rms_isf](/03_isf_core_theory/rms_isf)
+- 從零出發的自相關／Wiener-Khinchin 嚴格重推：[derivation_autocorrelation_wiener_khinchin](/99_appendix/derivation_autocorrelation_wiener_khinchin)
 - close-in 的 $1/f^3$：[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
 - 解開 $1/f^2$ 在 $\Delta f\to0$ 的假發散（近載波 Lorentzian、線寬 $D/\pi$）：[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
 - 把 $\mathcal{L}$ 積回 jitter：[numerical_feeling](/04_simulation_labs/numerical_feeling)
+- 多源 superposition 例題（原例 3）：[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) 的 Worked examples 例 E
 - 模擬驗證：[lab_06](/04_simulation_labs/lab_06_white_noise_phase_noise)

@@ -68,6 +68,7 @@ You do not want to read a whole page — you just need one symbol, one term, or 
 - [Notation](/00_overview/notation) — site-wide consistent symbols, meanings, units
 - [Glossary](/99_appendix/glossary) — intuitive explanations of the English terms
 - [Equation Index](/01_paper_map/equation_index) — formula ↔ paper source ↔ derivation page
+- [Interactive Tools](/04_simulation_labs/interactive_calculator) — seven slider-driven tools, drag and watch the numbers move
 
 ## Required background
 

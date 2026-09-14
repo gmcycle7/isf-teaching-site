@@ -26,7 +26,7 @@ as the amplitude-domain counterpart of the ISF.
 > (zero Floquet exponent): perturbations accumulate permanently, so phase noise random-walks
 > without bound. For one and the same noise current, the share injected into phase stays, and the
 > share injected into amplitude gets eaten — the ISF $\Gamma$ describes "how much goes into phase",
-> the APF $\Lambda$ describes "how much goes into amplitude".
+> the APF $\Delta$ describes "how much goes into amplitude".
 
 ## 1. Why phase noise matters
 
@@ -52,10 +52,164 @@ modulations $A(t)$ and $\phi(t)$. Their impact on "clock quality" is asymmetric:
   threshold, amplitude effects mostly convert back into timing error (see AM–PM below), but pure
   amplitude fluctuations themselves are squeezed out by the restoring force, and receivers commonly
   use limiters/comparators that are insensitive to amplitude.
+- **Phase noise has two more customers on the receiver side**: the local oscillator's (LO's)
+  $\mathcal{L}(\Delta f)$ skirt "sweeps" a strong nearby interferer (a blocker) down into the IF
+  noise floor (reciprocal mixing); and in a digital modulation system, $\sigma_\phi$ integrated
+  over the relevant frequency span is directly the EVM (error vector magnitude) read off the
+  constellation diagram. These two effects pull RF-receiver design — beyond SerDes/clocking — into
+  the same $\mathcal{L}(\Delta f)$ and $\sigma_\phi$ language — see the short subsection at the end
+  of this section.
 
 **In one sentence**: for communication and clocking systems, **timing jitter = a phase matter**.
 That is why the entire Hajimiri–Lee theory bets everything on $\phi(t)$ and first "legitimately
 throws away" the amplitude degree of freedom — the next section explains why that is allowed.
+
+### Receiver-side view: reciprocal mixing and EVM — another customer of $\mathcal{L}(\Delta f)$ and $\sigma_\phi$
+
+> **External-literature disclosure**: the reciprocal-mixing bookkeeping and the EVM relation in
+> this subsection are **standard textbook results** for RF receivers and digital modulation
+> (**external literature, not one of the site's 5 PDFs**) — they do not come from [P1]–[P4]. Cite
+> B. Razavi, *RF Microelectronics*, 2nd ed., Prentice Hall, 2012 (the reciprocal-mixing section;
+> exact section number TBD). EVM $\approx\sigma_\phi$ (small-angle, outside the carrier-recovery
+> loop bandwidth) is a standard OFDM/QAM result (exact textbook passage TBD). The
+> $\mathcal{L}(\Delta f)$ and $\sigma_\phi$ machinery derived earlier on this site (see
+> [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise),
+> [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)) is reused here unchanged — only
+> the "customer" changes.
+
+The first bullet above — "phase jitter = edge timing jitter" — is the **time-domain** customer
+(SerDes, ADC). But the same $\mathcal{L}(\Delta f)$, $\sigma_\phi$ numbers have two equally
+important customers on the **receiver / frequency-domain** side:
+
+**(a) Reciprocal mixing — the LO's skirt sweeps a nearby interferer into the band.** A mixer
+multiplies the RF signal by the LO: $v_{RF}(t)\cos(\omega_{LO}t+\phi_n(t))$. If an adjacent channel
+carries a strong interferer (a blocker), it too gets down-converted by the same LO; but the LO is
+not an ideal delta function — it carries a finite-width $\mathcal{L}(\Delta f)$ skirt — so the
+small slice of that skirt sitting an offset $\Delta f$ away from the blocker mixes the blocker
+straight into the IF noise floor, even though the blocker itself was never on the wanted channel.
+If $\mathcal{L}(\Delta f)$ is roughly flat over the bandwidth $B$, the noise power referred to the
+input is
+
+$$
+P_{n,in}(\Delta f)=P_{blocker}+\mathcal{L}(\Delta f)+10\log_{10}(B)\qquad[\mathrm{dBm}],
+$$
+
+(where $P_{blocker}$, $P_{n,in}$ are in dBm, $\mathcal{L}$ is in dBc/Hz, and $B$ is in Hz;
+$10\log_{10}B$ turns the "per-Hz density" into "total power within that bandwidth" — dBc/Hz $+$
+dB(Hz) $=$ dBc, then stacked on the blocker's dBm reference). To keep this floor from eating the
+receiver's SNR budget requires
+
+$$
+\mathcal{L}(\Delta f)\ \le\ P_{sig}-P_{blocker}-\mathrm{SNR}_{min}-10\log_{10}(B)\qquad[\mathrm{dBc/Hz}],
+$$
+
+which turns a blocker spec (from the system or a regulatory mask) directly into a hard requirement
+on **LO phase noise** — one of the real design drivers for pushing down far-out $\mathcal{L}(\Delta
+f)$ in an RF synthesizer (the other being this site's main-line 1/f² skirt that sets close-in phase
+noise).
+
+**(b) EVM — reading integrated $\sigma_\phi$ straight off the constellation as an error vector.**
+In QAM/OFDM-style digital modulation, each symbol is a point on the constellation; LO phase noise
+makes the actual down-conversion phase deviate from the ideal by $\phi_n(t)$, **rotating** the
+whole constellation by a small angle. Under the small-angle approximation, the resulting error
+vector length equals the rotation angle itself (arc length $\approx$ angle for small angles), and
+only the portion outside the carrier-recovery loop's bandwidth counts — the carrier-recovery loop
+locks out the low-frequency phase drift it can track, and what is left over becomes random residual
+error:
+
+$$
+\mathrm{EVM}_{rms}\ \approx\ \sigma_\phi\ =\ \sqrt{2\int_{f_1}^{f_2}\mathcal{L}(f)\,df}\qquad[\mathrm{rad}],\qquad
+\mathrm{EVM}[\mathrm{dB}]=20\log_{10}\sigma_\phi.
+$$
+
+The $\sigma_\phi^2=2\int\mathcal{L}\,df$ here is the **exact same** integral as this site's rms
+jitter integration (Example C: $S_\phi=2\mathcal{L}$, $\sigma_\phi^2=\int S_\phi\,df$) — the only
+difference is that the last step does not divide by $2\pi f_0$ to get a time; it stays in radians
+and is read as EVM directly.
+
+- **Convention flag (SSB/4 vs. time-domain/2, $\pm3$ dB)**: exactly as in
+  [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) — if $\mathcal{L}$
+  is taken as the canonical $-148$ dBc/Hz (SSB /4 convention) instead of $-145$ dBc/Hz
+  (time-domain /2 convention), the integrated $\sigma_\phi^2$ differs by 2$\times$, $\sigma_\phi$ by
+  $\sqrt2$, and EVM[dB] by $20\log_{10}\sqrt2\approx3.0$ dB — **pick one convention and stay
+  consistent through the whole chain**. This page and the worked examples below use the SSB /4
+  anchor throughout: $-148$ dBc/Hz for the canonical case, $-100$ dBc/Hz for Example C.
+- **Applicability**: small angle ($\sigma_\phi\ll1$ rad), counting only the part outside the
+  carrier-recovery loop bandwidth, and treating phase noise as the **sole** contributor to EVM
+  (real systems also have I/Q imbalance, nonlinearity, quantization, etc., which combine by RSS —
+  not expanded here).
+
+**Worked (reciprocal mixing, continuing Example C's $\mathcal{L}(1\,\mathrm{MHz})=-100$ dBc/Hz)**:
+a $-40$ dBm blocker at 1 MHz offset, IF bandwidth $B=1$ MHz:
+
+$$
+P_{n,in}=-40+(-100)+10\log_{10}(10^6)=-40-100+60=-80\ \mathrm{dBm}.
+$$
+
+If the wanted signal itself is only $-90$ dBm, it sits **10 dB below** this floor — reciprocal
+mixing buries the signal under the noise floor and the receiver cannot recover it. Turning the
+inequality around: for $\mathrm{SNR}_{min}=10$ dB, the required LO cleanliness is
+$\mathcal{L}(\Delta f)\le-90-(-40)-10-60=-120$ dBc/Hz — 20 dB below the $-100$ dBc/Hz used in
+Example C. The canonical Example B LO ($\mathcal{L}(1\,\mathrm{MHz})=-148$ dBc/Hz, SSB /4 anchor)
+against a 0 dBm blocker instead gives $P_{n,in}=0-148+60=-88$ dBm — same LO, a stronger blocker
+raises the floor, but the coefficients and sign are unchanged.
+
+**Worked (EVM, continuing Example C's $\sigma_\phi=14.07$ mrad from the 1–100 MHz integral)**:
+
+$$
+\mathrm{EVM}_{rms}\approx\sigma_\phi=1.407\times10^{-2}\ \mathrm{rad}=1.41\%,\qquad
+\mathrm{EVM}[\mathrm{dB}]=20\log_{10}(1.407\times10^{-2})=-37.0\ \mathrm{dB}.
+$$
+
+This $-37.0$ dB and the $\mathrm{SNR}_{jitter}=37.0$ dB on the
+[adc_aperture_jitter](/06_design_insights/adc_aperture_jitter) page are two readings of the same
+number — the same $\sigma_\phi=14.07$ mrad, just applied to sampling an $f_{in}=f_0$ sinusoid
+rather than a modulated constellation. The difference is only sign convention: EVM is conventionally
+negative (an error fraction relative to the signal — cleaner signal, more negative EVM), SNR is
+positive; the cross-link on that page is added by R11-30.
+
+A line-by-line check (self-contained, `# ->` marks actual script output; uses
+`leeson_one_over_f2` and `integrate_rms_jitter` from `simulations/common/noise_utils.py`, the same
+functions behind Example C / lab_08):
+
+```python
+import numpy as np
+from simulations.common.noise_utils import leeson_one_over_f2, integrate_rms_jitter
+
+f0 = 5e9  # [Hz] canonical
+# Example C: 1/f^2 skirt anchored at L(1 MHz) = -100 dBc/Hz, integrated 1-100 MHz
+f = np.logspace(np.log10(1e6), np.log10(100e6), 200_000)
+L = leeson_one_over_f2(f, -100.0, 1e6)
+sigma_t, sigma_phi = integrate_rms_jitter(f, L, f0, 1e6, 100e6)
+print(round(sigma_phi * 1e3, 2))          # -> 14.07  (mrad, matches Example C)
+print(round(sigma_t * 1e15, 1))           # -> 447.9  (fs, matches Example C)
+
+# EVM
+evm_rms = sigma_phi                        # small angle: EVM_rms ~= sigma_phi [rad]
+evm_pct = evm_rms * 100
+evm_db = 20 * np.log10(evm_rms)
+print(round(evm_pct, 2))                  # -> 1.41
+print(round(evm_db, 1))                   # -> -37.0
+
+# reciprocal mixing floor: worked example (blocker -40 dBm, L(1MHz)=-100 dBc/Hz, B=1MHz)
+P_blocker, L_1MHz, B = -40.0, -100.0, 1e6
+floor_example = P_blocker + L_1MHz + 10 * np.log10(B)
+print(round(floor_example, 1))            # -> -80.0  (dBm)
+
+# canonical example B: blocker 0 dBm, L(1MHz) = -148 dBc/Hz (SSB /4 anchor)
+floor_canonical = 0.0 + (-148.0) + 10 * np.log10(B)
+print(round(floor_canonical, 1))          # -> -88.0  (dBm)
+
+# signal -90 dBm vs floor_example: how far below the floor
+P_sig = -90.0
+print(round(P_sig - floor_example, 1))    # -> -10.0  (dB, signal is 10 dB below the floor)
+
+# required L for SNR_min = 10 dB given the same blocker/signal/B
+SNR_min = 10.0
+required_L = P_sig - P_blocker - SNR_min - 10 * np.log10(B)
+print(round(required_L, 1))               # -> -120.0 (dBc/Hz)
+print(round(L_1MHz - required_L, 1))      # -> 20.0   (dB short of the requirement)
+```
 
 ## 2. Why amplitude perturbations decay: the APF and the amplitude decay function
 
@@ -65,29 +219,34 @@ $$
 \Delta\phi=\frac{\Gamma(\omega_0\tau)}{q_{max}}\,\Delta q.
 $$
 
-[P4] does the exact parallel for **amplitude**, defining the **APF $\Lambda(\phi)$ (amplitude
+[P4] does the exact parallel for **amplitude**, defining the **APF $\Delta(\phi)$ (amplitude
 perturbation function)**: the same injected current impulse, projected onto the **radial**
 direction of the limit cycle, produces how much instantaneous amplitude deviation. Conceptually
 ([P4] Sec. III-D; the APF is defined near p.2127):
 
 $$
-\Delta A_0\;\propto\;\Lambda(\omega_0\tau)\,\Delta q \quad\Longleftrightarrow\quad \text{the APF is the amplitude-domain counterpart of the ISF}.
+\Delta A_0\;\propto\;\Delta(\omega_0\tau)\,\Delta q \quad\Longleftrightarrow\quad \text{the APF is the amplitude-domain counterpart of the ISF}.
 $$
 
 - **Units**: [P4] gives the APF units of **$\mathrm{A^{-1}}$ (1/ampere)** — it maps "injected
   current" to "relative amplitude deviation". Contrast the dimensionless ISF $\Gamma$: the two are
   structurally parallel but normalized differently.
+- **Notation note**: the argument-carrying $\Delta(\cdot)$ here is the APF **function** (site
+  convention, see the [unified notation table](/00_overview/notation)), distinct from the
+  difference prefix $\Delta q$, $\Delta A_0$, $\Delta\omega$ — tell them apart by whether there is
+  a function argument (parentheses); in $\Delta(\omega_0\tau)\,\Delta q$ above, one $\Delta$ is a
+  function and the other a difference quantity, not the same $\Delta$ multiplied by itself.
 - **The key difference — different fates**: the phase deviation carries a **unit step** $u(t-\tau)$
   (kept forever, [P1] Eq.(10)); the amplitude deviation is instead multiplied by an **amplitude
   decay function** that relaxes exponentially back to zero. Conceptually:
 
 $$
-\underbrace{h_\phi(t,\tau)=\frac{\Gamma(\omega_0\tau)}{q_{max}}\,u(t-\tau)}_{\text{phase: step, permanent}}\qquad\text{vs}\qquad \underbrace{h_A(t,\tau)\;\propto\;\Lambda(\omega_0\tau)\,d(t-\tau)}_{\text{amplitude: impulse}\times\text{decay,}\;d\to 0}.
+\underbrace{h_\phi(t,\tau)=\frac{\Gamma(\omega_0\tau)}{q_{max}}\,u(t-\tau)}_{\text{phase: step, permanent}}\qquad\text{vs}\qquad \underbrace{h_A(t,\tau)\;\propto\;\Delta(\omega_0\tau)\,d(t-\tau)}_{\text{amplitude: impulse}\times\text{decay,}\;d\to 0}.
 $$
 
   Here $d(t-\tau)$ is the amplitude decay function. **[P4] Sec. III-F, p.2128 (the body text
   immediately before Eq.(25)) gives the exact closed form**
-  (verified verbatim against the original PDF rendering; note that Eq.(25) itself is $\Lambda(\phi)=\tau_0\,\tilde\Lambda(\phi)$, APF = $\tau_0$ × amplitude ISF, while the decay closed form below is the body text preceding it):
+  (verified verbatim against the original PDF rendering; note that Eq.(25) itself is $\Delta(\phi)=\tau_0\,\tilde\Lambda(\phi)$, APF = $\tau_0$ × amplitude ISF $\tilde\Lambda$, while the decay closed form below is the body text preceding it):
 
 $$
 d(t,\phi)=e^{-t/\tau_0},\qquad \tau_0=\frac{2Q}{\omega_{osc}}
@@ -99,7 +258,7 @@ $$
   infinitely long memory). This is the most quantitative one-liner for "why amplitude noise is
   bounded while phase noise diverges".
 
-> **Verified**: $d(t,\phi)=e^{-t/\tau_0}$ and $\tau_0=2Q/\omega_{osc}$ come from the body text of [P4] Sec. III-F, p.2128 (the unnumbered expression immediately before Eq.(25); Eq.(25) itself is the APF relation $\Lambda(\phi)=\tau_0\,\tilde\Lambda(\phi)$).
+> **Verified**: $d(t,\phi)=e^{-t/\tau_0}$ and $\tau_0=2Q/\omega_{osc}$ come from the body text of [P4] Sec. III-F, p.2128 (the unnumbered expression immediately before Eq.(25); Eq.(25) itself is the APF relation $\Delta(\phi)=\tau_0\,\tilde\Lambda(\phi)$).
 > (Decay rates for more general oscillators belong to the Floquet/PPV framework, **not among the 5 downloaded PDFs**; see [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv).)
 
 - **Why "decays" equals "suppressed"**: think of amplitude noise as a convolution with $h_A$.
@@ -114,7 +273,7 @@ Putting the ISF and the APF side by side, condensing the whole page cell by cell
 | Quantity | Projection direction | Sensitivity function | Impulse-response kernel | Long-term fate | Effect on jitter |
 |---|---|---|---|---|---|
 | **Phase** $\phi$ | Tangential (along the cycle) | ISF $\Gamma(\omega_0\tau)$, dimensionless | $\dfrac{\Gamma}{q_{max}}u(t-\tau)$ (step) | **Accumulates / diverges** | Direct: $\Delta t=\Delta\phi/2\pi f_0$ |
-| **Amplitude** $A$ | Radial (perpendicular to the cycle) | APF $\Lambda(\omega_0\tau)$, units $\mathrm{A^{-1}}$ | $\Lambda\cdot d(t-\tau)$ (impulse × decay) | **Decays / bounded** | Indirect, mostly via AM–PM |
+| **Amplitude** $A$ | Radial (perpendicular to the cycle) | APF $\Delta(\omega_0\tau)$, units $\mathrm{A^{-1}}$ | $\Delta\cdot d(t-\tau)$ (impulse × decay) | **Decays / bounded** | Indirect, mostly via AM–PM |
 
 ## 3. Ideal LC: ISF and APF in quadrature (90° apart)
 
@@ -129,20 +288,20 @@ mutually perpendicular** on the circle. The ideal LC's ISF is $\Gamma(\theta)=-\
 **maximal at the peaks and zero at the zero crossings**, i.e. shaped like $\cos$:
 
 $$
-\Gamma_{LC}(\theta)=-\sin\theta\quad\text{(tangential)},\qquad \Lambda_{LC}(\theta)\;\propto\;\cos\theta\quad\text{(radial, orthogonal to }\Gamma\text{)}.
+\Gamma_{LC}(\theta)=-\sin\theta\quad\text{(tangential)},\qquad \Delta_{LC}(\theta)\;\propto\;\cos\theta\quad\text{(radial, orthogonal to }\Gamma\text{)}.
 $$
 
-- **Physical meaning**: kick at the **peak** ($\theta=0$) → $\Gamma=0$, $\Lambda$ maximal →
+- **Physical meaning**: kick at the **peak** ($\theta=0$) → $\Gamma=0$, $\Delta$ maximal →
   **pure amplitude change** (gets eaten). Kick at the **zero crossing** ($\theta=\pi/2$) →
-  $|\Gamma|$ maximal, $\Lambda=0$ → **pure phase change** (kept forever). This is exactly the
+  $|\Gamma|$ maximal, $\Delta=0$ → **pure phase change** (kept forever). This is exactly the
   red/green markers in the previous page's
   [waveform_with_impulse_markers](/figures/waveform_with_impulse_markers.png).
-- **Unit check / dimension**: $\Gamma$ is dimensionless, $\Lambda$ has units $\mathrm{A^{-1}}$;
+- **Unit check / dimension**: $\Gamma$ is dimensionless, $\Delta$ has units $\mathrm{A^{-1}}$;
   quadrature refers to the **phase (angle) relation**, not equal dimensions. "90° apart" means
   that, as periodic functions of $\theta$, one is a $\sin$ and the other a $\cos$ in Fourier terms.
 
 > **Verified ([P4] Eq.(26), p.2128)**: the **proportionality constant** in
-> $\Lambda_{LC}\propto\cos\theta$ above and the exact normalization of the APF must be checked
+> $\Delta_{LC}\propto\cos\theta$ above and the exact normalization of the APF must be checked
 > against PDF Fig. 5, p.2126. This page only claims the qualitative **quadrature** relation
 > (stated explicitly by [P4]) and does not pin down the amplitude constant.
 
@@ -200,8 +359,8 @@ $\tau_A$ (the amplitude recovery time constant), with **no permanent effect on p
 |---|---|---|
 | Amplitude restoration present (stable limit cycle) | Amplitude noise decays; tracking phase alone suffices | With weak restoration / slow high-Q recovery, amplitude noise lives longer and cannot be ignored |
 | AM–PM negligible ($\partial\omega/\partial A\approx 0$) | "Discard amplitude" is a good approximation | With strong AM–PM, amplitude noise upconverts into phase noise; use the [P4] APF framework |
-| Small-signal perturbation | $\Gamma,\Lambda$ project linearly | Large injection alters the ISF/APF themselves; nonlinear mixing |
-| Ideal LC symmetry | $\Gamma\perp\Lambda$ (quadrature) holds | For asymmetric waveforms / rings, quadrature is only approximate |
+| Small-signal perturbation | $\Gamma,\Delta$ project linearly | Large injection alters the ISF/APF themselves; nonlinear mixing |
+| Ideal LC symmetry | $\Gamma\perp\Delta$ (quadrature) holds | For asymmetric waveforms / rings, quadrature is only approximate |
 
 ## 5. The amplitude-noise spectrum: OU process and the flat-top Lorentzian
 
@@ -344,7 +503,10 @@ $$
   f_c=\frac{\omega_c}{2\pi}=\frac{f_0}{2Q}\ \ [\text{Hz}],
   $$
   and at the corner $S_a=c\tau_0^2/2$ (3 dB below the flat top). **In Hz, remember
-  $f_c=f_0/2Q$**.
+  $f_c=f_0/2Q$**. **Site convention**: this $\omega_c$ is the AM corner $\omega_0/2Q$, unrelated to the
+  injection-locking $\omega_c=\omega_L\cos\theta_{ss}$ (realignment restoring rate) used on
+  [injection_locking_noise](/06_design_insights/injection_locking_noise) and
+  [subharmonic_injection](/06_design_insights/subharmonic_injection).
 - **Power-conservation self-check**: $\dfrac{1}{2\pi}\displaystyle\int_{-\infty}^{\infty}
   \frac{c\tau_0^2\,d\omega}{1+\omega^2\tau_0^2}=\frac{c\tau_0^2}{2\pi}\cdot\frac{\pi}{\tau_0}
   =\frac{c\tau_0}{2}=\mathrm{Var}[a]$ ✓ (integral formula
@@ -531,6 +693,9 @@ R=10 crossover sim [MHz]     = 83.31       # -> 83.31
 
 ![OU amplitude-noise spectrum vs. the Wiener phase; right: the AM flat top flattens the measured spectrum before the floor](/figures/am_noise_spectrum.png)
 
+
+> **Translator's note**: this figure is generated by a script with Chinese text baked into the image. Axis labels/title/annotation read: "頻率 f [Hz]（= 對載波 offset Δf）" = frequency f [Hz] (= offset Δf from the carrier); "單邊 PSD [rad²/Hz 或 1/Hz]" = one-sided PSD [rad²/Hz or 1/Hz]; "同一顆白噪：相位積分成 1/f²，振幅被恢復力鎖成平頂 Lorentzian" = the same white noise: phase integrates into 1/f², amplitude is clamped by the restoring force into a flat-top Lorentzian; "交叉 …MHz" = crossing at …MHz; "AM 平頂主導：頻譜在底線之前就變平" = AM plateau dominates: the spectrum flattens before reaching the floor; "量測頻譜變平的第二個原因：AM 平頂（示意，錨定 canonical 例 B）" = a second reason a measured spectrum flattens: the AM plateau (schematic, anchored to this site's canonical Example B).
+
 **How to read it**:
 
 - **Left plot**: blue ($S_\phi$) follows $-20$ dB/dec all the way down; orange (equal-drive $S_a$)
@@ -568,9 +733,9 @@ R=10 crossover sim [MHz]     = 83.31       # -> 83.31
 
 - The jitter that communication and clocking systems care about **= a phase matter**; phase has no restoring force → accumulates → $1/f^2$, $1/f^3$ skirts.
 - Amplitude has a restoring force → perturbations decay exponentially (amplitude decay function $d(t-\tau)\to 0$) → bounded variance, suppressed.
-- **The APF $\Lambda(\omega_0\tau)$ (units $\mathrm{A^{-1}}$) is the amplitude-domain counterpart of the ISF**; the phase kernel is
+- **The APF $\Delta(\omega_0\tau)$ (units $\mathrm{A^{-1}}$) is the amplitude-domain counterpart of the ISF**; the phase kernel is
   a step $u$, the amplitude kernel is impulse × decay.
-- Ideal LC: $\Gamma\propto-\sin\theta$ (tangential) and $\Lambda\propto\cos\theta$ (radial) are
+- Ideal LC: $\Gamma\propto-\sin\theta$ (tangential) and $\Delta\propto\cos\theta$ (radial) are
   **in quadrature (90° apart)** — [P4] Fig. 5, p.2126.
 - **AM–PM** is the back door through which amplitude noise leaks back into phase: beware when $\partial\omega/\partial A\neq 0$.
 - Example A: 1 fC injected at the zero crossing → 31.8 fs of permanent jitter; at the peak → ~0 permanent effect.
@@ -591,4 +756,4 @@ R=10 crossover sim [MHz]     = 83.31       # -> 83.31
 - How $c_0$ upconverts $1/f$ (the other mechanism, alongside AM–PM): [flicker_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
 - The other close-in "flattening" (phase random walk → Lorentzian lineshape): [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
 - How measurement separates AM/PM (SA vs phase detector vs cross-correlation): [measurement_and_spurs](/06_design_insights/measurement_and_spurs)
-- Site-wide notation (APF $\Lambda$ registered): [Unified notation table](/00_overview/notation)
+- Site-wide notation (APF $\Delta$ registered): [Unified notation table](/00_overview/notation)

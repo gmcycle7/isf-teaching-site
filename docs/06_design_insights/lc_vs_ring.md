@@ -212,11 +212,13 @@ single-ended 恰好全消（$N^0$＝Eq.23 無 $N$）；差動的 $q_{max}\propto
 > ——固定頻率與功耗下，差動 ring 的 phase noise **隨 $N$ 增加而變差**；禍首是被迫縮小的
 > charge swing（$q_{max}\propto1/N^2$）。
 
-**慣例 flag（每次出現 2 或 4 都要交代）**：Eq.(34) 的前置係數 $8/(3\eta)$ 與 Eq.(23) 同族，
-繼承 [P2] Eq.(6) 的 **SSB 記帳**（與 [P1] Eq.(21) 分母的 4 同一慣例家族；換成時域 $/2$ 慣例
-所有絕對 dBc/Hz 數字整體 $+3$ dB，如例 B 的 $-148$（SSB, $/4$）對 $-145$（時域, $/2$），見
-[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)）。下面例 3 的
-$\Delta\mathcal{L}$ 是兩個 $\mathcal{L}$ **相減**，慣例因子相消——**兩種慣例答案相同**。
+**慣例 flag（每次出現 2 或 4 都要交代；v11 更正）**：Eq.(34) 的前置係數 $8/(3\eta)$ 與 Eq.(23) 同族，
+兩者都由 [P2] Eq.(6), p.792 收成（Eq.(34) 就是 $2N\times$Eq.(6)）；而 Eq.(6) 印刷式的分母
+$8\pi^2f_{off}^2=2\Delta\omega^2$ 是本站的 **$\mathcal{L}_{/2}$ 家族**——比 [P1] Eq.(21) 分母 $4\Delta\omega^2$
+的 $/4$ SSB 家族**高 3 dB**（如例 B 的 $-148$（[P1] Eq.(21), $/4$）對 $-145$（$/2$），見
+[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)）。所以下面例 3 的
+$-82.7$／$-78.0$ dBc/Hz 是 **$/2$ 家族**的絕對值（換成 [P1] Eq.(21) 的記帳為 $-85.7$／$-81.0$ dBc/Hz）；
+例 3 的 $\Delta\mathcal{L}$ 是兩個 $\mathcal{L}$ **相減**，慣例因子相消——**兩種慣例答案相同**。
 
 > **例 3（差動 ring：$N=4$ vs $N=12$，同 $P$、同 $f_0$，$\Delta\mathcal{L}$ 是多少？）**
 > 取 $f_0=5$ GHz、$\Delta f=1$ MHz、$kT=4.0\times10^{-21}$ J（300 K）、$P=1$ mW、$\eta\approx1$、
@@ -255,6 +257,8 @@ def L_ring_diff(N, kT, P, f0, df, eta=1.0, vdd_vchar=3.0, vdd_swing=2.0):  # [P2
 L4  = L_ring_diff(4,  4.0e-21, 1e-3, 5e9, 1e6)
 L12 = L_ring_diff(12, 4.0e-21, 1e-3, 5e9, 1e6)
 print(round(L4,1), round(L12,1), round(L12-L4,2))   # -> -82.7 -78.0 4.77
+# Eq.(34) = 2N x Eq.(6); Eq.(6) denominator 8*pi^2*f^2 = 2*dw^2 -> these are /2-family values; [P1] Eq.(21) /4 family is 3.01 dB lower
+print(round(L4-10*np.log10(2),1), round(L12-10*np.log10(2),1))   # -> -85.7 -81.0
 ```
 
 **適用／失效條件**：
@@ -275,15 +279,15 @@ print(round(L4,1), round(L12,1), round(L12-L4,2))   # -> -82.7 -78.0 4.77
 ## 第 3 步：jitter accumulation——LC 慢、ring 快
 
 ring 是 free-running、無絕對時間參考，每級 transition 加一點獨立 timing noise，edge 時間做
-**random walk（隨機漫步）**，累積 jitter 隨量測區間平方根成長（[P2] Eq.(8), p.792；κ 由 Eq.(12), p.793）：
+**random walk（隨機漫步）**，累積 jitter 隨量測區間平方根成長（[P2] Eq.(8), p.792；κ 由 Eq.(11), p.793 開根號，印刷 Eq.(12) 為時間版 $\kappa_t=\kappa/\omega_0$）：
 
 $$
 \sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}
 $$
 
-- **這是相位 jitter（無因次）**：依 [P2] Eq.(11) $\sigma_{\Delta\phi}^2=\dfrac{\Gamma_{rms}^2\,\overline{i_n^2}/\Delta f}{2q_{max}^2}\,\Delta t$，故 $\kappa\sqrt{\Delta t}$ 給的是 phase jitter $\sigma_{\Delta\phi}$。**時間 jitter** 再經 [P2] Eq.(10) 的相位→時間換算 $\sigma_{\Delta t}=\sigma_{\Delta\phi}/\omega_0$。$\omega_0$ 住在 Eq.(10)，**不在** $\kappa$ 裡。
+- **這是相位 jitter（無因次）**：依 [P2] Eq.(11) $\sigma_{\Delta\phi}^2=\dfrac{\Gamma_{rms}^2\,\overline{i_n^2}/\Delta f}{2q_{max}^2}\,\Delta t$，故 $\kappa\sqrt{\Delta t}$ 給的是 phase jitter $\sigma_{\Delta\phi}$。**時間 jitter** 再經 [P2] Eq.(10) 的相位→時間換算 $\sigma_{\Delta t}=\sigma_{\Delta\phi}/\omega_0$。$\omega_0$ 住在 Eq.(10)；本站這個**相位版** $\kappa$ 不含 $\omega_0$，而 [P2] p.793 印刷的 Eq.(12) 就是把 Eq.(10) 併進去的**時間版** $\kappa_t=\kappa/\omega_0$（分母含 $\omega_0$、單位 $\sqrt{\text{s}}$）。
 - **單位檢查**：$\kappa$ 單位 $1/\sqrt{\text{s}}$（$\overline{i_n^2}/\Delta f$ 為 $[\text{A}^2\!\cdot\!\text{s}]$、$q_{max}$ 為 $[\text{A}\!\cdot\!\text{s}]$），故 $\kappa\sqrt{\Delta t}=[1/\sqrt{\text{s}}]\cdot[\sqrt{\text{s}}]=$ 無因次 ✓（phase）；除以 $\omega_0$ $[1/\text{s}]$ 後得 $\sigma_{\Delta t}=[\text{s}]$ ✓（time）。
-- $\kappa^2\propto\Gamma_{rms}^2/q_{max}^2\cdot\overline{i_n^2}/\Delta f$（[P2] Eq.(12), p.793，已核實：$\kappa=(\Gamma_{rms}/q_{max})\sqrt{(\overline{i_n^2}/\Delta f)/2}$，無 $\omega_0$）——
+- $\kappa^2\propto\Gamma_{rms}^2/q_{max}^2\cdot\overline{i_n^2}/\Delta f$（[P2] Eq.(11)–(12), p.793，v11 重核：相位版 $\kappa=(\Gamma_{rms}/q_{max})\sqrt{(\overline{i_n^2}/\Delta f)/2}$＝Eq.(11) 開根號；印刷 Eq.(12) 為 $\kappa_t=\kappa/\omega_0$）——
   同一個核心比值又出現。
 - LC 因高 $Q$，相位漂移慢得多（等效小 $\kappa$）；但**只要是 free-running，兩者長期都會漂**——
   要鎖住絕對時間得靠 PLL/CDR（見 [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)）。
@@ -314,6 +318,35 @@ $$
 | 寬調諧 | varactor（範圍窄） | 改 bias 電流/$\tau_D$（範圍寬，ring 強項） |
 | 多相位輸出 | 需額外電路 | 天生 $N$ 相位（ring 強項） |
 | 小面積 | 大（spiral inductor） | 小（ring 強項） |
+
+## 選型決策表：哪種振盪器給哪種工作
+
+前面幾步比較的是「LC 與 ring 誰的 ISF 指標比較好」；但真實設計問題常常是反過來的——
+**給定一個應用，該選哪一顆？** 答案不只看 VCO 自己的 $\Gamma_{rms}/q_{max}$，還要看
+**下游有沒有 loop 幫忙濾掉 VCO 的 close-in noise**——CDR/PLL 的 loop bandwidth 對 VCO
+phase noise 是 high-pass（見 [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) 第 6 步）。
+下表把本站已推導過的「誰濾、誰不濾、主導規格區在哪」收成一張選型表：
+
+| 應用 | 誰濾 VCO（CDR/PLL BW 或無） | 主導規格區 | 選擇 | ISF 理由 |
+|---|---|---|---|---|
+| **SerDes TX PLL** | 窄 loop BW（濾 reference；VCO close-in 直接出現在輸出） | close-in 1/f³ 與 in-band 1/f² | **LC-VCO** | 沒有 loop 幫忙濾，需低 $\Gamma_{rms}$／高 $q_{max}$ 直接壓 close-in；見 [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) 第 7 步 |
+| **SerDes RX CDR** | 寬 loop BW，high-pass 掉 VCO close-in（1/f³ 與快 random walk） | loop 外殘留的白噪聲／jitter tolerance | **ring-VCO 可用** | loop 的 high-pass 阻帶正好蓋住 ring 的弱點（close-in、快 random walk），還白拿多相位輸出；見 [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) 第 6–7 步 |
+| **ADC/DAC 取樣時鐘** | 無 CDR/PLL 減免（自由取樣，沒有 loop 可濾） | close-in 一路積進 SNR（aperture jitter，無 high-pass 豁免） | **LC ＋乾淨 reference** | 沒有 loop 保護，低 offset 雜訊全額計入 $\sigma_t$；見 [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter)、[reference_oscillators](/06_design_insights/reference_oscillators)「與 SerDes 的關聯」 |
+| **RF 合成器（cellular/Wi-Fi）** | 窄–中 loop BW，規格卡在 spot offset | 1 MHz spot $\mathcal{L}$ 與 reference spur（2–6 GHz 級，量級 $-120\ldots-135$ dBc/Hz@1 MHz，**外部經驗值，非本站 5 篇 PDF，不造引文**） | **LC-VCO** | spot 規格逼近 FOM 天花板，只有低 $\Gamma_{rms}$／高 $q_{max}$ 的 LC 進得去；用 [fom_limit](/06_design_insights/fom_limit) 天花板家族檢查可行性 |
+| **低功耗 BLE 級** | 功率優先，但 loop 減免救不了 ring 的天花板 | $\mathrm{FOM}_{req}$ 對 ring 天花板（[P2] Eq.(25) 下限，約 168.3 dB，見 [fom_limit](/06_design_insights/fom_limit) 第 2 步） | **仍是 LC** | ring 的 $F_{eff}$ 天花板是硬限制，N-independence 下任何功率/$N$ 調整都救不回；用 [design_recipe](/06_design_insights/design_recipe) Step 2 的天花板閘門判斷是否可行 |
+| **SoC 內部數位時鐘** | 寬 loop BW PLL 內用，追隨掉 VCO close-in | in-band ps 級 timing margin，非 close-in dBc/Hz | **ring-VCO** | 寬 loop 把 ring 的弱點濾掉，換到面積小、調諧範圍寬、易與數位製程整合 |
+| **多相位／寬調範圍應用** | 依系統而定，本列選型理由與濾波無關 | 相位數與調諧範圍，不是 phase noise | **ring-VCO** | $N$ 的選擇本來就該看調諧範圍／相位數／面積，**不是**為了 phase noise（single-ended N-independence；本頁第 2 步「設計含意」） |
+| **儀器／雷達參考鏈** | 無 CDR；只有 ×N 倍頻的 $+20\log_{10}N$（無解藥） | 全頻段 close-in（Lorentzian linewidth） | **OCXO 參考 ＋ LC 倍頻** | reference 的 close-in 決定整鏈地板，倍頻級仍需低 $\Gamma_{rms}$／高 $q_{max}$ 的 LC；見 [clock_chain_budget](/06_design_insights/clock_chain_budget) 規則 1、[reference_oscillators](/06_design_insights/reference_oscillators) |
+
+> **誠實橫幅**（沿用 [reference_oscillators](/06_design_insights/reference_oscillators) 第 5 步的規矩）：
+> 表中「主導規格區」欄凡標出具體 dBc/Hz 數字的，都是**產業慣例的量級範圍**（外部文獻，非本站
+> 5 篇 PDF）；不同廠牌/製程/年代可差 10–20 dB，實際選型一律以 datasheet 的 $\mathcal{L}(f)$
+> 曲線與 spur 表為準，本站不杜撰特定型號或論文數字。其餘欄位（誰濾、ISF 理由）是本站前面
+> 章節已核實的 ISF／CDR high-pass／FOM 推導的直接應用，不是新論文結果。
+
+> **一句話總結**：**有寬 loop 幫忙濾掉 close-in 的地方**（RX CDR、SoC 內部 PLL）——**ring 的弱點被藏起來**；
+> **沒有 loop 濾、或規格卡在 close-in/spot 的地方**（TX PLL、ADC/DAC 時鐘、RF 合成器、即使功率優先也要達標的
+> 低功耗設計、儀器參考鏈）——**LC 的低 $\Gamma_{rms}$／高 $q_{max}$ 優勢直接體現在規格上**。
 
 ## Worked examples 數值例題
 

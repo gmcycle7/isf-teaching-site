@@ -59,7 +59,9 @@ $$
 \end{aligned}
 $$
 
-定義 $\Delta\omega\equiv\omega_0-\omega_{inj}$（失諧）與 $\omega_L\equiv\dfrac{I_{inj}}{2q_{max}}$（半 lock range），得**經典 Adler 形式**：
+定義 $\Delta\omega\equiv\omega_0-\omega_{inj}$（失諧；**本站慣例**：本頁與注入鎖定家族頁面的 $\Delta\omega$ 專指此失諧量，
+不是 notation 表裡「offset 頻率」的 $\Delta\omega$——本頁之後凡提到 offset 頻率一律寫 $\omega$）與
+$\omega_L\equiv\dfrac{I_{inj}}{2q_{max}}$（半 lock range），得**經典 Adler 形式**：
 
 $$
 \boxed{\ \frac{d\theta}{dt}=\Delta\omega-\omega_L\sin\theta\ }
@@ -569,7 +571,8 @@ ISF 必須把能量藏在正弦搆不到的地方：DC（$c_0$）或高次諧波
 
 ### 檢查 2：不對稱 toy ISF——匹配注入賺在 DC（而且只賺一邊）
 
-site toy $\Gamma(\theta)=\cos\theta+0.3$（$\alpha=0.3$、DC 值 $c_0/2=0.3$）：
+site toy $\Gamma(\theta)=\cos\theta+0.3$（$\alpha=0.3$、DC 值 $c_0/2=0.3$；**本站慣例**：此處 $\alpha$
+是 toy ISF 的 DC 偏移，與 [P1] 的 NMF $\alpha(\omega_0t)$ 無關）：
 $\Gamma_{rms}=\sqrt{\alpha^2+\tfrac12}=0.7681$、$c_1=1$。增益閉式：
 
 $$

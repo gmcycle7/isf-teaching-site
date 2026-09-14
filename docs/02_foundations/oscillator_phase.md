@@ -7,6 +7,11 @@ description: 用 state trajectory 與 limit cycle 解釋振盪器的相位：為
 
 > 先備：[統一符號表](/00_overview/notation) · [學習路徑](/00_overview/learning_path) ｜ 接下來：[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)
 
+> **這頁要回答什麼**：
+> 1. 為什麼「相位」是 limit cycle 上的切向座標，而不是對應某個絕對時間基準？
+> 2. 為什麼徑向（振幅）偏差會被拉回、切向（相位）偏差卻永久留下？
+> 3. 這個幾何圖像怎麼直接變成 phase noise 與 timing jitter 的根源？
+
 在談 ISF（Impulse Sensitivity Function，脈衝敏感度函數）之前，必須先把一件事講清楚：
 **振盪器的「相位（phase）」到底是什麼物理量，它跟「振幅（amplitude）」差在哪裡，
 為什麼一個會永久殘留、一個會被自動修正。** 這一頁就回答這個問題。它是整個 ISF 理論的

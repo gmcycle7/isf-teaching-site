@@ -112,8 +112,8 @@ $$
 比例**決定（claim C6）。這把時域 jitter 與頻域 phase noise 綁在同一個 ISF 量上：壓低 phase
 noise 的旋鈕同時壓低 jitter。
 
-> **已核實**：[P2] Eq.(12), p.793 給 $\kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$（對照原始 PDF 渲染逐字確認）；
-> 與 phase noise 共用同一個 $\Gamma_{rms}^2/q_{max}^2$ 比例（claim C6）。
+> **已核實（v11 重看 PDF 更正）**：[P2] Eq.(12), p.793 印刷式為 $\kappa=\dfrac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$——分母**含 $\omega_0$**，單位 $\sqrt{\text{s}}$，是 Eq.(8) $\sigma_{\Delta T}=\kappa\sqrt{\Delta T}$ 的**時間版** jitter 常數 $\kappa_t$（由 Eq.(10) $\sigma_{\Delta\phi}=\omega_0\sigma_{\Delta T}$ 與 Eq.(11) $\sigma_{\Delta\phi}^2=\Gamma_{rms}^2(\overline{i_n^2}/\Delta f)\,\Delta T/(2q_{max}^2)$ 合成；對照原始 PDF 渲染逐字確認）。本站 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary) 的 $\kappa_\phi=\dfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$（rad/$\sqrt{\text{s}}$）是同一件事的**相位版**：$\kappa_\phi=\omega_0\kappa_t$，數值上 $\kappa_t=\kappa_\phi/(2\pi f_0)$。v4–v5 曾把「Eq.(12) 無 $\omega_0$」當作已核實，v11 更正；本站所有數字不變。
+> 兩版都與 phase noise 共用同一個 $\Gamma_{rms}^2/q_{max}^2$ 比例（claim C6）。
 
 ### Eq.(14)：ring 頻率與級數
 
@@ -345,8 +345,7 @@ $2N\cdot\Gamma_{rms}^2\cdot S_i/q_{max}^2\propto N\cdot N^{-3}\cdot N^{-1}\cdot 
 **Numerical example**：$f_0=5$ GHz、$\Delta f=1$ MHz、$kT=4.0\times10^{-21}$ J、$P=1$ mW、
 $\eta\approx1$、$V_{DD}/V_{char}=3$、$V_{DD}/(R_LI_{tail})=2$（固定 swing）：$N=4$ 得
 $-82.7$ dBc/Hz、$N=12$ 得 $-78.0$ dBc/Hz，$\Delta\mathcal{L}=10\log_{10}3=+4.77$ dB；
-$\kappa_{min}$ 則 $\times\sqrt3\approx1.732$。（絕對值繼承 [P2] 的 SSB 記帳，與 [P1] Eq.(21)
-分母的 4 同族；時域 $/2$ 慣例整體 $+3$ dB。$\Delta\mathcal{L}$ 是相減，**兩種慣例相同**。）
+$\kappa_{min}$ 則 $\times\sqrt3\approx1.732$。（**慣例旗標（v11 更正）**：Eq.(34) 由 $2N\times$Eq.(6) 收成，而 [P2] Eq.(6), p.792 印刷式的分母 $8\pi^2f_{off}^2=2\Delta\omega^2$ 是本站的 $\mathcal{L}_{/2}$ 家族——比 [P1] Eq.(21) 分母 $4\Delta\omega^2$ 的 $/4$ SSB 家族**高 3 dB**。所以 $-82.7$／$-78.0$ dBc/Hz 這兩個絕對值是 **$/2$ 家族**的數字；換成 [P1] Eq.(21) 的記帳為 $-85.7$／$-81.0$ dBc/Hz。$\Delta\mathcal{L}$ 是相減，**兩種慣例相同**。）
 
 **Python verification**：
 
@@ -357,6 +356,8 @@ def L_ring_diff(N, kT, P, f0, df, eta=1.0, vdd_vchar=3.0, vdd_swing=2.0):  # [P2
 L4  = L_ring_diff(4,  4.0e-21, 1e-3, 5e9, 1e6)
 L12 = L_ring_diff(12, 4.0e-21, 1e-3, 5e9, 1e6)
 print(round(L4,1), round(L12,1), round(L12-L4,2))   # -> -82.7 -78.0 4.77
+# Eq.(34) = 2N x Eq.(6); Eq.(6) denominator 8*pi^2*f^2 = 2*dw^2 -> these are /2-family values; [P1] Eq.(21) /4 family is 3.01 dB lower
+print(round(L4-10*np.log10(2),1), round(L12-10*np.log10(2),1))   # -> -85.7 -81.0
 ```
 
 **設計一行話**：single-ended＝$N$-free（Eq.23）；差動＝**最少級數的贏**（Eq.34，每加倍 $+3.01$ dB）——
@@ -489,7 +490,7 @@ for eta in (0.75, 0.9):
 4. Eq.(34)：$P=NV_{DD}I_{tail}=10$ mW、$V_{DD}/V_{char}=6.25$、$V_{DD}/(R_LI_{tail})=1.25$、$f_0=2.81$ GHz：$-95.4$（論文 ✓）。實測 $-95.2$。
 5. **jitter**：p.801 印出 Fig. 16 的最佳擬合 $\kappa=6.18\times10^{-9}\ \sqrt{\text{s}}$，Eq.(12) 與 Eq.(35) 分別給 $5.95\times10^{-9}$ 與 $6.07\times10^{-9}\ \sqrt{\text{s}}$。本站重算：Eq.(35) 得 $6.07\times10^{-9}$ ✓；Eq.(12)（**照 p.793 印刷式**，分母含 $\omega_0$、$2N$ 個源的雜訊功率相加）得 $5.97\times10^{-9}$（與論文差 0.3%，在論文中間值取位範圍內，本站無法判定來自哪一步）；由實測 $-95.2$ dBc/Hz 用 Eq.(50)（p.803）$\kappa=(\Delta f/f_0)\sqrt{\mathcal{L}_{lin}}$ 反推 $6.18\times10^{-9}$——與 Fig. 16 的擬合**逐位吻合**，這是「頻域 phase noise ↔ 時域 jitter 同一個 $\Gamma_{rms}^2/q_{max}^2$」（claim C6）的實測閉環。**Dimension check**：$(\text{Hz}/\text{Hz})\cdot\sqrt{1/\text{Hz}}=\sqrt{\text{s}}$ ✓。Fig. 16（p.802）在約 $10^{-8}$–$10^{-7}$ s 之間轉成 slope-1（$\sigma\propto\Delta T$，圖上擬合 $\zeta=2.5\times10^5$），論文歸因於元件 1/f 雜訊（Sec. VI 末）。
 
-> **慣例旗標（κ 的兩件衣服）**：[P2] Eq.(12) 印刷式 $\kappa=\dfrac{\Gamma_{rms}}{q_{max}\omega_0}\sqrt{\tfrac12\dfrac{\overline{i_n^2}}{\Delta f}}$ 的分母含 $\omega_0$，單位 $\sqrt{\text{s}}$（時域，配 Eq.(8) 的 $\sigma_{\Delta t}$）；本站 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary) 的 $\kappa^2=\Gamma_{rms}^2S_i/(2q_{max}^2)$ 是 Eq.(11) 的相位版（rad²/s），兩者相差 $\omega_0$：$\kappa_t=\kappa_\phi/\omega_0$。本例 $\omega_0=2\pi\times2.81$ GHz。
+> **慣例旗標（κ 的兩件衣服，全站一致）**：[P2] Eq.(12) 印刷式 $\kappa=\dfrac{\Gamma_{rms}}{q_{max}\omega_0}\sqrt{\tfrac12\dfrac{\overline{i_n^2}}{\Delta f}}$ 的分母含 $\omega_0$，單位 $\sqrt{\text{s}}$（時域 $\kappa_t$，配 Eq.(8) 的 $\sigma_{\Delta T}$）；本站 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary) 的 $\kappa_\phi^2=\Gamma_{rms}^2S_i/(2q_{max}^2)$ 是 Eq.(11) 的相位版（rad²/s）——同一個物理量，只差 Eq.(10) 的 $\omega_0$：$\kappa_t=\kappa_\phi/\omega_0$（本例 $\omega_0=2\pi\times2.81$ GHz）。本頁與字典頁自 v11 起同一種說法。
 
 ```python
 import numpy as np

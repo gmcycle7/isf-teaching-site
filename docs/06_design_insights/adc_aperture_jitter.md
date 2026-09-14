@@ -135,7 +135,12 @@ $$
   打在輸入頻率 $f_{in}$ 上，等效相位被縮放為
   $\sigma_{\phi,in}=2\pi f_{in}\sigma_t=(f_{in}/f_0)\,\sigma_\phi$。當 $f_{in}=f_0=5$ GHz 時，
   SNR 就直接是 $-20\log_{10}(\sigma_\phi)=-20\log_{10}(0.01407)=37.0$ dB——
-  **例 C 的 14.07 mrad 原封不動變成 ADC 的 SNR**。
+  **例 C 的 14.07 mrad 原封不動變成 ADC 的 SNR**。同一個 $\sigma_\phi$ 換到通訊接收機視角就是
+  **EVM[dB]**：$\text{EVM}_{rms}\approx\sigma_\phi$、$\text{EVM}[\text{dB}]=20\log_{10}\sigma_\phi
+  =20\log_{10}(0.01407)=-37.0$ dB——與這裡的 $\text{SNR}_{jitter}=+37.0$ dB **大小相同、正負號
+  相反**（SNR 是功率比、越大越好；EVM 是誤差比例、越負越好），兩者是同一個 $\sigma_\phi$ 的
+  兩種讀法（見 [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) 的
+  「接收機視角」小節）。
 - **適用/失效**：只在 $2\pi f_{in}\sigma_t\ll1$ rad（第 1 步的一階 Taylor）且雜訊只有
   jitter 一項時成立；完整條件見第 5 節。
 
@@ -227,10 +232,15 @@ $$
 
 | $f_{in}$ | $\sigma_{\phi,in}=2\pi f_{in}\sigma_t$ [rad] | $\text{SNR}_{jitter}$ [dB] | ENOB [bit] |
 |---|---|---|---|
+| 500 MHz | $1.407\times10^{-3}$ | 57.03 | 9.18 |
 | 1 GHz | $2.814\times10^{-3}$ | 51.01 | 8.18 |
 | 2.5 GHz | $7.036\times10^{-3}$ | 43.05 | 6.86 |
 | 5 GHz | $1.407\times10^{-2}$ | 37.03 | 5.86 |
 | 10 GHz | $2.814\times10^{-2}$ | 31.01 | 4.86 |
+
+> **為何加 500 MHz**：這是 **1 GS/s** 取樣時脈的 **Nyquist 頻率**（$f_s/2$）——12-bit、1 GS/s
+> 資料轉換器最常見的規格點；下面「反推設計二」直接回答「12-bit @ 1 GS/s 這個組合對時脈乾淨度
+> 的要求是什麼」。
 
 **逐步手算一列（5 GHz）當 worked example**：
 
@@ -254,15 +264,19 @@ $$
 import numpy as np
 print(-20*np.log10(2*np.pi*5e9*447.9e-15))            # -> 37.03
 print((-20*np.log10(2*np.pi*5e9*447.9e-15)-1.76)/6.02) # -> 5.86
+# 500 MHz 列（1 GS/s Nyquist，表格新增列）：
+print(2*np.pi*5e8*447.9e-15)                           # -> 1.407e-03
+print(-20*np.log10(2*np.pi*5e8*447.9e-15))              # -> 57.03
+print((-20*np.log10(2*np.pi*5e8*447.9e-15)-1.76)/6.02)  # -> 9.18
 ```
 
 <NumericQuiz
-  prompt="先自己算：f_in = 5 GHz、σ_t = 447.9 fs 時 SNR_jitter = ？（以 dB 作答）"
-  answer={37.03}
+  prompt="先自己算：同一根 σ_t = 447.9 fs 的時脈，改打在 f_in = 2 GHz（不在上表列出的值內）時 SNR_jitter = ？（以 dB 作答）"
+  answer={44.99}
   tol={0.01}
   unit="dB"
-  hint="SNR = −20·log₁₀(2π f_in σ_t)；先算 2π f_in σ_t ≈ 1.407×10⁻² rad。"
-  solutionNote="2π×5×10⁹×4.479×10⁻¹³ ≈ 1.407×10⁻² rad → SNR = −20×log₁₀(1.407×10⁻²) ≈ 37.03 dB（對應 ENOB ≈ 5.86 bit）。"
+  hint="SNR = −20·log₁₀(2π f_in σ_t)；先算 2π f_in σ_t（f_in 只有上表 5 GHz 那列的 2/5）。"
+  solutionNote="2π×2×10⁹×4.479×10⁻¹³ ≈ 5.628×10⁻³ rad → SNR = −20×log₁₀(5.628×10⁻³) ≈ 44.99 dB（對應 ENOB ≈ 7.18 bit）。"
 />
 
 **scaling 手感（把表讀成一條直線）**：
@@ -326,6 +340,105 @@ $$
 PLL 把 close-in 濾掉（見 design knobs）。**誠實註記**：25.4 fs 已是「極好的」時脈——
 以量級而言，最好的商用 RF-sampling 時脈鏈整合 jitter 大約落在數十 fs 這一帶
 （量級說法，非精確引用），所以「10 ENOB @ 5 GHz」是貼著現實極限的規格。
+
+## 反推設計二：12-bit @ 1 GS/s（500 MHz Nyquist）時脈要多乾淨？
+
+> **題目**：業界常見的規格組合是 **12-bit、1 GS/s** 資料轉換器。取樣率 $f_s=1$ GS/s 的
+> Nyquist 頻率是 $f_{in}=500$ MHz（上一節新增的表格列）。只考慮 jitter 一項，求維持
+> 12 ENOB 所需的 aperture jitter 上限 $\sigma_t$；並對照本站 canonical 例 C（447.9 fs）
+> 與 [clock_chain_budget](/06_design_insights/clock_chain_budget) 的 PLL 輸出（27.6 fs）
+> 兩顆時脈，看 12-bit @ 1 GS/s 到底可不可行。
+
+**步驟 1（ENOB→SNR）**：
+
+$$
+\text{SNR}_{req}=6.02\times12+1.76=74.00\ \mathrm{dB}.
+$$
+
+**步驟 2（反解公式，$f_{in}=500$ MHz）**：
+
+$$
+\sigma_t=\frac{10^{-\text{SNR}_{req}/20}}{2\pi\times5\times10^{8}}
+=\frac{10^{-74.00/20}}{3.1416\times10^{9}}\ \mathrm{s}
+$$
+
+$$
+\boxed{\ \sigma_t\ \le\ 6.350\times10^{-14}\ \mathrm{s}=63.5\ \mathrm{fs}\ }
+$$
+
+- **對照 11 ENOB**：同法算 $\text{SNR}_{req}=6.02\times11+1.76=67.98$ dB →
+  $\sigma_t\le127.0$ fs——多 1 bit 的要求讓時脈預算縮緊到約一半（$127.0/63.5\approx2$，
+  對應 6.02 dB／1 bit 的老規矩）。
+- **dimension check**：分子 $10^{-\text{SNR}/20}$ 是 rad（無因次）、分母 $2\pi f_{in}$ 是
+  rad/s，商是 s ✓。
+- **一行 Python 驗證**：
+
+```python
+import numpy as np
+for N in (11, 12):
+    snr_req = 6.02*N + 1.76
+    sigma_req = 10**(-snr_req/20) / (2*np.pi*5e8)
+    print(N, snr_req, sigma_req*1e15)
+# -> 11 67.98 127.0
+# -> 12 74.00 63.5
+```
+
+**步驟 3（把 63.5 fs 翻回 phase noise 語言，同例 C 的 1/f² 形狀、1→100 MHz 積分頻寬）**：
+$\sigma_t$ 要從 447.9 fs 壓到 63.5 fs，是 $447.9/63.5=7.05$ 倍，對應 $1/f^2$ skirt 整條平移
+
+$$
+20\log_{10}(447.9/63.5)=20\log_{10}7.05=17.0\ \mathrm{dB}
+\quad\Longrightarrow\quad
+\mathcal{L}(1\,\mathrm{MHz})\ \le\ -100-17.0=-117.0\ \mathrm{dBc/Hz}.
+$$
+
+（11 ENOB 只需 $-100-20\log_{10}(447.9/127.0)=-100-11.0\approx-111.0$ dBc/Hz，明顯寬鬆。）
+
+- **一行 Python 驗證**（重用 `simulations/common/noise_utils.py` 的真實積分函式，
+  掃 $\mathcal{L}(1\,\mathrm{MHz})$ 直到 $\sigma_t\approx63.5$ fs）：
+
+```python
+import numpy as np
+from simulations.common.noise_utils import leeson_one_over_f2, integrate_rms_jitter
+
+L_ref = -100 + 20*np.log10(63.5e-15/447.9e-15)   # scaling law, sigma_t ∝ 10^(L/20)
+f = np.logspace(6, 8, 8000)
+L = leeson_one_over_f2(f, L_ref_dbc=L_ref, f_ref=1e6)
+sigma_t, _ = integrate_rms_jitter(f, L, f0=5e9, fmin=1e6, fmax=100e6)
+print(L_ref)          # -> -117.0
+print(sigma_t*1e15)   # -> 63.5
+```
+
+**步驟 4（可行性檢查：兩顆本站已驗證的時脈，打在 500 MHz 上）**：
+
+$$
+\begin{aligned}
+\text{裸 VCO（例 C，}\sigma_t=447.9\ \text{fs）}:\quad
+\text{SNR}&=57.03\ \text{dB}\ \Rightarrow\ \text{ENOB}=9.18\ \text{bit}\quad(\text{上表 500 MHz 列，不夠 12-bit}), \\[4pt]
+\text{PLL 淨化後（}\sigma_t=27.6\ \text{fs，clock\_chain\_budget 的積分 jitter 量級）}:\quad
+\text{SNR}&=-20\log_{10}(2\pi\times5\times10^8\times27.6\times10^{-15})=81.2\ \text{dB} \\
+&\Rightarrow\ \text{ENOB}=(81.2-1.76)/6.02=13.2\ \text{bit}\quad(\text{超過 12-bit 需求}).
+\end{aligned}
+$$
+
+- **一行 Python 驗證**：
+
+```python
+import numpy as np
+snr = -20*np.log10(2*np.pi*5e8*27.6e-15)
+print(snr)                 # -> 81.2
+print((snr-1.76)/6.02)     # -> 13.2
+```
+
+- **結論**：裸 VCO（447.9 fs，例 C 的 1/f² skirt）在 500 MHz Nyquist 上只有 9.18 ENOB，
+  **不夠**餵 12-bit ADC；但同一顆 VCO 經過 [clock_chain_budget](/06_design_insights/clock_chain_budget)
+  那條 PLL 鏈壓到 27.6 fs 之後，13.2 ENOB **超過** 12-bit 需求——**12-bit @ 1 GS/s 是可行的
+  規格，但前提是餵它的時脈必須先經過 PLL 淨化的 LC VCO**（裸振盪器不夠格）。這正呼應第 4 步
+  「時脈是最貴的那顆零件」的結論，也與 [design_recipe](/06_design_insights/design_recipe) 的
+  閘門邏輯一致：先訂目標 ENOB/BER、反推 $\sigma_t$ 上限、再回頭挑振盪器拓樸與 loop 設計。
+  **誠實註記**：27.6 fs 是 [clock_chain_budget](/06_design_insights/clock_chain_budget) 那條
+  2.5 GHz 輸出鏈（10 kHz–100 MHz 積分）算出來的**同一個 canonical 數字**，這裡借來當「PLL
+  淨化後可達到的時脈品質」量級對照，不是重新算了一條 1 GS/s 專用的時脈鏈。
 
 ## 整條鏈：從 phase noise 圖到 ENOB
 
@@ -461,10 +574,14 @@ jitter 為白色 i.i.d.（真實時脈是有色的；總 SNR 不變、頻譜形�
   $f_{in}=f_0$ 時直接回收例 C 的 $\sigma_\phi=14.07$ mrad → 37.0 dB。
 - **ENOB $=(\text{SNR}-1.76)/6.02$**：由 $q^2/12$ 與滿刻度正弦功率推得
   $\text{SNR}_q=6.02N+1.76$ 後反解。
-- **設計表（$\sigma_t=447.9$ fs）**：1 / 2.5 / 5 / 10 GHz → 51.0 / 43.1 / 37.0 / 31.0 dB
-  → 8.18 / 6.86 / 5.86 / 4.86 bit；**每 octave 掉 6.02 dB＝1 bit**。
-- **反推**：10 ENOB @ 5 GHz → SNR $\ge61.96$ dB → $\sigma_t\le25.4$ fs
+- **設計表（$\sigma_t=447.9$ fs）**：500 MHz / 1 / 2.5 / 5 / 10 GHz → 57.0 / 51.0 / 43.1 / 37.0 / 31.0 dB
+  → 9.18 / 8.18 / 6.86 / 5.86 / 4.86 bit；**每 octave 掉 6.02 dB＝1 bit**。
+- **反推一**：10 ENOB @ 5 GHz → SNR $\ge61.96$ dB → $\sigma_t\le25.4$ fs
   （比 447.9 fs 乾淨 17.6 倍＝skirt 全線 $-24.9$ dB → $\mathcal{L}(1\,\mathrm{MHz})\le-124.9$ dBc/Hz）。
+- **反推二（12-bit @ 1 GS/s，500 MHz Nyquist）**：12 ENOB → SNR $\ge74.00$ dB →
+  $\sigma_t\le63.5$ fs → $\mathcal{L}(1\,\mathrm{MHz})\le-117.0$ dBc/Hz；裸 VCO（447.9 fs，
+  9.18 ENOB）不夠，PLL 淨化後（27.6 fs，13.2 ENOB）足夠——**12-bit @ 1 GS/s 可行，但要靠
+  PLL 淨化的 LC 時脈**。
 - **慣例紀律**：$\sigma_t$ 上游若用 [P1] Eq. (21) 的 /4（SSB）vs 時域 /2 記帳，
   $\mathcal{L}$ 差 3 dB → $\sigma_t$ 差 $\sqrt2$ → SNR 差 3 dB，全鏈一致才有意義；
   報 jitter-limited SNR 必附 $\sigma_t$ 的積分頻寬。

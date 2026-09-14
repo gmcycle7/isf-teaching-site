@@ -11,17 +11,49 @@
     "message": "01 · Paper Map",
     "description": "The label for category 01 · 論文地圖 Paper Map in sidebar mainSidebar"
   },
+  "sidebar.mainSidebar.category.01 · 論文地圖 Paper Map.link.generated-index.title": {
+    "message": "01 · Paper Map",
+    "description": "The generated-index page title for category 01 · 論文地圖 Paper Map in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.01 · 論文地圖 Paper Map.link.generated-index.description": {
+    "message": "A one-page overview of the five source papers, plus the equation index, figure index, and claims cross-reference — start here to find where a formula comes from.",
+    "description": "The generated-index page description for category 01 · 論文地圖 Paper Map in sidebar mainSidebar"
+  },
   "sidebar.mainSidebar.category.02 · 基礎 Foundations": {
     "message": "02 · Foundations",
     "description": "The label for category 02 · 基礎 Foundations in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.02 · 基礎 Foundations.link.generated-index.title": {
+    "message": "02 · Foundations",
+    "description": "The generated-index page title for category 02 · 基礎 Foundations in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.02 · 基礎 Foundations.link.generated-index.description": {
+    "message": "Phase geometry, LTI vs. LTV, PSD/jitter dialects, Allan variance, and jitter kernels — the bedrock you need before ISF.",
+    "description": "The generated-index page description for category 02 · 基礎 Foundations in sidebar mainSidebar"
   },
   "sidebar.mainSidebar.category.03 · ISF 核心理論 Core Theory": {
     "message": "03 · ISF Core Theory",
     "description": "The label for category 03 · ISF 核心理論 Core Theory in sidebar mainSidebar"
   },
+  "sidebar.mainSidebar.category.03 · ISF 核心理論 Core Theory.link.generated-index.title": {
+    "message": "03 · ISF Core Theory",
+    "description": "The generated-index page title for category 03 · ISF 核心理論 Core Theory in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.03 · ISF 核心理論 Core Theory.link.generated-index.description": {
+    "message": "From impulse → Δφ to Eq.(21), Fourier series/Parseval, linewidth, the diffusion dictionary, the closed-form App. B result, and the capstone spine.",
+    "description": "The generated-index page description for category 03 · ISF 核心理論 Core Theory in sidebar mainSidebar"
+  },
   "sidebar.mainSidebar.category.04 · 模擬實驗 Simulation Labs": {
     "message": "04 · Simulation Labs",
     "description": "The label for category 04 · 模擬實驗 Simulation Labs in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.04 · 模擬實驗 Simulation Labs.link.generated-index.title": {
+    "message": "04 · Simulation Labs",
+    "description": "The generated-index page title for category 04 · 模擬實驗 Simulation Labs in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.04 · 模擬實驗 Simulation Labs.link.generated-index.description": {
+    "message": "Every lab: one figure, one Python block, one # -> number — plus interactive tools and the final exam.",
+    "description": "The generated-index page description for category 04 · 模擬實驗 Simulation Labs in sidebar mainSidebar"
   },
   "sidebar.mainSidebar.category.基礎手感": {
     "message": "Numerical Feel Basics",
@@ -43,9 +75,25 @@
     "message": "06 · Design Insights",
     "description": "The label for category 06 · 設計直覺 Design Insights in sidebar mainSidebar"
   },
+  "sidebar.mainSidebar.category.06 · 設計直覺 Design Insights.link.generated-index.title": {
+    "message": "06 · Design Insights",
+    "description": "The generated-index page title for category 06 · 設計直覺 Design Insights in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.06 · 設計直覺 Design Insights.link.generated-index.description": {
+    "message": "Turning formulas into design knobs: oscillator design, injection & frequency conversion, systems & measurement.",
+    "description": "The generated-index page description for category 06 · 設計直覺 Design Insights in sidebar mainSidebar"
+  },
   "sidebar.mainSidebar.category.99 · 附錄 Appendix": {
     "message": "99 · Appendix",
     "description": "The label for category 99 · 附錄 Appendix in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.99 · 附錄 Appendix.link.generated-index.title": {
+    "message": "99 · Appendix",
+    "description": "The generated-index page title for category 99 · 附錄 Appendix in sidebar mainSidebar"
+  },
+  "sidebar.mainSidebar.category.99 · 附錄 Appendix.link.generated-index.description": {
+    "message": "The math toolbox used throughout the derivations, the LTV/Floquet and Leeson appendices, the Python environment, the bilingual glossary, and the reference list — for lookup and review.",
+    "description": "The generated-index page description for category 99 · 附錄 Appendix in sidebar mainSidebar"
   },
   "sidebar.mainSidebar.doc.Lab 09 — 設計取捨入門": {
     "message": "Lab 09 — Design Trade-offs (Intro)",

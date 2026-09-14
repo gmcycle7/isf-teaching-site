@@ -1,6 +1,6 @@
 ---
 title: Python Environment
-description: How to set up the environment (Python 3.12, numpy/scipy/matplotlib, CJK font Heiti TC), directory layout, running run_all_sims.py, an overview of the common module and its functions, and reproducibility via fixed rng seed.
+description: How to set up the environment (Python 3.12, numpy/scipy/matplotlib, auto-detected CJK font), directory layout, running run_all_sims.py, an overview of the common module's seven modules and their functions, and reproducibility via fixed rng seed.
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -46,23 +46,44 @@ toy model.
 
 ---
 
-## 2. CJK font (Heiti TC)
+## 2. CJK font (auto-detected, not hardcoded)
 
 Figures carry Chinese labels (axis names, legends); matplotlib's default font doesn't cover Chinese
-and renders "tofu boxes" instead. This site uses macOS's built-in **Heiti TC (黑體-繁)**:
+and renders "tofu boxes" instead. The site does **not** hardcode a single font name — instead,
+`simulations/common/plot_utils.py` scans the fonts **actually installed** on the machine with
+`matplotlib.font_manager` and picks the first one that exists from a preference list
+(the `import` is at `plot_utils.py:24`; the scan/pick logic is at `plot_utils.py:26–29`):
 
 ```python
-import matplotlib.pyplot as plt
-plt.rcParams["font.family"] = "Heiti TC"     # Traditional Chinese font (built into macOS)
-plt.rcParams["axes.unicode_minus"] = False    # avoid minus sign turning into a box
+import matplotlib.font_manager as _fm
+
+_available = {f.name for f in _fm.fontManager.ttflist}
+_cjk_prefs = ["Heiti TC", "Arial Unicode MS", "STHeiti", "Hiragino Sans GB",
+              "Songti SC", "PingFang TC"]
+_cjk_font = next((f for f in _cjk_prefs if f in _available), None)
+
+plt.rcParams["font.family"] = ([_cjk_font] if _cjk_font else []) + ["DejaVu Sans", "sans-serif"]
+plt.rcParams["axes.unicode_minus"] = False
 ```
 
-- **`axes.unicode_minus=False`** is critical: matplotlib defaults to the Unicode minus sign
+- **`_available`**: `_fm.fontManager.ttflist` is every installed font object matplotlib scanned
+  at startup; collecting their `.name`s gives "the font names this machine actually has."
+- **`_cjk_prefs`**: an ordered preference list of 6 common macOS Chinese fonts (Heiti TC, Arial
+  Unicode MS, STHeiti, Hiragino Sans GB, Songti SC, PingFang TC). `_cjk_font = next(...)` picks
+  the **first font that is both in the preference list and actually present on this machine**;
+  if none of the six are present it returns `None`.
+- **Graceful degradation (not a hardcoded Heiti TC)**: when no CJK font is found,
+  `([_cjk_font] if _cjk_font else [])` becomes an empty list, so `font.family` falls back to just
+  `["DejaVu Sans", "sans-serif"]` — matplotlib's built-in font that has no CJK glyphs. Figures
+  still render **normally** in that case (no exception is raised); only the Chinese labels turn
+  into boxes.
+- **`axes.unicode_minus=False`** is still critical: matplotlib defaults to the Unicode minus sign
   U+2212, which many fonts lack the glyph for, turning the minus sign in "$-100$ dBc/Hz" into a
   box; setting it to `False` switches to the ASCII hyphen and fixes this.
-- **Non-macOS platforms**: replace `"Heiti TC"` with a CJK font available on your system (e.g.
-  `"Noto Sans CJK TC"` on Linux, `"Microsoft JhengHei"` on Windows). `TODO: manual verification
-  needed` — adjust the cross-platform font name per your system's actual `fc-list` output.
+- **Non-macOS platforms**: `_cjk_prefs` currently lists only 6 macOS fonts. To get correct
+  Chinese labels on Linux/Windows, add a CJK font your system actually has (e.g. `Noto Sans CJK TC`
+  on Linux, `Microsoft JhengHei` on Windows) to the front of `_cjk_prefs` — the detection logic
+  will automatically pick it up; no other code needs to change.
 
 ---
 
@@ -74,22 +95,29 @@ plt.rcParams["axes.unicode_minus"] = False    # avoid minus sign turning into a 
 #     isf_utils.py            # ISF shape, Fourier decomposition, impulse->phase
 #     noise_utils.py          # noise generation, PSD, jitter integration, dBc/Hz
 #     oscillator_models.py    # toy oscillator, ISF extraction, ring edge times
+#     pll_utils.py            # type-II PLL/CDR loop transfer (H_lp/H_hp), loop design
+#     serdes_utils.py         # SerDes eye/BER (Q function, bathtub, eye traces)
+#     signal_utils.py         # generic signal helpers (time axis, Hilbert phase, zero-crossing, jitter kernels)
+#     plot_utils.py           # save to static/figures/, CJK font auto-detection (see section 2)
 #   lab_01_sinusoidal_oscillator.py
-#   lab_02_lc_oscillator_isf.py
-#   lab_03_ring_oscillator_toy_model.py
-#   lab_04_impulse_injection_sweep.py
-#   lab_05_fourier_decomposition.py
+#   lab_02_lc_toy_model.py
+#   lab_03_ring_toy_model.py
+#   lab_04_impulse_sweep.py
+#   lab_05_fourier_isf.py
 #   lab_06_white_noise_phase_noise.py
-#   lab_07_flicker_upconversion.py
+#   lab_07_flicker_noise.py
 #   lab_08_jitter_integration.py
+#   ...52 lab_*.py / fig_*.py scripts total (42 lab_*, 10 fig_*); full list in figure_index
 # scripts/
-#   run_all_sims.py           # regenerate all lab figures with one command
+#   run_all_sims.py           # regenerate all lab_*.py + fig_*.py figures with one command
 # static/figures/             # generated .png files (site references them as /figures/<name>.png)
 ```
 
 - **`common/`** holds reusable core functions, shared across labs; **each lab** is responsible only
   for "setting parameters, calling common, plotting." This way each formula is implemented once,
-  and any lab that changes parameters uses the same authoritative implementation.
+  and any lab that changes parameters uses the same authoritative implementation. `common/`
+  currently has **7 modules** (`isf_utils`, `noise_utils`, `oscillator_models`, `pll_utils`,
+  `serdes_utils`, `signal_utils`, `plot_utils`); section 5 lists each function's signature.
 - **Figure output** always lands in `static/figures/`; site pages reference it with
   `![alt](/figures/<name>.png)` (see the figure list in [authoring spec section 4]).
 
@@ -102,25 +130,32 @@ plt.rcParams["axes.unicode_minus"] = False    # avoid minus sign turning into a 
 #   python scripts/run_all_sims.py
 ```
 
-`scripts/run_all_sims.py` runs the `main()` / `fig_*()` of lab_01 through lab_08 in sequence,
-regenerating all 14 PNGs into `static/figures/`. To reproduce any figure on the site, this one
-command suffices. The script and function behind each figure:
+`scripts/run_all_sims.py` uses `glob.glob` to collect every `simulations/lab_*.py` and
+`simulations/fig_*.py` (`scripts/run_all_sims.py:24–25`), runs each in its own subprocess in
+sequence, and regenerates every figure into `static/figures/`; one script failing does not abort
+the rest, and a pass/fail summary table is printed at the end. There are currently **52 scripts**
+(42 `lab_*.py` + 10 `fig_*.py`) → **60 PNGs**. To reproduce any figure on the site, this one
+command suffices.
+
+The table below is the **lab_01–08 demo subset** (the 8 most foundational labs, matching the
+one-line check in section 7 and canonical examples A/B/C); the full 52-script × 60-figure mapping
+is in [figure_index](/01_paper_map/figure_index).
 
 | Figure file | script | function |
 |---|---|---|
 | `limit_cycle_phase_amplitude.png` | `lab_01_sinusoidal_oscillator.py` | `fig_limit_cycle` |
 | `waveform_with_impulse_markers.png` | `lab_01_sinusoidal_oscillator.py` | `fig_impulse_markers` |
-| `lc_waveform_and_isf.png` | `lab_02_lc_oscillator_isf.py` | `main` |
-| `ring_oscillator_timing_noise_accumulation.png` | `lab_03_ring_oscillator_toy_model.py` | `fig_accumulation` |
-| `lc_vs_ring_isf_comparison.png` | `lab_03_ring_oscillator_toy_model.py` | `fig_lc_vs_ring_isf` |
-| `sinusoidal_impulse_phase_sweep.png` | `lab_04_impulse_injection_sweep.py` | `fig_isf_sweep` |
-| `isf_impulse_sweep_sinusoidal.png` | `lab_04_impulse_injection_sweep.py` | `fig_isf_sweep` |
-| `lti_vs_ltv_impulse_response.png` | `lab_04_impulse_injection_sweep.py` | `fig_lti_vs_ltv` |
-| `isf_fourier_reconstruction.png` | `lab_05_fourier_decomposition.py` | `fig_reconstruction` |
-| `isf_fourier_coefficients.png` | `lab_05_fourier_decomposition.py` | `fig_coefficients` |
-| `symmetric_vs_asymmetric_isf_c0.png` | `lab_05_fourier_decomposition.py` | `fig_symmetric_vs_asymmetric` |
+| `lc_waveform_and_isf.png` | `lab_02_lc_toy_model.py` | `main` |
+| `ring_oscillator_timing_noise_accumulation.png` | `lab_03_ring_toy_model.py` | `fig_accumulation` |
+| `lc_vs_ring_isf_comparison.png` | `lab_03_ring_toy_model.py` | `fig_lc_vs_ring_isf` |
+| `sinusoidal_impulse_phase_sweep.png` | `lab_04_impulse_sweep.py` | `fig_isf_sweep` |
+| `isf_impulse_sweep_sinusoidal.png` | `lab_04_impulse_sweep.py` | `fig_isf_sweep` |
+| `lti_vs_ltv_impulse_response.png` | `lab_04_impulse_sweep.py` | `fig_lti_vs_ltv` |
+| `isf_fourier_reconstruction.png` | `lab_05_fourier_isf.py` | `fig_reconstruction` |
+| `isf_fourier_coefficients.png` | `lab_05_fourier_isf.py` | `fig_coefficients` |
+| `symmetric_vs_asymmetric_isf_c0.png` | `lab_05_fourier_isf.py` | `fig_symmetric_vs_asymmetric` |
 | `white_noise_phase_noise_psd.png` | `lab_06_white_noise_phase_noise.py` | `main` |
-| `flicker_upconversion_symmetric_vs_asymmetric.png` | `lab_07_flicker_upconversion.py` | `main` |
+| `flicker_upconversion_symmetric_vs_asymmetric.png` | `lab_07_flicker_noise.py` | `main` |
 | `phase_noise_to_jitter_integration.png` | `lab_08_jitter_integration.py` | `main` |
 
 ---
@@ -182,6 +217,57 @@ Corresponding pages: [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_ji
 > All of these are **toy / conceptual models** (toy model, not transistor-level). What they
 > reproduce is the **behavior and scaling of the formulas**, not precise numerical values of a real
 > transistor circuit.
+
+### 5.4 `simulations/common/pll_utils.py` — type-II PLL/CDR loop transfer
+
+| Function | Signature | What it does | Corresponding formula |
+|---|---|---|---|
+| `loop_natural_freq` | `loop_natural_freq(fn_hz)` | $\omega_n=2\pi f_n$ (Hz→rad/s helper) | — |
+| `H_lowpass_mag2` | `H_lowpass_mag2(f, fn_hz, zeta=0.707)` | $\lvert H_{lp}(j2\pi f)\rvert^2$ (reference→output) | authoring spec section 10.2 PLL formulas |
+| `H_highpass_mag2` | `H_highpass_mag2(f, fn_hz, zeta=0.707)` | $\lvert H_{hp}\rvert^2=\lvert1-H_{lp}\rvert^2$ (VCO→output) | authoring spec section 10.2 PLL formulas |
+| `shape_output_phase_noise` | `shape_output_phase_noise(f, S_ref, S_vco, fn_hz, zeta=0.707)` | $S_{out}=S_{ref}\lvert H_{lp}\rvert^2+S_{vco}\lvert H_{hp}\rvert^2$, returns `(S_out, S_ref_shaped, S_vco_shaped)` | authoring spec section 10.3 PLL noise budget |
+| `design_type2` | `design_type2(fn, zeta, N, Kvco, Icp)` | back out $(R,C)$ for a charge-pump type-II 2nd-order loop (site convention: `Kvco` is in **Hz/V**, converted internally by $2\pi$) | open loop $G(s)=\omega_n^2(1+sRC)/s^2$ |
+
+Corresponding pages: [pll_noise_budget](/06_design_insights/pll_noise_budget),
+[pll_cdr_jitter_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer),
+[cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol).
+
+### 5.5 `simulations/common/serdes_utils.py` — SerDes eye diagram and BER
+
+| Function | Signature | What it does | Corresponding formula |
+|---|---|---|---|
+| `Q` | `Q(x)` | Gaussian tail probability $Q(x)=\tfrac12\,\mathrm{erfc}(x/\sqrt2)$ | authoring spec section 10.2 SerDes BER |
+| `ber_bathtub` | `ber_bathtub(t_offsets, sigma_t, ui)` | sampling-offset vs BER for RJ-only (the "bathtub" curve), $\text{BER}(t)=\tfrac12[Q(\tfrac{UI/2-t}{\sigma_t})+Q(\tfrac{UI/2+t}{\sigma_t})]$, output floored at $10^{-300}$ for log plots | authoring spec section 10.2 SerDes BER |
+| `eye_traces` | `eye_traces(sigma_t, ui, n_traces=400, n_pts=200, rng=None)` | generate overlaid NRZ eye-diagram traces (each trace's edge perturbed by $N(0,\sigma_t)$), returns `(t_axis, traces)` | eye-diagram visualization (RJ only, no ISI/DJ) |
+
+Corresponding page: [serdes_eye_ber_bathtub](/04_simulation_labs/lab_12_serdes_eye_ber).
+
+### 5.6 `simulations/common/signal_utils.py` — generic signal helpers
+
+| Function | Signature | What it does | Corresponding formula |
+|---|---|---|---|
+| `time_axis` | `time_axis(fs, duration)` | uniformly sampled time vector on $[0,\text{duration})$ at rate $f_s$, returns `(t, dt)` | — |
+| `instantaneous_phase` | `instantaneous_phase(x, analytic=True)` | estimate the instantaneous (unwrapped) phase via the Hilbert transform (analytic signal) | numerical extraction of [P1] Eq.(1) |
+| `zero_crossings_rising` | `zero_crossings_rising(x, t)` | interpolated rising zero-crossing times | ring edge detection |
+| `period_jitter` | `period_jitter(edge_times, T_nominal)` | period jitter: $T_k-T_{nominal}$ | authoring spec section 2 period-jitter definition |
+| `cycle_to_cycle_jitter` | `cycle_to_cycle_jitter(edge_times)` | cycle-to-cycle jitter: $T_{k+1}-T_k$ | authoring spec section 2 cycle-to-cycle definition |
+| `db10` | `db10(x)` | $10\log_{10}x$ (floored to avoid $-\infty$) | — |
+| `db20` | `db20(x)` | $20\log_{10}\lvert x\rvert$ (floored to avoid $-\infty$) | — |
+
+Corresponding pages: [jitter_kernels](/02_foundations/jitter_kernels),
+[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter).
+
+### 5.7 `simulations/common/plot_utils.py` — saving figures and the CJK font
+
+| Function | Signature | What it does |
+|---|---|---|
+| `figure_path` | `figure_path(name)` | return the absolute path for `static/figures/<name>` (auto-appends `.png`, ensures the directory exists) |
+| `savefig` | `savefig(fig, name, verbose=True)` | save `fig` to `figure_path(name)`, `plt.close(fig)`, print the relative path |
+
+Importing the module runs the CJK-font auto-detection described in section 2 (`_cjk_prefs` →
+`_cjk_font` → setting `plt.rcParams["font.family"]`); every lab/fig script that does
+`from simulations.common.plot_utils import savefig` inherits the same font and layout style
+(`figure.dpi=120`, `axes.grid=True`, etc.).
 
 ---
 
@@ -262,10 +348,13 @@ as in section 1, `pip install numpy scipy matplotlib`, plus `pip install jupyter
 
 ## Key takeaways
 
-- Python 3.12 + `numpy`/`scipy`/`matplotlib`; use `Heiti TC` for CJK and disable `unicode_minus`.
-- The three `common/` modules (`isf_utils`, `noise_utils`, `oscillator_models`) hold the
-  authoritative implementation; each lab only sets parameters.
-- `python scripts/run_all_sims.py` regenerates all 14 figures into `static/figures/` in one command.
+- Python 3.12 + `numpy`/`scipy`/`matplotlib`; the CJK font is auto-detected from `plot_utils.py`'s
+  `_cjk_prefs` list (falls back to `DejaVu Sans` if none is found), with `unicode_minus` disabled.
+- The seven `common/` modules (`isf_utils`, `noise_utils`, `oscillator_models`, `pll_utils`,
+  `serdes_utils`, `signal_utils`, `plot_utils`) hold the authoritative implementation; each lab
+  only sets parameters.
+- `python scripts/run_all_sims.py` regenerates all **60 figures** into `static/figures/` in one
+  command (from 52 `lab_*.py`/`fig_*.py` scripts).
 - Everything is a toy model; a fixed `default_rng(seed)` guarantees bit-identical reproducibility.
 - The seven mainline labs have downloadable Jupyter notebooks (section 8), automatically produced
   as generated snapshots by `scripts/make_notebooks.py`.

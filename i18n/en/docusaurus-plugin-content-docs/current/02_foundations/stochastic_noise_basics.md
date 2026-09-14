@@ -5,6 +5,8 @@ description: "Intuition, units, and dimension checks for white/flicker noise, PS
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
+> **Translator's note**: all equations are preserved byte-for-byte from the original. Chinese labels appearing inside math read as follows: 單邊 PSD = one-sided PSD, 無因次 = dimensionless.
+
 # Stochastic Noise Basics
 
 > Prerequisites: [lti_vs_ltv](/02_foundations/lti_vs_ltv) · [Notation](/00_overview/notation) | Next: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)

@@ -5,6 +5,8 @@ description: C1–C13 教學主張的來源論文、信心、是否需人工確�
 
 # 教學主張交叉索引 Claims Cross-Reference
 
+> 接下來：[oscillator_phase](/02_foundations/oscillator_phase)（學習路徑第 1 步，建議由此開始依序閱讀）
+
 本站每一個關鍵教學主張（claim）都編號 **C1–C13**，並標明：出自哪篇論文、信心多高、
 是否需要人工對照 PDF（`Verify?`）、以及**哪幾頁**用到它。資料取自
 `extracted/extracted_claims.json`。

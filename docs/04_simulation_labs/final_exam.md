@@ -9,6 +9,11 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 > **先備**：[capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)（全站主脊一條龍）與三章成套習題——[02 基礎章](/02_foundations/exercises)、[03 核心理論章](/03_isf_core_theory/exercises)、[06 設計章](/06_design_insights/exercises)（先做完再來）｜**接下來**：無——這是最後一頁。11 題全對，你畢業了。
 
+> **通過標準**：
+> 1. 全部題目都在 NumericQuiz 給定容差內答對——先自己算、輸入作答，不要先看解答。
+> 2. 每一題都要能講出它用的是哪個慣例（SSB $/4$ 或時域 $/2$）、對應 [P1] Eq.(24) 還是 [P2] Eq.(57)。
+> 3. 能一口氣講出 $15.9$ fs → $-148$ dBc/Hz → $19.9$ mHz → $447.9$ fs → $7.30$ ps 這條鏈每一步用的公式與出處頁碼。
+
 這不是又一份習題集。這是**一場考試**：一個設計故事、兩題熱身（0a/0b）加 11 個關卡，從單一電荷脈衝打進
 LC tank 的那一瞬間，一路走到 SerDes 鏈路在 BER $=10^{-12}$ 的 eye 開度。每一題都只考
 一個「乾淨的數字」，但每個數字都得跨章調度——你需要 [P1] 的 ISF、[P2] 的 κ 與 App. B

@@ -107,23 +107,28 @@ $$
 \sigma=\kappa\sqrt{\Delta t}.
 $$
 
-把第 0 步的結果開根號，$\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$，比例常數正是
-**[P2] Eq.(12), p.793（已核實）**：
+把第 0 步的結果開根號，$\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$，比例常數就是
+**[P2] Eq.(11), p.793 的開根號（相位版；p.793 印刷的 Eq.(12) 是它的時間版 $\kappa/\omega_0$，見下方註記）**：
 
 $$
 \boxed{\ \kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\frac{1}{2}\cdot\frac{\overline{i_n^2}}{\Delta f}}\ \ [\text{rad}/\sqrt{\text{s}}]\ }
+\qquad
+\kappa_t\equiv\frac{\kappa}{\omega_0}=\frac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\frac{1}{2}\cdot\frac{\overline{i_n^2}}{\Delta f}}\ \ [\sqrt{\text{s}}]\quad(\text{[P2] Eq.(12), p.793})
 $$
 
-> **κ 的單位陷阱（誠實註記，已核實）**：[P2] 的內文把 Eq.(8) 講成 **timing** jitter
-> $\sigma_{\Delta t}$，但印出來的 Eq.(12) **沒有 $\omega_0$**（對照原始 PDF 逐字確認），
-> 量綱是 $\text{rad}/\sqrt{\text{s}}$——所以 Eq.(12) 的 $\kappa$ 其實是**相位版**常數，
-> 與 Eq.(10), p.793 定義的 phase jitter（$\sigma_{\Delta\phi}=2\pi\sigma_{\Delta t}/T=\omega_0\sigma_{\Delta t}$）
-> 和 Eq.(11) 完全自洽。要講**時間版**就除以 $\omega_0$：
+> **κ 的兩件衣服（誠實註記；v11 重看 PDF 更正）**：[P2] Eq.(8), p.792 是 **timing** jitter
+> $\sigma_{\Delta T}=\kappa\sqrt{\Delta T}$，而 p.793 印出來的 Eq.(12) 分母**含 $\omega_0$**
+> （$\kappa=\frac{\Gamma_{rms}}{q_{max}\omega_0}\sqrt{\tfrac12\overline{i_n^2}/\Delta f}$，對照原始 PDF 渲染頁逐字確認），
+> 量綱 $\sqrt{\text{s}}$——論文自己完全自洽：Eq.(11) 給相位方差 $\sigma_{\Delta\phi}^2$，Eq.(10)
+> $\sigma_{\Delta\phi}=2\pi\sigma_{\Delta T}/T=\omega_0\sigma_{\Delta T}$ 把它換到時間，印刷 Eq.(12) 就是
+> $\sqrt{\text{Eq.(11)}}/\omega_0$。本頁的主角 $\kappa$（rad/$\sqrt{\text{s}}$）是**相位版**
+> $\kappa_\phi=\omega_0\kappa_t$，直接是 Eq.(11) 開根號；要講**時間版**就除以 $\omega_0$：
 > $\sigma_{\Delta t}=\kappa_t\sqrt{\Delta t}$、$\kappa_t=\kappa/\omega_0=\kappa/(2\pi f_0)$，
-> 單位 $\sqrt{\text{s}}$。
+> 單位 $\sqrt{\text{s}}$——這才是印刷版 Eq.(12)。
 > 全站他頁（如 [paper_002 深讀](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring)）寫
 > $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$、$\kappa$ 單位 $\sqrt{\text{s}}$ 時，指的就是這個
-> $\kappa_t$。兩者只差一個 $\omega_0$，物理相同。
+> $\kappa_t$。兩者只差一個 $\omega_0$，物理相同。**v4–v5 曾把「Eq.(12) 無 $\omega_0$」當作已核實，
+> 並在這裡寫成論文的「單位陷阱」——單位疏漏在本站的誤讀，不在論文；v11 更正，數字全部不變。**
 
 - **與 κ² 的關係**：$\kappa=\sqrt{\kappa^2}$——衣服一就是主角本人開根號。
 - **單位檢查**：$\dfrac{1}{\text{C}}\cdot\sqrt{\text{A}^2\text{s}}=\dfrac{\text{A}\sqrt{\text{s}}}{\text{A}\,\text{s}}=\dfrac{1}{\sqrt{\text{s}}}$ ✓（rad 無因次）；
@@ -137,8 +142,9 @@ $$
 ```python
 import numpy as np
 gamma_rms, qmax, Si, f0 = 0.5, 1e-12, 1e-24, 5e9
-kappa = gamma_rms / qmax * np.sqrt(0.5 * Si)        # [P2] Eq.(12)
+kappa = gamma_rms / qmax * np.sqrt(0.5 * Si)        # phase-domain kappa = sqrt([P2] Eq.(11) rate)
 print(round(kappa, 4))  # -> 0.3536
+print(f"{kappa/(2*np.pi*f0):.4e}")  # -> 1.1254e-11 sqrt(s)：kappa_t = kappa/omega_0 = [P2] Eq.(12) 印刷式
 print(f"{kappa/(2*np.pi*f0)*np.sqrt(1e-6)*1e15:.2f}")  # -> 11.25 fs（積分 1 µs）
 ```
 
@@ -222,12 +228,12 @@ $$
   **20.3 mHz**（圖 (b)），與 $\kappa^2/2\pi=19.9$ mHz 吻合。
 
 <NumericQuiz
-  prompt="先自己算：代表值 κ²=0.125 rad²/s 的 Lorentzian FWHM Δf₃dB = ？（以 mHz 作答）"
-  answer={19.9}
+  prompt="先自己算：若某振盪器 κ²=0.5 rad²/s（練習用數值，非本站代表值），Lorentzian FWHM Δf₃dB = ？（以 mHz 作答）"
+  answer={79.6}
   tol={0.02}
   unit="mHz"
-  hint="Δf₃dB = κ²/(2π)。"
-  solutionNote="Δf₃dB = 0.125/(2π) ≈ 19.9 mHz（真 LC 的 κ²=0.25 則給 39.8 mHz；與 lab_23 量測 20.0 mHz 吻合）。"
+  hint="公式與代表值 κ²=0.125 的例子相同：Δf₃dB = κ²/(2π)，只是換個 κ² 代入。"
+  solutionNote="Δf₃dB = 0.5/(2π) ≈ 79.6 mHz（Δf₃dB∝κ²，而 0.5/0.125=4，正好是代表值 19.9 mHz 的 4 倍）。"
 />
 - **外部交叉檢查**（標準結果）：白色**頻率**雜訊單邊 PSD 為 $S_\nu^0$（$\text{Hz}^2/\text{Hz}$）
   時，線寬 $\Delta f_{3\mathrm{dB}}=\pi S_\nu^0$。由衣服四將得 $S_\nu^0=\kappa^2/(2\pi^2)$，
@@ -344,8 +350,8 @@ $\kappa$ 類 ×$\sqrt2$）。
 | 衣服 | 用 $\kappa^2$ 寫 | 單位 | canonical 值 | 誰在講 | 出處 |
 |---|---|---|---|---|---|
 | 方差成長率（主角） | $\mathrm{Var}[\Delta\phi]=\kappa^2\vert t\vert$ | $\text{rad}^2/\text{s}$ | $0.125$ | 理論 | [P2] Eq.(11) p.793 |
-| ① $\kappa$（相位） | $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ | $\text{rad}/\sqrt{\text{s}}$ | $0.354$ | ring/jitter | [P2] Eq.(8) p.792, Eq.(12) p.793 |
-| ① $\kappa_t$（時間） | $\kappa_t=\kappa/(2\pi f_0)$ | $\sqrt{\text{s}}$ | $1.13\times10^{-11}$ | ring/jitter | [P2] Eq.(10) p.793 換算 |
+| ① $\kappa$（相位） | $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ | $\text{rad}/\sqrt{\text{s}}$ | $0.354$ | ring/jitter | [P2] Eq.(11) p.793 開根號 |
+| ① $\kappa_t$（時間） | $\kappa_t=\kappa/(2\pi f_0)$ | $\sqrt{\text{s}}$ | $1.13\times10^{-11}$ | ring/jitter | [P2] Eq.(12) p.793 印刷式（Eq.(8)＋Eq.(10) 換算） |
 | ② $D$（慣例甲） | $D_{\text{甲}}=\kappa^2$（$\mathrm{Var}=D\vert t\vert$） | $\text{rad}^2/\text{s}$ | $0.125$ | rate 慣例（v3 規範曾誤標此值為 $D$） | 對帳見衣服二 |
 | ② $D$（慣例乙） | $D_{\text{乙}}=\kappa^2/2$（$\mathrm{Var}=2D\vert t\vert$） | $\text{rad}^2/\text{s}$ | $0.0625$ | Demir/雷射；**本站規範 11.2（v5）** | [E2] Demir 2000 |
 | ③ 3-dB 線寬 | $\Delta f_{3\mathrm{dB}}=\kappa^2/(2\pi)$ | Hz | $19.9$ mHz | 雷射/頻譜 | 衣服三；[E2] |
@@ -473,7 +479,7 @@ print(round(k2,4), round(k2/(2*np.pi)*1e3,1), round(10*np.log10(k2/dw**2),1),
 
 - **[P2] Eq.(8), p.792**（$\sigma=\kappa\sqrt{\Delta t}$）、**Eq.(10), p.793**（phase jitter 定義）、
   **Eq.(11), p.793**（$\sigma_{\Delta\phi}^2=\Gamma_{rms}^2S_i\Delta T/(2q_{max}^2)$，主角本人，已核實）、
-  **Eq.(12), p.793**（$\kappa=(\Gamma_{rms}/q_{max})\sqrt{S_i/2}$，無 $\omega_0$，已核實）。
+  **Eq.(12), p.793**（印刷式 $\kappa_t=(\Gamma_{rms}/(q_{max}\omega_0))\sqrt{S_i/2}$，分母含 $\omega_0$、單位 $\sqrt{\text{s}}$，v11 重看 PDF 核實；本頁的 $\kappa=\omega_0\kappa_t$ 為相位版）。
 - **[P1] Eq.(11), p.182**（相位積分，第 0 步起點）、**Eq.(21), p.185**（衣服四的 SSB $/4$ 版）。
 - **外部文獻（非本站 5 篇 PDF）**：[E2] A. Demir, A. Mehrotra, J. Roychowdhury, IEEE TCAS-I,
   vol. 47, no. 5, pp. 655–674, May 2000（衣服二乙慣例與衣服三機制）；[E1] D. W. Allan,

@@ -215,6 +215,11 @@ flowchart LR
   compensated**. This is why many RX CDRs use ring instead of LC.
 - Conversely, a TX PLL often uses a narrow loop to filter out reference spurs, so VCO close-in noise
   appears directly at the output → LC is preferred.
+- For a more complete "which oscillator for which job" selection decision table (covering ADC/DAC
+  sampling clocks, RF synthesizers, low power, SoC-internal clocks, multiphase/wide tuning range,
+  instrumentation/radar reference chains, etc., each row labeled with "who filters the VCO" and the
+  ISF rationale), see [lc_vs_ring](/06_design_insights/lc_vs_ring), "Selection decision table: which
+  oscillator for which job."
 
 ## The spec's 10 required design questions — summary table (with cross-page links)
 
@@ -337,6 +342,93 @@ for f1 in (1e4, 1e6):
 > standard literature, e.g. dual-Dirac, OIF-CEI)**; Example 2's loop high-pass truncation is **standard
 > PLL theory (not in the five PDFs)**. The phase noise/jitter itself comes from [P1]/[P2].
 
+> **Example 3 (PAM4: 56/112 Gb/s — is RJ still enough once the UI shrinks to fs scale?)**
+> The first two examples used 10/25 Gb/s NRZ (1 bit/symbol). **PAM4** (4-level pulse-amplitude
+> modulation, 2 bit/symbol) turns the same bit rate into half the **baud rate (symbol rate)**:
+> $\text{bit rate}=2\times\text{baud}$. Here we run the same canonical VCO (example C,
+> $\sigma_t=447.9$ fs) and the same [clock_chain_budget](/06_design_insights/clock_chain_budget)
+> PLL output ($\sigma_t=27.6$ fs) through 56 Gb/s and 112 Gb/s PAM4, and see how much RJ margin is
+> left once the UI shrinks.
+
+**Step 1 (bit rate → baud rate → UI)**:
+
+$$
+\begin{aligned}
+56\ \text{Gb/s PAM4}:\quad &\text{baud}=56/2=28\ \text{GBd},\quad \text{UI}=1/(28\times10^9)=35.71\ \text{ps}, \\[4pt]
+112\ \text{Gb/s PAM4}:\quad &\text{baud}=112/2=56\ \text{GBd},\quad \text{UI}=1/(56\times10^9)=17.86\ \text{ps}.
+\end{aligned}
+$$
+
+- **Dimension check**: $[\text{Gb/s}]/[\text{bit/symbol}]=[\text{GBd}]$; $1/[\text{Hz}]=[\text{s}]$ ✓.
+- **Intuition**: PAM4's baud is half of an NRZ link at the same bit rate (56 Gb/s PAM4's 28 GBd
+  equals the baud of a 28 Gb/s NRZ link), but each UI now has to resolve 4 levels instead of 2 —
+  it is not simply "a bigger UI means an easier link." See the honesty box below.
+
+**Step 2 (how much of the UI does the canonical VCO's RJ eat)**: using Step 4's eye-closure formula
+$\text{RJ}_{pp}(\text{BER}=10^{-12})\approx2\,Q^{-1}(10^{-12})\,\sigma_t$, with $Q^{-1}(10^{-12})=7.034$
+(the same precision used in [final_exam](/04_simulation_labs/final_exam) problem 10):
+
+$$
+\begin{aligned}
+\text{bare VCO (}\sigma_t=447.9\ \text{fs)}:\quad
+\text{RJ}_{pp}&=2\times7.034\times447.9\ \text{fs}=6.301\ \text{ps} \\[2pt]
+&\Rightarrow\ 6.301/35.71=0.176\ \text{UI @28 GBd},\quad 6.301/17.86=0.353\ \text{UI @56 GBd}, \\[6pt]
+\text{PLL output (}\sigma_t=27.6\ \text{fs, from clock\_chain\_budget)}:\quad
+\text{RJ}_{pp}&=2\times7.034\times27.6\ \text{fs}=0.3883\ \text{ps} \\[2pt]
+&\Rightarrow\ 0.3883/35.71=0.011\ \text{UI @28 GBd},\quad 0.3883/17.86=0.022\ \text{UI @56 GBd}.
+\end{aligned}
+$$
+
+- **Result**: the bare VCO's RJ (no PLL filtering) already eats **17.6% of the UI** at 28 GBd, and
+  balloons to **35.3% of the UI** at 56 GBd — **unusable** for a PAM4 link that has only a few
+  percent of margin left over for DJ/ISI. The same oscillator, cleaned by the
+  [clock_chain_budget](/06_design_insights/clock_chain_budget) PLL to 27.6 fs, drops the RJ overhead
+  to 1.1%/2.2% UI — **close-in PLL/CDR filtering matters even more under PAM4's narrower UI** (the
+  same UI-percentage requirement bites harder because a PAM4 UI is only half that of NRZ at the
+  same bit rate).
+- **Adding DJ**: using Step 5's dual-Dirac TJ formula $\text{TJ}=\text{DJ}_{\delta\delta}+2Q^{-1}(\text{BER})\sigma_t$,
+  with $\text{DJ}_{\delta\delta}=1$ ps (the same value given in
+  [final_exam](/04_simulation_labs/final_exam) problem 10) stacked on the bare-VCO RJ:
+
+$$
+\text{TJ}=1\ \text{ps}+6.301\ \text{ps}=7.301\ \text{ps}=7.301/35.71=0.204\ \text{UI\ @28\ GBd}.
+$$
+
+- **One-line Python check**:
+
+```python
+import numpy as np
+from scipy.stats import norm
+
+baud_28, baud_56 = 28e9, 56e9
+ui_28, ui_56 = 1/baud_28, 1/baud_56
+print(ui_28*1e12, ui_56*1e12)                    # -> 35.71 17.86 (ps)
+
+Qinv = -norm.ppf(1e-12)                          # -> 7.034
+sigma_vco, sigma_pll, dj = 447.9e-15, 27.6e-15, 1e-12
+rj_vco = 2*Qinv*sigma_vco
+rj_pll = 2*Qinv*sigma_pll
+print(rj_vco*1e12, rj_vco/ui_28, rj_vco/ui_56)   # -> 6.301 0.176 0.353
+print(rj_pll*1e12, rj_pll/ui_28, rj_pll/ui_56)   # -> 0.388 0.011 0.022
+tj = dj + rj_vco
+print(tj*1e12, tj/ui_28)                         # -> 7.301 0.204
+
+# PAM4's three eyes split the same peak-to-peak swing into three segments, shrinking the effective level spacing to 1/3 of NRZ's:
+print(20*np.log10(3))                            # -> 9.54  (standard PAM4 amplitude penalty, external literature)
+```
+
+> ⚠️ **Honesty box (what this example deliberately leaves out)**: PAM4 slices one UI into **three
+> independent eyes** (three decision levels). This example only computes "how much RJ/DJ eats the
+> UI width," and does not touch (1) the **~9.5 dB amplitude penalty** (three eyes split the same
+> peak-to-peak swing into three segments, shrinking the effective level spacing to $1/3$ of NRZ's;
+> $20\log_{10}3=9.54$ dB, a standard PAM result, **external literature, not from the
+> site's five PDFs**); (2) data-pattern-dependent **transition jitter / DDJ** (different levels have
+> different settling behavior — PAM4-specific data-dependent jitter that the site's RJ/DJ dichotomy
+> does not cover). Industry (**external literature, not from the site's five PDFs**) specifies these
+> effects via OIF-CEI and IEEE 802.3ck **CDR filtering (jitter tolerance) templates**; this site does
+> not transcribe their numbers. This page's ISF/phase-noise chain answers only "how much UI does clock
+> RJ eat" — a full PAM4 eye budget must also stack the amplitude penalty and DDJ.
+
 ## Key takeaways
 
 - $\Delta t=\Delta\phi/(2\pi f_0)$; $\sigma_t=\frac{1}{2\pi f_0}\sqrt{\int_{f_1}^{f_2}S_\phi df}$ (1/f² is dominated by the lower integration limit).
@@ -345,6 +437,9 @@ for f1 in (1e4, 1e6):
 - RJ (Gaussian, from phase noise, governed by ISF) vs. DJ (bounded, ISI/crosstalk, invisible to ISF); TJ $=$ DJ$_{pp}+2Q\cdot$RJ$_{rms}$.
 - CDR/PLL is **high-pass** to VCO noise: close-in/accumulated jitter is suppressed → integration lower limit ≈ $f_{BW}$.
 - Practice: TX PLL favors LC-VCO (close-in matters); RX CDR often uses ring-VCO (close-in filtered by the loop).
+- PAM4 (28/56 GBd, UI=35.71/17.86 ps): bare-VCO RJ eats 0.176/0.353 UI (unusable at 56 GBd); the PLL
+  output (27.6 fs) shrinks that to 0.011/0.022 UI; adding 1 ps DJ → TJ=7.30 ps=0.204 UI @28 GBd
+  (amplitude penalty/DDJ not counted).
 
 ## Further reading
 

@@ -374,7 +374,7 @@ $$
 \frac{\Gamma(\theta)}{q_{max}}=\omega_0\,v_{1,y}(\theta),\qquad \theta=\omega_0 t\ (\text{自 }x\text{ 的上升零交越起算}).
 $$
 
-- **那個 $\omega_0$ 是單位換算，不是新物理**：$v_1$ 給的是「每單位 $\Delta q$ 換多少**秒**」（$\Delta\alpha$，s），乘 $\omega_0$ 才變「多少 **rad**」（$\Delta\phi=\omega_0\Delta\alpha$）。這正是本站在 [P2] Eq.(8), p.792（$\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$，相位 jitter）與 Eq.(12), p.793（$\kappa$ 表達式**不含** $\omega_0$）反覆強調的「時間域 vs 弧度域記帳」同一顆因子——在哪個域工作、何時乘 $\omega_0$，必須每次寫明。
+- **那個 $\omega_0$ 是單位換算，不是新物理**：$v_1$ 給的是「每單位 $\Delta q$ 換多少**秒**」（$\Delta\alpha$，s），乘 $\omega_0$ 才變「多少 **rad**」（$\Delta\phi=\omega_0\Delta\alpha$）。這正是本站在 [P2] Eq.(10)–(12), p.793（Eq.(11) 的相位方差 $\sigma_{\Delta\phi}^2$ 經 Eq.(10) $\sigma_{\Delta\phi}=\omega_0\sigma_{\Delta T}$ 換成印刷 Eq.(12) 的時間版 $\kappa_t$，分母**含** $\omega_0$；本站相位版 $\kappa=\omega_0\kappa_t$，v11 重核）反覆強調的「時間域 vs 弧度域記帳」同一顆因子——在哪個域工作、何時乘 $\omega_0$，必須每次寫明。
 - **單位檢查**：$[\omega_0 v_{1,y}]=(\text{rad/s})\times(\text{s}/[\Delta q])=\text{rad}/[\Delta q]$ ✓——正是 [P1] Eq.(10), p.182 中 $\Gamma/q_{max}$ 的單位（每單位電荷的相位）。
 
 **諧波極限的解析對照**（$\mu\to0$ 時該長什麼樣）：純諧波 $x=A\sin\theta$、$y=\dot x=\omega_0A\cos\theta$，相位可寫 $\theta=\operatorname{atan2}(u,v)$，$u=\omega_0x$、$v=y$。用 $\partial\,\mathrm{atan2}/\partial v=-u/(u^2+v^2)$ 與 $\partial\,\mathrm{atan2}/\partial u=+v/(u^2+v^2)$，其中 $u^2+v^2=\omega_0^2A^2$：

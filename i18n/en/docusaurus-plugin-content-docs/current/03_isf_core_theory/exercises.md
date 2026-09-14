@@ -9,7 +9,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # Core-Theory Chapter Exercises (with Full Solutions)
 
-> **Prerequisite reading**: this chapter's theory pages [isf_definition](/03_isf_core_theory/isf_definition), [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf), [rms_isf](/03_isf_core_theory/rms_isf), [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise), [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion), [effective_isf](/03_isf_core_theory/effective_isf) (finish them before attempting the problems).
+> **Prerequisite reading**: this chapter's theory pages [isf_definition](/03_isf_core_theory/isf_definition), [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf), [rms_isf](/03_isf_core_theory/rms_isf), [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise), [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion), [effective_isf](/03_isf_core_theory/effective_isf) (finish them before attempting the problems). | Next: [numerical_feeling](/04_simulation_labs/numerical_feeling) (learning-path step 7)
 
 This page is the complete exercise set for **Chapter 03, ISF Core Theory**. The problems span **derivations**, **numerical problems**, and **design back-calculations**,
 all built around the [P1] Hajimiri–Lee ISF framework, using the site-wide notation.

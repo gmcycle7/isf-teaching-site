@@ -7,7 +7,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # 設計章習題（含完整解答）
 
-> **先備**：[tank_swing](/06_design_insights/tank_swing)、[symmetry](/06_design_insights/symmetry)、[lc_vs_ring](/06_design_insights/lc_vs_ring)、[pll_noise_budget](/06_design_insights/pll_noise_budget)、[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)（本頁題目全部用這些頁的 ISF 公式作答）｜ **其他習題**：[02 基礎章習題](/02_foundations/exercises)、[03 核心理論章習題](/03_isf_core_theory/exercises)
+> **先備**：[tank_swing](/06_design_insights/tank_swing)、[symmetry](/06_design_insights/symmetry)、[lc_vs_ring](/06_design_insights/lc_vs_ring)、[pll_noise_budget](/06_design_insights/pll_noise_budget)、[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)（本頁題目全部用這些頁的 ISF 公式作答）｜ **其他習題**：[02 基礎章習題](/02_foundations/exercises)、[03 核心理論章習題](/03_isf_core_theory/exercises) ｜接下來：[final_exam](/04_simulation_labs/final_exam) → [math_identities](/99_appendix/math_identities)
 
 這頁是 **06 設計洞見章** 的成套習題，重點在**設計反推題**（給目標規格、反算旋鈕）與
 **比較/取捨題**（ring vs LC、loop BW 權衡、tail noise 對策），全部用 ISF 公式作答。

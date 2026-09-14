@@ -11,6 +11,11 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 > **Prerequisites**: [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end) (the site-wide spine, end to end) and the three chapter exercise sets — [02 Foundations](/02_foundations/exercises), [03 Core Theory](/03_isf_core_theory/exercises), [06 Design Insights](/06_design_insights/exercises) (finish those first) | **Next**: none — this is the last page. Get all 11 right and you graduate.
 
+> **Passing criteria**:
+> 1. Answer every question within the NumericQuiz tolerance — work it out yourself first, before opening the solution.
+> 2. For each question, be able to name which convention it uses (SSB $/4$ or time-domain $/2$) and whether it maps to [P1] Eq.(24) or [P2] Eq.(57).
+> 3. Be able to recite, in one breath, the formula and source page behind every link in the chain $15.9$ fs → $-148$ dBc/Hz → $19.9$ mHz → $447.9$ fs → $7.30$ ps.
+
 This is not yet another problem set. It is **an exam**: one design story, two warm-ups (0a/0b) plus 11 checkpoints,
 from the instant a single charge impulse hits the LC tank all the way to the eye opening of a
 SerDes link at BER $=10^{-12}$. Each question asks for exactly one "clean number", but every
@@ -501,7 +506,7 @@ Integration band 1–100 MHz. Find the rms jitter $\sigma_t$.
 $$
 \begin{aligned}
 S_\phi(1\,\text{MHz})&=2\times10^{-100/10}=2\times10^{-10}\ \text{rad}^2/\text{Hz}
-\quad(\mathcal{L}\approx\tfrac12 S_\phi\text{，小角 SSB 慣例，規範公式 16}),\\[2pt]
+\quad(\mathcal{L}\approx\tfrac12 S_\phi\text{, small-angle SSB convention, canonical formula 16}),\\[2pt]
 \sigma_\phi^2&=S_\phi(f_{ref})\,f_{ref}^2\left(\frac{1}{f_1}-\frac{1}{f_2}\right)
 =2\times10^{-10}\times(10^6)^2\times(10^{-6}-10^{-8})=1.98\times10^{-4}\ \text{rad}^2,\\[2pt]
 \sigma_\phi&=1.407\times10^{-2}\ \text{rad}=14.07\ \text{mrad},\\[2pt]
@@ -867,7 +872,7 @@ dominated by a single Gaussian):
 
 $$
 \mathrm{TJ}(\mathrm{BER})=\mathrm{DJ}_{\delta\delta}+2\,Q^{-1}(\mathrm{BER})\,\sigma,
-\qquad Q^{-1}(10^{-12})=7.034\ (\text{本站記 }7.03).
+\qquad Q^{-1}(10^{-12})=7.034\ (\text{this site uses }7.03).
 $$
 
 $$
@@ -875,7 +880,7 @@ $$
 $$
 
 $$
-\text{eye 開度}=UI-\mathrm{TJ}=40-7.30=32.7\ \text{ps}=0.82\ UI.
+\text{eye opening}=UI-\mathrm{TJ}=40-7.30=32.7\ \text{ps}=0.82\ UI.
 $$
 
 **Result**: TJ@$10^{-12}=7.30$ ps, eye opening $32.7$ ps ($0.82\,UI$) — the RJ term 6.30 ps

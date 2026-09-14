@@ -1,6 +1,6 @@
 ---
 title: 互動計算器 Interactive Calculator
-description: 拉動滑桿即時看 q_max、Γrms、S_i、f0 如何改變 phase noise L 與 rms jitter。
+description: 七個互動工具（phase noise/jitter 計算器、ISF 傅立葉係數探索器、SerDes BER bathtub、injection locking 探索器、Allan deviation、PLL loop bandwidth、ISF 波形 sandbox）——拉滑桿即時感受 ISF 理論如何變成數字。
 ---
 
 import PhaseNoiseCalculator from '@site/src/components/PhaseNoiseCalculator';
@@ -36,12 +36,18 @@ $\sigma_t$（fs）怎麼隨設計參數變化。背後就是 [P1] Eq.(21) 與 1/
 **1/f³ corner 比值 $c_0^2/(2\Gamma_{rms}^2)$**（[P1] Eq.24）。把 $c_0$ 拉到 0（對稱波形）會看到
 corner 趨近 0——這就是 close-in flicker 被抑制的機制。
 
+- **理論**：[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)、[rms_isf](/03_isf_core_theory/rms_isf)；**驗證**：[lab_05](/04_simulation_labs/lab_05_isf_fourier_coefficients)。
+- **限制**：滑桿只到 $c_3$（`IsfFourierExplorer.js`），比全站 lab_05 用到 $n_{harmonics}=8$ 少很多諧波；$\Gamma_{rms}$ 與 Parseval 顯示的是截斷級數 $\sum_{n=0}^{3}c_n^2$ 對 $2\Gamma_{rms}^2$ 的逼近，不是無窮級數的精確值。
+
 <IsfFourierExplorer />
 
 ## 工具 3：SerDes BER bathtub 探索器
 
 把 oscillator phase noise 積分得到的 rms jitter $\sigma_t$、與 UI（鮑率倒數）一起，看 **eye 開口**
 與 **BER bathtub**。$\sigma_t$ 變大或 UI 變小，eye 在 BER $=10^{-12}$ 的開口就變窄。
+
+- **模型**：純高斯 random jitter (RJ)，**不含** deterministic jitter (DJ)（`SerdesBerExplorer.js`；DJ／dual-Dirac 模型見 [dj_dual_dirac](/06_design_insights/dj_dual_dirac)）。
+- **理論**：[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)；**驗證**：[lab_12](/04_simulation_labs/lab_12_serdes_eye_ber)。
 
 <SerdesBerExplorer />
 
@@ -53,13 +59,16 @@ $\omega_L=\tfrac12\,I_{inj}\,\vert\tilde\Gamma_1\vert$（[P3] Eq.(35)）與相�
 （Adler 方程，外部文獻，非本站 5 篇 PDF）。當 $\vert\Delta\omega\vert\le\omega_L$ 時 $\Omega(\theta)=\omega_L\sin\theta$ 與 $\Delta\omega$ 水平線有交點、系統鎖定在固定點 $\theta^*$；
 一旦失諧超出包絡就解鎖，殘餘拍頻 $\Omega_{beat}=\sqrt{\Delta\omega^2-\omega_L^2}$。
 
+- **理論**：[P3]、[injection_locking_noise](/06_design_insights/injection_locking_noise)；**暫態與 cycle slip**：[lab_36](/04_simulation_labs/lab_36_lock_acquisition)。
+- **限制**：正弦注入、ideal-LC 的基頻歸一化 ISF $\tilde\Gamma_1$、弱注入（weak injection，Adler 方程的小信號假設）——強注入、非正弦波形或高階諧波耦合不在這個工具的模型內。
+
 <InjectionLockingExplorer />
 
 ## 工具 5：Allan deviation 探索器
 
 **Allan deviation**（亞倫偏差，量時域長期頻率穩定度的兩樣本標準差）$\sigma_y(\tau)$ 把同一顆振盪器的雜訊翻成隨平均時間 $\tau$ 的曲線：
 選主導 FM 雜訊類型（white／flicker／random-walk FM）與強度，即時看 log-log 斜率落在 $\tau^{-1/2}$、$\tau^{0}$、$\tau^{+1/2}$ 三段。
-背後是 $\sigma_y^2(\tau)=2\int_0^\infty S_y(f)\,\sin^4(\pi f\tau)/(\pi f\tau)^2\,df$（其中 $S_y(f)=(f^2/f_0^2)\,S_\phi(f)$）對純冪律過程的精確閉式，對應 [規範 11.2 斜率表](/02_foundations/allan_variance) 與 lab_19。
+背後是 $\sigma_y^2(\tau)=2\int_0^\infty S_y(f)\,\sin^4(\pi f\tau)/(\pi f\tau)^2\,df$（其中 $S_y(f)=(f^2/f_0^2)\,S_\phi(f)$）對純冪律過程的精確閉式，對應 [規範 11.2 斜率表](/02_foundations/allan_variance)；模擬腳本 `simulations/lab_19_allan.py`（圖在 allan_variance）。
 
 <AllanDeviationExplorer />
 
@@ -67,7 +76,7 @@ $\omega_L=\tfrac12\,I_{inj}\,\vert\tilde\Gamma_1\vert$（[P3] Eq.(35)）與相�
 
 **PLL**（phase-locked loop，鎖相迴路）的 **loop bandwidth**（迴路頻寬，迴路能追蹤輸入相位的截止頻率）$f_n$ 決定雜訊預算：
 loop 把 reference 路徑低通、把 VCO 路徑高通，輸出 $S_{out}=S_{ref}\vert H_{lp}\vert^2+S_{vco}\vert H_{hp}\vert^2$（規範 10.2）。
-加大 $f_n$ 多收 in-band 參考雜訊、少收 out-of-band VCO 雜訊，故存在使積分 jitter $\sigma_t=\sqrt{\int S_{out}\,df}/(2\pi f_0)$（規範公式 19）最小的**最佳 loop BW**——拉滑桿即可找到它，對應 [pll_noise_budget](/06_design_insights/pll_noise_budget) 與 lab_20。
+加大 $f_n$ 多收 in-band 參考雜訊、少收 out-of-band VCO 雜訊，故存在使積分 jitter $\sigma_t=\sqrt{\int S_{out}\,df}/(2\pi f_0)$（規範公式 19）最小的**最佳 loop BW**——拉滑桿即可找到它，對應 [pll_noise_budget](/06_design_insights/pll_noise_budget)；模擬腳本 `simulations/lab_20_pll_budget.py`（圖在 pll_noise_budget）。
 
 <PllLoopBwExplorer />
 

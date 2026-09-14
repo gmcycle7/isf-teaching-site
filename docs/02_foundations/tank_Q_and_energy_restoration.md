@@ -5,6 +5,8 @@ description: 從並聯 RLC tank 乾淨推出品質因數 Q——三種等價寫�
 
 # Tank Q 與能量恢復
 
+> 先備：[oscillator_phase](/02_foundations/oscillator_phase) ｜ 接下來：[tank_swing](/06_design_insights/tank_swing)
+
 「品質因數 $Q$（quality factor，諧振有多『尖』、每週期能量被耗掉多少的指標）」這個量幾乎在本站每一頁都出現：Leeson 模型寫成 $\dfrac{1}{2Q}$（[derivation_leeson](/99_appendix/derivation_leeson)）、LC vs ring 的比較靠它（[lc_vs_ring](/06_design_insights/lc_vs_ring)）、tank swing 的取捨也要它（[tank_swing](/06_design_insights/tank_swing)）。可是它在那些頁裡**都被當成已知量直接用，從來沒有從電路被乾淨推出來過**。這一頁就把這個洞補上：從最基本的並聯 RLC tank 出發，把 $Q$ 的三種等價寫法與能量定義一步步推出來，再說明它如何接到 active core 的 $-R$、tank 熱雜訊 $4kT/R_p$，以及最後如何決定 phase noise。
 
 > **物理直覺（先講結論）**：tank（諧振槽，$L$ 與 $C$ 來回交換能量的儲能元件）就像一個鐘擺。$Q$ 衡量「這個鐘擺有多不願意停下來」——它每振盪一個 radian，相對於儲存的能量只漏掉一小撮給損耗電阻 $R_p$。$Q$ 越高，諧振峰越尖、頻寬越窄、相位對頻率的斜率越陡。把 noise 想成想把振盪頻率推歪的力：$Q$ 越高，tank 越「咬死」在 $\omega_0$、越不肯被推歪，於是同一坨 noise 換來的 phase noise 越小。這就是為什麼低 phase noise 設計的第一句口號永遠是「把 $Q$ 做高」。

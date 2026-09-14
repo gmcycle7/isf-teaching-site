@@ -5,13 +5,13 @@ description: 5 篇 PDF 完整引用 [P1]-[P5]，加外部補充文獻（Leeson 1
 
 # 參考文獻 References
 
-> **See also**：[glossary](/99_appendix/glossary)（術語直覺）、[equation_index](/01_paper_map/equation_index)（公式↔頁碼索引）、外部文獻用在 [derivation_leeson](/99_appendix/derivation_leeson)（[E1]）與 [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv)（[E2]、[E3]）
+> **See also**：[glossary](/99_appendix/glossary)（術語直覺）、[equation_index](/01_paper_map/equation_index)（公式↔頁碼索引）、外部文獻用在 [derivation_leeson](/99_appendix/derivation_leeson)（[E1]）、[derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv)（[E2]、[E3]）與 [ltv_htm](/99_appendix/ltv_htm)（[E5]）
 
 本站所有公式與結論都標了來源。這頁集中列出：**(A)** 下載資料夾裡的 5 篇 PDF（站內引用代號
 `[P1]`–`[P5]`，引用字串逐字採自作者規範第 1 節），**(B)** 教學上會提到、但**不在下載資料夾**的
 外部補充文獻，以及 **(C)** 引用慣例與需要人工核對的 TODO 清單。
 
-> **誠實原則**：[P1]–[P4] 的公式皆已對照原始 PDF 渲染**逐字核實**；外部文獻 [E1]–[E4]（標 **不在
+> **誠實原則**：[P1]–[P4] 的公式皆已對照原始 PDF 渲染**逐字核實**；外部文獻 [E1]–[E5]（標 **不在
 > 下載的 5 篇 PDF 內**）的卷期/頁碼/DOI 已用網路查證，但其論文內部公式只作背景。[P5] 與 ISF 無關。
 
 ---
@@ -45,7 +45,7 @@ IEEE J. Solid-State Circuits, vol. 34, no. 6, pp. 790–804, Jun. 1999.
   幾乎與級數 $N$ 無關」的結論。
 - **本站用到**：[lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model)、
   [lc_vs_ring](/06_design_insights/lc_vs_ring)、[symmetry](/06_design_insights/symmetry)。
-- **關鍵式（已核實）**：Eq.(8) $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ p.792、Eq.(12) $\kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ p.793、
+- **關鍵式（已核實）**：Eq.(8) $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ p.792、Eq.(12) $\kappa=\frac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ p.793（時間版、分母含 $\omega_0$，v11 重核）、
   Eq.(15) $f_0=1/(2N\tau_D)$（Eq.(14) 為正規化級延遲 $\hat t_D$）、
   Eq.(16) $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}$ p.794
   （v7 已重核：根號只蓋常數，$\Gamma_{rms}\propto N^{-3/2}$；正文 $4/N^{1.5}$@$\eta=0.75$ 與 App.B Eq.(55) 三重驗證，
@@ -160,7 +160,7 @@ pp. 291–299, Mar. 1950. **DOI: 10.1109/JRPROC.1950.231083**。
 
 1. **站內引用格式**：行內用 `[P1] Eq.(21), p.185` 這種寫法；每個來自論文的定義／公式／結論／figure
    都標來源（見作者規範第 1 節）。
-2. **代號**：核心 5 篇用 `[P1]`–`[P5]`（對應 `paper_001`–`paper_005`）；外部補充用 `[E1]`–`[E3]`，
+2. **代號**：核心 5 篇用 `[P1]`–`[P5]`（對應 `paper_001`–`paper_005`）；外部補充用 `[E1]`–`[E5]`，
    且一律附「**不在下載的 5 篇 PDF 內**」字樣。
 3. **LaTeX 來源**：[P1] 的公式 LaTeX 已對照 PDF 渲染頁確認（`manual_verification_needed=false`）；
    [P2]–[P4] 的部分常數／形式標 ⚠️，見下方 TODO。

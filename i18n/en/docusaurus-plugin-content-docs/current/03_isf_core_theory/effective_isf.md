@@ -4,12 +4,13 @@ description: From cyclostationary device noise to the effective ISF Γ_eff(x)=Γ
 ---
 
 import EffectiveIsfExplorer from "@site/src/components/EffectiveIsfExplorer";
+import NumericQuiz from "@site/src/components/NumericQuiz";
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
 # Effective ISF and cyclostationary noise
 
-> **Prerequisites**: [isf_definition](/03_isf_core_theory/isf_definition) (definition of $\Gamma$), [rms_isf](/03_isf_core_theory/rms_isf) ($\Gamma_{rms}$ and $\sum c_n^2$), [stochastic_noise_basics](/02_foundations/stochastic_noise_basics) (stationary vs cyclostationary noise).
+> Prerequisites: [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion) | Next: [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)
 
 So far we have assumed the noise sources are **stationary** — their statistics (e.g., mean-square power)
 do not change with time. Resistor thermal noise is like that. But the dominant noise sources in an
@@ -34,6 +35,59 @@ $\alpha$, and $\Gamma_{eff}=\Gamma\cdot\alpha$ overlaid live, along with $\Gamma
 $c_0^{eff}$, and the phase-noise change relative to the stationary case.
 
 <EffectiveIsfExplorer />
+
+<NumericQuiz
+  prompt="Keeping the explorer at its default settings (center phase θc = 90°, width 50%, floor = 0 — the 'bad' case at the ISF zero crossing / most-sensitive phase), what Γ_eff,rms does the panel read out?"
+  answer={0.395}
+  tol={0.02}
+  hint="θc=90° puts the window center at the zero crossing of Γ=−sin x (|Γ|=1, most sensitive phase); width 50% means the window spans half a period (widthFrac=0.5)."
+  solutionNote="Γ_eff,rms≈0.395, about 56% of the stationary Γ_rms=0.707. Only dragging θc to 0° (the waveform peak, Γ≈0, Colpitts-like) collapses it to ≈0.18 — the 'Colpitts aha' point above."
+/>
+
+<details>
+<summary><strong>Verification: reproducing the panel's Γ_eff,rms</strong> (mirrors EffectiveIsfExplorer.js's gammaLc / alphaWindow / trapzRms)</summary>
+
+```python
+import numpy as np
+
+TWO_PI = 2 * np.pi
+N = 361  # EffectiveIsfExplorer.js sample count
+
+def wrap_pi(d):
+    return np.arctan2(np.sin(d), np.cos(d))
+
+def gamma_lc(x):
+    return -np.sin(x)                                   # .js gammaLc()
+
+def alpha_window(x, center_rad, width_frac, floor):     # .js alphaWindow(), same formula
+    width = width_frac * TWO_PI
+    d = wrap_pi(x - center_rad)
+    clipped = np.clip(d / (width / 2), -1, 1)
+    raised = 0.5 * (1 + np.cos(np.pi * clipped))
+    return floor + (1 - floor) * raised
+
+def trapz_rms(xs, ys):                                   # .js trapzRms()
+    s = 0.0
+    for i in range(len(xs) - 1):
+        s += 0.5 * (ys[i]**2 + ys[i+1]**2) * (xs[i+1] - xs[i])
+    return np.sqrt(s / TWO_PI)
+
+xs = np.array([TWO_PI * i / (N - 1) for i in range(N)])
+
+# widget defaults: centerDeg=90, widthPct=50, floor=0 (EffectiveIsfExplorer.js:122-124)
+center_rad = 90.0 * np.pi / 180
+width_frac = 50.0 / 100
+floor = 0.0
+
+gamma = gamma_lc(xs)
+alpha = alpha_window(xs, center_rad, width_frac, floor)
+gamma_eff = gamma * alpha
+
+grms_eff = trapz_rms(xs, gamma_eff)
+print("Gamma_eff,rms =", round(grms_eff, 3))              # -> 0.395
+```
+
+</details>
 
 > **Physical intuition (conclusion first)**: two "time windows" open and close simultaneously in an oscillator:
 > (1) the **ISF $\Gamma(x)$** — how sensitive the oscillator is to noise right now (where the waveform is easy to kick);
@@ -299,11 +353,14 @@ comes from the broader nonlinear-oscillator/perturbation-theory literature
 ## Worked examples
 
 Format per convention Sec. 10.4: problem → step-by-step substitution (with units) → result → dimension check → one-line Python verification.
-**All $\alpha$ duty cycles and phases are illustrative toy numbers (not transistor-level extractions).**
+**All $\alpha$ duty cycles and phases are illustrative toy numbers (not transistor-level extractions). Site convention**:
+the worked examples below write the scalar duty cycle as $d_{on}$ (e.g. $d_{on}=0.1$ means a 10% on-fraction),
+kept distinct from the NMF function itself $\alpha(x)$, so a single page never has $\alpha$ meaning both a scalar
+and a function — $\alpha(x)$ hereafter refers only to the NMF window function.
 
-### Worked example 1: $\Gamma_{eff,rms}$ of a square-wave gating NMF (duty $\alpha$)
+### Worked example 1: $\Gamma_{eff,rms}$ of a square-wave gating NMF (duty $d_{on}$)
 
-> **Toy problem**: ideal LC with $\Gamma(x)=-\sin x$. The device conducts only in a narrow window of duty $\alpha=0.1$ ($10\%$ of the period) centered on the zero crossing ($x=\pi/2$, where $|\Gamma|=1$, the most sensitive point), and leaks no noise the rest of the time. Use a square-wave NMF $\alpha(x)\in\{0,1\}$ (peak already normalized to 1). Find $\Gamma_{eff,rms}$.
+> **Toy problem**: ideal LC with $\Gamma(x)=-\sin x$. The device conducts only in a narrow window of duty $d_{on}=0.1$ ($10\%$ of the period) centered on the zero crossing ($x=\pi/2$, where $|\Gamma|=1$, the most sensitive point), and leaks no noise the rest of the time. Use a square-wave NMF $\alpha(x)\in\{0,1\}$ (peak already normalized to 1). Find $\Gamma_{eff,rms}$.
 
 **Step-by-step substitution**: under square-wave gating, $\Gamma_{eff}=\Gamma\cdot\alpha$ equals $\Gamma$ inside the narrow window and 0 elsewhere. Since the window is narrow and centered where $|\Gamma|\approx1$, $\Gamma^2\approx1$ inside the window, so
 
@@ -333,7 +390,7 @@ print(gamma_rms(x, g_eff))                       # -> ~0.31
 
 ### Worked example 2: phase alignment decides everything (Colpitts vs ring toy) + relative PN change
 
-> **Toy problem**: same square-wave gating with duty $\alpha=0.1$, but compare two alignments:
+> **Toy problem**: same square-wave gating with duty $d_{on}=0.1$, but compare two alignments:
 > (a) **ring-like**: window centered at $x=\pi/2$ ($|\Gamma|$ maximal); (b) **Colpitts-like**: window centered at $x=0$ (waveform peak, $\Gamma\approx0$).
 > Find each $\Gamma_{eff,rms}$, and via [P1] Eq.(21) the phase-noise change (dB) relative to the ungated stationary case ($\Gamma_{rms}=0.707$).
 
@@ -389,7 +446,7 @@ $\Gamma_{eff}=\Gamma\alpha$ and see how they open/alter the close-in $1/f^3$.
 > differential pair **conduct alternately** —
 > the left device in the positive half-cycle, the right device in the negative half-cycle. Seen from a
 > **single device's noise**, its $\alpha$ is a narrow once-per-period
-> pulse (duty $\alpha=0.1$); but treating the **pair as a whole** (both devices' noise counted) as one
+> pulse (duty $d_{on}=0.1$); but treating the **pair as a whole** (both devices' noise counted) as one
 > equivalent source injecting into the tank, conduction events
 > occur **twice per period** (one narrow gate each at $x=\pi/2$ and $x=3\pi/2$), so the equivalent NMF is a **2-per-period gate**
 > $\alpha(x)$: a window of half-width $0.1\pi$ and height 1 at each of $x=\pi/2,\,3\pi/2$, and 0 elsewhere.

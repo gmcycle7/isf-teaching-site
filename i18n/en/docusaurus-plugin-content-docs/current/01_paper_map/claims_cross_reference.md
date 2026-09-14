@@ -7,6 +7,8 @@ description: Source paper, confidence, manual-verification status, and page usag
 
 # Claims Cross-Reference
 
+> Next: [oscillator_phase](/02_foundations/oscillator_phase) (learning-path step 1 — a good place to start reading in order)
+
 Every key teaching claim on this site is numbered **C1–C13**, each annotated with: which paper it comes from, how high the confidence is,
 whether it needs manual comparison against the PDF (`Verify?`), and **which pages** use it. Data comes from
 `extracted/extracted_claims.json`.

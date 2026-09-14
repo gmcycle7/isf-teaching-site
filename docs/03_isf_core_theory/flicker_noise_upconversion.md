@@ -5,7 +5,7 @@ description: 為何 device 1/f 雜訊被 ISF 的 DC 項 c₀ 上轉成 close-in 
 
 # Flicker noise 上轉成 1/f³ phase noise
 
-> **前置閱讀**：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)（白噪 → $1/f^2$ 的同一機制）、[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)（DC 項 $c_0$ 的角色）、[rms_isf](/03_isf_core_theory/rms_isf)（$c_0$ 與 $\Gamma_{rms}$ 比值定 corner）。
+> 先備：[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) ｜ 接下來：[effective_isf](/03_isf_core_theory/effective_isf)
 >
 > **動手驗證**：本頁「對稱 vs 非對稱波形決定 close-in $1/f^3$」的模擬見 [lab_07](/04_simulation_labs/lab_07_flicker_noise_upconversion)。
 
@@ -200,14 +200,19 @@ DC 值就是 ISF 在一個週期上的**平均**。[P1] 在設計章節（p.187�
 
 ![對稱 vs 不對稱波形的 flicker 上轉（1/f³ 裙邊高度差異）](/figures/flicker_upconversion_symmetric_vs_asymmetric.png)
 
-**限制（要誠實講）**——[P2] 也指出（Sec. VII Design Implications, p.798 原文）：
+**限制（要誠實講）**——[P2] 在 Sec. VII Design Implications（p.798 原文）指出以下三點；其中「更線性
+負載」一項，[P1]（Sec. IV, p.189）也獨立提出，兩篇論文互相印證，見下方說明：
 
 - **differential 對稱不一定夠**：[P2] 明言「differential symmetry is insufficient」；要的是
   **每個半週期內** rise/fall 的對稱，而不只是兩支差動之間的對稱。
 - **tail / bias 源是大破口**：tail current source 的 ISF 常有**大 DC 值**，會把 tail 的 flicker
   強烈上轉，常常主導 close-in 雜訊。對稱化主訊號路徑沒用，要另外處理 tail。
-- **更線性的負載有幫助**：[P2] 建議用較線性的負載（如電阻或長通道元件）使波形更對稱，
-  進一步壓 corner。
+- **更線性的負載有幫助**：[P2] 原文（p.798）即以自己的話指出，用更線性的負載（如電阻或線性化
+  MOS 元件）可降低 1/f 雜訊上轉及基板／電源耦合（引 [20] Maneatis & Horowitz 1993）；[P1]
+  （Sec. IV, p.189）則明確溯源至 supply-noise-rejection 脈絡下已知的先例 [15] Maneatis 1993、
+  [16] Yang/Farjad-Rad/Horowitz 1997（較線性的負載可降低 supply noise 對 timing jitter 的影響），
+  並在此基礎上新增一點：同一措施也能讓波形更對稱、同時壓低低頻雜訊上轉為 phase noise 的 corner。
+  換言之，這是兩篇論文各自獨立得出、又互相呼應的設計建議，並非只出自其中一篇。
 - 即便如此，對稱只壓 **flicker（$1/f^3$）**；它**不改變白噪 $1/f^2$ 那段**（那段由 $\Gamma_{rms}$ 決定，
   不是 $c_0$）。別期待對稱能救整條曲線。
 
@@ -243,7 +248,9 @@ $$
 $1/f^3$、不對稱者出現明顯 $-30$ dB/decade 裙邊。$c_0$ 的視覺化見 lab_05 的
 `symmetric_vs_asymmetric_isf_c0.png`（上方表格）。
 
-核心 Python（完整 script：`simulations/lab_07_flicker_noise.py`）：
+核心 Python（完整 script：`simulations/lab_07_flicker_noise.py`；**本站慣例**：下面 `gamma_asymmetric` 的
+`alpha` 參數是 toy ISF $\Gamma=\cos\theta+\alpha$ 的 DC 偏移（$c_0=2\alpha$），與 [P1] 的 NMF
+$\alpha(\omega_0t)$ 無關）：
 
 ```python
 import numpy as np

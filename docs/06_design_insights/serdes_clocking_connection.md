@@ -180,6 +180,9 @@ flowchart LR
 - **核心取捨**：ring 的弱點（close-in 1/f³、快 random walk）正好落在 loop 的 high-pass 阻帶——
   **如果 loop bandwidth 夠寬，ring-VCO 的 close-in 缺點被大量補償**。這就是為什麼許多 RX CDR 用 ring 而不用 LC。
 - 反之 TX PLL 為了濾掉 reference 的 spur 常用窄 loop，VCO close-in 直接出現在輸出 → 偏好 LC。
+- 更完整的「哪種振盪器給哪種工作」選型決策表（含 ADC/DAC 取樣時鐘、RF 合成器、低功耗、SoC
+  內部時鐘、多相位/寬調範圍、儀器/雷達參考鏈等場景，逐列標「誰濾 VCO」與 ISF 理由）見
+  [lc_vs_ring](/06_design_insights/lc_vs_ring)「選型決策表：哪種振盪器給哪種工作」。
 
 ## 規範要求的 10 個 design 問題 — 總表（含跨頁連結）
 
@@ -293,6 +296,85 @@ for f1 in (1e4, 1e6):
 > 例 1 的 BER/Q 模型是 **標準 SerDes 知識（不在 5 篇 PDF 內，以標準文獻補充，如 dual-Dirac、OIF-CEI）**；
 > 例 2 的 loop high-pass 截斷是 **標準 PLL 理論（不在 5 篇 PDF 內）**。phase noise/jitter 本身來自 [P1]/[P2]。
 
+> **例 3（PAM4：56/112 Gb/s，UI 縮到 fs 等級後 RJ 還夠不夠）**
+> 前兩例的資料率是 10/25 Gb/s NRZ（每 symbol 1 bit）。**PAM4**（4 階脈波振幅調制，每 symbol
+> 2 bit）把同樣的 bit rate 換成一半的 **baud rate（symbol rate）**：$\text{bit rate}=2\times\text{baud}$。
+> 這頁把同一顆 canonical VCO（例 C，$\sigma_t=447.9$ fs）與同一條 [clock_chain_budget](/06_design_insights/clock_chain_budget)
+> 的 PLL 輸出（$\sigma_t=27.6$ fs）套進 56 Gb/s 與 112 Gb/s PAM4，看 UI 縮小後 RJ 還剩多少餘裕。
+
+**步驟 1（bit rate → baud rate → UI）**：
+
+$$
+\begin{aligned}
+56\ \text{Gb/s PAM4}:\quad &\text{baud}=56/2=28\ \text{GBd},\quad \text{UI}=1/(28\times10^9)=35.71\ \text{ps}, \\[4pt]
+112\ \text{Gb/s PAM4}:\quad &\text{baud}=112/2=56\ \text{GBd},\quad \text{UI}=1/(56\times10^9)=17.86\ \text{ps}.
+\end{aligned}
+$$
+
+- **Dimension check**：$[\text{Gb/s}]/[\text{bit/symbol}]=[\text{GBd}]$；$1/[\text{Hz}]=[\text{s}]$ ✓。
+- **手感**：PAM4 的 baud 是同 bit-rate NRZ 的一半（56 Gb/s PAM4 的 28 GBd＝28 Gb/s NRZ 的 baud），
+  但每個 UI 要立體地分辨 4 個電平，不是單純「UI 變大就變輕鬆」——見下面的誠實框。
+
+**步驟 2（canonical VCO 的 RJ 直接吃掉多少 UI）**：用第 4 步的眼閉公式
+$\text{RJ}_{pp}(\text{BER}=10^{-12})\approx2\,Q^{-1}(10^{-12})\,\sigma_t$，$Q^{-1}(10^{-12})=7.034$
+（同 [final_exam](/04_simulation_labs/final_exam) 題 10 的慣例值）：
+
+$$
+\begin{aligned}
+\text{裸 VCO（}\sigma_t=447.9\ \text{fs）}:\quad
+\text{RJ}_{pp}&=2\times7.034\times447.9\ \text{fs}=6.301\ \text{ps} \\[2pt]
+&\Rightarrow\ 6.301/35.71=0.176\ \text{UI @28 GBd},\quad 6.301/17.86=0.353\ \text{UI @56 GBd}, \\[6pt]
+\text{PLL 輸出（}\sigma_t=27.6\ \text{fs，clock\_chain\_budget）}:\quad
+\text{RJ}_{pp}&=2\times7.034\times27.6\ \text{fs}=0.3883\ \text{ps} \\[2pt]
+&\Rightarrow\ 0.3883/35.71=0.011\ \text{UI @28 GBd},\quad 0.3883/17.86=0.022\ \text{UI @56 GBd}.
+\end{aligned}
+$$
+
+- **結果**：裸 VCO（無 PLL 濾波）的 RJ 在 28 GBd 就吃掉 **17.6% 的 UI**，到 56 GBd 更暴增到
+  **35.3% 的 UI**——對只留幾個 % margin 給 DJ/ISI 的 PAM4 鏈路是**不可用**（unusable）的量級。
+  同一顆振盪器經過 [clock_chain_budget](/06_design_insights/clock_chain_budget) 的 PLL 清理到
+  27.6 fs 後，RJ 開銷降到 1.1%／2.2% UI——**PLL/CDR 的 close-in 濾波，在 PAM4 的窄 UI 下比
+  NRZ 更關鍵**（同一個 UI 佔比要求，PAM4 的 UI 只有同 bit-rate NRZ 的一半）。
+- **加入 DJ**：用第 5 步的 dual-Dirac TJ 公式 $\text{TJ}=\text{DJ}_{\delta\delta}+2Q^{-1}(\text{BER})\sigma_t$，
+  取 $\text{DJ}_{\delta\delta}=1$ ps（同 [final_exam](/04_simulation_labs/final_exam) 題 10 給定值）疊上裸 VCO 的 RJ：
+
+$$
+\text{TJ}=1\ \text{ps}+6.301\ \text{ps}=7.301\ \text{ps}=7.301/35.71=0.204\ \text{UI\ @28\ GBd}.
+$$
+
+- **一行 Python 驗證**：
+
+```python
+import numpy as np
+from scipy.stats import norm
+
+baud_28, baud_56 = 28e9, 56e9
+ui_28, ui_56 = 1/baud_28, 1/baud_56
+print(ui_28*1e12, ui_56*1e12)                    # -> 35.71 17.86 (ps)
+
+Qinv = -norm.ppf(1e-12)                          # -> 7.034
+sigma_vco, sigma_pll, dj = 447.9e-15, 27.6e-15, 1e-12
+rj_vco = 2*Qinv*sigma_vco
+rj_pll = 2*Qinv*sigma_pll
+print(rj_vco*1e12, rj_vco/ui_28, rj_vco/ui_56)   # -> 6.301 0.176 0.353
+print(rj_pll*1e12, rj_pll/ui_28, rj_pll/ui_56)   # -> 0.388 0.011 0.022
+tj = dj + rj_vco
+print(tj*1e12, tj/ui_28)                         # -> 7.301 0.204
+
+# PAM4 三眼把同樣 peak-to-peak swing 分成三段，等效電平間距縮到 NRZ 的 1/3：
+print(20*np.log10(3))                            # -> 9.54  (標準 PAM4 振幅懲罰，外部文獻)
+```
+
+> ⚠️ **誠實框（本例刻意不展開的東西）**：PAM4 把一個 UI 切成**三個獨立的眼**（3 個判決電平），
+> 本例只算了「RJ/DJ 吃掉多少 UI 寬度」，完全沒有處理 (1) **~9.5 dB 的振幅懲罰**
+> （三眼把同樣 peak-to-peak swing 分成三段，等效電平間距縮到 NRZ 的 $1/3$，
+> $20\log_{10}3=9.54$ dB，標準 PAM 結果，**外部文獻，非本站 5 篇 PDF**）；
+> (2) 與資料圖樣相關的 **transition jitter / DDJ**（不同電平轉態的建立時間不同，是 PAM4 特有
+> 的 data-dependent jitter，本站的 RJ/DJ 二分法未涵蓋）。業界（**外部文獻，非本站 5 篇 PDF**）
+> 用 OIF-CEI、IEEE 802.3ck 的 **CDR 濾波（jitter tolerance）模板**規範這些效應，本站不轉錄其數值。
+> 本頁的 ISF/phase-noise 鏈條只回答「clock RJ 吃掉多少 UI」這一項，PAM4 的完整眼圖預算
+> 還要疊上振幅懲罰與 DDJ。
+
 ## 重點回顧
 
 - $\Delta t=\Delta\phi/(2\pi f_0)$；$\sigma_t=\frac{1}{2\pi f_0}\sqrt{\int_{f_1}^{f_2}S_\phi df}$（1/f² 由積分下限主導）。
@@ -301,6 +383,8 @@ for f1 in (1e4, 1e6):
 - RJ（高斯，源自 phase noise，ISF 管）vs DJ（有界，ISI/串擾，ISF 看不見）；TJ $=$ DJ$_{pp}+2Q\cdot$RJ$_{rms}$。
 - CDR/PLL 對 VCO noise 是 **high-pass**：close-in/accumulated jitter 被壓 → 積分下限取 $\approx f_{BW}$。
 - 實務：TX PLL 偏好 LC-VCO（close-in 重要）；RX CDR 常用 ring-VCO（close-in 被 loop 濾掉）。
+- PAM4（28/56 GBd，UI=35.71/17.86 ps）：裸 VCO RJ 吃掉 0.176/0.353 UI（56 GBd 不可用）；
+  PLL 輸出 27.6 fs 壓到 0.011/0.022 UI；加 1 ps DJ → TJ=7.30 ps=0.204 UI@28 GBd（振幅懲罰/DDJ 未算）。
 
 ## 延伸閱讀
 

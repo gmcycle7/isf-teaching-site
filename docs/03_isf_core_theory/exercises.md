@@ -7,7 +7,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # 核心理論章習題（含完整解答）
 
-> **前置閱讀**：本章理論頁 [isf_definition](/03_isf_core_theory/isf_definition)、[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)、[rms_isf](/03_isf_core_theory/rms_isf)、[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)、[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)、[effective_isf](/03_isf_core_theory/effective_isf)（先讀完再做題）。
+> **前置閱讀**：本章理論頁 [isf_definition](/03_isf_core_theory/isf_definition)、[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)、[rms_isf](/03_isf_core_theory/rms_isf)、[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)、[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)、[effective_isf](/03_isf_core_theory/effective_isf)（先讀完再做題）。｜接下來：[numerical_feeling](/04_simulation_labs/numerical_feeling)（學習路徑第 7 步）
 
 這頁是 **03 ISF 核心理論章** 的成套習題。題型涵蓋**推導題**、**數值題**、與**設計反推題**，
 全部圍繞 [P1] Hajimiri–Lee 的 ISF 框架展開，沿用全站 notation。

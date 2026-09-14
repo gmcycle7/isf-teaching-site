@@ -1,6 +1,6 @@
 ---
 title: 相位雜訊量測與 spur
-description: 量 L(f) 的三種方法（spectrum analyzer 直接法、PLL/delay-line frequency discriminator、cross-correlation）、確定性 spur 與隨機 phase noise 的分辨與成因對策，以及如何讀一張真實 PN 圖、從 1/f³/1/f²/floor 三段反推設計訊息。
+description: 量 L(f) 的三種方法（spectrum analyzer 直接法、PLL/delay-line frequency discriminator、cross-correlation 及其三個實務陷阱）、確定性 spur 與隨機 phase noise 的分辨與成因對策、如何讀一張真實 PN 圖、從 1/f³/1/f²/floor 三段反推設計訊息，以及從 datasheet 分段表積分 jitter 的閉式方法。
 ---
 
 # 相位雜訊量測與 spur
@@ -134,6 +134,38 @@ $$
 **優點**：本底可壓到**比任何單一參考源還低**——量得到世界級低噪源；同一架構可同時分離 AM 與 PM。
 **缺點**：要**兩套**獨立硬體，貴；近載波要大量平均、**量測時間長**（$M$ 大）；殘餘相關設定上限。
 **適用範圍**：量**最低雜訊**的 source（OCXO、低噪合成器、整合 PLL），需要逼近物理極限本底時的首選。
+
+#### 方法 C 的三個實務陷阱
+
+上面的推導假設兩通道的儀器本底 $n_1,n_2$**彼此不相關**。實際拿一台 cross-correlation analyzer 上機，有三個經常讓新手誤判的陷阱：
+
+**(i) cross-spectrum collapse（互功率譜「塌陷」）**：若 $n_1,n_2$ 其實**反相關**（$S_{n_1n_2}<0$），本底不但不會被壓低，反而會在互功率譜裡被**扣掉**：
+
+$$
+S_{y_1y_2}=S_{\phi\phi}+S_{n_1n_2},\qquad S_{n_1n_2}<0\ \text{（反相關時）}.
+$$
+
+反相關的物理來源通常是**共用的類比前端**：AM noise 經兩條通道各自的 mixer 轉換到 baseband 的方式不同（增益、相位不同），或一顆功率分配器（power splitter）的差模熱雜訊以相反符號耦合進兩路——這些不是各通道獨立的儀器雜訊，而是**系統性的負相關項**。後果是量到的本底「好得不像話」（比任何單通道都低很多、甚至在某些 offset 出現本底缺口或估計值算出負功率），這其實是量測假象，不是 DUT 真的那麼乾淨。**判斷準則**：本底突然變得異常低、或互功率譜出現負實部/缺口，就要懷疑 collapse，換一套硬體（不同的功率分配器、隔離 AM 路徑）重測比對。這是外部量測文獻的已知現象（外部文獻，非本站 5 篇 PDF）：C. W. Nelson, A. Hati, and D. A. Howe, *"A collapse of the cross-spectral function in phase noise metrology,"* Rev. Sci. Instrum., vol. 85, no. 2, p. 024705, Feb. 2014（DOI: 10.1063/1.4865715）。
+
+**(ii) 收斂檢查——本底該在 DUT 真實 floor 飽和，不是一直降**：$1/\sqrt{M}$ 只對**不相關**殘餘成立；隨 $M$ 增大，正確的行為是殘餘本底**趨近**（而非持續跌破）DUT 的真實 floor，因為 DUT 相關項不隨 $M$ 縮小。若把 $M$ 一路加大、$-5\log_{10}M$ 的斜率**一直不飽和**（永遠線性下降、看不到彎向某個下限），代表你量到的還是儀器（或還沒把不相關殘餘壓到 DUT floor 附近），**還沒量到 DUT**。下方 lab_35 模擬的表格裡 $M=256,1024$ 兩點正是這個飽和過程的示範：擬合直線只在 $M\le64$ 有效，$M=256/1024$ 開始明顯偏離純 $-5\log_{10}M$（見下表與「這不是誤差，是物理」段的解釋）——**曲線彎向真實 floor、不再繼續往下掉，才是量對了的訊號**。
+
+**(iii) spur-included vs spur-excluded 的積分 jitter 讀數**：積分 jitter（$\sigma_\phi,\sigma_t$）時，儀器通常給兩種數字：**只積連續 PN**（spur-excluded）、或**把離散 spur 也算進總 jitter**（spur-included）。spur 是離散 tone，功率以 $10^{\text{spur}_{dBc}/10}$ 算、雙邊各一份記兩次（乘 $2$），**線性加進** $\sigma_\phi^2$（不是像連續譜那樣積分）：
+
+$$
+\sigma_\phi^2\Big|_{\text{spur-included}}=\underbrace{\sigma_\phi^2\Big|_{\text{PN only}}}_{\text{§3.3 積分}}+2\sum_k10^{\text{spur}_{k,dBc}/10}.
+$$
+
+數值感覺：一根 $-60$ dBc 的參考 spur，單獨貢獻 $\sigma_\phi=\sqrt{2\times10^{-6}}=1.41$ mrad、$f_0=5$ GHz 下 $\sigma_t\approx45$ fs——和 [clock_chain_budget](/06_design_insights/clock_chain_budget) 規則 4 算出的 buffer 床 $27.6$ fs **同一量級**，代表**一根不起眼的 $-60$ dBc spur 對總 jitter 預算的殺傷力，可以和一整條時脈鏈的白噪床一樣大**。拿到一份 datasheet 或量測報告的 jitter 數字時，先問清楚是哪一種讀法——兩者可以差到 $2\times$ 以上，且對規格 margin 的意義完全不同（spur 通常可以靠隔離/濾波消掉，連續 PN 床不行）。
+
+```python
+import numpy as np
+f0 = 5e9
+spur_dbc = -60.0
+sigma_phi_spur = np.sqrt(2 * 10**(spur_dbc/10))          # rad, spur-only contribution
+sigma_t_spur = sigma_phi_spur / (2*np.pi*f0)
+print(f"sigma_phi_spur = {sigma_phi_spur*1e3:.2f} mrad")  # -> 1.41
+print(f"sigma_t_spur = {sigma_t_spur*1e15:.1f} fs")       # -> 45.0
+```
 
 #### C 法模擬：兩通道互相關把儀器本底「開根號」壓下去
 
@@ -270,6 +302,147 @@ $$
 
 ![白噪經 ISF 與相位積分後得到的 1/f² phase noise PSD](/figures/white_noise_phase_noise_psd.png)
 
+### 3.3 從 datasheet 表格積分 jitter（分段 log–log 閉式）
+
+3.1–3.2 假設 $\mathcal{L}(f)$ 是乾淨的**單一** $1/f^2$（或 $1/f^3$）解析式，[lab_08](/04_simulation_labs/lab_08_jitter_integration) 與 [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) 也都只積一段。但**真實 datasheet 或量到的 PN 圖給的是離散幾個點**（例如「$1$ kHz: $-20$，$10$ kHz: $-50$，…」），不是一條公式——要積 $\sigma_\phi^2=\int S_\phi\,df$ 就得先把「表格」變成「可積分的函數」。
+
+**分段 log–log 閉式**：在相鄰兩個表點 $[f_a,f_b]$（$\mathcal{L}$ 值分別是 $L_a,L_b$ dBc/Hz）之間，假設 $\mathcal{L}(f)$ 在 log–log 座標下是**直線**——即一段純冪次law（power law）$\mathcal{L}_{lin}(f)=L_{a,lin}(f/f_a)^m$，斜率指數
+
+$$
+m=\frac{\log_{10}(L_{b,lin}/L_{a,lin})}{\log_{10}(f_b/f_a)}
+$$
+
+（$L_{a,lin}=10^{L_a/10}$ 等）。這正好涵蓋前面三段的斜率：$m=-3$ 是 $1/f^3$、$m=-2$ 是 $1/f^2$、$m=0$ 是平的 floor——**表格本身就在告訴你每一段是哪種機制**。這段的閉式積分（$\mathcal{L}$ 對 $f$，不是 $S_\phi$——別忘了下面要再乘 2）：
+
+$$
+\int_{f_a}^{f_b}\mathcal{L}_{lin}(f)\,df=\frac{L_{a,lin}\,f_a}{m+1}\left[\left(\frac{f_b}{f_a}\right)^{m+1}-1\right]\qquad(m\neq-1),
+$$
+
+$m=-1$（即 $1/f$，該段的 $\mathcal{L}_{lin}\propto1/f$）是這個公式的可去奇異點，換成對數形式：
+
+$$
+\int_{f_a}^{f_b}\mathcal{L}_{lin}(f)\,df=L_{a,lin}\,f_a\,\ln\!\frac{f_b}{f_a}\qquad(m=-1).
+$$
+
+把要積的頻寬 $[f_1,f_2]$ 逐段（必要時在邊界內插）加總，再用小角關係 $\mathcal{L}=\tfrac12 S_\phi$（規範 Eq.16）換回相位方差：
+
+$$
+\sigma_\phi^2=2\sum_{\text{段}}\int_{f_a}^{f_b}\mathcal{L}_{lin}(f)\,df,\qquad
+\sigma_t=\frac{\sigma_\phi}{2\pi f_0}.
+$$
+
+> **和單段積分的關係**：3.1 的 $1/f^2$ 中段、$1/f^3$ close-in、floor 都是這個通式在 $m=-2,-3,0$ 的特例；[lab_08](/04_simulation_labs/lab_08_jitter_integration) 的例 C 只是 $m=-2$ 那一段的封閉解。
+
+**Worked example**：用一張典型自由運行振盪器的 6 點 datasheet 表（$f_0=5$ GHz，沿用例 C 的 $\mathcal{L}(1\text{ MHz})=-100$ dBc/Hz、§3 例 2 的 $1/f^3$ corner $100$ kHz、外加一個 $-150$ dBc/Hz 的白色 floor 在遠端與 $1/f^2$ 相加）：
+
+| $f$ | $1$ kHz | $10$ kHz | $100$ kHz | $1$ MHz | $10$ MHz | $100$ MHz |
+|---|---|---|---|---|---|---|
+| $\mathcal{L}$ [dBc/Hz] | $-20.0$ | $-50.0$ | $-80.0$ | $-100.0$ | $-120.0$ | $-139.6$ |
+
+前三段（$1$–$10$–$100$ kHz）斜率 $m=-3.00$（$1/f^3$）、中間兩段（$100$ kHz–$10$ MHz）$m=-2.00$（$1/f^2$，和例 2 的 corner 自洽）、最後一段 $m=-1.96$——不是乾淨的 $-2$，因為 $100$ MHz 處 $\mathcal{L}$ 已經是 $1/f^2$（$-140$ dBc/Hz）與 $-150$ dBc/Hz floor 的**線性功率和**（$10^{-14}+10^{-15}=1.1\times10^{-14}\to-139.6$ dBc/Hz），表格用真實混合值,不是理想單一冪次——這也是為什麼要**逐段**算 $m$、不能通篇假設 $m=-2$。
+
+**積 SONET/OC-192 常用的 $12$ kHz–$20$ MHz**（第一段跨越 $12$ kHz–$100$ kHz、$100$ kHz–$1$ MHz、$1$–$10$ MHz、$10$–$20$ MHz 四個子段）：
+
+```python
+import numpy as np
+
+f0 = 5e9  # Hz, site canonical
+
+# datasheet-style table: (f [Hz], L [dBc/Hz])
+table = [
+    (1e3, -20.0), (1e4, -50.0), (1e5, -80.0),
+    (1e6, -100.0), (1e7, -120.0), (1e8, -139.6),
+]
+
+def seg_integral(fa, La_dbc, fb, Lb_dbc):
+    La_lin, Lb_lin = 10**(La_dbc/10), 10**(Lb_dbc/10)
+    m = np.log10(Lb_lin/La_lin) / np.log10(fb/fa)
+    if abs(m + 1) < 1e-9:
+        return La_lin*fa*np.log(fb/fa), m
+    return La_lin*fa/(m+1) * ((fb/fa)**(m+1) - 1), m
+
+def integrate_table(table, f1, f2):
+    total, seg_detail = 0.0, []
+    for (fa, La), (fb, Lb) in zip(table, table[1:]):
+        lo, hi = max(fa, f1), min(fb, f2)
+        if hi <= lo:
+            continue
+        La_lin, Lb_lin = 10**(La/10), 10**(Lb/10)
+        m = np.log10(Lb_lin/La_lin) / np.log10(fb/fa)
+        L_lo = 10*np.log10(La_lin * (lo/fa)**m)
+        L_hi = 10*np.log10(La_lin * (hi/fa)**m)
+        I, _ = seg_integral(lo, L_lo, hi, L_hi)
+        total += I
+        seg_detail.append((lo, hi, m, I))
+    return total, seg_detail
+
+total, seg = integrate_table(table, 12e3, 20e6)
+sigma_phi = np.sqrt(2*total)
+sigma_t = sigma_phi / (2*np.pi*f0)
+print(f"integral = {total:.4e}")        # -> 3.5217e-02
+print(f"sigma_phi = {sigma_phi*1e3:.1f} mrad")  # -> 265.4
+print(f"sigma_t = {sigma_t*1e12:.2f} ps")       # -> 8.45
+print(f"frac from 12k-100k 1/f^3 segment = {seg[0][3]/total*100:.1f}%")  # -> 97.2
+```
+
+**結果**：$12$ kHz–$20$ MHz 積出 $\sigma_\phi=265.4$ mrad、$\sigma_t=8.45$ ps，其中 **$97.2\%$ 的方差來自最靠載波的 $12$ kHz–$100$ kHz 那一段 $1/f^3$**（斜率愈陡、離載波愈近，貢獻愈大——這正是 3.2 checklist 講的「close-in 主導」的量化版）。
+
+**同一張表換積分頻寬 $1$–$100$ MHz**（例 C 的頻寬）：
+
+```python
+import numpy as np
+
+f0 = 5e9
+table = [(1e3, -20.0), (1e4, -50.0), (1e5, -80.0),
+         (1e6, -100.0), (1e7, -120.0), (1e8, -139.6)]
+
+def seg_integral(fa, La_dbc, fb, Lb_dbc):
+    La_lin, Lb_lin = 10**(La_dbc/10), 10**(Lb_dbc/10)
+    m = np.log10(Lb_lin/La_lin) / np.log10(fb/fa)
+    if abs(m + 1) < 1e-9:
+        return La_lin*fa*np.log(fb/fa)
+    return La_lin*fa/(m+1) * ((fb/fa)**(m+1) - 1)
+
+def integrate_table(table, f1, f2):
+    total = 0.0
+    for (fa, La), (fb, Lb) in zip(table, table[1:]):
+        lo, hi = max(fa, f1), min(fb, f2)
+        if hi <= lo:
+            continue
+        La_lin = 10**(La/10)
+        m = np.log10(10**(Lb/10)/La_lin) / np.log10(fb/fa)
+        L_lo = 10*np.log10(La_lin * (lo/fa)**m)
+        L_hi = 10*np.log10(La_lin * (hi/fa)**m)
+        total += seg_integral(lo, L_lo, hi, L_hi)
+    return total
+
+total_c = integrate_table(table, 1e6, 100e6)
+sigma_t_c = np.sqrt(2*total_c) / (2*np.pi*f0)
+print(f"sigma_t (1-100 MHz) = {sigma_t_c*1e15:.1f} fs")  # -> 448.5
+
+# cross-check against np.trapezoid on a dense log-log-interpolated grid
+logf = np.log10([p[0] for p in table]); Ls = [p[1] for p in table]
+fgrid = np.logspace(np.log10(1e6), np.log10(100e6), 200_000)
+Lgrid = np.interp(np.log10(fgrid), logf, Ls)
+I_trap = np.trapezoid(10**(Lgrid/10), fgrid)
+sigma_t_trap = np.sqrt(2*I_trap) / (2*np.pi*f0)
+print(f"sigma_t (trapezoid) = {sigma_t_trap*1e15:.1f} fs")  # -> 448.5
+```
+
+**結果**：$448.5$ fs——重現例 C 的 $447.9$ fs（差 $0.6$ fs，來自表格在 $10$–$100$ MHz 段混入的 $-150$ dBc/Hz floor，例 C 是純 $1/f^2$、沒有這段 floor 貢獻）；閉式解與 `np.trapezoid`（密網格 log–log 內插）在浮點精度內一致，兩種算法互相驗證。
+
+**同一顆振盪器、積分頻寬只差一個下限，$\sigma_t$ 就差了 $\approx18.8\times$**（$8.45$ ps vs $448.5$ fs，$8447.8/448.5\approx18.8$）：**這就是為什麼「報 jitter 必須附積分頻寬」**（[adc_aperture_jitter](/06_design_insights/adc_aperture_jitter) 已有同樣的誠實警告）——同一顆自由運行 VCO，用電信規格的窄頻寬（$12$ kHz 起、把 close-in $1/f^3$ 全算進去）量會遠比只看寬頻寬 $1/f^2$ 段悲觀；反過來，**自由運行 VCO 幾乎永遠通不過電信規格的積分頻寬**，除非有 PLL/CDR 把 close-in 追掉（[pll_noise_budget](/06_design_insights/pll_noise_budget)）。
+
+**常見積分頻寬**（依應用，非本站 5 篇 PDF 內容，屬外部工程慣例，具體數字以各自最新規範為準）：
+
+| 應用 | 常見積分頻寬 | 備註 |
+|---|---|---|
+| SONET/SDH OC-192（電信參考時脈）| $12$ kHz–$20$ MHz | 業界慣用下限；**具體條文出處待查證**（Telcordia GR-253-CORE 系列，本站未逐條核對，見 [pll_noise_budget](/06_design_insights/pll_noise_budget) 的同款誠實聲明）|
+| PCIe / OIF-CEI 系列 SerDes | 不是固定頻寬，而是先過 CDR 的 jitter-transfer 濾波再積分 | 「積分」變成「濾波＋積分」——見 [dj_dual_dirac](/06_design_insights/dj_dual_dirac) 的 dual-Dirac／CDR 濾波 jitter 討論 |
+| ADC/DAC 取樣時脈 | 下限 $\sim10$–$100$ Hz（量測系統本身限制），上限 $f_s/2$（Nyquist）| 見 [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter) 的 aperture jitter 與取樣率討論；確切下限依 datasheet |
+
+> **互動練習**：本站互動計算器頁面（[interactive_calculator](/04_simulation_labs/interactive_calculator)）內嵌的 `PhaseNoiseCalculator` 元件提供「datasheet 分段表」模式，可直接編輯 6 個 $(f,\mathcal{L})$ 點與積分頻寬 $[f_1,f_2]$，即時看 $\sigma_\phi,\sigma_t$ 怎麼變——預設值就是上面這張 worked-example 表。
+
 ---
 
 ## 數值例子：由圖讀數反推設計（worked examples）
@@ -335,22 +508,28 @@ print(round(c0_over_c1, 3))  # -> 0.316
 | 雜訊源為穩態白色/flicker | 三段折線乾淨 | cyclostationary、注入拉動會破壞乾淨折線 |
 | spur 為確定性週期源 | dBc 固定、可逐根對位 | 隨機叢發/間歇干擾不易用 dBc 描述 |
 | floor 是 DUT 本質 | floor 反映 buffer/source | 多半是儀器 floor，需 cross-correlation 才看得到真 floor |
+| 分段表每段確實是單一冪次 law（§3.3）| 分段閉式積分＝真實 $\sigma_\phi^2$ | 若某段其實混了兩種機制（如例中 $10$–$100$ MHz 混 $1/f^2$＋floor），單段冪次只是**局部近似**，表點取得越密越準 |
+| 兩通道儀器本底彼此不相關（cross-correlation）| $1/\sqrt{M}$ 收斂成立 | 反相關（AM/共用分配器）→ cross-spectrum collapse，本底假性偏低，見「方法 C 的三個實務陷阱」|
 
 ## 與哪些 paper／公式對應
 
 - spur 的下變頻機制（單音版）：[P1] Eq.(16/17), p.183（見 [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)）。
 - $1/f^2$ 中段：[P1] Eq.(21), p.185；$1/f^3$ close-in：[P1] Eq.(23), p.185；$1/f^3$ corner：[P1] Eq.(24), p.185。
-- $\mathcal{L}\approx\tfrac12 S_\phi$（小角 PM）：規範 Eq.16。
+- $\mathcal{L}\approx\tfrac12 S_\phi$（小角 PM）：規範 Eq.16；phase variance／rms jitter：規範 Eq.18–19（§3.3 的分段積分是同一組公式的分段版）。
 - 三段折線全貌與 Leeson 對照：[derivation_leeson](/99_appendix/derivation_leeson)、[E1] Leeson 1966（**不在 5 篇 PDF 內**）。
 - **量測儀器/標準（SA、delay-line/PLL discriminator、cross-correlation analyzer）屬外部工程文獻與儀器手冊，不在下載的 5 篇 PDF 內**；本頁用標準量測理論補充。
 - cross-correlation 的 $1/\sqrt{M}$ 收斂模擬：`simulations/lab_35_xcorr_measurement.py`，圖 `/figures/xcorr_floor.png`（統計/DSP 機制本身也不在 5 篇 PDF 內）。
+- cross-spectrum collapse（外部文獻，非 5 篇 PDF）：C. W. Nelson, A. Hati, D. A. Howe, *"A collapse of the cross-spectral function in phase noise metrology,"* Rev. Sci. Instrum. 85, 024705 (2014), DOI: 10.1063/1.4865715。
+- 分段 log–log jitter 積分（§3.3）：外部 DSP/量測慣例，非 5 篇 PDF 內容，與 [lab_08](/04_simulation_labs/lab_08_jitter_integration) 的單段解析式同一組小角公式（規範 Eq.16–19）。
 
 ## 重點回顧
 
 - 量 $\mathcal{L}(f)$ 的本質：**拿掉載波 + 壓低系統本底**。SA 直接法量到「DUT＋儀器」；PLL/delay-line 用去載波把儀器換成好參考或自延遲；**cross-correlation 用兩條獨立通道相關，把不相關的本底以 $1/\sqrt{M}$ 殺掉**（每 ×10 平均降 5 dB；模擬驗證擬合斜率 $-4.73$ dB/decade vs 理論 $-5.00$，吻合度 $0.946$，見 `lab_35`）。
+- **cross-correlation 的三個陷阱**：(i) 反相關本底造成 cross-spectrum collapse（本底假性偏低，Nelson–Hati–Howe 2014）；(ii) 收斂檢查——本底該在 $M$ 增大時飽和於 DUT 真實 floor，不是無限下降；(iii) spur-included vs excluded 的積分 jitter 讀法可差 $2\times$ 以上（$-60$ dBc spur 單獨貢獻 $\approx45$ fs＠5 GHz，量級同 [clock_chain_budget](/06_design_insights/clock_chain_budget) 的 buffer 床 $27.6$ fs）。
 - **spur** 是確定性離散 tone（單位 **dBc**，不隨 RBW 變密度）；**隨機 PN** 是連續譜（**dBc/Hz**）。分辨：改 RBW 重量、看可重複性、開關周邊設備。
 - spur 成因：參考洩漏、電源漣波、外部注入；經 ISF 第 $n$ 諧波 $c_n$ 下變頻到載波旁；對策是隔離/濾波/屏蔽 + 壓 $c_n$。
 - 讀 PN 圖：$1/f^3$（flicker 經 $c_0$）／$1/f^2$（白噪經積分器）／floor（多為儀器/buffer），加兩個 corner。反推 $S_i$、$c_0/c_1$、device flicker，得設計旋鈕。
+- **從 datasheet 表格積分 jitter**（§3.3）：相鄰表點間假設單一冪次 law，閉式積分後 $\sigma_\phi^2=2\Sigma$；同一顆振盪器換積分頻寬（$12$ kHz–$20$ MHz vs $1$–$100$ MHz）$\sigma_t$ 差 $\approx18.8\times$（$8.45$ ps vs $448.5$ fs）——**報 jitter 必須附積分頻寬**。
 - 數值例：$-148$ dBc/Hz @ 1 MHz 反推 $S_i\approx10^{-24}$ A²/Hz；$1/f^3$ corner $100$ kHz（flicker corner 1 MHz）反推 $c_0/c_1\approx0.32$。
 
 ## 延伸閱讀
@@ -359,6 +538,9 @@ print(round(c0_over_c1, 3))  # -> 0.316
 - spur 的下變頻機制（ISF 諧波）：[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)
 - close-in $1/f^3$ 與對稱性：[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)、[symmetry](/06_design_insights/symmetry)
 - 加大 swing 壓 $1/f^2$：[tank_swing](/06_design_insights/tank_swing)
-- 把 $\mathcal{L}$ 積回 jitter：[numerical_feeling](/04_simulation_labs/numerical_feeling)
+- 把 $\mathcal{L}$ 積回 jitter（單段解析式）：[numerical_feeling](/04_simulation_labs/numerical_feeling)、[lab_08_jitter_integration](/04_simulation_labs/lab_08_jitter_integration)
+- 積分頻寬敏感度、SNR 反推（同款誠實警告）：[adc_aperture_jitter](/06_design_insights/adc_aperture_jitter)
+- CDR 濾波後的 jitter 與 dual-Dirac：[dj_dual_dirac](/06_design_insights/dj_dual_dirac)
 - 三段折線與 Leeson 對照：[derivation_leeson](/99_appendix/derivation_leeson)
 - 近載波 Lorentzian（$1/f^2$ 發散的真相）：[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
+- 互動計算器（含 §3.3 的分段表模式）：[interactive_calculator](/04_simulation_labs/interactive_calculator)

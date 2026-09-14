@@ -60,6 +60,7 @@ jitter（時間抖動，edge 相對理想時刻的偏差），以及這對 SerDe
 - [統一符號表 Notation](/00_overview/notation) — 全站一致的符號、意義、單位
 - [中英對照詞彙表 Glossary](/99_appendix/glossary) — 英文術語的中文直覺解釋
 - [公式推導索引 Equation Index](/01_paper_map/equation_index) — 公式 ↔ 論文出處 ↔ 推導頁
+- [互動工具 Interactive Tools](/04_simulation_labs/interactive_calculator) — 七個滑桿工具，拉一拉立刻看數字怎麼動
 
 ## 必備背景（Required background）
 

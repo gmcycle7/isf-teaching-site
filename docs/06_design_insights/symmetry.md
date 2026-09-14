@@ -173,6 +173,14 @@ $$
 | 降低 DC bias 點漂移 | 控制 duty cycle 接近 50% | duty 偏離 50% 等於波形 DC 不對稱 → $c_0\neq0$ | 需要 duty-cycle correction |
 | 直接降 device flicker | 用大面積、PMOS、buried-channel device | 降 $\omega_{1/f}$ 本身（不改 $c_0$，但降 1/f³ 大小） | 大面積→大寄生電容→降 $f_0$ |
 
+> **duty cycle 列的補充：與 tank $Q$ 的第二條路徑**——LC oscillator 的 tank 高 $Q$ 本身就會濾除
+> 驅動波形（如差動對電流）的高次諧波，讓輸出波形的 duty cycle 趨近 50%，因而**同時**壓低
+> $c_0$／偶次 $c_n$（[P1] Sec. IV 末；見 [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
+> 的「更線性的負載」一節）。這條路徑**獨立於**高 $Q$ 經由 $\Gamma_{rms}$ 壓低白噪 $1/f^2$ 那條
+> 路徑（見 [lc_vs_ring](/06_design_insights/lc_vs_ring) 的 $Q$ 段）——兩者機制不同、都對高 $Q$
+> 有利，但一個管的是 $1/f^3$（透過 $c_0$），另一個管的是 $1/f^2$（透過 $\Gamma_{rms}$）。反過來說，
+> 非 50% duty cycle 一般會使偶次 $c_n$ 變大。
+
 > 注意分兩類：前四個 knob 改 **$c_0$／$f_{1/f^3}$ corner 位置**；最後一個改 **device $\omega_{1/f}$／1/f³ 的整體高度**。
 > 設計時兩者都可用，但「做對稱」通常 free（不花額外功耗），是第一槍。
 

@@ -273,12 +273,12 @@ print(round(fom_lc_ceiling(20), 2))                   # -> 203.65
 ```
 
 <NumericQuiz
-  prompt="先自己算：理想 LC、Q=20、F=1+γ（γ=2/3）、Γ_rms²=0.5、η_P=1 時的天花板 FOM_max = ？（300 K，[P1] /4 慣例；以 dB 作答）"
-  answer={203.65}
+  prompt="先自己算：同一族公式，把 Q 從 20 換成 40（其餘不變：F=1+γ，γ=2/3，Γ_rms²=0.5，η_P=1，300 K，[P1] /4 慣例），天花板 FOM_max = ？（以 dB 作答）"
+  answer={209.67}
   tol={0.01}
   unit="dB"
-  hint="FOM_max = C_ref − 10log₁₀(F·Γ_rms²/(2Q²·η_P))，C_ref=173.83 dB。"
-  solutionNote="F=5/3、Γ_rms²=0.5、Q=20 → 括號內 = (5/3×0.5)/(2×400) ≈ 1.042×10⁻³ → FOM_max ≈ 173.83+29.82 ≈ 203.65 dB。"
+  hint="FOM_max = C_ref − 10log₁₀(F·Γ_rms²/(2Q²·η_P))，C_ref=173.83 dB；Q 加倍會讓 10log₁₀(Q²) 多 6.02 dB。"
+  solutionNote="Q=40 → 括號內 = (5/3×0.5)/(2×1600) ≈ 2.604×10⁻⁴ → FOM_max ≈ 173.83+35.84 ≈ 209.67 dB（比 Q=20 的 203.65 dB 高 6.02 dB，正是 Q 加倍多出的 20log₁₀2）。"
 />
 
 > **Factor-of-2 紀律（哪個 2、哪個慣例）**：本站在
@@ -321,6 +321,8 @@ print(round(fom_lc_ceiling(20), 2))                   # -> 203.65
   （都含 $1+\gamma$ 一族的 $F$ 與 $1/Q^2$），沒有誰能繞過 $Q$ 這道牆。
 - **ring**：本站例距 ring 天花板僅 $3.5$ dB——ring 的萬用形裡**沒有 $Q$ 可以買**，
   天花板本身（168.3 dB）就比 LC 的低了約 30 dB。
+- 把這個「距天花板幾 dB」反過來用——從規格算所需 FOM、對天花板選拓樸、再一路釘到元件值與偏壓——見
+  [design_recipe](/06_design_insights/design_recipe)。
 
 **ring 落後 LC 的 dB 記帳**（拿本站 ring 例 164.8 dB 對 LC $Q=10$ 理想天花板 197.63 dB，
 差 $32.83$ dB，`fig_fom_limit.py` 驗證分解逐項相加**精確等於**總差）：
@@ -434,7 +436,7 @@ LC-PLL＋（必要時）ring 只敢放在 PLL 帶寬內被抑制的位置
 | $T=300$ K | 常數 $173.83$ dB | 其他溫度用 $C_{ref}(T)$（$-0.14$ dB/10 K） |
 | 理論值標明 /2 或 /4 慣例 | 天花板可互相對表（差 $3.01$ dB） | 混用慣例會生出幽靈 3 dB |
 | 小擾動 LTV（[P1] 框架） | $F_{eff}$ 是常數 | 大注入、injection pulling（見 [P3]/[P4] 頁）另議 |
-| 只看 FOM | 功率—雜訊取捨歸一化 | 面積、調諧範圍（FOM$_T$ 變體另計）、supply pushing、良率都不在裡面 |
+| 只看 FOM | 功率—雜訊取捨歸一化 | 面積、調諧範圍（FOM$_T$ 變體另計，定義見 [design_recipe](/06_design_insights/design_recipe) 頁末）、supply pushing、良率都不在裡面 |
 
 ## 重點回顧
 
@@ -455,6 +457,7 @@ LC-PLL＋（必要時）ring 只敢放在 PLL 帶寬內被抑制的位置
 ## 延伸閱讀
 
 - FOM 定義與 phase-noise × power 取捨：[tank_swing](/06_design_insights/tank_swing)
+- 從規格反推所需 FOM、選拓樸、釘元件值的完整流程：[design_recipe](/06_design_insights/design_recipe)
 - [P1] Eq.(21) 推導與 /2 vs /4 慣例：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
 - [P2] ring FOM 與 N-independence：[lc_vs_ring](/06_design_insights/lc_vs_ring)、[paper_002 deep-dive](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring)
 - Leeson 的 $2FkT/P_s$ 與 ISF 對照：[derivation_leeson](/99_appendix/derivation_leeson)

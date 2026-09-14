@@ -303,14 +303,14 @@ $$
 $$
 
 - 量測區間 $\Delta t=M\cdot T$，所以 $M=\Delta t/T$，$\mathrm{Var}(\Phi_M)=\dfrac{\sigma_1^2}{T}\,\Delta t\propto\Delta t$。
-- 換成時間 jitter（$\sigma_t=\sigma_\phi/(2\pi f_0)$）並開根號：
+- 換成時間 jitter（$\sigma_t=\sigma_\phi/(2\pi f_0)$，即 [P2] Eq.(10), p.793 的相位→時間換算）並開根號：
 
 $$
-\sigma_{\Delta t}=\kappa\,\sqrt{\Delta t}\qquad([P2]\ \text{Eq.}(10),\ \text{p.793}).
+\sigma_{\Delta t}=\kappa\,\sqrt{\Delta t}\qquad([P2]\ \text{Eq.}(8),\ \text{p.792}).
 $$
 
 $\kappa$ 是每個元件的比例常數，單位 $\sqrt{\text{s}}$；它由同一個 $\Gamma_{rms}^2/q_{max}^2$ 比值決定
-（[P2] Eq.(12), p.793：$\kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$，已核實）。
+（[P2] Eq.(12), p.793 印刷式：$\kappa=\frac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$，分母含 $\omega_0$ 故單位 $\sqrt{\text{s}}$，v11 重核；相位版 $\kappa_\phi=\omega_0\kappa$ 見 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)）。
 
 **關鍵直覺**：variance（功率）線性增長，標準差（rms）開根號增長。這是 random walk（隨機漫步）的
 招牌；只要相位誤差**獨立累加且無恢復力**就會出現（對比：有 PLL 鎖定就有恢復力，jitter 會被壓住，

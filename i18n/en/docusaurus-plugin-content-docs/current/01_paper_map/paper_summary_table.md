@@ -90,7 +90,7 @@ In addition, **[P3]** extends/generalizes **Adler 1946**'s injection-locking equ
 | phase sensitivity | $\Gamma(\omega_0\tau)$ (ISF) | [P2] keeps $\Gamma$; [P3] writes $\Gamma(\theta+\phi)$ inside the injection inner product | the same $\Gamma$; [P3] just uses it as the injection weighting kernel |
 | phase evolution | $\phi(t)=\frac{1}{q_{max}}\int\Gamma i_n\,d\tau$ (Eq.11, noise view) | [P3] $\dot\phi=\Delta\omega+\frac{1}{q_{max}}\langle\Gamma i_{inj}\rangle$, $\Delta\omega\equiv\omega_0-\omega_{inj}$ (Eq.(30), injection view) | the same LTV phase equation, one driven by random noise, one by deterministic injection |
 | $1/f^2$ phase noise | Eq.(21) $\propto\Gamma_{rms}^2/q_{max}^2$ | [P2] $\kappa^2\propto\Gamma_{rms}^2/q_{max}^2$ (jitter version) | the same $\Gamma_{rms}^2/q_{max}^2$ ratio; phase noise and accumulated jitter are the same physics (claims **C3**=**C6** share the source) |
-| the two directions of sensitivity | phase version $\Gamma$ only | [P4] adds the amplitude version, APF $\Lambda$ | $\Gamma$ (tangential/phase) and $\Lambda$ (radial/amplitude) are two orthogonal projections on the limit cycle |
+| the two directions of sensitivity | phase version $\Gamma$ only | [P4] adds the amplitude version, APF $\Delta$ | $\Gamma$ (tangential/phase) and $\Delta$ (radial/amplitude) are two orthogonal projections on the limit cycle |
 
 ### Which notation differs and needs unifying
 
@@ -100,7 +100,7 @@ Different papers use different symbols for the same quantity; this site always f
   this site uses both, $\Delta\omega=2\pi\Delta f$.
 - **The ISF's DC**: note that $c_0$ is a Fourier **coefficient**, while the ISF's DC **value** is $c_0/2$ (Eq.(12)) —
   very easy to get wrong when computing the $1/f^3$ corner (Eq.(24)); this site repeats the reminder.
-- **Amplitude sensitivity**: [P4]'s APF is written $\Lambda(\phi)$ with units $\mathrm{A^{-1}}$; it has **different dimensions**
+- **Amplitude sensitivity**: [P4]'s APF is written $\Delta(\phi)$ with units $\mathrm{A^{-1}}$; it has **different dimensions**
   from the dimensionless ISF $\Gamma$ and must not be mixed up.
 - **PPV/adjoint/Floquet**: this site does not use their dedicated notation (e.g. Demir's $v_1^T(t)$) in the main track,
   mentioning them only as external literature in [effective_isf](/03_isf_core_theory/effective_isf).

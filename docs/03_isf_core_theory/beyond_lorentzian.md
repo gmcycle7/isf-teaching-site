@@ -131,8 +131,8 @@ $$
 
   這同時再次驗證第 0 步的記帳：**單邊 $4D/\Delta\omega^2$ 才會收回 $2D|t|$**。
 - **與 [P2] 的連結**：這條通式就是 ring 論文累積 jitter 律的引擎——[P2] Eq.(8), p.792 的
-  $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ 正是「白噪 FM → 方差線性」這個特例（$\kappa$ 由
-  [P2] Eq.(12), p.793 給出，不含 $\omega_0$）。
+  $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ 正是「白噪 FM → 方差線性」這個特例（相位版
+  $\kappa=\omega_0\kappa_t$＝[P2] Eq.(11), p.793 開根號；印刷 Eq.(12), p.793 給的是時間版 $\kappa_t$，分母含 $\omega_0$）。
 
 ### 第 2 步：flicker FM 是什麼——$S_\phi=b_{-3}/f^3$，以及它在 ISF 理論的出處
 
@@ -496,9 +496,9 @@ Rubiola 2009（前引，外部文獻）。
 
 - **$1/f^2$、$1/f^3$ 的 $S_\phi$ 輸入**：[P1] Eq.(21), p.185（white）；[P1] Eq.(22)–(23),
   p.185（flicker 上轉，$b_{-3}$ 的 ISF 出處，含 SSB 記帳註記）。
-- **增量語言**：[P2] Eq.(8), p.792（$\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$，相位增量）、
-  Eq.(12), p.793（$\kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\overline{i_n^2}/\Delta f}$，
-  不含 $\omega_0$）——正是本頁「PSD 不存在、增量存在」的工程體現。
+- **增量語言**：[P2] Eq.(8), p.792（$\sigma=\kappa\sqrt{\Delta t}$，增量；本頁用相位版）、
+  Eq.(11)–(12), p.793（相位版 $\kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\overline{i_n^2}/\Delta f}$＝Eq.(11) 開根號；
+  印刷 Eq.(12) 為時間版 $\kappa_t=\kappa/\omega_0$，分母含 $\omega_0$，v11 重核）——正是本頁「PSD 不存在、增量存在」的工程體現。
 - **外部文獻（皆不在本站 5 篇 PDF 內）**：[E2] Demir–Mehrotra–Roychowdhury 2000
   （$V$ 平穩、譜良定義；TCAS-I 47(5):655–674，DOI 10.1109/81.847872）；[E3] Kärtner 1990
   （$f^{-\alpha}$ 線形；IJCTA 18(5):485–519）；A. Demir, IEEE TCAS-I 49(12):1782–1791,

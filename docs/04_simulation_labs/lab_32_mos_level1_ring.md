@@ -78,7 +78,9 @@ PMOS 完全鏡像（把 $V_{GS},V_{DS},V_{tn}$ 換成 $V_{SG},V_{SD},\lvert V_{t
   D. A. Hodges, *"Modeling and simulation of insulated-gate field-effect transistor
   switching circuits,"* IEEE J. Solid-State Circuits, vol. 3, no. 3, pp. 285–289, Sep. 1968。
 - 程式裡三區用一條夾住（clamp）的式子實作：$V_{ov}=\max(V_{GS}-V_t,0)$、
-  $V_{DE}=\min(V_{DS},V_{ov})$、$I_D=\beta\,(V_{ov}-V_{DE}/2)\,V_{DE}$——與上面的分段定義
+  $V_{DE}=\min(V_{DS},V_{ov})$、$I_D=\beta\,(V_{ov}-V_{DE}/2)\,V_{DE}$（**本站慣例**：這裡
+  $\beta=\mu C_{ox}W/L=k'W/L$ 是 MOS 跨導參數，與注入鎖定 realignment factor $\beta$、
+  FM 調變指數 $\beta$ 是不同符號的三義）——與上面的分段定義
   **逐點相等**（cutoff 時 $V_{ov}=0$、saturation 時 $V_{DE}=V_{ov}$ 代入即得）。
   若注入把節點推到 $V>V_{DD}$，程式把 source/drain 對調處理反向導通，維持物理。
 

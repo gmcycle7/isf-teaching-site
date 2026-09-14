@@ -7,7 +7,7 @@ description: Superposing "one impulse gives one phase step" into the phase respo
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
-> **Prerequisites**: [isf_definition](/03_isf_core_theory/isf_definition) (the operational definition of $\Gamma$ and the single phase step), [impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift) (the phase response to a single impulse), [oscillator_phase](/02_foundations/oscillator_phase) (excess phase has no restoring force and accumulates).
+> Prerequisites: [isf_definition](/03_isf_core_theory/isf_definition) | Next: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
 
 The previous page, [isf_definition](/03_isf_core_theory/isf_definition), gave the definition "**one** current impulse → **one** phase step". But the noise current $i_n(t)$ in a real circuit is injected **continuously and persistently** — it does not arrive as separate, isolated pulses. This page answers:
 
@@ -149,7 +149,7 @@ $$
 \phi(t)\approx\frac{I_0\,c_0\sin(\Delta\omega t)}{2q_{max}\,\Delta\omega}.
 $$
 
-For the ideal LC ($\Gamma=-\sin$) the DC coefficient is $c_0=0$ and the response is suppressed; only with an asymmetric ISF carrying DC ($\Gamma=\cos\theta+\alpha$, giving $c_0=2\alpha$) does the slow phase drift of the form above — proportional to $\sin(\Delta\omega t)$ with amplitude $\propto1/\Delta\omega$ — appear. The code below runs both for comparison:
+For the ideal LC ($\Gamma=-\sin$) the DC coefficient is $c_0=0$ and the response is suppressed; only with an asymmetric ISF carrying DC ($\Gamma=\cos\theta+\alpha$, giving $c_0=2\alpha$) does the slow phase drift of the form above — proportional to $\sin(\Delta\omega t)$ with amplitude $\propto1/\Delta\omega$ — appear (**site convention**: here $\alpha$ is the DC offset of the toy ISF, unrelated to [P1]'s NMF $\alpha(\omega_0t)$). The code below runs both for comparison:
 
 ```python
 import numpy as np

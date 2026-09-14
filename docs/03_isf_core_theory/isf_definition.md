@@ -7,7 +7,7 @@ import ImpulseAnimation from "@site/src/components/ImpulseAnimation";
 
 # ISF 的定義
 
-> **前置閱讀**：[oscillator_phase](/02_foundations/oscillator_phase)（limit cycle 與 excess phase 的幾何）、[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)（切向相位 vs 徑向振幅的分解）、[impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift)（電荷→電壓→相位的操作型鏈條）。
+> 先備：[impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift) ｜ 接下來：[convolution_derivation](/03_isf_core_theory/convolution_derivation)
 
 這頁回答一個聽起來簡單、其實很深的問題：**ISF（Impulse Sensitivity Function，脈衝敏感度函數）到底是什麼東西？它是一個 function，但它的「自變數」是什麼、「值」代表什麼、單位是什麼、為什麼是週期的、為什麼每個 node 和每個 noise source 各有一個？**
 
@@ -202,10 +202,10 @@ print(dphi, "rad")                        # -> 0.0005 rad
 | **[P1]** Hajimiri–Lee 1998 | $\Gamma(\omega_0\tau)$ | phase noise（LTV impulse response） | **本站定義的原始出處**，Eq.(10),(11) | high（公式已核） |
 | **[P2]** Hajimiri–Limotyrakis–Lee 1999 | $\Gamma(\omega_0\tau)$ | ring oscillator 的 jitter／phase noise | 同一個 $\Gamma$；強調 $\Gamma_{rms}\propto N^{-3/2}$ scaling（[P2] Eq.(16), p.794，v7 已重核：根號只蓋常數，正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}） | high（敘述與 scaling 皆已核實） |
 | **[P3]** Hong–Hajimiri 2019 Part I | $\Gamma(\theta+\phi)$ | injection locking／pulling（廣義 Adler） | **同一個 $\Gamma$**，搬到注入脈絡：$\frac{d\phi}{dt}=\Delta\omega+\frac{1}{q_{max}}\langle\Gamma(\theta+\phi)\,i_{inj}(\theta)\rangle$，$\Delta\omega\equiv\omega_0-\omega_{inj}$（[P3] Eq.(30), p.2113，平均項前為**加號**；[P3] 的 $\tilde\Gamma=\Gamma/q_{max}$（Eq.(26), p.2113）與本站 $\Gamma=-\sin\theta$ **同號**：[P4] Eq.(24), p.2128 給 $\tilde\Gamma(\varphi)=-\sin\varphi/q_{max,0}$、Eq.(26) 給 $\tilde\Gamma_1=(1/q_{max,0})\angle90^\circ$。本站統一 $\Delta\omega\equiv\omega_0-\omega_{inj}$，與 [P3] Fig. 5 的 $\Delta\omega\equiv\omega_{inj}-\omega_0$ 差一個整體正負號） | high（已對照原始 PDF；v11 更正：舊版誤寫減號並稱「本站取相反符號慣例」） |
-| **[P4]** Hong–Hajimiri 2019 Part II | $\Lambda(\phi)$（APF） | amplitude modulation（振幅域） | **振幅版**：把 impulse 投影到**徑向**而非切向；單位 $\text{A}^{-1}$；ideal LC 中 ISF 與 APF 正交（quadrature，[P4] Eq.(26), p.2128） | ✓（APF=[P4] Eq.(19)、Fig. 5, p.2126，已核實） |
+| **[P4]** Hong–Hajimiri 2019 Part II | $\Delta(\phi)$（APF） | amplitude modulation（振幅域） | **振幅版**：把 impulse 投影到**徑向**而非切向；單位 $\text{A}^{-1}$；ideal LC 中 ISF 與 APF 正交（quadrature，[P4] Eq.(26), p.2128） | ✓（APF=[P4] Eq.(19)、Fig. 5, p.2126，已核實） |
 | **[P5]** Hajimiri–Heald 1998 | — | sense amplifier | **與 ISF 無關**（sense amplifier 論文，誠實標明 mislabeled） | high（明顯離題） |
 
-> **記法陷阱**：[P3] 寫成 $\Gamma(\theta+\phi)$ 是把「注入波形相位 $\theta$」與「振盪器自身 excess phase $\phi$」相加當自變數——本質仍是同一個 $\Gamma$，只是 argument 換成「相對相位」。[P4] 的 APF $\Lambda$ 是**振幅**敏感度，與 $\Gamma$（相位敏感度）互補；在 ideal LC 兩者正交（一個 $\propto\sin$、一個 $\propto\cos$）。詳見 [paper_004_injection_locking_part2](/05_paper_deep_dives/paper_004_injection_locking_part2)。
+> **記法陷阱**：[P3] 寫成 $\Gamma(\theta+\phi)$ 是把「注入波形相位 $\theta$」與「振盪器自身 excess phase $\phi$」相加當自變數——本質仍是同一個 $\Gamma$，只是 argument 換成「相對相位」。[P4] 的 APF $\Delta$ 是**振幅**敏感度，與 $\Gamma$（相位敏感度）互補；在 ideal LC 兩者正交（一個 $\propto\sin$、一個 $\propto\cos$）。詳見 [paper_004_injection_locking_part2](/05_paper_deep_dives/paper_004_injection_locking_part2)。
 >
 > **已核實**：[P3] 廣義 Adler（Eq.30/33, p.2113–2114）與 [P4] APF（Eq.25/26, p.2128）已對照原始 PDF；詳見 paper_003 / paper_004 deep-dive。
 
@@ -277,7 +277,7 @@ print(phase_to_time_error(1e-3, 5e9)*1e15, "fs")   # -> 31.83 fs
 - 推導鏈：impulse → charge $\Delta q$ → voltage step $\Delta V$ → state 位移 → **投影到切向（phase direction）** → 永久相位 $\Delta\phi$。
 - $\Gamma$ **無因次、$2\pi$ 週期、不是 noise 本身、由 large-signal periodic operating point 決定、每個 node／noise source 各有一個**。
 - ideal LC：$\Gamma(\theta)=-\sin\theta$，峰注入 $\Gamma=0$（只改振幅）、零交越 $|\Gamma|=1$（最大相位）——這就是 LTV。
-- 各 paper：[P1][P2] 用 $\Gamma$ 於 phase noise；[P3] 把同一 $\Gamma$ 用於 injection；[P4] 的 APF $\Lambda$ 是振幅版；[P5] 與 ISF 無關。
+- 各 paper：[P1][P2] 用 $\Gamma$ 於 phase noise；[P3] 把同一 $\Gamma$ 用於 injection；[P4] 的 APF $\Delta$ 是振幅版；[P5] 與 ISF 無關。
 - 來源：[P1] Eqs.(10),(11)，p.182；驗證圖見 lab_02／lab_04。
 
 ## 延伸閱讀

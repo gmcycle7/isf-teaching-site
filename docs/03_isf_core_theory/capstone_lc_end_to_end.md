@@ -5,6 +5,14 @@ description: 把全站串成一條主脊：LC state equations → Floquet 線性
 
 # Capstone — 一顆 ideal LC 從 state equations 到 BER（全嚴格一條龍）
 
+> 先備：[diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary) ｜ 接下來：[final_exam](/04_simulation_labs/final_exam)
+
+> **這頁要回答什麼**：
+> 1. 從理想並聯 LC 的 state equations 出發，為什麼 Floquet 線性化必然給出一個 $\lambda_1=0$ 的「相位方向」？
+> 2. 幾何投影怎麼給出 $\Gamma(\theta)=-\sin\theta$、$\Gamma_{rms}=1/\sqrt2$（Parseval）？代入 [P1] Eq.(21) 為什麼得到 $-145$ dBc/Hz@1 MHz（規範例 B 的 $\Gamma_{rms}=0.5$ 則是 $-148$，差 3 dB）？
+> 3. $1/f^2$ 在 $\Delta\omega\to0$ 的發散是怎麼被 Lorentzian 收掉的——真・LC（$D=0.125$ rad²/s）的 3-dB 線寬 $\Delta f_{3\mathrm{dB}}=D/\pi=39.8$ mHz 從何而來？
+> 4. 實測 $-100$ dBc/Hz@1 MHz 積 1→100 MHz 為什麼得到 $\sigma_t=447.9$ fs？在 10 Gb/s、BER $10^{-12}$ 下這吃掉的 6.3% UI 是怎麼算出來的？
+
 這頁是全站的**主脊（main spine）**：拿**一顆理想無耗並聯 LC 振盪器**，從最底層的
 **state equations（狀態方程）**出發，一步不跳、每步嚴格＋帶數值，一路推到通訊工程師最後看的
 **BER（bit error rate，位元錯誤率）bathtub（浴缸曲線）**。讀完這一頁，你就握住了整套 ISF

@@ -1,6 +1,6 @@
 ---
 title: Phase-noise measurement and spurs
-description: Three methods for measuring L(f) (direct spectrum-analyzer method, PLL/delay-line frequency discriminator, cross-correlation), how to distinguish deterministic spurs from random phase noise and their causes/countermeasures, and how to read a real PN plot — back-solving design information from the 1/f³/1/f²/floor three-segment structure.
+description: Three methods for measuring L(f) (direct spectrum-analyzer method, PLL/delay-line frequency discriminator, cross-correlation and its three practical pitfalls), how to distinguish deterministic spurs from random phase noise and their causes/countermeasures, how to read a real PN plot — back-solving design information from the 1/f³/1/f²/floor three-segment structure — and a closed-form method for integrating jitter from a datasheet segment table.
 ---
 
 # Phase-noise measurement and spurs
@@ -210,6 +210,71 @@ averaging, so **measurement time is long** ($M$ large); residual correlation set
 **Applicable range**: measuring the **lowest-noise** sources (OCXO, low-noise synthesizers, integrated
 PLLs), the method of choice when you need to approach the physical floor limit.
 
+#### Three practical pitfalls of Method C
+
+The derivation above assumes the two channels' instrument floors $n_1,n_2$ are **mutually uncorrelated**.
+On a real cross-correlation analyzer there are three pitfalls that frequently trip up newcomers:
+
+**(i) Cross-spectrum collapse**: if $n_1,n_2$ are actually **anti-correlated** ($S_{n_1n_2}<0$), the floor is
+not only not suppressed — it gets **subtracted out** of the cross-spectrum:
+
+$$
+S_{y_1y_2}=S_{\phi\phi}+S_{n_1n_2},\qquad S_{n_1n_2}<0\ \text{(when anti-correlated)}.
+$$
+
+Anti-correlation usually comes from a **shared analog front end**: AM noise converts to baseband
+differently through each channel's own mixer (different gain, different phase), or a power splitter's
+differential-mode thermal noise couples into the two paths with opposite sign — these are not each
+channel's independent instrument noise, but a **systematic negative-correlation term**. The result is a
+measured floor that looks "too good to be true" (much lower than any single channel, or even a notch or a
+negative real part in the estimate at some offsets) — this is a measurement artifact, not evidence that the
+DUT is really that clean. **Diagnostic rule**: if the floor suddenly looks abnormally low, or the
+cross-spectrum shows a negative real part or a notch, suspect collapse and re-measure with different
+hardware (a different power splitter, an isolated AM path) for comparison. This is a known phenomenon in the
+external measurement literature (external literature, not among the five source PDFs): C. W. Nelson, A.
+Hati, and D. A. Howe, *"A collapse of the cross-spectral function in phase noise metrology,"* Rev. Sci.
+Instrum., vol. 85, no. 2, p. 024705, Feb. 2014 (DOI: 10.1063/1.4865715).
+
+**(ii) The convergence check — the floor should saturate at the DUT's true floor, not keep dropping**:
+$1/\sqrt{M}$ only holds for the **uncorrelated** residual; as $M$ grows, the correct behavior is for the
+residual floor to **approach** (not keep falling below) the DUT's true floor, because the DUT-correlated term
+does not shrink with $M$. If you keep increasing $M$ and the $-5\log_{10}M$ slope **never saturates** (keeps
+dropping linearly forever, with no bend toward some floor), that means you are still measuring the
+instrument (or the uncorrelated residual has not yet dropped near the DUT floor) — **you have not measured
+the DUT yet**. The $M=256,1024$ points in the lab_35 simulation table below demonstrate exactly this
+saturation process: the straight-line fit is only valid for $M\le64$, and $M=256/1024$ visibly deviate from
+the pure $-5\log_{10}M$ line (see the table and the "this is not an error, it is physics" discussion below) —
+**the curve bending toward the true floor, and no longer dropping further, is the sign that the measurement
+is correct**.
+
+**(iii) Spur-included vs. spur-excluded integrated-jitter readings**: when integrating jitter
+($\sigma_\phi,\sigma_t$), instruments typically offer two numbers: **integrating only the continuous PN**
+(spur-excluded), or **including discrete spurs in the total jitter** (spur-included). A spur is a discrete
+tone; its power is computed as $10^{\text{spur}_{dBc}/10}$, counted once per sideband (a factor of $2$), and
+added **linearly** into $\sigma_\phi^2$ (not integrated like a continuous spectrum):
+
+$$
+\sigma_\phi^2\Big|_{\text{spur-included}}=\underbrace{\sigma_\phi^2\Big|_{\text{PN only}}}_{\text{Sec. 3.3 integral}}+2\sum_k10^{\text{spur}_{k,dBc}/10}.
+$$
+
+A numerical feel: a single $-60$ dBc reference spur alone contributes $\sigma_\phi=\sqrt{2\times10^{-6}}=1.41$
+mrad, i.e. $\sigma_t\approx45$ fs at $f_0=5$ GHz — the **same order of magnitude** as the $27.6$ fs buffer
+floor computed by Rule 4 in [clock_chain_budget](/06_design_insights/clock_chain_budget), showing that **one
+unremarkable $-60$ dBc spur can hurt the total jitter budget about as much as an entire clock chain's white
+noise floor**. When you get a jitter number from a datasheet or measurement report, always ask which
+convention it uses first — the two can differ by more than $2\times$ and mean very different things for
+spec margin (a spur can usually be removed by isolation/filtering; a continuous PN floor cannot).
+
+```python
+import numpy as np
+f0 = 5e9
+spur_dbc = -60.0
+sigma_phi_spur = np.sqrt(2 * 10**(spur_dbc/10))          # rad, spur-only contribution
+sigma_t_spur = sigma_phi_spur / (2*np.pi*f0)
+print(f"sigma_phi_spur = {sigma_phi_spur*1e3:.2f} mrad")  # -> 1.41
+print(f"sigma_t_spur = {sigma_t_spur*1e15:.1f} fs")       # -> 45.0
+```
+
 #### Method C simulation: two-channel cross-correlation squeezes the instrument floor by a square root
 
 The $1/\sqrt{M}$ convergence above is only a verbal description; here is a **reproducible numerical
@@ -279,6 +344,9 @@ the DUT's true value, not a failure.
   the **floor** (far offset), not where the signal is already strong.
 
 ![Cross-correlation measurement simulation: floor vs. averaging count M showing 1/sqrt(M) convergence, and the M=1024 recovered spectrum vs. the true DUT](/figures/xcorr_floor.png)
+
+
+> **Translator's note**: this figure is generated by a script with Chinese text baked into the image. Titles read: "(a) 互相關本底 vs M（擬合斜率=… dB/decade, M≤…）" = (a) the cross-correlation floor vs. M (fitted slope=… dB/decade, M≤…); "(b) 還原頻譜（M=1024）vs 真實 DUT" = (b) the recovered spectrum (M=1024) vs. the true DUT.
 
 **Honesty note**: what is verified here is only the **statistical/DSP mechanism** behind cross-correlation
 (the $1/\sqrt{M}$ convergence itself is a property of general complex-Gaussian statistics, not content from
@@ -423,11 +491,197 @@ $$
 
 ![Leeson and ISF three-segment overlay: 1/f³, 1/f², floor and corners lined up](/figures/leeson_vs_isf_overlay.png)
 
+
+> **Translator's note**: this figure is generated by a script with Chinese text baked into the image. Title reads: "Leeson vs ISF：同樣的 1/f³ / 1/f² / floor 三段" = Leeson vs. ISF: the same three segments — 1/f³ / 1/f² / floor.
+
 The simulated white-noise → $1/f^2$ spectrum below is exactly what the $-20$ dB/dec mid-band segment in the
 figure above looks like in isolation (toy model, see
 [lab_06](/04_simulation_labs/lab_06_white_noise_phase_noise)):
 
 ![1/f² phase noise PSD obtained from white noise passed through the ISF and phase integrator](/figures/white_noise_phase_noise_psd.png)
+
+### 3.3 Integrating jitter from a datasheet table (piecewise log–log closed form)
+
+Sections 3.1–3.2 assumed $\mathcal{L}(f)$ is a clean **single** $1/f^2$ (or $1/f^3$) closed form;
+[lab_08](/04_simulation_labs/lab_08_jitter_integration) and
+[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) likewise integrate only one segment. But a
+**real datasheet or measured PN plot gives only a handful of discrete points** (e.g. "$1$ kHz: $-20$,
+$10$ kHz: $-50$, ..."), not a formula — to compute $\sigma_\phi^2=\int S_\phi\,df$ you first need to turn the
+"table" into something you can integrate.
+
+**Piecewise log–log closed form**: between two adjacent table points $[f_a,f_b]$ (with values $L_a,L_b$
+dBc/Hz), assume $\mathcal{L}(f)$ is a **straight line in log–log coordinates** — i.e. a pure power law
+$\mathcal{L}_{lin}(f)=L_{a,lin}(f/f_a)^m$, with local slope exponent
+
+$$
+m=\frac{\log_{10}(L_{b,lin}/L_{a,lin})}{\log_{10}(f_b/f_a)}
+$$
+
+(where $L_{a,lin}=10^{L_a/10}$, etc.). This exactly covers the three slopes seen earlier: $m=-3$ is $1/f^3$,
+$m=-2$ is $1/f^2$, $m=0$ is a flat floor — **the table itself tells you which mechanism each segment is**.
+The segment's closed-form integral (of $\mathcal{L}$ over $f$, not $S_\phi$ yet — remember to multiply by $2$
+below):
+
+$$
+\int_{f_a}^{f_b}\mathcal{L}_{lin}(f)\,df=\frac{L_{a,lin}\,f_a}{m+1}\left[\left(\frac{f_b}{f_a}\right)^{m+1}-1\right]\qquad(m\neq-1),
+$$
+
+$m=-1$ (i.e. a $1/f$ segment, where $\mathcal{L}_{lin}\propto1/f$) is the removable singularity of this
+formula, replaced by the logarithmic form:
+
+$$
+\int_{f_a}^{f_b}\mathcal{L}_{lin}(f)\,df=L_{a,lin}\,f_a\,\ln\!\frac{f_b}{f_a}\qquad(m=-1).
+$$
+
+Sum this segment by segment across the band $[f_1,f_2]$ you want to integrate (interpolating at the boundary
+where needed), then convert back to phase variance using the small-angle relation $\mathcal{L}=\tfrac12 S_\phi$
+(canonical Eq.16):
+
+$$
+\sigma_\phi^2=2\sum_{\text{segments}}\int_{f_a}^{f_b}\mathcal{L}_{lin}(f)\,df,\qquad
+\sigma_t=\frac{\sigma_\phi}{2\pi f_0}.
+$$
+
+> **Relation to single-segment integration**: the $1/f^2$ mid-band, $1/f^3$ close-in, and floor segments in
+> 3.1 are all special cases of this general form at $m=-2,-3,0$;
+> [lab_08](/04_simulation_labs/lab_08_jitter_integration)'s Example C is just the closed-form solution for the
+> $m=-2$ segment alone.
+
+**Worked example**: use a 6-point datasheet table for a typical free-running oscillator ($f_0=5$ GHz, reusing
+Example C's $\mathcal{L}(1\text{ MHz})=-100$ dBc/Hz, the $1/f^3$ corner at $100$ kHz from Sec. 3 Example 2, and
+adding a $-150$ dBc/Hz white floor summed with the $1/f^2$ tail far out):
+
+| $f$ | $1$ kHz | $10$ kHz | $100$ kHz | $1$ MHz | $10$ MHz | $100$ MHz |
+|---|---|---|---|---|---|---|
+| $\mathcal{L}$ [dBc/Hz] | $-20.0$ | $-50.0$ | $-80.0$ | $-100.0$ | $-120.0$ | $-139.6$ |
+
+The first three segments ($1$–$10$–$100$ kHz) have slope $m=-3.00$ ($1/f^3$); the next two segments
+($100$ kHz–$10$ MHz) have $m=-2.00$ ($1/f^2$, self-consistent with the corner in Example 2); the last segment
+has $m=-1.96$ — not a clean $-2$, because at $100$ MHz $\mathcal{L}$ is already the **linear-power sum** of
+the $1/f^2$ tail ($-140$ dBc/Hz) and a $-150$ dBc/Hz floor ($10^{-14}+10^{-15}=1.1\times10^{-14}\to-139.6$
+dBc/Hz) — the table uses a real mixed value, not an idealized single power law, which is exactly why you must
+compute $m$ **segment by segment** rather than assuming $m=-2$ throughout.
+
+**Integrating the SONET/OC-192-style $12$ kHz–$20$ MHz band** (the first segment spans four sub-segments:
+$12$ kHz–$100$ kHz, $100$ kHz–$1$ MHz, $1$–$10$ MHz, $10$–$20$ MHz):
+
+```python
+import numpy as np
+
+f0 = 5e9  # Hz, site canonical
+
+# datasheet-style table: (f [Hz], L [dBc/Hz])
+table = [
+    (1e3, -20.0), (1e4, -50.0), (1e5, -80.0),
+    (1e6, -100.0), (1e7, -120.0), (1e8, -139.6),
+]
+
+def seg_integral(fa, La_dbc, fb, Lb_dbc):
+    La_lin, Lb_lin = 10**(La_dbc/10), 10**(Lb_dbc/10)
+    m = np.log10(Lb_lin/La_lin) / np.log10(fb/fa)
+    if abs(m + 1) < 1e-9:
+        return La_lin*fa*np.log(fb/fa), m
+    return La_lin*fa/(m+1) * ((fb/fa)**(m+1) - 1), m
+
+def integrate_table(table, f1, f2):
+    total, seg_detail = 0.0, []
+    for (fa, La), (fb, Lb) in zip(table, table[1:]):
+        lo, hi = max(fa, f1), min(fb, f2)
+        if hi <= lo:
+            continue
+        La_lin, Lb_lin = 10**(La/10), 10**(Lb/10)
+        m = np.log10(Lb_lin/La_lin) / np.log10(fb/fa)
+        L_lo = 10*np.log10(La_lin * (lo/fa)**m)
+        L_hi = 10*np.log10(La_lin * (hi/fa)**m)
+        I, _ = seg_integral(lo, L_lo, hi, L_hi)
+        total += I
+        seg_detail.append((lo, hi, m, I))
+    return total, seg_detail
+
+total, seg = integrate_table(table, 12e3, 20e6)
+sigma_phi = np.sqrt(2*total)
+sigma_t = sigma_phi / (2*np.pi*f0)
+print(f"integral = {total:.4e}")        # -> 3.5217e-02
+print(f"sigma_phi = {sigma_phi*1e3:.1f} mrad")  # -> 265.4
+print(f"sigma_t = {sigma_t*1e12:.2f} ps")       # -> 8.45
+print(f"frac from 12k-100k 1/f^3 segment = {seg[0][3]/total*100:.1f}%")  # -> 97.2
+```
+
+**Result**: $12$ kHz–$20$ MHz integrates to $\sigma_\phi=265.4$ mrad, $\sigma_t=8.45$ ps, of which **$97.2\%$
+of the variance comes from the closest-in $12$ kHz–$100$ kHz $1/f^3$ segment** (the steeper the slope and the
+closer to the carrier, the bigger the contribution — this is the quantitative version of the "close-in
+dominates" point in the 3.2 checklist).
+
+**The same table integrated over $1$–$100$ MHz** (Example C's band):
+
+```python
+import numpy as np
+
+f0 = 5e9
+table = [(1e3, -20.0), (1e4, -50.0), (1e5, -80.0),
+         (1e6, -100.0), (1e7, -120.0), (1e8, -139.6)]
+
+def seg_integral(fa, La_dbc, fb, Lb_dbc):
+    La_lin, Lb_lin = 10**(La_dbc/10), 10**(Lb_dbc/10)
+    m = np.log10(Lb_lin/La_lin) / np.log10(fb/fa)
+    if abs(m + 1) < 1e-9:
+        return La_lin*fa*np.log(fb/fa)
+    return La_lin*fa/(m+1) * ((fb/fa)**(m+1) - 1)
+
+def integrate_table(table, f1, f2):
+    total = 0.0
+    for (fa, La), (fb, Lb) in zip(table, table[1:]):
+        lo, hi = max(fa, f1), min(fb, f2)
+        if hi <= lo:
+            continue
+        La_lin = 10**(La/10)
+        m = np.log10(10**(Lb/10)/La_lin) / np.log10(fb/fa)
+        L_lo = 10*np.log10(La_lin * (lo/fa)**m)
+        L_hi = 10*np.log10(La_lin * (hi/fa)**m)
+        total += seg_integral(lo, L_lo, hi, L_hi)
+    return total
+
+total_c = integrate_table(table, 1e6, 100e6)
+sigma_t_c = np.sqrt(2*total_c) / (2*np.pi*f0)
+print(f"sigma_t (1-100 MHz) = {sigma_t_c*1e15:.1f} fs")  # -> 448.5
+
+# cross-check against np.trapezoid on a dense log-log-interpolated grid
+logf = np.log10([p[0] for p in table]); Ls = [p[1] for p in table]
+fgrid = np.logspace(np.log10(1e6), np.log10(100e6), 200_000)
+Lgrid = np.interp(np.log10(fgrid), logf, Ls)
+I_trap = np.trapezoid(10**(Lgrid/10), fgrid)
+sigma_t_trap = np.sqrt(2*I_trap) / (2*np.pi*f0)
+print(f"sigma_t (trapezoid) = {sigma_t_trap*1e15:.1f} fs")  # -> 448.5
+```
+
+**Result**: $448.5$ fs — reproducing Example C's $447.9$ fs (a $0.6$ fs difference, coming from the $-150$
+dBc/Hz floor mixed into the table's $10$–$100$ MHz segment; Example C is pure $1/f^2$ with no floor
+contribution). The closed form and `np.trapezoid` (dense log–log-interpolated grid) agree to floating-point
+precision — the two methods cross-validate each other.
+
+**The same oscillator, changing only the integration band, gives a $\sigma_t$ that differs by
+$\approx18.8\times$** ($8.45$ ps vs. $448.5$ fs, $8447.8/448.5\approx18.8$): **this is exactly why "reporting
+jitter requires stating the integration bandwidth"**
+([adc_aperture_jitter](/06_design_insights/adc_aperture_jitter) carries the same honesty warning) — for the
+same free-running VCO, a telecom-style narrow band (starting at $12$ kHz, folding in the full close-in $1/f^3$)
+measures far more pessimistically than looking only at the wideband $1/f^2$ segment; conversely, **a
+free-running VCO will almost never pass a telecom integration-bandwidth spec** unless a PLL/CDR tracks out the
+close-in noise (see [pll_noise_budget](/06_design_insights/pll_noise_budget)).
+
+**Common integration bands** (application-dependent; external engineering convention, not content from the
+five source PDFs — check the specific numbers against the latest relevant spec):
+
+| Application | Common integration band | Notes |
+|---|---|---|
+| SONET/SDH OC-192 (telecom reference clock) | $12$ kHz–$20$ MHz | Industry-standard lower bound; **the exact clause is not verified here** (Telcordia GR-253-CORE family; this site has not checked it clause by clause — see the same honesty note in [pll_noise_budget](/06_design_insights/pll_noise_budget)) |
+| PCIe / OIF-CEI-family SerDes | Not a fixed band — jitter is passed through a CDR jitter-transfer filter first, then integrated | "Integration" becomes "filtering + integration" — see the dual-Dirac/CDR-filtered jitter discussion in [dj_dual_dirac](/06_design_insights/dj_dual_dirac) |
+| ADC/DAC sampling clock | Lower bound $\sim10$–$100$ Hz (set by the measurement system itself), upper bound $f_s/2$ (Nyquist) | See the aperture-jitter and sample-rate discussion in [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter); the exact lower bound depends on the datasheet |
+
+> **Interactive exercise**: the `PhaseNoiseCalculator` component embedded in this site's interactive
+> calculator page ([interactive_calculator](/04_simulation_labs/interactive_calculator)) provides a
+> "datasheet segment table" mode where you can edit the 6 $(f,\mathcal{L})$ points and the integration band
+> $[f_1,f_2]$ directly and watch $\sigma_\phi,\sigma_t$ update live — the default values are exactly the
+> worked-example table above.
 
 ---
 
@@ -511,6 +765,8 @@ print(round(c0_over_c1, 3))  # -> 0.316
 | Noise source is stationary white/flicker | Clean three-segment broken line | Cyclostationarity, injection pulling break the clean broken line |
 | Spur is a deterministic periodic source | dBc is fixed, can be identified individually | Random burst/intermittent interference is hard to describe with dBc |
 | Floor is intrinsic to the DUT | Floor reflects the buffer/source | Usually it's the instrument floor; cross-correlation is needed to see the true floor |
+| Each segment of the segment table (Sec. 3.3) really is a single power law | Piecewise closed-form integration equals the true $\sigma_\phi^2$ | If a segment actually mixes two mechanisms (as in the example, where $10$–$100$ MHz mixes $1/f^2$ + floor), a single power law is only a **local** approximation — denser table points improve accuracy |
+| The two channels' instrument floors are uncorrelated (cross-correlation) | $1/\sqrt{M}$ convergence holds | Anti-correlation (AM / shared splitter) → cross-spectrum collapse, a spuriously low floor — see "Three practical pitfalls of Method C" |
 
 ## Correspondence with papers/equations
 
@@ -518,7 +774,8 @@ print(round(c0_over_c1, 3))  # -> 0.316
   [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)).
 - $1/f^2$ mid-band: [P1] Eq.(21), p.185; $1/f^3$ close-in: [P1] Eq.(23), p.185; $1/f^3$ corner:
   [P1] Eq.(24), p.185.
-- $\mathcal{L}\approx\tfrac12 S_\phi$ (small-angle PM): canonical Eq.16.
+- $\mathcal{L}\approx\tfrac12 S_\phi$ (small-angle PM): canonical Eq.16; phase variance / rms jitter:
+  canonical Eq.18–19 (Sec. 3.3's piecewise integral is the same set of equations, applied segment by segment).
 - Full three-segment picture and Leeson comparison: [derivation_leeson](/99_appendix/derivation_leeson),
   [E1] Leeson 1966 (**not among the five source PDFs**).
 - **Measurement instruments/standards (SA, delay-line/PLL discriminator, cross-correlation analyzer) are
@@ -526,6 +783,12 @@ print(round(c0_over_c1, 3))  # -> 0.316
   page supplements them with standard measurement theory.
 - Cross-correlation $1/\sqrt{M}$ convergence simulation: `simulations/lab_35_xcorr_measurement.py`, figure
   `/figures/xcorr_floor.png` (the statistical/DSP mechanism itself is also not among the five source PDFs).
+- Cross-spectrum collapse (external literature, not among the five source PDFs): C. W. Nelson, A. Hati,
+  D. A. Howe, *"A collapse of the cross-spectral function in phase noise metrology,"* Rev. Sci. Instrum.
+  85, 024705 (2014), DOI: 10.1063/1.4865715.
+- Piecewise log–log jitter integration (Sec. 3.3): external DSP/measurement convention, not content from the
+  five source PDFs; it uses the same small-angle equations (canonical Eq.16–19) as
+  [lab_08](/04_simulation_labs/lab_08_jitter_integration)'s single-segment closed form.
 
 ## Key takeaways
 
@@ -534,6 +797,12 @@ print(round(c0_over_c1, 3))  # -> 0.316
   instrument for a good reference or self-delay; **cross-correlation correlates two independent channels to
   kill the uncorrelated floor by $1/\sqrt{M}$** (5 dB per ×10 averaging; simulation-verified fitted slope
   $-4.73$ dB/decade vs. theory $-5.00$, match $0.946$, see `lab_35`).
+- **The three pitfalls of cross-correlation**: (i) anti-correlated floors cause cross-spectrum collapse (a
+  spuriously low floor, Nelson–Hati–Howe 2014); (ii) the convergence check — the floor should saturate at
+  the DUT's true floor as $M$ grows, not keep dropping without bound; (iii) spur-included vs. excluded
+  integrated-jitter readings can differ by more than $2\times$ (a $-60$ dBc spur alone contributes
+  $\approx45$ fs at 5 GHz, the same order of magnitude as the $27.6$ fs buffer floor in
+  [clock_chain_budget](/06_design_insights/clock_chain_budget)).
 - **A spur** is a deterministic discrete tone (units **dBc**, density does not change with RBW); **random
   PN** is a continuous spectrum (**dBc/Hz**). Distinguish by: changing the RBW weighting, checking
   repeatability, toggling nearby equipment.
@@ -541,6 +810,10 @@ print(round(c0_over_c1, 3))  # -> 0.316
   the ISF's $n$-th harmonic $c_n$; countermeasures are isolation/filtering/shielding + suppressing $c_n$.
 - Reading a PN plot: $1/f^3$ (flicker via $c_0$) / $1/f^2$ (white noise via the integrator) / floor (mostly
   instrument/buffer), plus two corners. Back-solve $S_i$, $c_0/c_1$, device flicker to get design knobs.
+- **Integrating jitter from a datasheet table** (Sec. 3.3): assume a single power law between adjacent table
+  points, integrate in closed form, $\sigma_\phi^2=2\Sigma$; changing only the integration band on the same
+  oscillator ($12$ kHz–$20$ MHz vs. $1$–$100$ MHz) changes $\sigma_t$ by $\approx18.8\times$ ($8.45$ ps vs.
+  $448.5$ fs) — **reporting jitter requires stating the integration bandwidth**.
 - Numerical example: $-148$ dBc/Hz @ 1 MHz back-solves to $S_i\approx10^{-24}$ A²/Hz; a $1/f^3$ corner of
   $100$ kHz (flicker corner 1 MHz) back-solves to $c_0/c_1\approx0.32$.
 
@@ -550,6 +823,9 @@ print(round(c0_over_c1, 3))  # -> 0.316
 - Spur downconversion mechanism (ISF harmonics): [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)
 - Close-in $1/f^3$ and symmetry: [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion), [symmetry](/06_design_insights/symmetry)
 - Increasing swing to suppress $1/f^2$: [tank_swing](/06_design_insights/tank_swing)
-- Integrating $\mathcal{L}$ back to jitter: [numerical_feeling](/04_simulation_labs/numerical_feeling)
+- Integrating $\mathcal{L}$ back to jitter (single-segment closed form): [numerical_feeling](/04_simulation_labs/numerical_feeling), [lab_08_jitter_integration](/04_simulation_labs/lab_08_jitter_integration)
+- Integration-bandwidth sensitivity, back-solving SNR (the same honesty warning): [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter)
+- CDR-filtered jitter and dual-Dirac: [dj_dual_dirac](/06_design_insights/dj_dual_dirac)
 - Three-segment comparison with Leeson: [derivation_leeson](/99_appendix/derivation_leeson)
 - Near-carrier Lorentzian (the truth behind the $1/f^2$ divergence): [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
+- Interactive calculator (includes the Sec. 3.3 segment-table mode): [interactive_calculator](/04_simulation_labs/interactive_calculator)

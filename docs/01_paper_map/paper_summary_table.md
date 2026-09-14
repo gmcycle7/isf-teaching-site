@@ -88,7 +88,7 @@ fitting 參數**，沒有從第一原理算出。[P1] 的貢獻正是：用 ISF 
 | 相位敏感度 | $\Gamma(\omega_0\tau)$（ISF） | [P2] 沿用 $\Gamma$；[P3] 寫成 $\Gamma(\theta+\phi)$ 放進注入內積 | 同一個 $\Gamma$，[P3] 只是把它當 injection 的加權核 |
 | 相位演化 | $\phi(t)=\frac{1}{q_{max}}\int\Gamma i_n\,d\tau$（Eq.11，noise 視角） | [P3] $\dot\phi=\Delta\omega+\frac{1}{q_{max}}\langle\Gamma i_{inj}\rangle$，$\Delta\omega\equiv\omega_0-\omega_{inj}$（Eq.(30)，injection 視角） | 同一條 LTV 相位方程，一個源是 random noise、一個源是 deterministic injection |
 | $1/f^2$ phase noise | Eq.(21) $\propto\Gamma_{rms}^2/q_{max}^2$ | [P2] $\kappa^2\propto\Gamma_{rms}^2/q_{max}^2$（jitter 版） | 同一個 $\Gamma_{rms}^2/q_{max}^2$ 比例，phase noise 與累積 jitter 是同一物理（claim **C3**=**C6** 同源） |
-| 敏感度的兩個方向 | 只有相位版 $\Gamma$ | [P4] 加上振幅版 APF $\Lambda$ | $\Gamma$（切向/相位）與 $\Lambda$（徑向/振幅）是 limit cycle 上正交的兩個投影 |
+| 敏感度的兩個方向 | 只有相位版 $\Gamma$ | [P4] 加上振幅版 APF $\Delta$ | $\Gamma$（切向/相位）與 $\Delta$（徑向/振幅）是 limit cycle 上正交的兩個投影 |
 
 ### 哪些符號定義不同、需要統一
 
@@ -98,7 +98,7 @@ fitting 參數**，沒有從第一原理算出。[P1] 的貢獻正是：用 ISF 
   本站兩者並用，$\Delta\omega=2\pi\Delta f$。
 - **ISF 的 DC**：注意 $c_0$ 是傅立葉**係數**，ISF 的 DC**值**是 $c_0/2$（Eq.(12)）——
   算 $1/f^3$ corner（Eq.(24)）時極易出錯，本站反覆提醒。
-- **振幅敏感度**：[P4] 的 APF 寫 $\Lambda(\phi)$、單位 $\mathrm{A^{-1}}$，與 ISF 的無因次
+- **振幅敏感度**：[P4] 的 APF 寫 $\Delta(\phi)$、單位 $\mathrm{A^{-1}}$，與 ISF 的無因次
   $\Gamma$ **量綱不同**，不可混用。
 - **PPV/adjoint/Floquet**：本站不在主幹用其專屬記號（如 Demir 的 $v_1^T(t)$），
   只在 [effective_isf](/03_isf_core_theory/effective_isf) 以外部文獻形式提及。

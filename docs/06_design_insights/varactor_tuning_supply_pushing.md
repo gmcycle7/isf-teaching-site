@@ -5,7 +5,9 @@ description: 定義 K_VCO=∂f0/∂V_tune 與 supply pushing K_push=∂f0/∂V_D
 
 # Tuning line 與 supply pushing 的相位雜訊
 
-**前置（先讀這些）**：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)（白噪 → $1/f^2$ 的 $1/\Delta\omega^2$ 積分器）、[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)（$1/f$ → $1/f^3$，本頁要畫平行）、[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)（AM-PM 後門）。本頁假設你已經接受「相位無恢復力 → noise 經 $1/\Delta\omega^2$ 積分成裙邊」這條主線。
+> **先備**：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)、[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)、[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) ｜ **接下來**：[lc_vs_ring](/06_design_insights/lc_vs_ring)
+
+本頁假設你已經接受「相位無恢復力 → noise 經 $1/\Delta\omega^2$ 積分成裙邊」這條主線。
 
 前面整套 ISF 理論講的都是 **device 自己的雜訊電流** $i_n(t)$ 直接注入 tank 節點。但真實 VCO（voltage-controlled oscillator，壓控振盪器，輸出頻率由一條控制電壓決定）還有兩個**完全不靠 device 內部 $i_n$、而是靠「外部電壓節點抖動」**的相位雜訊大門：
 
@@ -244,7 +246,8 @@ $$
 \Delta f(t)=K_{push}V_r\sin(2\pi f_m t)\quad\Rightarrow\quad\phi(t)=\int 2\pi\,\Delta f\,dt'=-\underbrace{\frac{K_{push}V_r}{f_m}}_{\beta}\cos(2\pi f_m t)
 $$
 
-峰值相位偏移（FM 調變指數）$\beta=K_{push}V_r/f_m$。**單位檢查**：$\dfrac{(\text{Hz/V})\cdot\text{V}}{\text{Hz}}=$ 無因次（rad）✓——這正是「頻率抖動 ÷ 調變頻率 = 相位」的 FM 基本功。代量測值：
+峰值相位偏移（FM 調變指數）$\beta=K_{push}V_r/f_m$（**本站慣例**：這裡的 $\beta$ 是 FM 調變指數，與
+[subharmonic_injection](/06_design_insights/subharmonic_injection) 的 injection-locking realignment factor $\beta$ 無關）。**單位檢查**：$\dfrac{(\text{Hz/V})\cdot\text{V}}{\text{Hz}}=$ 無因次（rad）✓——這正是「頻率抖動 ÷ 調變頻率 = 相位」的 FM 基本功。代量測值：
 
 $$
 \beta_{pred}=\frac{2.936\times10^{9}\ \text{Hz/V}\times 0.01\ \text{V}}{10^{8}\ \text{Hz}}=0.2936\ \text{rad}.

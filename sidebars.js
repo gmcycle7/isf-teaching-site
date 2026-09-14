@@ -22,6 +22,12 @@ const sidebars = {
       type: 'category',
       label: '01 · 論文地圖 Paper Map',
       collapsed: true,
+      link: {
+        type: 'generated-index',
+        title: '01 · 論文地圖 Paper Map',
+        description: '五篇來源論文的速覽、公式索引、圖表索引、教學主張交叉引用——找「這條公式出自哪裡」的起點。',
+        slug: '/01_paper_map',
+      },
       items: [
         '01_paper_map/paper_summary_table',
         '01_paper_map/equation_index',
@@ -33,6 +39,12 @@ const sidebars = {
       type: 'category',
       label: '02 · 基礎 Foundations',
       collapsed: true,
+      link: {
+        type: 'generated-index',
+        title: '02 · 基礎 Foundations',
+        description: '相位幾何、LTI vs LTV、PSD/jitter 方言、Allan、jitter 核——ISF 之前必須有的地基。',
+        slug: '/02_foundations',
+      },
       items: [
         '02_foundations/oscillator_phase',
         '02_foundations/tank_Q_and_energy_restoration',
@@ -50,6 +62,12 @@ const sidebars = {
       type: 'category',
       label: '03 · ISF 核心理論 Core Theory',
       collapsed: true,
+      link: {
+        type: 'generated-index',
+        title: '03 · ISF 核心理論 Core Theory',
+        description: '從 impulse→Δφ 到 Eq.(21)、傅立葉/Parseval、線寬、擴散字典、App.B 閉式、capstone 主脊。',
+        slug: '/03_isf_core_theory',
+      },
       items: [
         '03_isf_core_theory/isf_definition',
         '03_isf_core_theory/impulse_to_phase_shift',
@@ -72,6 +90,12 @@ const sidebars = {
       type: 'category',
       label: '04 · 模擬實驗 Simulation Labs',
       collapsed: true,
+      link: {
+        type: 'generated-index',
+        title: '04 · 模擬實驗 Simulation Labs',
+        description: '每個 lab 一張圖、一段 Python、一個 # -> 數字；含互動工具與期末總測驗。',
+        slug: '/04_simulation_labs',
+      },
       items: [
         {
           type: 'category',
@@ -133,8 +157,11 @@ const sidebars = {
       type: 'category',
       label: '05 · 論文逐篇精讀 Paper Deep Dives',
       collapsed: true,
+      link: {
+        type: 'doc',
+        id: '05_paper_deep_dives/index',
+      },
       items: [
-        '05_paper_deep_dives/index',
         '05_paper_deep_dives/paper_001_general_theory_phase_noise',
         '05_paper_deep_dives/paper_002_jitter_phase_noise_ring',
         '05_paper_deep_dives/paper_003_injection_locking_part1',
@@ -147,6 +174,12 @@ const sidebars = {
       type: 'category',
       label: '06 · 設計直覺 Design Insights',
       collapsed: true,
+      link: {
+        type: 'generated-index',
+        title: '06 · 設計直覺 Design Insights',
+        description: '把公式翻成設計旋鈕：振盪器設計、注入與頻率轉換、系統與量測。',
+        slug: '/06_design_insights',
+      },
       items: [
         {
           type: 'category',
@@ -200,11 +233,19 @@ const sidebars = {
       type: 'category',
       label: '99 · 附錄 Appendix',
       collapsed: true,
+      link: {
+        type: 'generated-index',
+        title: '99 · 附錄 Appendix',
+        description: '推導反覆用到的數學工具、LTV/Floquet 與 Leeson 附錄、Python 環境、中英詞彙表與參考文獻——查證與複習用的工具箱。',
+        slug: '/99_appendix',
+      },
       items: [
         '99_appendix/math_identities',
         '99_appendix/ltv_htm',
         '99_appendix/derivation_floquet_ppv',
         '99_appendix/derivation_leeson',
+        '99_appendix/derivation_autocorrelation_wiener_khinchin',
+        '99_appendix/p2_appendix_a_reconciliation',
         '99_appendix/python_environment',
         '99_appendix/glossary',
         '99_appendix/references',

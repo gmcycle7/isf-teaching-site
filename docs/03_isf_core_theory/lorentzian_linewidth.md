@@ -4,10 +4,11 @@ description: 從相位 random walk（Var[Δφ]=2D|t|）經高斯特徵函數推�
 ---
 
 import LineshapeExplorer from "@site/src/components/LineshapeExplorer";
+import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # Lorentzian 線寬：解開 1/f² 在 Δf→0 發散的矛盾
 
-> **前置閱讀**：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)（$1/f^2$ 招牌結果 [P1] Eq.(21)）、[rms_isf](/03_isf_core_theory/rms_isf)（$\Gamma_{rms}^2/q_{max}^2$ 設定 phase diffusion）、[stochastic_noise_basics](/02_foundations/stochastic_noise_basics)（自相關 ↔ Wiener–Khinchin）。
+> 先備：[rms_isf](/03_isf_core_theory/rms_isf) ｜ 接下來：[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
 
 上一頁 [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) 推出了振盪器
 phase noise 的招牌結果 [P1] Eq.(21)：白噪造成的相位雜訊裙邊是
@@ -319,6 +320,101 @@ flicker FM 之下同一套機制給出**近高斯**線核而不是 Lorentzian，
 FWHM_true 差多少（白噪版數十至數百 Hz、flicker 版數千 Hz，同一數字差可達百倍）；再把 RBW
 滑桿往右拉，看灰色虛線（真實線形）與藍色實線（RBW 卷積後的「量測」線）何時分道揚鑣——
 RBW 遠大於線寬時，量到的只是一個寬而無特徵的鼓包，轉平／近高斯肩部的資訊已經丟了。
+
+<NumericQuiz
+  prompt="維持 explorer 預設值（L(10 kHz) = −71 dBc/Hz、white FM、RBW = 100 Hz），面板量到的（RBW 卷積後）FWHM 大約是多少？"
+  answer={130}
+  tol={0.05}
+  unit="Hz"
+  hint="先算 true FWHM = D/π（D 由 L(10 kHz) 換算得到，見第 3/5 步），再想：RBW=100 Hz 已經比 true FWHM 寬很多，量到的線寬會被儀器解析度抹寬到接近 RBW 的量級。"
+  solutionNote="true FWHM≈49.9 Hz，但 RBW=100 Hz 遠大於它，卷積後量到的線寬被抹寬到≈130 Hz——RBW 比真實線寬還寬時，讀到的幾乎是儀器自己的解析度形狀，不是真實線形。"
+/>
+
+<details>
+<summary><strong>驗證：重現面板的量測 FWHM</strong>（對照 LineshapeExplorer.js 的 whiteLineshape / buildGrid / gaussKernel / convolveSame / fwhmOfCurve）</summary>
+
+```python
+import numpy as np
+
+TWO_PI = 2 * np.pi
+N_GRID = 512
+F_REF = 10e3       # LineshapeExplorer.js F_REF
+
+def white_lineshape(Sphi_at_fref, fref):                  # .js whiteLineshape()
+    dw = TWO_PI * fref
+    D = Sphi_at_fref * dw * dw / 4
+    fwhm = D / np.pi
+    return D, fwhm, (lambda df: D / (D**2 + (TWO_PI * df)**2))
+
+def build_grid(fwhm_for_span, n_pts):                      # .js buildGrid()
+    span = max(30 * fwhm_for_span, 5)
+    df = (2 * span) / (n_pts - 1)
+    freqs = np.array([-span + i * df for i in range(n_pts)])
+    return freqs, df
+
+def gauss_kernel(rbw_hz, df):                               # .js gaussKernel()
+    sigma = rbw_hz / (2 * np.sqrt(2 * np.log(2)))
+    half = max(1, round((4 * sigma) / df))
+    xs = (np.arange(2 * half + 1) - half) * df
+    k = np.exp(-0.5 * (xs / sigma) ** 2)
+    return k / k.sum()
+
+def convolve_same(sig, kernel):                             # .js convolveSame()
+    n_ = len(sig)
+    m_ = len(kernel)
+    half = (m_ - 1) // 2
+    out = np.zeros(n_)
+    for i in range(n_):
+        acc = 0.0
+        for j in range(m_):
+            idx = i + (j - half)
+            if 0 <= idx < n_:
+                acc += sig[idx] * kernel[j]
+        out[i] = acc
+    return out
+
+def fwhm_of_curve(freqs, curve):                             # .js fwhmOfCurve()
+    i_peak = int(np.argmax(curve))
+    peak = curve[i_peak]
+    half = peak / 2
+    i_l = 0
+    for i in range(i_peak, 0, -1):
+        if curve[i] < half:
+            i_l = i
+            break
+    i_r = len(curve) - 1
+    for i in range(i_peak, len(curve) - 1):
+        if curve[i] < half:
+            i_r = i
+            break
+    f_l = freqs[i_l] + (half - curve[i_l]) / (curve[i_l+1] - curve[i_l]) * (freqs[i_l+1] - freqs[i_l])
+    f_r = freqs[i_r-1] + (half - curve[i_r-1]) / (curve[i_r] - curve[i_r-1]) * (freqs[i_r] - freqs[i_r-1])
+    return f_r - f_l
+
+# widget 預設值：L_dbc=-71.0, noiseType='white', logRbw=2.0 -> RBW=100 Hz（LineshapeExplorer.js:196-198）
+L_dbc = -71.0
+rbw = 10 ** 2.0
+
+Llin = 10 ** (L_dbc / 10)
+Sphi = 2 * Llin                                             # 時域 /2 慣例
+
+D, true_fwhm, curve_fn = white_lineshape(Sphi, F_REF)
+span_fwhm = max(true_fwhm, rbw)
+freqs, df = build_grid(span_fwhm, N_GRID)
+
+raw_true = np.array([curve_fn(f) for f in freqs])
+true_curve = raw_true / raw_true.max()
+
+kernel = gauss_kernel(rbw, df)
+raw_measured = convolve_same(true_curve, kernel)
+measured_curve = raw_measured / raw_measured.max()
+
+apparent_fwhm = fwhm_of_curve(freqs, measured_curve)
+print("true FWHM =", round(true_fwhm, 1), "Hz")
+print("apparent (RBW-convolved) FWHM =", round(apparent_fwhm, 1), "Hz")  # -> 130.0
+```
+
+</details>
 
 核心 Python（完整 script：`simulations/lab_18_lorentzian.py`）：
 

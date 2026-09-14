@@ -20,7 +20,9 @@ kernel integral gives EXACTLY
     sigma_dphi^2(N) = kappa^2 * N*T      (phase random walk)
 
 i.e. [P2] Eq.(8) p.792 sigma_dphi = kappa*sqrt(dt) with
-[P2] Eq.(11)/(12) p.793 kappa = (Gamma_rms/qmax)*sqrt(S_i/2)  (no omega0).
+[P2] Eq.(11) p.793 kappa = (Gamma_rms/qmax)*sqrt(S_i/2)  [rad/sqrt(s)] (phase
+version = sqrt of Eq.(11); the printed Eq.(12) is the time version kappa_t =
+kappa/omega0, sqrt(s), with omega0 in the denominator).
 
 Monte-Carlo
 -----------
@@ -47,6 +49,9 @@ Figures
 -------
   static/figures/jitter_kernels_mc.png
   static/figures/jitter_two_regime.png
+  static/figures/jitter_kernel_shapes.png (make_figure_kernels: standalone plot of
+      the three kernels TIE=1, 4sin^2(pi f T), 16sin^4(pi f T), for jitter_kernels.md
+      Step 3)
 """
 import os
 import sys
@@ -416,6 +421,46 @@ def make_figure_two_regime(r):
 # ----------------------------------------------------------------------------
 # Figure
 # ----------------------------------------------------------------------------
+def make_figure_kernels():
+    """Standalone figure: the three jitter kernels TIE=1, 4sin^2(pi f T)
+    (N=1 period kernel), 16sin^4(pi f T) (cycle-to-cycle kernel), normalized
+    |H(f)|^2 vs the dimensionless frequency fT, log-log, with the 4/16 peaks
+    and the low-f f^2/f^4 roll-off asymptotes marked. Site jitter_kernels.md
+    Step 3 (kernels (a)/(b)/(c))."""
+    fT = np.geomspace(1e-3, 4, 4000)
+    tie = np.ones_like(fT)
+    period = 4.0 * np.sin(np.pi * fT) ** 2
+    c2c_k = 16.0 * np.sin(np.pi * fT) ** 4
+
+    fig, ax = plt.subplots(figsize=(6.6, 5.0))
+    ax.loglog(fT, tie, "k--", lw=1.6, label=r"TIE (核 a)：$1$")
+    ax.loglog(fT, period, color="tab:blue", lw=1.8,
+              label=r"N-period (核 b, $N$=1)：$4\sin^2(\pi fT)$")
+    ax.loglog(fT, c2c_k, color="tab:red", lw=1.8,
+              label=r"cycle-to-cycle (核 c)：$16\sin^4(\pi fT)$")
+
+    lo = fT < 0.08
+    ax.loglog(fT[lo], (2 * np.pi * fT[lo]) ** 2, ":", color="tab:blue", lw=1.4,
+              label=r"低頻漸近線 $\propto f^2$")
+    ax.loglog(fT[lo], (2 * np.pi * fT[lo]) ** 4, ":", color="tab:red", lw=1.4,
+              label=r"低頻漸近線 $\propto f^4$")
+
+    for y, txt in ((4.0, "4"), (16.0, "16")):
+        ax.axhline(y, color="0.6", lw=0.8, ls="-", zorder=0)
+        ax.annotate(txt, (1.15e-3, y), textcoords="offset points",
+                    xytext=(0, 3), fontsize=9, color="0.35")
+    ax.axhline(1.0, color="0.6", lw=0.8, ls="-", zorder=0)
+
+    ax.set_xlim(1e-3, 4)
+    ax.set_ylim(1e-6, 40)
+    ax.set_xlabel(r"$fT$（正規化頻率，無因次；N-period 核以 $N=1$ 繪示，一般為 $fNT$）")
+    ax.set_ylabel(r"$\vert H(f)\vert^2$（無因次）")
+    ax.set_title("三種 jitter 核的正規化 |H(f)|²：TIE、N-period、cycle-to-cycle")
+    ax.legend(fontsize=8.5, loc="lower right")
+    fig.tight_layout()
+    savefig(fig, "jitter_kernel_shapes.png")
+
+
 def make_figure(Ns, sig_mc, sig_th, d, c2c):
     fig, axes = plt.subplots(1, 3, figsize=(13.2, 4.2))
 
@@ -482,6 +527,7 @@ def main():
     r5 = part5_two_regime()
     make_figure(Ns, sig_mc, sig_th, d, c2c)
     make_figure_two_regime(r5)
+    make_figure_kernels()
 
 
 if __name__ == "__main__":

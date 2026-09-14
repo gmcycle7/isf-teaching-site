@@ -9,14 +9,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # Quadrature generation and coupled-oscillator phase noise
 
-> **Where this page sits (up front)**: this is an **advanced** design page. It takes the need every
-> SerDes/transceiver designer faces daily — generating a clock pair with a
-> $90^\circ$ phase offset (**quadrature**, i.e. I/Q) — and explains it inside this site's existing
-> **ISF + generalized Adler** machinery. **Prerequisites**: first understand
-> the ISF of [P1] ([isf_definition](/03_isf_core_theory/isf_definition), [effective_isf](/03_isf_core_theory/effective_isf)),
-> the generalized-Adler injection locking of [P3] ([paper_003](/05_paper_deep_dives/paper_003_injection_locking_part1)),
-> and the ILFD / frequency division of [P4] ([paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2)).
-> Without those three pages, the equations here will look like they appear out of nowhere.
+> **Prerequisites**: [isf_definition](/03_isf_core_theory/isf_definition), [effective_isf](/03_isf_core_theory/effective_isf), [paper_003](/05_paper_deep_dives/paper_003_injection_locking_part1), [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2) | **Next**: [sampling_pll](/06_design_insights/sampling_pll)
 
 **Quadrature (a pair of signals I and Q with a $90^\circ$ phase offset)** is a basic building block of
 modern transceivers: image-reject mixers, single-sideband modulation, 4-phase sampling in half-rate
@@ -472,9 +465,10 @@ $1/(2\omega_L)=$ 1/(rad/s) $=$ s ✓.
   IEEE Trans. Circuits Syst. I, vol. 53, no. 7, pp. 1579–1588, Jul. 2006 (and the related parallel-vs-series
   QVCO literature). (Basis of the parallel vs series coupling phase-noise comparison. Volume/issue/pages verified.)
 - **[E-Mirzaei-QVCO]** A. Mirzaei, M. E. Heidari, R. Bagheri, S. Chehrazi, A. A. Abidi, *"The Quadrature LC
-  Oscillator: A Complete Portrait Based on Injection Locking,"* IEEE J. Solid-State Circuits, 2007.
+  Oscillator: A Complete Portrait Based on Injection Locking,"* IEEE J. Solid-State Circuits, vol. 42,
+  no. 9, pp. 1916–1932, Sep. 2007, DOI 10.1109/JSSC.2007.903047.
   (Treats the QVCO rigorously as mutual injection locking: the in-phase/quadrature mode degeneracy of plain parallel coupling and the role of the coupling phase shift;
-  basis of point 3 of the Section 4 "Numerical verification". Volume/issue/pages to be verified.)
+  basis of point 3 of the Section 4 "Numerical verification". Volume/issue/pages verified.)
 - **[E-Behbahani-PPF]** F. Behbahani, Y. Kishigami, J. Leete, A. A. Abidi, *"CMOS Mixers and Polyphase
   Filters for Large Image Rejection,"* IEEE JSSC, vol. 36, no. 6, pp. 873–887, Jun. 2001.
   (Basis of the RC-CR polyphase filter design and insertion-loss/bandwidth trade-off. Volume/issue/pages verified.)

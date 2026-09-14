@@ -502,7 +502,7 @@ $$
 \quad\Rightarrow\quad \frac{d\Gamma_{rms}^2}{d\zeta}=0\ \text{在}\ 18\zeta(1+3\zeta)=6(1+9\zeta^2)\ \Rightarrow\ \zeta=\frac13,\quad \Gamma_{rms}^2\Big|_{\zeta=1/3}=\frac{\tfrac12\cdot2}{4}=\frac14 .
 $$
 
-這與 Babaie–Staszewski 原文 §II 的閉式一致（$\Gamma_{rms}^2=\tfrac12\tfrac{1+9\zeta^2}{(1+3\zeta)^2}$，最小值 $1/4$ 於 $\zeta=1/3$；本站以 [P1] 波形法獨立推出，原文式號待查證）；
+這與 Babaie–Staszewski 原文 §II 的閉式一致（$\Gamma_{rms}^2=\tfrac12\tfrac{1+9\zeta^2}{(1+3\zeta)^2}$，最小值 $1/4$ 於 $\zeta=1/3$；本站以 [P1] 波形法獨立推出——原文 Eq.(3), p.3121 逐項確認完全相同（外部文獻，已對照原文摘要/式號））；
 lab_43 的數值掃描（$\zeta\in[0,0.6]$）與此閉式最大差 $\sim10^{-16}$（浮點零；lab 印出 $1.7\times10^{-16}$，下方頁內 block 用 trapezoid 積分得 $\sim10^{-16}$ 同級），最小值落在 $\zeta=0.335$（格點解析度 0.005）。
 **結論由 lab 產生**：$\Gamma_{rms}^2$ 從正弦的 $0.5$ 降到 $0.25$，即 **$-3.01$ dB**。
 
@@ -511,7 +511,7 @@ lab_43 的數值掃描（$\zeta\in[0,0.6]$）與此閉式最大差 $\sim10^{-16}
 1. **零交越變陡**：switching pair 在零交越換流、在那裡注入噪聲；同一個 $V_{max}$ 下準方波的零交越斜率是正弦的
    $f'(0)/\max\lvert f\rvert=2/0.943=2.12$ 倍，斜率主導區的敏感度 $\approx1/\text{slope}$（[P1] Eq.(37), p.193 在 $f''=0$ 處退化成 $1/f'$）→ 注入處 $\lvert\Gamma\rvert$ 從 $1$ 降到 $0.471$。
 2. **平頂 $\Gamma\approx0$**：$f'\approx0$ 的平頂正是 $g_m$ 元件進三極管區、被負載的 tank 一起大量注入噪聲的時段——
-   但 $\Gamma\approx0$，噪聲進得去、相位動不了（原文 §II 的論證；圖號待查證）。
+   但 $\Gamma\approx0$，噪聲進得去、相位動不了（原文 §II 的論證，對應 Fig. 2(b) 的 ISF≈0 平頂圖，外部文獻，已對照原文摘要/式號）。
 
 lab_43 再套一個 $\pm30^\circ$ 的零交越注入窗算 $\Gamma_{eff}$：正弦 $0.3045$ → class-F $0.2212$，差 $1.39$ dB（toy 量級）。
 
@@ -525,7 +525,9 @@ lab_43 再套一個 $\pm30^\circ$ 的零交越注入窗算 $\Gamma_{eff}$：正�
 > **兩種歸一慣例的差別（要誠實講）**：斜率歸一（Babaie–Staszewski 的閉式）與 [P1] 以 $V_{max}$ 歸一的 $q_{max}$ 參考點不同——
 > 前者把 $\Gamma(\text{零交越})$ 釘在 1，後者讓它降到 $0.471$。兩者對「$\Gamma_{rms}^2$ 降 ~3 dB 級」的結論一致，
 > 但把 3 dB 直接加到 $\mathcal{L}$ 上要小心：同 $V_{p1}$ 下 $\zeta=1/3$ 波形的峰值只有 $0.943$，$q_{max}$ 的記帳跟著變。
-> 原文量測（依摘要記憶；本站無該 PDF，數字待查證）：65 nm CMOS、約 5.9–7.6 GHz、約 $-136$ dBc/Hz @ 3 MHz、FoM 約 192 dBc/Hz、1.25 V／12 mA。
+> 原文量測（外部文獻，已對照原文摘要/式號；Babaie–Staszewski, *IEEE JSSC*, vol. 48, no. 12, Dec. 2013, DOI 10.1109/JSSC.2013.2273823）：
+> 65 nm CMOS、5.9–7.6 GHz、實測相位雜訊 $-142.2$ dBc/Hz @ 3 MHz offset（自 3.7 GHz 載波、經晶片內 ÷2 之後量得，**不是**約 $-136$）、
+> FoM 192.2 dB、1.25 V／12 mA。
 > 工程代價：$3\omega_0$ 阻抗峰要靠 transformer 耦合係數精準落點，且迴路增益在 $3\omega_0$ 也不小，要防止在輔助峰起振（原文 §II 討論）。
 
 ```python
@@ -640,4 +642,4 @@ print(round(vmax, 3), round(vmax/2, 3))                               # -> 0.943
   pp. 3105–3119, Dec. 2013（DOI 10.1109/JSSC.2013.2271531）。（§(d-2) 的 class-D 拓樸；振幅／頻率／$F$ 表達式在原文，本站未重推。卷期/頁碼/DOI 已查證。）
 - **[E-Babaie]** M. Babaie and R. B. Staszewski, *"A Class-F CMOS Oscillator,"* IEEE J. Solid-State Circuits, vol. 48, no. 12,
   pp. 3120–3133, Dec. 2013（DOI 10.1109/JSSC.2013.2273823）。（§(d-3) 的準方波與 $\Gamma_{rms}^2$ 閉式出處（原文 §II）；
-  本站 lab_43 以 [P1] 波形法獨立重算該閉式。卷期/頁碼/DOI 已查證；原文內部式號／圖號待查證。）
+  本站 lab_43 以 [P1] 波形法獨立重算該閉式。卷期/頁碼/DOI 已查證；原文 Eq.(3), p.3121 與 Fig. 2(b) 已對照原文摘要/式號確認（外部文獻）。）

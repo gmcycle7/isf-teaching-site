@@ -1,6 +1,6 @@
 ---
 title: "Clock-chain noise accounting: ×N, ÷N, PLL, buffer — a one-page lookup table"
-description: "Rigorous derivations of the four clock-chain accounting rules — ×N multiplication +20logN (φ_out=Nφ_in), ÷N division −20logN (edge-picking), through a PLL (reference ×N² and lowpassed, VCO highpassed), and the additive noise floor of buffers/dividers (power addition) — plus a complete worked chain 100 MHz → ×50 PLL → 5 GHz → ÷2 → 2.5 GHz → buffer: per-stage L at 100 kHz and 10 MHz, the final 27.6 fs integrated jitter, and an honest brick-wall-accounting vs full type-II-shaping comparison."
+description: "Rigorous derivations of the five clock-chain accounting rules — ×N multiplication +20logN (φ_out=Nφ_in), ÷N division −20logN (edge-picking), through a PLL (reference ×N² and lowpassed, VCO highpassed), the additive noise floor of buffers/dividers (power addition), and a DLL delay line that does not accumulate random walk because it has no oscillator (σ²_out=σ²_ref+Nσ²_stage) plus phase-interpolator UI/2^b quantization — plus a complete worked chain 100 MHz → ×50 PLL → 5 GHz → ÷2 → 2.5 GHz → buffer: per-stage L at 100 kHz and 10 MHz, the final 27.6 fs integrated jitter, and an honest brick-wall-accounting vs full type-II-shaping comparison."
 ---
 
 import NumericQuiz from "@site/src/components/NumericQuiz";
@@ -12,7 +12,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 > **Prerequisites**: [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) ($S_\phi$, $\mathcal{L}$, phase↔time conversion), [pll_noise_budget](/06_design_insights/pll_noise_budget) ($\lvert H_{lp}\rvert^2,\lvert H_{hp}\rvert^2$ and the five-source budget — this page reuses them directly, **no re-derivation**), [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) (where the VCO's $-148$ dBc/Hz comes from) | **Next**: [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection), [exercises](/06_design_insights/exercises)
 
 In a real system there is no such thing as "one oscillator, used directly": the reference crystal is multiplied up by a PLL, divided back down by dividers, and passes through several buffer stages before reaching the sampler. The system engineer's daily question is: **given the source $\mathcal{L}(f)$, what is $\mathcal{L}(f)$ at every node of the clock tree? What is the integrated jitter of the final clock?**
-The good news: bookkeeping for the entire chain needs only **four rules**. This page derives each of the four rules **step by step** (no skipped steps, with units, with failure conditions), then strings them together in one complete worked chain, computed all the way to the end.
+The good news: bookkeeping for the entire chain needs only **five rules**. This page derives each of the five rules **step by step** (no skipped steps, with units, with failure conditions), then strings them together in one complete worked chain, computed all the way to the end.
 
 > **Physical intuition (conclusion first)**: only two kinds of things ever happen to phase along a clock chain —
 > **(1) Deterministic phase scaling**: ×N multiplies phase by $N$ ($+20\log_{10}N$ dB), ÷N divides phase by $N$
@@ -31,6 +31,8 @@ The good news: bookkeeping for the entire chain needs only **four rules**. This 
 | Ideal ÷N divider | $\phi_{out}=\phi_{in}/N$ | $\mathcal{L}-20\log_{10}N$ | sampling foldover (offset near $f_{out}/2$), divider's own floor |
 | Through a PLL (×N) | in-band follows ref, out-of-band follows VCO | $N^2S_{ref}\lvert H_{lp}\rvert^2+S_{vco}\lvert H_{hp}\rvert^2$ | the pure second-order loop's ref tail (computed in Step 6 of this page) |
 | buffer / divider floor | $\phi_{out}=\phi_{in}+\phi_{add}$ | $10\log_{10}\big(10^{\mathcal{L}_{in}/10}+10^{\mathcal{L}_{buf}/10}\big)$ | correlated noise (shared supply/bias) cannot simply be power-added |
+| DLL delay line (Rule 5) | each reference edge crosses independently, not an integrator | $\sigma_{t,out}^2=\sigma_{ref}^2+N\sigma_{stage}^2$ (bounded, does not accumulate with $\Delta t$) | lock range is only one reference period; taps wired into a ring turn it back into an oscillator |
+| PI phase-interpolator quantization (Rule 5) | uniform quantization, not phase scaling | $\mathrm{DJ}_{pp}=UI/2^b$ (deterministic, does not scale with $Q^{-1}(\mathrm{BER})$) | real DNL/linearity make the actual DJ larger than the theoretical value |
 
 **Convention statement (factor-of-2 discipline, consistent throughout this page)**: every $\mathcal{L}$ on this page is **SSB (single-sideband) dBc/Hz**,
 converted from $S_\phi$ via the small-angle approximation $\mathcal{L}=\tfrac12 S_\phi$ (canonical formula 16; `noise_utils` uses the same convention).
@@ -151,12 +153,12 @@ $$
 is an angle $N$ times smaller. Perfectly symmetric with Rule 1: ×N then ÷N brings $\mathcal{L}$ back to where it started, and $\sigma_t$ (seconds) is unchanged throughout.
 
 <NumericQuiz
-  prompt="Try it yourself first: the change in L(f) from an ideal ÷2 divider = ? (answer in dB, include the sign)"
-  answer={-6.02}
+  prompt="Try it yourself first: the change in L(f) from an ideal ÷4 divider (not the ÷2 used in this section's example) = ? (answer in dB, include the sign)"
+  answer={-12.04}
   tol={0.01}
   unit="dB"
-  hint="ΔL = −20·log₁₀N, with N=2."
-  solutionNote="−20·log₁₀(2) ≈ −6.02 dB (perfectly symmetric with Rule 1's +20log₁₀N)."
+  hint="ΔL = −20·log₁₀N, with N=4 here."
+  solutionNote="−20·log₁₀(4) ≈ −12.04 dB (= 2×(−6.02) dB, since log₁₀4=2log₁₀2; still perfectly symmetric with Rule 1's +20log₁₀N)."
 />
 
 **Failure conditions (both matter)**:
@@ -265,12 +267,12 @@ $\sigma_{t,add}=\sqrt{2\times3.16\times10^{-16}\times10^8}\,/(2\pi\times2.5\time
 $[\text{rad}]/[\text{rad/s}]=[\text{s}]$ ✓. (This 16.0 fs will reappear, unchanged, in the worked chain's breakdown below.)
 
 <NumericQuiz
-  prompt="Try it yourself first: with a flat buffer floor L_buf=−155 dBc/Hz, integration bandwidth B=100 MHz, f₀=2.5 GHz, σ_t,add = ? (answer in fs)"
-  answer={16.0}
+  prompt="Try it yourself first: the same buffer (L_buf=−155 dBc/Hz, f₀=2.5 GHz), but with the integration bandwidth changed to B=200 MHz (twice the example above) — σ_t,add = ? (answer in fs)"
+  answer={22.6}
   tol={0.02}
   unit="fs"
-  hint="σ_t,add = √(2·10^(L_buf/10)·B) / (2π f₀)."
-  solutionNote="√(2×3.16×10⁻¹⁶×10⁸)/(2π×2.5×10⁹) ≈ 16.0 fs (this number reappears in the worked chain's breakdown below)."
+  hint="Apply the same formula σ_t,add = √(2·10^(L_buf/10)·B) / (2π f₀), just swap in B=200 MHz."
+  solutionNote="√(2×3.16×10⁻¹⁶×2×10⁸)/(2π×2.5×10⁹) ≈ 22.6 fs (= √2 times the 16.0 fs from the example above, since σ_t,add∝√B)."
 />
 
 The four rules' constants are first pinned down with a checkable Python block (the values after `# ->` are actual run output):
@@ -285,6 +287,180 @@ print(round(10*np.log10(1 + 10**(-6/10)), 2))   # -> 0.97
 print(round(10*np.log10(1 + 10**(-3/10)), 2))   # -> 1.76
 print(round(10*np.log10(1 + 10**(0/10)), 2))    # -> 3.01
 ```
+
+## Rule 5: DLL — no oscillator, no random walk
+
+**The question**: Rules 1–4 cover "multiplication / division / PLL / buffer", but there is another component
+common in clock chains that this page has not yet accounted for — the **DLL (delay-locked loop)**, and,
+right behind it, the **phase interpolator (PI)** that slices a coarse resolution finer still. A DLL is
+often assumed, by intuition, to be a "cheap PLL", but its noise behavior differs from a PLL / free-running
+VCO **in kind, not just in degree**: it is not a slower random walk, it is **no random walk at all**. This
+rule spells out the difference and adds PI quantization, a DJ (deterministic jitter) source that is easy to
+overlook in practice.
+
+**Step 1 (why a DLL has no oscillator).** The VCO inside a PLL is an **integrator**: a perturbation
+$\delta v$ on the control voltage first becomes a frequency perturbation $\delta\omega=K_{VCO}\delta v$,
+and frequency **integrated over time** is what becomes phase — once a perturbation happens, as long as the
+loop has not corrected it, the phase error **stays there forever, and keeps accumulating going forward**
+([P2] Eq.(8), p.792's $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ is the direct consequence of exactly this
+integration-plus-random-kicks picture). The **delay line** inside a DLL is not an oscillator — it is a
+**feedforward** element: the control voltage directly sets "how long this one edge gets delayed", with no
+integration over time involved. A delay error measured today **is not handed to tomorrow**, because every
+output edge corresponds to **a brand-new reference edge** making one pass through the delay line, not the
+same internal phase state rolling forward. That is the physical root of "no oscillator, no random walk".
+
+**Step 2 (a single pass: the $N$-stage delay line's additive jitter, added in quadrature).** The delay line
+is built from $N$ stages (nominal delay $T_{ref}/N$ each). Same mechanism as Rule 4's Step 1 — near each
+stage's switching threshold, device noise voltage $v_n$ displaces that stage's output edge by
+$\Delta t_{stage}=v_n/SR$ (units: s) — and the $\sigma_{stage}$ of the $i$-th stage are **uncorrelated**
+with each other (different devices, different noise sources). One reference edge that walks through all
+$N$ stages picks up the power sum of $N$ independent contributions (the same "PSDs add" logic as Rule 4's
+Step 2):
+
+$$
+\sigma_{t,DLL}^2=N\,\sigma_{stage}^2
+\qquad\Longrightarrow\qquad
+\sigma_{t,DLL}=\sqrt{N}\,\sigma_{stage}
+$$
+
+**Dimension check**: $\sqrt{N}$ dimensionless, $[\text{s}]\times[-]=[\text{s}]$ ✓.
+
+**Step 3 (add the reference's own jitter, freshly zeroed for every reference edge).** The output edge's
+total time error is "this reference edge's own error $\sigma_{ref}$" plus "the $N$-stage noise picked up on
+this one pass through the delay line", uncorrelated (different sources):
+
+$$
+\boxed{\ \sigma_{t,out}^2=\sigma_{ref}^2+N\,\sigma_{stage}^2\ }
+$$
+
+**The key point**: when the next reference edge arrives, the delay line's $N$-stage noise is **re-sampled
+independently** (device thermal noise at the next switching instant has no memory of this one), and
+$\sigma_{ref}$ is likewise the (different) next reference cycle's own error — the output jitter **does not
+grow just because you count more cycles**; $\sigma_{t,out}$ is the same expression for every single output
+edge, regardless of "which cycle this is" or "how long since the last measurement point". Contrast this
+with the PLL / free-running VCO's $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$: there, $\Delta t$ sits inside
+the square root, and the error grows the longer the measurement interval, because **the same oscillator's
+phase state is dragged along by the integration the whole way**. Here in the DLL there is no $\Delta t$,
+because there simply is no "phase state being dragged along by integration" to speak of — it is **bounded**.
+This is the core contrast this rule makes.
+
+**Step 4 (first-order loop shaping does not change the "no accumulation" fact).** A DLL is still a
+negative-feedback loop: a phase detector compares "the delay line's output edge" against "the reference
+edge" and drives the delay line's control voltage to lock the total delay to $T_{ref}$ (this is exactly the
+topology of Maneatis's 1996 self-biased DLL). This feedback loop itself is usually **first order** (a
+single integrator/capacitor, without the VCO's second-order dynamics), with closed-loop transfer function
+
+$$
+H_{DLL}(s)=\frac{\omega_{DLL}}{s+\omega_{DLL}}
+$$
+
+Low-pass for **reference noise** — within the loop bandwidth, the output edge faithfully tracks the
+reference's slow phase wander (that is the DLL's whole job: hand the reference through to the output
+"completely intact", just with a fixed delay added); high-pass, $1-H_{DLL}(s)=s/(s+\omega_{DLL})$, for
+**the delay line's own noise/drift** — the loop measures and corrects low-frequency delay-line drift (PVT,
+slow bias variation), so only fast delay-line noise, above the loop bandwidth where the loop cannot react
+in time, leaks through to the output. **But this low-pass/high-pass shaping is a separate matter from
+Steps 2–3's "is there a 1/f² accumulation at all"**: even with $H_{DLL}$ removed entirely (open loop),
+Steps 2–3's $\sigma_{ref}^2+N\sigma_{stage}^2$ is still bounded, still does not accumulate over time — the
+loop only decides "which frequency band of the delay line's noise leaks through"; it does not **create** a
+$\kappa\sqrt{\Delta t}$ term, because the delay line was never an integrator to begin with. This is a sharp
+contrast with the PLL's highpass $\lvert H_{hp}\rvert^2$ (Rule 3): the PLL's highpass exists to **cut off**
+the VCO's naturally-divergent $1/f^2$ tail; the DLL's highpass merely decides how much of the delay line's
+already-bounded noise gets through — **there is nothing divergent to cut off, because the delay line never
+diverges**.
+
+> **Relation to [cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol)**: that page's sidebar "why a
+> DLL does not accumulate jitter" describes the leanest possible PI-CDR — the phase code is driven directly
+> by a digital accumulator, with **none** of this section's analog loop filter, so it does not even do
+> "low-pass the reference noise"; the jitter is inherited from the reference clock directly (see that
+> page's Step 3). What this section adds, $H_{DLL}(s)$, is the extra filtering layer a full analog DLL
+> (such as Maneatis 1996) provides. The core conclusion, "no 1/f² accumulation", is identical on both pages —
+> a full DLL simply adds a tunable filter bandwidth on top.
+
+**Worked (4-stage delay line vs. Rule 4's buffer floor):**
+
+```python
+import numpy as np
+N, sigma_stage = 4, 50e-15
+sigma_dll = np.sqrt(N) * sigma_stage
+print(round(sigma_dll * 1e15, 1))   # -> 100.0
+```
+
+$N=4$, $\sigma_{stage}=50$ fs (illustrative) $\Rightarrow\sigma_{t,DLL}=\sqrt4\times50=100.0$ fs — this is
+an **additive, time-independent** number from a single pass, and it sits at the same order of magnitude,
+same category, as Rule 4's Step-5 buffer floor of $16.0$ fs (:262, the same "additive, non-accumulating"
+physics, just Rule 4 is one buffer stage and this is four delay-line stages): both are **power-added and
+bounded**, and can be combined with Rule 4's Step-4 "dB-addition table" directly.
+
+**Compare against the free-running VCO's random walk (same site-canonical
+$\kappa^2=0.125\ \text{rad}^2/\text{s}$, [P2] Eq.(8)/(12), p.792–793):**
+
+```python
+import numpy as np
+kappa2, f0 = 0.125, 5e9
+for dt in (1e-6, 1e-3):
+    sigma_phi = np.sqrt(kappa2 * dt)
+    sigma_t = sigma_phi / (2*np.pi*f0)
+    print(dt, round(sigma_t * 1e15, 1))
+# -> 1e-06 11.3
+# -> 0.001 355.9
+```
+
+The free-running VCO is only $11.3$ fs at $\Delta t=1\ \mu\text{s}$ (smaller than the DLL's additive
+$100$ fs!), but by $\Delta t=1$ ms it has already grown to $355.9$ fs — because
+$\sigma_{\Delta t}\propto\sqrt{\Delta t}$ has no upper bound, and the number grows with the measurement
+window; the DLL's $100$ fs is **the same number no matter how long $\Delta t$ is**. This is exactly the
+design message Rule 5 is meant to deliver: **DLL/delay-line-based clock distribution has an inherent
+advantage over long timescales**, at the cost that it cannot do frequency synthesis the way a PLL can (it
+can only delay, not multiply), and its lock range is limited to one reference period.
+
+**Step 5 (phase-interpolator quantization: a different kind of "bounded" — deterministic DJ, not random
+RJ).** A DLL produces $N$ **discrete** phase taps (spaced $T_{ref}/N$ apart). To interpolate a finer phase
+between taps (for example, a CDR's sampling phase, or a higher-resolution output clock), the standard
+approach is a **phase interpolator (PI)**: use $b$ bits to slice the interval between two adjacent taps
+(treated as one UI wide) into $2^b$ grid points, and the sampled/output phase can only land on a grid point:
+
+$$
+\Delta_{PI}=\frac{UI}{2^{b}}\qquad[\text{s}]
+$$
+
+This is a **quantization error**, not noise — the same code gives the same delay every time, it is
+**deterministic** and **bounded** (off by at most $\pm\Delta_{PI}/2$), and it is **uniformly** distributed
+(sweep across all possible target phases and the landing error is equally likely anywhere in
+$\pm\Delta_{PI}/2$). In this site's DJ language (see
+[dj_dual_dirac](/06_design_insights/dj_dual_dirac)'s Step-2 DJ classification table): PI quantization is a
+DJ accounted for by peak-to-peak, and it does **not** scale with $Q^{-1}(\text{BER})$:
+
+$$
+\boxed{\ \mathrm{DJ}_{pp,PI}=\Delta_{PI}=\frac{UI}{2^{b}}\ }
+$$
+
+**Worked ($UI=40$ ps, 6-bit PI):**
+
+```python
+UI, b = 40e-12, 6
+step = UI / 2**b
+print(round(step * 1e12, 3))     # -> 0.625
+print(round(step / UI, 4))       # -> 0.0156
+```
+
+A 6-bit PI slices a $40$ ps UI into $64$ steps, one step $=0.625$ ps $\approx0.0156\ UI$ (about
+$0.016\ UI$). **Dimension check**: $[\text{s}]/[-]=[\text{s}]$ ✓. **Design implication**: one more bit of
+resolution halves the quantization DJ ($2^{b+1}$ grid points), but the PI circuit's own differential
+nonlinearity (DNL) and linearity eat into some of that theoretical resolution — $UI/2^b$ is a **lower
+bound**, not the actual number; a real PI's DJ is usually larger. This row has been added, in sync, to
+[dj_dual_dirac](/06_design_insights/dj_dual_dirac)'s DJ source table.
+
+**Failure conditions (specific to Rule 5)**: (1) a DLL's lock range is only **one reference period** — the
+input edge position must fall within the delay line's tunable range, or it will **lose lock**; this is the
+fundamental reason a DLL cannot do integer multiplication the way a PLL can; (2) Steps 2–3's
+"bounded, non-accumulating" result assumes **every reference edge makes one independent pass through the
+delay line** — if the same batch of delay-line taps is wired into a **ring** (taps connected head-to-tail
+to self-oscillate), it turns back into an oscillator and regains $\kappa\sqrt{\Delta t}$ accumulation; Rule
+5's "no accumulation" no longer holds; (3) PI quantization's uniform-distribution assumption requires the
+target phase to be distributed **arbitrarily** across grid points (e.g. a clock-phase sweep/calibration);
+if the target phase is locked steady near a handful of codes, the actual DJ statistics will deviate from
+the ideal uniform distribution.
 
 ## Step 5: the conserved quantity — under ideal ×N/÷N, $\sigma_t$ (seconds) is unchanged
 
@@ -439,6 +615,9 @@ print(round(sp*1e6, 1))    # -> 433.4
 
 ![Clock-chain accounting: left = per-stage SSB phase noise (solid black = final 2.5 GHz clock, dashed red = full type-II shaping); right = cumulative rms jitter of the final clock (brick-wall 27.6 fs vs shaped 44.0 fs)](/figures/clock_chain_budget.png)
 
+
+> **Translator's note**: this figure is generated by a script with Chinese text baked into the image. Axis labels/titles read: "offset 頻率 f [Hz]" = offset frequency f [Hz]; "時脈鏈各級的 SSB phase noise（記帳）" = the SSB phase noise of each stage in the clock chain (bookkeeping convention); "積分上限 f [Hz]（從 10 kHz 積起）" = integration upper limit f [Hz] (integrating from 10 kHz); "累積 rms jitter σt [fs]" = accumulated rms jitter σt [fs]; "最終 2.5 GHz 時脈：jitter 從哪裡累積" = the final 2.5 GHz clock: where the jitter accumulates from.
+
 **How to read it**: in the left panel, the blue line is the 5 GHz brick-wall (in-band $-126$ plateau + VCO skirt past 1 MHz),
 the green line is the same curve shifted down 6.02 dB (÷2), the orange dotted line is the $-155$ buffer floor, and the thick black line is the final output —
 $-132.0$ at 100 kHz, clamped by the floor at $-154.9$ at 10 MHz. The right panel is the cumulative jitter "integrated from 10 kHz to $f$":
@@ -501,6 +680,8 @@ the VCO skirt sits at $79.6$ kHz, far below 1 MHz. Sweeping $f_n$ for this chain
 | Loop BW $f_n$ | Rule 3 | this chain's optimum is $f_n^\*\approx53$ kHz (not 1 MHz); the 79.6 kHz crossover is the first-order intuition |
 | Loop order (3rd pole) | Rule 3 | the pure second-order ref tail runs parallel to the VCO (a constant $+25$ dB in this example); only higher-order poles let out-of-band truly hand over to the VCO |
 | VCO $\Gamma_{rms}/q_{max}$ | Rule 3's $S_{vco}$ | this chain's VCO is only 0.42% — **do the accounting before deciding to touch it** (for ISF knobs see [tank_swing](/06_design_insights/tank_swing), [lc_vs_ring](/06_design_insights/lc_vs_ring)) |
+| DLL stage count $N$ / per-stage $\sigma_{stage}$ | Rule 5 | $\sigma_{t,DLL}=\sqrt N\sigma_{stage}$; fewer stages and lower per-stage noise are cheapest, and **unlike Rules 3/4 this does not get worse over time** (bounded) |
+| PI bit count $b$ | Rule 5 | quantization DJ $=UI/2^b$, halves with each extra bit; limited by circuit DNL, not a free upgrade |
 
 ## Connection to SerDes
 
@@ -522,14 +703,21 @@ in this chain, "who free-runs and who is locked" determines which noise accumula
 | Per-stage noise uncorrelated | Rule-4 power addition | correlated noise sharing supply/bias (e.g. PSIJ) needs the cross terms, may add in phase |
 | Brick-wall PLL accounting | in-band lookup error $\sim0.1$ dB | pure second-order loop: ref tail parallel to VCO (constant 25 dB gap in this example), the out-of-band cell can be off by 7 dB, $\sigma_t$ underestimated by 59% |
 | Ideal edge-picking divider | $-20\log_{10}N$ | real divider's own floor (Rule 4) dominates first; ILFD near the lock-range edge is a separate story ([P4]) |
+| DLL "no oscillator" assumption (Rule 5) | delay line is feedforward, $N$-stage taps not wired into a ring | taps wired head-to-tail to self-oscillate regain $\kappa\sqrt{\Delta t}$ accumulation; an input edge outside one reference period's tunable range loses lock |
+| PI uniform-quantization assumption (Rule 5) | target phase distributed arbitrarily across grid points | deviates from uniform when locked near a handful of codes; real DNL makes DJ larger than $UI/2^b$ |
 
 ## Key takeaways
 
-- The four rules: **×N adds $20\log_{10}N$** ($\phi_{out}=N\phi_{in}$, offset axis unchanged);
+- The five rules: **×N adds $20\log_{10}N$** ($\phi_{out}=N\phi_{in}$, offset axis unchanged);
   **÷N subtracts $20\log_{10}N$** (edge-picking, time error intact, angle divided by $N$);
   **PLL** = reference through $N^2\lvert H_{lp}\rvert^2$, VCO through $\lvert H_{hp}\rvert^2$
   (transfer functions reused from [pll_noise_budget](/06_design_insights/pll_noise_budget));
-  **buffer/divider floor = power addition**, $\mathcal{L}_{out}=10\log_{10}(10^{\mathcal{L}_{in}/10}+10^{\mathcal{L}_{buf}/10})$.
+  **buffer/divider floor = power addition**, $\mathcal{L}_{out}=10\log_{10}(10^{\mathcal{L}_{in}/10}+10^{\mathcal{L}_{buf}/10})$;
+  **DLL = no oscillator, no random walk**, $\sigma_{t,out}^2=\sigma_{ref}^2+N\sigma_{stage}^2$ (bounded;
+  4 stages at $\sigma_{stage}=50$ fs → 100.0 fs, does not grow with $\Delta t$; contrast the free-running
+  VCO's $\kappa^2=0.125\ \text{rad}^2/\text{s}$, only $11.3$ fs at $1\ \mu\text{s}$ but $355.9$ fs by 1 ms),
+  and phase-interpolator quantization $\mathrm{DJ}_{pp}=UI/2^b$ ($UI=40$ ps, 6-bit → $0.625$ ps
+  $\approx0.0156\ UI$, uniformly distributed DJ, independent of BER).
 - Conserved quantity: under ideal ×N/÷N, **$\sigma_t$ (seconds) is unchanged** (both ends 22.5 fs in this example); ÷N saves "fraction of a UI", not seconds.
 - Worked chain (100 MHz→×50→5 GHz→÷2→2.5 GHz→buffer): at 100 kHz, $-160\to-126.02\to-132.04\to-132.02$;
   at 10 MHz, $-160\to-168.00\to-174.02\to-154.95$ (floor dominates).
@@ -548,6 +736,8 @@ in this chain, "who free-runs and who is locked" determines which noise accumula
 - Connecting $\sigma_t$ to eye/BER: [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)
 - Where the small-angle approximation goes after large-$N$ multiplication breaks it: [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
 - Origin of the $-148$ dBc/Hz VCO anchor and /2-vs-/4: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
+- Another DLL/PI instance (the bang-bang CDR sidebar) and the hunting effect of PI quantization: [cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol)
+- PI quantization DJ folded into the dual-Dirac DJ source table: [dj_dual_dirac](/06_design_insights/dj_dual_dirac)
 - This page's simulation script: `simulations/fig_clock_chain.py`
 
 ## External literature (not among the five downloaded PDFs)
@@ -556,5 +746,8 @@ in this chain, "who free-runs and who is locked" determines which noise accumula
   (external literature, not among the five source PDFs; found in any frequency-synthesis textbook). Standard references:
   W. F. Egan, *Frequency Synthesis by Phase Lock*, 2nd ed., Wiley, New York, 2000;
   B. Razavi, *RF Microelectronics*, 2nd ed., Prentice Hall, Upper Saddle River, NJ, 2012.
+- **Why a DLL does not accumulate jitter without an oscillator (Rule 5)** (external literature, not among
+  the five source PDFs): J. G. Maneatis, "Low-Jitter Process-Independent DLL and PLL Based on Self-Biased
+  Techniques," *IEEE J. Solid-State Circuits*, vol. 31, no. 11, pp. 1723–1732, Nov. 1996.
 - What the site's five PDFs provide is the physics of the chain's "sources": [P1] (the VCO's $\mathcal{L}$ and the ISF),
   [P2] (the ring's $\kappa\sqrt{\Delta t}$ accumulation), [P3]/[P4] (injection locking and the ILFD division mechanism).

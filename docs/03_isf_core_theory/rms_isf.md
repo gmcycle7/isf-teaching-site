@@ -5,7 +5,7 @@ description: 由 Parseval 推 Σcₙ²=(1/π)∫|Γ|²dx=2Γrms²；解釋 Γrms
 
 # rms ISF 與 Parseval 關係
 
-> **前置閱讀**：[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)（$\Gamma$ 的 $c_n$ 係數）、[stochastic_noise_basics](/02_foundations/stochastic_noise_basics)（Parseval / 功率譜）、[convolution_derivation](/03_isf_core_theory/convolution_derivation)（相位積分式）。
+> 先備：[fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) ｜ 接下來：[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
 
 上一頁 [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) 把 ISF 拆成一組
 Fourier 係數 $c_0,c_1,c_2,\dots$，並指出**每個 $c_n$ 把 $n\omega_0$ 附近的 noise 折回 carrier**。

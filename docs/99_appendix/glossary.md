@@ -66,8 +66,34 @@ description: ISF 相關術語的中英對照，每個給一句中文直覺定義
 | **LC oscillator** | LC 振盪器 | tank 諧振、波形近正弦；理想 ISF $=-\sin\theta$。 | [lab_02](/04_simulation_labs/lab_02_lc_oscillator_toy_model) |
 | **accumulated jitter** | 累積（長期）jitter | 開環振盪器無絕對時間參考，誤差像隨機漫步 $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ 成長。 | [lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model) |
 | **injection locking / pulling** | 注入鎖定／拉扯 | 外部訊號注入把振盪器頻率「拉」向它；同一個 ISF 也主宰這現象（廣義 Adler）。 | [paper_003_injection_locking_part1](/05_paper_deep_dives/paper_003_injection_locking_part1) |
-| **APF (Amplitude Perturbation Function)** $\Lambda(\phi)$ | 振幅擾動函數 | ISF 之於相位，APF 之於振幅；單位 1/A。理想 LC 中與 ISF 正交（quadrature）。 | [paper_004_injection_locking_part2](/05_paper_deep_dives/paper_004_injection_locking_part2) |
+| **APF (Amplitude Perturbation Function)** $\Delta(\phi)$ | 振幅擾動函數 | ISF 之於相位，APF 之於振幅；單位 1/A。理想 LC 中與 ISF 正交（quadrature）。 | [paper_004_injection_locking_part2](/05_paper_deep_dives/paper_004_injection_locking_part2) |
 | **Adler's equation** | Adler 方程 | 描述 injection-locked 相位差的一階微分方程（1946）；ISF 把它推廣到任意波形。 | [paper_003_injection_locking_part1](/05_paper_deep_dives/paper_003_injection_locking_part1) |
+
+---
+
+## 注入鎖定與量測（Injection Locking & Measurement）
+
+| 英文 | 中文 | 一句話直覺 | 出處頁 |
+|---|---|---|---|
+| **realignment factor** $\beta$ | 重新對齊係數 | 每根注入脈衝把相位「拉回」多少的線性化增益；決定離散迴路穩定範圍 $0<\beta<2$ 與雜訊整形轉角 $\approx\beta f_{ref}/2\pi$。 | [subharmonic_injection](/06_design_insights/subharmonic_injection) |
+| **impulse-train locking** | 脈衝列鎖定 | 用週期性脈衝（而非連續正弦）注入時，鎖定範圍由脈衝的第 $N$ 諧波幅度與 ISF 基頻交互決定，是 subharmonic injection（次諧波注入）的核心機制。 | [subharmonic_injection](/06_design_insights/subharmonic_injection) |
+| **washboard potential**（tilted washboard） | 傾斜搓衣板位能 | 把 Adler 方程改寫成一顆粒子在傾斜週期位能 $U(\theta)$ 裡滾動的圖像；鎖定＝滾進最近凹槽，cycle slip＝熱雜訊把粒子踢過鄰近障壁。 | [lab_36](/04_simulation_labs/lab_36_lock_acquisition) |
+| **ILFD (Injection-Locked Frequency Divider)** | 注入鎖定除頻器 | 本身就是一顆跑在 $f_0=f_{inj}/N$ 的振盪器，靠 ISF 第 $N$ 諧波鎖定，而不是數位除法電路。 | [injection_locked_division](/06_design_insights/injection_locked_division) |
+| **dual-Dirac model** | 雙 Dirac 模型 | 業界標準：把任意形狀的有界 DJ 近似成兩個 Dirac delta（左右各半），配合高斯 RJ 的 $Q$ 函數尾巴積分求 $\text{TJ(BER)}$。 | [dj_dual_dirac](/06_design_insights/dj_dual_dirac) |
+| **ADEV / Allan deviation** | 亞倫偏差 | 時鐘／頻率標準界慣用的時域穩定度指標：兩樣本變異數的平方根；log–log 斜率一眼讀出白／閃爍／隨機漫步 FM 雜訊型態。 | [allan_variance](/02_foundations/allan_variance) |
+| **sub-sampling PLL** | 次取樣鎖相環 | 用參考邊緣直接取樣 VCO 正弦當鑑相器，divider 整個從雜訊路徑消失，charge-pump 噪聲不再被 $\times N^2$ 放大。 | [sampling_pll](/06_design_insights/sampling_pll) |
+| **Lorentzian linewidth** | 洛倫茲線寬 | 相位 random walk 的自相關是指數衰減，Wiener–Khinchin 轉出一條有限高、有限寬的鐘形頻譜；$1/f^2$ 只是它遠離中心的漸近尾巴。 | [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) |
+| **cycle slip / Kramers escape** | 週期滑動／克拉默逃逸 | 雜訊把鎖定相位整圈（$2\pi$）踢過 washboard 障壁的稀有事件；逃逸率遵循 Kramers 公式（外部文獻）。 | [lab_36](/04_simulation_labs/lab_36_lock_acquisition) |
+| **cross-correlation measurement** | 交叉相關量測法 | 用兩條獨立量測通道相關，把各自不相關的儀器本底以 $1/\sqrt{M}$ 壓低，量出比單通道乾淨的 $\mathcal{L}(f)$。 | [measurement_and_spurs](/06_design_insights/measurement_and_spurs) |
+| **polyphase filter** | 多相濾波器 | RC-CR 網路在 $\omega=1/RC$ 處產生 $90^\circ$ 相移來做 I/Q，多級串接可拓寬頻寬；本身不主動產生新的 close-in 相位雜訊。 | [quadrature_and_coupled_oscillators](/06_design_insights/quadrature_and_coupled_oscillators) |
+| **FOM / FOM$_{jitter}$** | 品質指標／jitter 版品質指標 | FOM 把 $\mathcal{L}$、$(f_0/\Delta f)^2$、$P$ 湊成拓樸間可比較的單一數字，且有理論天花板 $173.8-10\log_{10}F_{eff}$；FOM$_{jitter}$ 把 $\mathcal{L}$ 換成直接的 $\sigma_t$。 | [fom_limit](/06_design_insights/fom_limit) ／ [pll_noise_budget](/06_design_insights/pll_noise_budget) |
+| **$K_{push}$**（supply pushing） | 電源推移係數 | 每 1 V 電源變動把振盪頻率推多少（$\partial f_0/\partial V_{DD}$），與 $K_{VCO}$ 數學上完全平行；理想上應為 0。 | [varactor_tuning_supply_pushing](/06_design_insights/varactor_tuning_supply_pushing) |
+| **TDC (Time-to-Digital Converter)** | 時間數位轉換器 | 把兩個邊緣的時間差量成一個整數；有限解析度 $\Delta t_{res}$ 變成 ADPLL 的 in-band 量化雜訊。 | [adpll_tdc_dco](/06_design_insights/adpll_tdc_dco) |
+| **DCO (Digitally Controlled Oscillator)** | 數位控制振盪器 | 用開關電容組而非連續 varactor 電壓調頻；有限頻率解析度 $\Delta f_{res}$ 變成 out-of-band 量化雜訊。 | [adpll_tdc_dco](/06_design_insights/adpll_tdc_dco) |
+| **JTOL (jitter tolerance)** | 抖動容忍度 | CDR 迴路能追多少輸入 jitter 而不吃掉眼圖裕度的規格曲線 $(\text{UI}-\text{TJ}_{eye})/\lvert1-H(f)\rvert$，低／中／高頻各段斜率不同。 | [cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol) |
+| **BBPD / Alexander PD** | 二元（bang-bang）相位偵測器 | 只輸出早／晚 $\text{sign}(\Delta t)$ 的相位偵測器，沒有線性增益；迴路頻寬其實是由 jitter 的 rms 值決定。 | [cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol) |
+| **FOM$_T$**（tuning-range-normalized FOM） | 調諧範圍正規化品質指標 | 把 FOM 加上 $20\log_{10}(\text{TR}\%/10)$ 修正項，讓寬調諧範圍的設計不被「同 FOM」低估；外部經驗慣例，非恆等式。 | [design_recipe](/06_design_insights/design_recipe) |
+| **design recipe**（spec-driven design） | 規格驅動設計配方 | 從規格（$\mathcal{L}$、$P$、調諧範圍）反推拓樸選擇、tank 元件值、偏壓電流的 7 步標準流程。 | [design_recipe](/06_design_insights/design_recipe) |
 
 ---
 

@@ -110,22 +110,27 @@ $$
 $$
 
 Take the square root of Step 0's result, $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$, and the proportionality constant is exactly
-**[P2] Eq.(12), p.793 (verified)**:
+**the square root of [P2] Eq.(11), p.793 (phase version; the Eq.(12) printed on p.793 is its time version $\kappa/\omega_0$, see the note below)**:
 
 $$
 \boxed{\ \kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\frac{1}{2}\cdot\frac{\overline{i_n^2}}{\Delta f}}\ \ [\text{rad}/\sqrt{\text{s}}]\ }
+\qquad
+\kappa_t\equiv\frac{\kappa}{\omega_0}=\frac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\frac{1}{2}\cdot\frac{\overline{i_n^2}}{\Delta f}}\ \ [\sqrt{\text{s}}]\quad(\text{[P2] Eq.(12), p.793})
 $$
 
-> **The κ unit trap (honesty note, verified)**: [P2]'s prose describes Eq.(8) as **timing** jitter
-> $\sigma_{\Delta t}$, but the printed Eq.(12) **has no $\omega_0$** (checked verbatim against the original PDF),
-> and its dimensions are $\text{rad}/\sqrt{\text{s}}$ — so the $\kappa$ of Eq.(12) is really the **phase-domain** constant,
-> fully consistent with the phase-jitter definition of Eq.(10), p.793 ($\sigma_{\Delta\phi}=2\pi\sigma_{\Delta t}/T=\omega_0\sigma_{\Delta t}$)
-> and with Eq.(11). For the **time-domain** version, divide by $\omega_0$:
+> **The two outfits of κ (honesty note; corrected in v11 after re-reading the PDF)**: [P2] Eq.(8), p.792 is **timing** jitter
+> $\sigma_{\Delta T}=\kappa\sqrt{\Delta T}$, and the Eq.(12) printed on p.793 **does contain $\omega_0$** in its denominator
+> ($\kappa=\frac{\Gamma_{rms}}{q_{max}\omega_0}\sqrt{\tfrac12\overline{i_n^2}/\Delta f}$, checked verbatim against the rendered PDF page),
+> with dimensions $\sqrt{\text{s}}$ — the paper is entirely self-consistent: Eq.(11) gives the phase variance $\sigma_{\Delta\phi}^2$, Eq.(10)
+> $\sigma_{\Delta\phi}=2\pi\sigma_{\Delta T}/T=\omega_0\sigma_{\Delta T}$ converts it to time, and the printed Eq.(12) is simply
+> $\sqrt{\text{Eq.(11)}}/\omega_0$. This page's protagonist $\kappa$ (rad/$\sqrt{\text{s}}$) is the **phase version**
+> $\kappa_\phi=\omega_0\kappa_t$, i.e. the square root of Eq.(11) directly; for the **time-domain** version divide by $\omega_0$:
 > $\sigma_{\Delta t}=\kappa_t\sqrt{\Delta t}$, $\kappa_t=\kappa/\omega_0=\kappa/(2\pi f_0)$,
-> units $\sqrt{\text{s}}$.
+> units $\sqrt{\text{s}}$ — that is the printed Eq.(12).
 > When other pages on this site (e.g. the [paper_002 deep dive](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring)) write
 > $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ with $\kappa$ in $\sqrt{\text{s}}$, they mean this
-> $\kappa_t$. The two differ only by an $\omega_0$; the physics is the same.
+> $\kappa_t$. The two differ only by an $\omega_0$; the physics is the same. **v4–v5 had recorded "Eq.(12) has no $\omega_0$" as verified
+> and called it the paper's "unit trap" here — the units slip was this site's misreading, not the paper's; corrected in v11 with every number unchanged.**
 
 - **Relation to κ²**: $\kappa=\sqrt{\kappa^2}$ — Outfit One is just the protagonist under a square root.
 - **Unit check**: $\dfrac{1}{\text{C}}\cdot\sqrt{\text{A}^2\text{s}}=\dfrac{\text{A}\sqrt{\text{s}}}{\text{A}\,\text{s}}=\dfrac{1}{\sqrt{\text{s}}}$ ✓ (rad dimensionless);
@@ -139,8 +144,9 @@ $$
 ```python
 import numpy as np
 gamma_rms, qmax, Si, f0 = 0.5, 1e-12, 1e-24, 5e9
-kappa = gamma_rms / qmax * np.sqrt(0.5 * Si)        # [P2] Eq.(12)
+kappa = gamma_rms / qmax * np.sqrt(0.5 * Si)        # phase-domain kappa = sqrt([P2] Eq.(11) rate)
 print(round(kappa, 4))  # -> 0.3536
+print(f"{kappa/(2*np.pi*f0):.4e}")  # -> 1.1254e-11 sqrt(s): kappa_t = kappa/omega_0 = [P2] Eq.(12) as printed
 print(f"{kappa/(2*np.pi*f0)*np.sqrt(1e-6)*1e15:.2f}")  # -> 11.25 fs (integrated over 1 µs)
 ```
 
@@ -224,12 +230,12 @@ $$
   **20.3 mHz** (panel (b)), matching $\kappa^2/2\pi=19.9$ mHz.
 
 <NumericQuiz
-  prompt="Try it yourself first: for the representative value κ²=0.125 rad²/s, the Lorentzian FWHM Δf₃dB = ? (answer in mHz)"
-  answer={19.9}
+  prompt="Try it yourself first: for an oscillator with κ²=0.5 rad²/s (a practice value, not the site's representative one), the Lorentzian FWHM Δf₃dB = ? (answer in mHz)"
+  answer={79.6}
   tol={0.02}
   unit="mHz"
-  hint="Δf₃dB = κ²/(2π)."
-  solutionNote="Δf₃dB = 0.125/(2π) ≈ 19.9 mHz (the true LC's κ²=0.25 gives 39.8 mHz; matches the lab_23 measurement of 20.0 mHz)."
+  hint="Same formula as the κ²=0.125 example above: Δf₃dB = κ²/(2π), just with a different κ²."
+  solutionNote="Δf₃dB = 0.5/(2π) ≈ 79.6 mHz (since Δf₃dB∝κ² and 0.5/0.125=4, this is exactly 4× the representative-value answer of 19.9 mHz)."
 />
 - **External cross-check** (standard result): for white **frequency** noise with single-sided PSD $S_\nu^0$ ($\text{Hz}^2/\text{Hz}$),
   the linewidth is $\Delta f_{3\mathrm{dB}}=\pi S_\nu^0$. Outfit Four will give $S_\nu^0=\kappa^2/(2\pi^2)$;
@@ -346,8 +352,8 @@ the $\kappa$-type entries ×$\sqrt2$).
 | Outfit | In terms of $\kappa^2$ | Units | Canonical value | Who says it | Source |
 |---|---|---|---|---|---|
 | Variance growth rate (protagonist) | $\mathrm{Var}[\Delta\phi]=\kappa^2\vert t\vert$ | $\text{rad}^2/\text{s}$ | $0.125$ | theory | [P2] Eq.(11) p.793 |
-| ① $\kappa$ (phase) | $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ | $\text{rad}/\sqrt{\text{s}}$ | $0.354$ | ring/jitter | [P2] Eq.(8) p.792, Eq.(12) p.793 |
-| ① $\kappa_t$ (time) | $\kappa_t=\kappa/(2\pi f_0)$ | $\sqrt{\text{s}}$ | $1.13\times10^{-11}$ | ring/jitter | converted via [P2] Eq.(10) p.793 |
+| ① $\kappa$ (phase) | $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ | $\text{rad}/\sqrt{\text{s}}$ | $0.354$ | ring/jitter | square root of [P2] Eq.(11) p.793 |
+| ① $\kappa_t$ (time) | $\kappa_t=\kappa/(2\pi f_0)$ | $\sqrt{\text{s}}$ | $1.13\times10^{-11}$ | ring/jitter | [P2] Eq.(12) p.793 as printed (Eq.(8) + Eq.(10) conversion) |
 | ② $D$ (convention A) | $D_{\text{甲}}=\kappa^2$ ($\mathrm{Var}=D\vert t\vert$) | $\text{rad}^2/\text{s}$ | $0.125$ | rate convention (spec v3 once mislabeled this value as $D$) | reconciliation in Outfit Two |
 | ② $D$ (convention B) | $D_{\text{乙}}=\kappa^2/2$ ($\mathrm{Var}=2D\vert t\vert$) | $\text{rad}^2/\text{s}$ | $0.0625$ | Demir/laser; **this site's Spec 11.2 (v5)** | [E2] Demir 2000 |
 | ③ 3-dB linewidth | $\Delta f_{3\mathrm{dB}}=\kappa^2/(2\pi)$ | Hz | $19.9$ mHz | laser/spectroscopy | Outfit Three; [E2] |
@@ -371,6 +377,8 @@ $f_0^{\text{sim}}=16$ Hz — the linewidth **does not depend on $f_0$**, only th
 self-verified inside the simulation before being converted analytically to 5 GHz), total length $131072$ s, then extracts the same $\kappa^2$ via **four independent paths**:
 
 ![Four measurement outfits of the same κ²=0.125 rad²/s: phase-variance slope, Lorentzian linewidth, white-FM ADEV, 1/f² phase PSD](/figures/diffusion_dictionary.png)
+
+> **Translator's note**: this figure is generated by a script with Chinese text baked into the image. Legend/panel-title/suptitle read: 量測 Var[Δφ(τ)] = measured Var[Δφ(τ)], "（理論）" = (theory), "（若 …）" = (if …), panel (a) title "相位方差斜率 → $\kappa^2$" = phase-variance slope → $\kappa^2$, 模擬載波 PSD = simulated carrier PSD, Lorentzian 擬合 = Lorentzian fit, "漸近" = asymptote, panel (b) title "Lorentzian 線寬" = Lorentzian linewidth, "overlapping ADEV（模擬）" = overlapping ADEV (simulated), panel (c) title "white-FM ADEV：斜率 …、水平截距給 $\kappa$" = white-FM ADEV: slope …, horizontal intercept gives $\kappa$, "模擬 $S_\phi(f)$" = simulated $S_\phi(f)$, "（理論，單邊）" = (theory, one-sided), panel (d) title "$1/f^2$ phase PSD：係數 $2\kappa^2$（單邊）" = $1/f^2$ phase PSD: coefficient $2\kappa^2$ (one-sided), suptitle "擴散常數字典：同一個 $\kappa^2=…=0.125$ rad$^2$/s 的四件量測衣服" = diffusion-constant dictionary: four measurement "outfits" of the same $\kappa^2=…=0.125$ rad$^2$/s.
 
 | Item | Value | Notes |
 |---|---|---|
@@ -475,7 +483,7 @@ print(round(k2,4), round(k2/(2*np.pi)*1e3,1), round(10*np.log10(k2/dw**2),1),
 
 - **[P2] Eq.(8), p.792** ($\sigma=\kappa\sqrt{\Delta t}$), **Eq.(10), p.793** (phase-jitter definition),
   **Eq.(11), p.793** ($\sigma_{\Delta\phi}^2=\Gamma_{rms}^2S_i\Delta T/(2q_{max}^2)$, the protagonist itself, verified),
-  **Eq.(12), p.793** ($\kappa=(\Gamma_{rms}/q_{max})\sqrt{S_i/2}$, no $\omega_0$, verified).
+  **Eq.(12), p.793** (as printed, $\kappa_t=(\Gamma_{rms}/(q_{max}\omega_0))\sqrt{S_i/2}$, with $\omega_0$ in the denominator and units $\sqrt{\text{s}}$, re-verified on the PDF in v11; this page's $\kappa=\omega_0\kappa_t$ is the phase version).
 - **[P1] Eq.(11), p.182** (the phase integral, Step 0's starting point), **Eq.(21), p.185** (Outfit Four's SSB $/4$ version).
 - **External literature (not among the 5 source PDFs)**: [E2] A. Demir, A. Mehrotra, J. Roychowdhury, IEEE TCAS-I,
   vol. 47, no. 5, pp. 655–674, May 2000 (Outfit Two's convention B and Outfit Three's mechanism); [E1] D. W. Allan,

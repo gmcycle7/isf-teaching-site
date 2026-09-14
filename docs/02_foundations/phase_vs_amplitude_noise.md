@@ -20,7 +20,7 @@ ISF 在振幅域的對應物。
 > 有恢復力**（負的 Floquet 指數），擾動指數衰減回環上，所以振幅雜訊被振盪器自己壓掉；
 > **切向（相位）方向沒有恢復力**（零 Floquet 指數），擾動永久累積，所以相位雜訊一路漫步、
 > 沒有上界。同一顆 noise 電流，注入後分給相位的那一份留下、分給振幅的那一份被吃掉——
-> ISF $\Gamma$ 描述「分給相位多少」，APF $\Lambda$ 描述「分給振幅多少」。
+> ISF $\Gamma$ 描述「分給相位多少」，APF $\Delta$ 描述「分給振幅多少」。
 
 ## 1. 為什麼相位雜訊重要
 
@@ -41,9 +41,144 @@ $$
   振盪器頻譜不是一根理想 delta、而是有寬度的根本原因。
 - **振幅誤差有界、且大多打不進門檻判斷**：振幅在門檻附近的影響，多半又轉回時間誤差
   （見下面 AM–PM），但純振幅起伏本身會被恢復力壓掉，且接收端常用限幅／比較器，對振幅不敏感。
+- **相位雜訊在接收機端還有另外兩個客戶**：本振（LO）的 $\mathcal{L}(\Delta f)$ 裙擺會把鄰頻
+  強干擾（blocker）「掃」進中頻雜訊底床（reciprocal mixing，互易混頻）；而在數位調變系統，
+  整段頻率上積分出來的 $\sigma_\phi$ 直接就是星座圖上量到的 EVM（error vector magnitude，
+  誤差向量幅度）。這兩個效應把 SerDes/時脈以外的 RF 接收機設計也拉進同一套 $\mathcal{L}(\Delta f)$
+  與 $\sigma_\phi$ 語言——見本節最後的短小節。
 
 **一句話**：對通訊與時脈系統，**抖動（timing jitter）= 相位的事**。所以整套 Hajimiri–Lee
 理論把焦點全押在 $\phi(t)$ 上，先把振幅自由度「合理地丟掉」——下一節解釋為什麼能丟。
+
+### 接收機視角：reciprocal mixing 與 EVM——$\mathcal{L}(\Delta f)$ 與 $\sigma_\phi$ 的另一個客戶
+
+> **外部文獻聲明**：本小節的 reciprocal mixing 記帳式與 EVM 關係是 RF 接收機／數位調變的
+> **標準教科書結果**（**外部文獻，非本站 5 篇 PDF**），不出自 [P1]–[P4]。引 B. Razavi,
+> *RF Microelectronics*, 2nd ed., Prentice Hall, 2012（reciprocal mixing 一節，節號待查證）；
+> EVM $\approx\sigma_\phi$（小角、載波回復頻寬之外）是標準 OFDM/QAM 結果（具體教科書段落
+> 待查證）。本站前面小節推出的 $\mathcal{L}(\Delta f)$ 與 $\sigma_\phi$（見
+> [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)、
+> [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)）在這裡原封不動地被接上去，
+> 只是換了一個「客戶」。
+
+上面第一條 bullet 說「相位抖動 = 邊緣時間抖動」，講的是**時域**的客戶（SerDes、ADC）。
+但同一組 $\mathcal{L}(\Delta f)$、$\sigma_\phi$ 數字，在**接收機／頻域**還有兩個同樣重要的客戶：
+
+**(a) Reciprocal mixing（互易混頻）——LO 的裙擺把鄰頻干擾「掃」進頻帶。** 混頻器把
+RF 訊號乘上 LO：$v_{RF}(t)\cos(\omega_{LO}t+\phi_n(t))$。如果隔壁頻道有一個很強的干擾
+（blocker），它也會被同一個 LO 下變頻；但 LO 不是理想的 delta，而是帶著
+$\mathcal{L}(\Delta f)$ 裙擺的有限寬度線形——於是 blocker 兩側偏移 $\Delta f$ 處的那一小片
+LO 裙擺，把 blocker「混」進了中頻（IF）的雜訊底床，即使 blocker 本身根本不在意訊號頻道上。
+若 $\mathcal{L}(\Delta f)$ 在頻寬 $B$ 內近似平坦，折算到輸入端的雜訊功率是
+
+$$
+P_{n,in}(\Delta f)=P_{blocker}+\mathcal{L}(\Delta f)+10\log_{10}(B)\qquad[\mathrm{dBm}],
+$$
+
+（$P_{blocker}$、$P_{n,in}$ 單位 dBm，$\mathcal{L}$ 單位 dBc/Hz，$B$ 單位 Hz；$10\log_{10}B$
+把「每 Hz 的密度」乘上頻寬換成「這個頻寬裡的總功率」，即 dBc/Hz $+$ dB(Hz) $=$ dBc，
+再疊加到 blocker 的 dBm 基準）。要讓這道底床不吃掉接收機的訊噪比，需要
+
+$$
+\mathcal{L}(\Delta f)\ \le\ P_{sig}-P_{blocker}-\mathrm{SNR}_{min}-10\log_{10}(B)\qquad[\mathrm{dBc/Hz}],
+$$
+
+這條不等式直接把 blocker 規格（來自系統/法規）轉成對 **LO 相位雜訊**的硬性要求——這正是
+RF 合成器要壓低遠端 $\mathcal{L}(\Delta f)$ 最實際的驅動力之一（另一個是本站主線的
+1/f² skirt 決定近端相位雜訊）。
+
+**(b) EVM——把整段 $\sigma_\phi$ 直接讀成星座圖上的誤差向量。** 在 QAM/OFDM 這類數位調變，
+每個符元是星座圖上的一個點；LO 相位雜訊讓實際下變頻用的本振相位偏離理想值 $\phi_n(t)$，
+把整個星座**旋轉**一個小角度。小角近似下，旋轉造成的誤差向量長度就等於旋轉角本身
+（弧長 $\approx$ 角度，當角度夠小時），而且只計「載波回復迴路頻寬之外」那一段——
+載波回復迴路會把它抓得住的低頻相位漂移鎖掉，剩下的才變成隨機殘餘誤差：
+
+$$
+\mathrm{EVM}_{rms}\ \approx\ \sigma_\phi\ =\ \sqrt{2\int_{f_1}^{f_2}\mathcal{L}(f)\,df}\qquad[\mathrm{rad}],\qquad
+\mathrm{EVM}[\mathrm{dB}]=20\log_{10}\sigma_\phi.
+$$
+
+這裡的 $\sigma_\phi^2=2\int\mathcal{L}\,df$ 跟本站 rms jitter 積分（例 C）用的是**同一條**
+公式（$S_\phi=2\mathcal{L}$、$\sigma_\phi^2=\int S_\phi\,df$），只是最後不除以 $2\pi f_0$
+換成時間，而是直接留在弧度、當作 EVM 讀。
+
+- **慣例旗標（SSB/4 vs 時域/2，$\pm3$ dB）**：跟
+  [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) 講的一樣，
+  $\mathcal{L}$ 若取 canonical 的 $-148$ dBc/Hz（SSB /4 慣例）而非 $-145$ dBc/Hz（時域 /2
+  慣例），整段積分出來的 $\sigma_\phi^2$ 差 2 倍、$\sigma_\phi$ 差 $\sqrt2$
+  倍、EVM[dB] 差 $20\log_{10}\sqrt2\approx3.0$ dB——**選定慣例、全鏈一致**才有意義；本頁與
+  下面 worked example 一律用 SSB /4 錨定的 $-148$ dBc/Hz、例 C 的 $-100$ dBc/Hz。
+- **適用條件**：小角（$\sigma_\phi\ll1$ rad）、只算載波回復迴路頻寬之外的部分、且把
+  相位雜訊視為 EVM 的**唯一**來源（真實系統還有 I/Q 不平衡、非線性、量化等其它 EVM 貢獻，
+  需要 RSS 疊加，此處不展開）。
+
+**Worked（reciprocal mixing，接例 C 的 $\mathcal{L}(1\,\mathrm{MHz})=-100$ dBc/Hz）**：
+blocker $-40$ dBm @ 1 MHz 偏移、IF 頻寬 $B=1$ MHz：
+
+$$
+P_{n,in}=-40+(-100)+10\log_{10}(10^6)=-40-100+60=-80\ \mathrm{dBm}.
+$$
+
+若訊號本身只有 $-90$ dBm，就比這道底床**低 10 dB**——訊號被互易混頻的底床蓋過，接收機
+讀不到。反過來，若要求 $\mathrm{SNR}_{min}=10$ dB，用上面的不等式反推 LO 需要多乾淨：
+$\mathcal{L}(\Delta f)\le-90-(-40)-10-60=-120$ dBc/Hz——比例 C 用的 $-100$ dBc/Hz 還要再壓低
+20 dB。canonical 例 B 的 LO（$\mathcal{L}(1\,\mathrm{MHz})=-148$ dBc/Hz、SSB /4 錨）換成
+0 dBm 的 blocker：$P_{n,in}=0-148+60=-88$ dBm——同一支 LO，blocker 越強、底床越高，
+但係數與符號都不變。
+
+**Worked（EVM，接例 C 積分 1–100 MHz 得到的 $\sigma_\phi=14.07$ mrad）**：
+
+$$
+\mathrm{EVM}_{rms}\approx\sigma_\phi=1.407\times10^{-2}\ \mathrm{rad}=1.41\%,\qquad
+\mathrm{EVM}[\mathrm{dB}]=20\log_{10}(1.407\times10^{-2})=-37.0\ \mathrm{dB}.
+$$
+
+這個 $-37.0$ dB 跟 [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter) 頁上
+$\mathrm{SNR}_{jitter}=37.0$ dB（同一顆 $\sigma_\phi=14.07$ mrad、只是取樣一個 $f_{in}=f_0$
+正弦而非調變星座）是同一個數字的兩種讀法——差別只在 EVM 習慣取負號（誤差相對訊號的
+比例，訊號越乾淨 EVM 越負），SNR 取正號；該頁的交叉連結見 R11-30。
+
+一行一驗證（自含，`# ->` 為實際執行輸出；用 `simulations/common/noise_utils.py` 的
+`leeson_one_over_f2`、`integrate_rms_jitter`，與例 C／lab_08 同一組函式）：
+
+```python
+import numpy as np
+from simulations.common.noise_utils import leeson_one_over_f2, integrate_rms_jitter
+
+f0 = 5e9  # [Hz] canonical
+# 例 C：1/f^2 skirt 錨定在 L(1 MHz) = -100 dBc/Hz，積分 1-100 MHz
+f = np.logspace(np.log10(1e6), np.log10(100e6), 200_000)
+L = leeson_one_over_f2(f, -100.0, 1e6)
+sigma_t, sigma_phi = integrate_rms_jitter(f, L, f0, 1e6, 100e6)
+print(round(sigma_phi * 1e3, 2))          # -> 14.07  (mrad, 與例 C 一致)
+print(round(sigma_t * 1e15, 1))           # -> 447.9  (fs, 與例 C 一致)
+
+# EVM
+evm_rms = sigma_phi                        # 小角：EVM_rms ~= sigma_phi [rad]
+evm_pct = evm_rms * 100
+evm_db = 20 * np.log10(evm_rms)
+print(round(evm_pct, 2))                  # -> 1.41
+print(round(evm_db, 1))                   # -> -37.0
+
+# reciprocal mixing floor: worked example (blocker -40 dBm, L(1MHz)=-100 dBc/Hz, B=1MHz)
+P_blocker, L_1MHz, B = -40.0, -100.0, 1e6
+floor_example = P_blocker + L_1MHz + 10 * np.log10(B)
+print(round(floor_example, 1))            # -> -80.0  (dBm)
+
+# canonical example B: blocker 0 dBm, L(1MHz) = -148 dBc/Hz (SSB /4 anchor)
+floor_canonical = 0.0 + (-148.0) + 10 * np.log10(B)
+print(round(floor_canonical, 1))          # -> -88.0  (dBm)
+
+# signal -90 dBm vs floor_example: how far below the floor
+P_sig = -90.0
+print(round(P_sig - floor_example, 1))    # -> -10.0  (dB, signal is 10 dB below the floor)
+
+# required L for SNR_min = 10 dB given the same blocker/signal/B
+SNR_min = 10.0
+required_L = P_sig - P_blocker - SNR_min - 10 * np.log10(B)
+print(round(required_L, 1))               # -> -120.0 (dBc/Hz)
+print(round(L_1MHz - required_L, 1))      # -> 20.0   (dB short of the requirement)
+```
 
 ## 2. 振幅擾動為何會衰減：APF 與 amplitude decay function
 
@@ -53,26 +188,30 @@ $$
 \Delta\phi=\frac{\Gamma(\omega_0\tau)}{q_{max}}\,\Delta q.
 $$
 
-[P4] 對**振幅**做了完全平行的事，定義 **APF $\Lambda(\phi)$（amplitude perturbation
+[P4] 對**振幅**做了完全平行的事，定義 **APF $\Delta(\phi)$（amplitude perturbation
 function）**：同一顆注入電流脈衝，投影到 limit cycle 的**徑向**方向，造成多少瞬時振幅偏差。
 概念式（[P4] Sec. III-D，APF 定義在 p.2127 附近）：
 
 $$
-\Delta A_0\;\propto\;\Lambda(\omega_0\tau)\,\Delta q \quad\Longleftrightarrow\quad \text{APF 是 ISF 的振幅域對應物}.
+\Delta A_0\;\propto\;\Delta(\omega_0\tau)\,\Delta q \quad\Longleftrightarrow\quad \text{APF 是 ISF 的振幅域對應物}.
 $$
 
 - **單位**：[P4] 給的 APF 單位是 **$\mathrm{A^{-1}}$（1/安培）**——它把「注入電流」映到「振幅
   的相對偏差」。對照 ISF $\Gamma$ 無因次：兩者結構平行、但歸一化方式不同。
+- **符號提醒**：這裡帶引數的 $\Delta(\cdot)$ 是 APF 這個**函數**（本站慣例，見
+  [統一符號表](/00_overview/notation)），跟差分前綴 $\Delta q$、$\Delta A_0$、$\Delta\omega$
+  是兩回事——看有沒有函數引數（括號）即可分辨；上式 $\Delta(\omega_0\tau)\,\Delta q$
+  一個是函數、一個是差分量，並非同一個 $\Delta$ 相乘。
 - **關鍵差別——命運不同**：相位偏差用一個 **unit step** $u(t-\tau)$ 表示（永久保持，[P1]
   Eq.(10)）；振幅偏差則乘上一個**衰減函數（amplitude decay function）**，隨時間指數鬆弛回零。
   概念上：
 
 $$
-\underbrace{h_\phi(t,\tau)=\frac{\Gamma(\omega_0\tau)}{q_{max}}\,u(t-\tau)}_{\text{相位：階梯，永久}}\qquad\text{vs}\qquad \underbrace{h_A(t,\tau)\;\propto\;\Lambda(\omega_0\tau)\,d(t-\tau)}_{\text{振幅：脈衝}\times\text{衰減,}\;d\to 0}.
+\underbrace{h_\phi(t,\tau)=\frac{\Gamma(\omega_0\tau)}{q_{max}}\,u(t-\tau)}_{\text{相位：階梯，永久}}\qquad\text{vs}\qquad \underbrace{h_A(t,\tau)\;\propto\;\Delta(\omega_0\tau)\,d(t-\tau)}_{\text{振幅：脈衝}\times\text{衰減,}\;d\to 0}.
 $$
 
   這裡 $d(t-\tau)$ 是 amplitude decay function（振幅衰減函數）。**[P4] Sec. III-F, p.2128（緊接 Eq.(25) 之前的正文）給出確切閉式**
-  （已對照原始 PDF 渲染核實；注意 Eq.(25) 本身是 $\Lambda(\phi)=\tau_0\,\tilde\Lambda(\phi)$，APF = $\tau_0$ × 振幅 ISF，而下式的衰減閉式是其前的正文）：
+  （已對照原始 PDF 渲染核實；注意 Eq.(25) 本身是 $\Delta(\phi)=\tau_0\,\tilde\Lambda(\phi)$，APF = $\tau_0$ × 振幅 ISF $\tilde\Lambda$，而下式的衰減閉式是其前的正文）：
 
 $$
 d(t,\phi)=e^{-t/\tau_0},\qquad \tau_0=\frac{2Q}{\omega_{osc}}
@@ -82,7 +221,7 @@ $$
   得**慢**（$\tau_0$ 大），但**終究會恢復**（指數衰減）；相位則沒有這個恢復力（unit step，記憶無限長）。
   這就是「為何振幅雜訊有界、相位雜訊發散」最量化的一句話。
 
-> **已核實**：$d(t,\phi)=e^{-t/\tau_0}$、$\tau_0=2Q/\omega_{osc}$ 出自 [P4] Sec. III-F, p.2128 的正文（緊接 Eq.(25) 之前的未編號式；Eq.(25) 本身是 APF 關係 $\Lambda(\phi)=\tau_0\,\tilde\Lambda(\phi)$）。
+> **已核實**：$d(t,\phi)=e^{-t/\tau_0}$、$\tau_0=2Q/\omega_{osc}$ 出自 [P4] Sec. III-F, p.2128 的正文（緊接 Eq.(25) 之前的未編號式；Eq.(25) 本身是 APF 關係 $\Delta(\phi)=\tau_0\,\tilde\Lambda(\phi)$）。
 > （更一般振盪器的衰減率屬 Floquet／PPV 框架，**不在下載的 5 篇 PDF 內**，見 [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv)。）
 
 - **為何「衰減」就等於「被抑制」**：把振幅雜訊想成對 $h_A$ 做卷積。因為 $d(t-\tau)$ 可積、
@@ -95,7 +234,7 @@ $$
 | 量 | 投影方向 | 敏感度函數 | 脈衝響應核 | 長期命運 | 對 jitter 的影響 |
 |---|---|---|---|---|---|
 | **相位** $\phi$ | 切向（沿環） | ISF $\Gamma(\omega_0\tau)$，無因次 | $\dfrac{\Gamma}{q_{max}}u(t-\tau)$（階梯） | **累積／發散** | 直接：$\Delta t=\Delta\phi/2\pi f_0$ |
-| **振幅** $A$ | 徑向（垂直環） | APF $\Lambda(\omega_0\tau)$，單位 $\mathrm{A^{-1}}$ | $\Lambda\cdot d(t-\tau)$（脈衝×衰減） | **衰減／有界** | 間接，多經 AM–PM |
+| **振幅** $A$ | 徑向（垂直環） | APF $\Delta(\omega_0\tau)$，單位 $\mathrm{A^{-1}}$ | $\Delta\cdot d(t-\tau)$（脈衝×衰減） | **衰減／有界** | 間接，多經 AM–PM |
 
 ## 3. 理想 LC：ISF 與 APF 為 quadrature（正交，差 90°）
 
@@ -109,18 +248,18 @@ $\Gamma(\theta)=-\sin\theta$（在零交越最大、在峰值為零）；那麼�
 **峰值最大、零交越為零**，也就是長得像 $\cos$：
 
 $$
-\Gamma_{LC}(\theta)=-\sin\theta\quad\text{（切向）},\qquad \Lambda_{LC}(\theta)\;\propto\;\cos\theta\quad\text{（徑向，與}\Gamma\text{正交）}.
+\Gamma_{LC}(\theta)=-\sin\theta\quad\text{（切向）},\qquad \Delta_{LC}(\theta)\;\propto\;\cos\theta\quad\text{（徑向，與}\Gamma\text{正交）}.
 $$
 
-- **物理意義**：在**波峰**踢（$\theta=0$）→ $\Gamma=0$、$\Lambda$ 最大 → **純改振幅**
-  （會被吃掉）。在**零交越**踢（$\theta=\pi/2$）→ $|\Gamma|$ 最大、$\Lambda=0$ → **純改相位**
+- **物理意義**：在**波峰**踢（$\theta=0$）→ $\Gamma=0$、$\Delta$ 最大 → **純改振幅**
+  （會被吃掉）。在**零交越**踢（$\theta=\pi/2$）→ $|\Gamma|$ 最大、$\Delta=0$ → **純改相位**
   （永久留著）。這正是上一頁那張
   [waveform_with_impulse_markers](/figures/waveform_with_impulse_markers.png) 的紅／綠標記。
-- **單位檢查 / dimension**：$\Gamma$ 無因次、$\Lambda$ 單位 $\mathrm{A^{-1}}$；quadrature 講的是
+- **單位檢查 / dimension**：$\Gamma$ 無因次、$\Delta$ 單位 $\mathrm{A^{-1}}$；quadrature 講的是
   **相位（角度）關係**，不是量綱相等。差 90° 指的是兩個敏感度函數作為 $\theta$ 的週期函數，
   傅立葉上一個是 $\sin$、一個是 $\cos$。
 
-> **已核實（[P4] Eq.(26), p.2128）**：上式 $\Lambda_{LC}\propto\cos\theta$
+> **已核實（[P4] Eq.(26), p.2128）**：上式 $\Delta_{LC}\propto\cos\theta$
 > 的**比例常數**與 APF 的精確歸一化需從 PDF Fig. 5, p.2126 核對。本頁只主張「quadrature（正交）」
 > 這個定性關係（[P4] 明確陳述），不寫死振幅常數。
 
@@ -168,8 +307,8 @@ $$
 |---|---|---|
 | 有振幅恢復（穩定 limit cycle） | 振幅雜訊衰減、可只追蹤相位 | 弱恢復／高 Q 慢恢復時振幅雜訊壽命變長，不可忽略 |
 | AM–PM 可忽略（$\partial\omega/\partial A\approx 0$） | 「丟掉振幅」近似良好 | 強 AM–PM 時振幅雜訊上轉成相位雜訊，需用 [P4] APF 框架 |
-| 小訊號擾動 | $\Gamma,\Lambda$ 可線性投影 | 大注入下 ISF/APF 本身被改變、非線性混疊 |
-| 理想 LC 對稱 | $\Gamma\perp\Lambda$（quadrature）成立 | 非對稱波形 / ring 時 quadrature 只是近似 |
+| 小訊號擾動 | $\Gamma,\Delta$ 可線性投影 | 大注入下 ISF/APF 本身被改變、非線性混疊 |
+| 理想 LC 對稱 | $\Gamma\perp\Delta$（quadrature）成立 | 非對稱波形 / ring 時 quadrature 只是近似 |
 
 ## 5. 振幅雜訊的頻譜：OU 過程與平頂 Lorentzian
 
@@ -292,7 +431,9 @@ $$
   \qquad\Longleftrightarrow\qquad
   f_c=\frac{\omega_c}{2\pi}=\frac{f_0}{2Q}\ \ [\text{Hz}],
   $$
-  在轉角處 $S_a=c\tau_0^2/2$（比平頂低 3 dB）。**Hz 形式請記 $f_c=f_0/2Q$**。
+  在轉角處 $S_a=c\tau_0^2/2$（比平頂低 3 dB）。**Hz 形式請記 $f_c=f_0/2Q$**。**本站慣例**：這裡的
+  $\omega_c$ 是 AM 轉角 $\omega_0/2Q$，與 [injection_locking_noise](/06_design_insights/injection_locking_noise)、
+  [subharmonic_injection](/06_design_insights/subharmonic_injection) 的注入鎖定 $\omega_c=\omega_L\cos\theta_{ss}$（realignment 恢復力）無關。
 - **功率守恆自檢**：$\dfrac{1}{2\pi}\displaystyle\int_{-\infty}^{\infty}
   \frac{c\tau_0^2\,d\omega}{1+\omega^2\tau_0^2}=\frac{c\tau_0^2}{2\pi}\cdot\frac{\pi}{\tau_0}
   =\frac{c\tau_0}{2}=\mathrm{Var}[a]$ ✓（積分公式
@@ -497,9 +638,9 @@ R=10 crossover sim [MHz]     = 83.31       # -> 83.31
 
 - 通訊與時脈系統在意的抖動 **= 相位的事**；相位無恢復力 → 累積 → $1/f^2$、$1/f^3$ 裙擺。
 - 振幅有恢復力 → 擾動指數衰減（amplitude decay function $d(t-\tau)\to 0$）→ 方差有界、被抑制。
-- **APF $\Lambda(\omega_0\tau)$（單位 $\mathrm{A^{-1}}$）是 ISF 在振幅域的對應物**；相位核是
+- **APF $\Delta(\omega_0\tau)$（單位 $\mathrm{A^{-1}}$）是 ISF 在振幅域的對應物**；相位核是
   階梯 $u$、振幅核是 脈衝×衰減。
-- 理想 LC：$\Gamma\propto-\sin\theta$（切向）與 $\Lambda\propto\cos\theta$（徑向）**互為
+- 理想 LC：$\Gamma\propto-\sin\theta$（切向）與 $\Delta\propto\cos\theta$（徑向）**互為
   quadrature（差 90°）**——[P4] Fig. 5, p.2126。
 - **AM–PM** 是振幅雜訊漏回相位的後門：$\partial\omega/\partial A\neq 0$ 時要當心。
 - 例 A：1 fC 注零交越 → 31.8 fs 永久 jitter；注波峰 → ~0 永久影響。
@@ -519,4 +660,4 @@ R=10 crossover sim [MHz]     = 83.31       # -> 83.31
 - $c_0$ 如何把 $1/f$ 上轉（與 AM–PM 並列的另一機制）：[flicker_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
 - 近載波的另一種「變平」（相位 random walk → Lorentzian 線形）：[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
 - 量測上如何分離 AM/PM（SA vs 鑑相法 vs cross-correlation）：[measurement_and_spurs](/06_design_insights/measurement_and_spurs)
-- 全站符號（APF $\Lambda$ 已登錄）：[統一符號表 Notation](/00_overview/notation)
+- 全站符號（APF $\Delta$ 已登錄）：[統一符號表 Notation](/00_overview/notation)

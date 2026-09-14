@@ -5,7 +5,7 @@ description: 把「一個 impulse 給一個相位 step」疊加成連續 noise �
 
 # 從單一 impulse 到任意 noise 的卷積推導
 
-> **前置閱讀**：[isf_definition](/03_isf_core_theory/isf_definition)（$\Gamma$ 的操作型定義與單一相位 step）、[impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift)（單一 impulse 的相位響應）、[oscillator_phase](/02_foundations/oscillator_phase)（excess phase 沒有恢復力、會累積）。
+> 先備：[isf_definition](/03_isf_core_theory/isf_definition) ｜ 接下來：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
 
 上一頁 [isf_definition](/03_isf_core_theory/isf_definition) 給了「**一顆** current impulse → **一個**相位 step」的定義。但真實電路的 noise 電流 $i_n(t)$ 是**連續、持續**地注入的，不是一顆一顆分開的脈衝。這頁回答：
 
@@ -147,7 +147,7 @@ $$
 \phi(t)\approx\frac{I_0\,c_0\sin(\Delta\omega t)}{2q_{max}\,\Delta\omega}.
 $$
 
-對 ideal LC（$\Gamma=-\sin$）其 DC 係數 $c_0=0$，響應被抑制；改用帶 DC 的非對稱 ISF（$\Gamma=\cos\theta+\alpha$，此時 $c_0=2\alpha$）才會出現上式那種正比 $\sin(\Delta\omega t)$、幅度 $\propto1/\Delta\omega$ 的緩慢相位漂移。下面同時跑兩者對照：
+對 ideal LC（$\Gamma=-\sin$）其 DC 係數 $c_0=0$，響應被抑制；改用帶 DC 的非對稱 ISF（$\Gamma=\cos\theta+\alpha$，此時 $c_0=2\alpha$）才會出現上式那種正比 $\sin(\Delta\omega t)$、幅度 $\propto1/\Delta\omega$ 的緩慢相位漂移（**本站慣例**：此處 $\alpha$ 是 toy ISF 的 DC 偏移，與 [P1] 的 NMF $\alpha(\omega_0t)$ 無關）。下面同時跑兩者對照：
 
 ```python
 import numpy as np

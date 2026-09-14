@@ -1,6 +1,6 @@
 ---
 title: Interactive Calculator
-description: Drag the sliders and watch in real time how q_max, Γrms, S_i, and f0 change the phase noise L and the rms jitter.
+description: Seven interactive tools (phase noise/jitter calculator, ISF Fourier-coefficient explorer, SerDes BER bathtub, injection-locking explorer, Allan deviation, PLL loop bandwidth, ISF waveform sandbox) — drag the sliders and feel the ISF theory turn into numbers.
 ---
 
 import PhaseNoiseCalculator from '@site/src/components/PhaseNoiseCalculator';
@@ -34,11 +34,17 @@ Turn [ISF theory](/03_isf_core_theory/white_noise_to_phase_noise) into feel: dra
 
 Tune the ISF Fourier coefficients $c_0$–$c_3$ and watch in real time the waveform $\Gamma(\theta)$, $\Gamma_{rms}$, and the **1/f³ corner ratio $c_0^2/(2\Gamma_{rms}^2)$** ([P1] Eq.24). Pull $c_0$ to 0 (symmetric waveform) and the corner approaches 0 — this is the mechanism that suppresses close-in flicker.
 
+- **Theory**: [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf), [rms_isf](/03_isf_core_theory/rms_isf); **verification**: [lab_05](/04_simulation_labs/lab_05_isf_fourier_coefficients).
+- **Limitations**: the sliders only go up to $c_3$ (`IsfFourierExplorer.js`), far fewer harmonics than lab_05's $n_{harmonics}=8$ on the site; the $\Gamma_{rms}$ and Parseval readouts show the truncated-series approximation $\sum_{n=0}^{3}c_n^2$ to $2\Gamma_{rms}^2$, not the exact infinite-series value.
+
 <IsfFourierExplorer />
 
 ## Tool 3: SerDes BER bathtub explorer
 
 Take the rms jitter $\sigma_t$ obtained by integrating the oscillator phase noise, together with the UI (inverse baud rate), and look at the **eye opening** and the **BER bathtub**. As $\sigma_t$ grows or the UI shrinks, the eye opening at BER $=10^{-12}$ narrows.
+
+- **Model**: pure Gaussian random jitter (RJ), with **no** deterministic jitter (DJ) (`SerdesBerExplorer.js`; for the DJ / dual-Dirac model see [dj_dual_dirac](/06_design_insights/dj_dual_dirac)).
+- **Theory**: [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection); **verification**: [lab_12](/04_simulation_labs/lab_12_serdes_eye_ber).
 
 <SerdesBerExplorer />
 
@@ -46,17 +52,20 @@ Take the rms jitter $\sigma_t$ obtained by integrating the oscillator phase nois
 
 **Injection locking** (an external signal pulling the oscillator frequency onto itself) has a range set by the ISF fundamental: drag `I_inj`, the detuning `Δω`, and the normalized ISF fundamental $\vert\tilde\Gamma_1\vert$ to see the lock range $\omega_L=\tfrac12\,I_{inj}\,\vert\tilde\Gamma_1\vert$ ([P3] Eq.(35)) and the phase dynamics $d\theta/dt=\Delta\omega-\omega_L\sin\theta$ (the Adler equation — external literature, not among the five source PDFs). When $\vert\Delta\omega\vert\le\omega_L$, $\Omega(\theta)=\omega_L\sin\theta$ intersects the horizontal line $\Delta\omega$ and the system locks at a fixed point $\theta^*$; once the detuning exceeds the envelope it unlocks, leaving a residual beat frequency $\Omega_{beat}=\sqrt{\Delta\omega^2-\omega_L^2}$.
 
+- **Theory**: [P3], [injection_locking_noise](/06_design_insights/injection_locking_noise); **transient behavior and cycle slips**: [lab_36](/04_simulation_labs/lab_36_lock_acquisition).
+- **Limitations**: sinusoidal injection, the ideal-LC fundamental-normalized ISF $\tilde\Gamma_1$, and weak injection (the small-signal assumption behind the Adler equation) — strong injection, non-sinusoidal waveforms, or higher-harmonic coupling are outside this tool's model.
+
 <InjectionLockingExplorer />
 
 ## Tool 5: Allan deviation explorer
 
-**Allan deviation** (the two-sample standard deviation that measures long-term time-domain frequency stability) $\sigma_y(\tau)$ translates the same oscillator's noise into a curve versus averaging time $\tau$: pick the dominant FM noise type (white / flicker / random-walk FM) and its strength, and watch the log-log slope fall on the $\tau^{-1/2}$, $\tau^{0}$, $\tau^{+1/2}$ segments in real time. Underneath is the exact closed form of $\sigma_y^2(\tau)=2\int_0^\infty S_y(f)\,\sin^4(\pi f\tau)/(\pi f\tau)^2\,df$ (with $S_y(f)=(f^2/f_0^2)\,S_\phi(f)$) for pure power-law processes, matching the [slope table in spec 11.2](/02_foundations/allan_variance) and lab_19.
+**Allan deviation** (the two-sample standard deviation that measures long-term time-domain frequency stability) $\sigma_y(\tau)$ translates the same oscillator's noise into a curve versus averaging time $\tau$: pick the dominant FM noise type (white / flicker / random-walk FM) and its strength, and watch the log-log slope fall on the $\tau^{-1/2}$, $\tau^{0}$, $\tau^{+1/2}$ segments in real time. Underneath is the exact closed form of $\sigma_y^2(\tau)=2\int_0^\infty S_y(f)\,\sin^4(\pi f\tau)/(\pi f\tau)^2\,df$ (with $S_y(f)=(f^2/f_0^2)\,S_\phi(f)$) for pure power-law processes, matching the [slope table in spec 11.2](/02_foundations/allan_variance); simulation script `simulations/lab_19_allan.py` (figure in allan_variance).
 
 <AllanDeviationExplorer />
 
 ## Tool 6: PLL loop-bandwidth explorer
 
-The **loop bandwidth** (the cutoff frequency up to which the loop can track the input phase) $f_n$ of a **PLL** (phase-locked loop) sets the noise budget: the loop low-passes the reference path and high-passes the VCO path, giving the output $S_{out}=S_{ref}\vert H_{lp}\vert^2+S_{vco}\vert H_{hp}\vert^2$ (spec 10.2). Increasing $f_n$ admits more in-band reference noise and less out-of-band VCO noise, so there exists an **optimum loop BW** that minimizes the integrated jitter $\sigma_t=\sqrt{\int S_{out}\,df}/(2\pi f_0)$ (spec formula 19) — drag the slider to find it. Matches [pll_noise_budget](/06_design_insights/pll_noise_budget) and lab_20.
+The **loop bandwidth** (the cutoff frequency up to which the loop can track the input phase) $f_n$ of a **PLL** (phase-locked loop) sets the noise budget: the loop low-passes the reference path and high-passes the VCO path, giving the output $S_{out}=S_{ref}\vert H_{lp}\vert^2+S_{vco}\vert H_{hp}\vert^2$ (spec 10.2). Increasing $f_n$ admits more in-band reference noise and less out-of-band VCO noise, so there exists an **optimum loop BW** that minimizes the integrated jitter $\sigma_t=\sqrt{\int S_{out}\,df}/(2\pi f_0)$ (spec formula 19) — drag the slider to find it. Matches [pll_noise_budget](/06_design_insights/pll_noise_budget); simulation script `simulations/lab_20_pll_budget.py` (figure in pll_noise_budget).
 
 <PllLoopBwExplorer />
 

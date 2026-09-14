@@ -5,7 +5,7 @@ description: 把 ISF 展成 Γ=c₀/2+Σcₙcos(nω₀τ+θₙ)，逐步推導�
 
 # ISF 的 Fourier series（傅立葉級數）
 
-> **前置閱讀**：[isf_definition](/03_isf_core_theory/isf_definition)（$\Gamma$ 是無因次、$2\pi$ 週期函數）、[impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift)（$\Gamma$ 的操作型定義）、[convolution_derivation](/03_isf_core_theory/convolution_derivation)（連續 noise 的相位積分式）。
+> 先備：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) ｜ 接下來：[rms_isf](/03_isf_core_theory/rms_isf)
 >
 > **動手驗證**：本頁的 Fourier 係數萃取、重建與 Parseval 數值驗證見 [lab_05](/04_simulation_labs/lab_05_isf_fourier_coefficients)。
 
@@ -234,6 +234,8 @@ Fourier 係數的奇偶性直接由 $\Gamma(x)$ 的對稱性決定，這給設�
 | 奇函數 $\Gamma(-x)=-\Gamma(x)$ | 所有 $a_n=0$ 且 $a_0=0$ ⟹ $c_0=0$ | **無 $1/f$ 上轉**（理想 LC 的 $-\sin$ 就是此類） |
 | 半波對稱 $\Gamma(x+\pi)=-\Gamma(x)$ | 偶次諧波 $c_2=c_4=\dots=0$ | $2\omega_0$ 附近 noise 不折回 |
 | DC 偏移 $\cos\theta+\alpha$（toy `gamma_asymmetric`） | $c_0=2\alpha\neq0$ | 出現 $1/f^3$（close-in 變差） |
+
+> **本站慣例**：此處 $\alpha$ 是 toy ISF $\Gamma=\cos\theta+\alpha$ 的 DC 偏移（$c_0=2\alpha$），與 [P1] 的 NMF $\alpha(\omega_0t)$（cyclostationary 雜訊調制函數，見 [effective_isf](/03_isf_core_theory/effective_isf)）無關。
 
 - **舉例（理想 LC）**：$\Gamma_{LC}(\theta)=-\sin\theta$ 是奇函數 ⟹ $c_0=0$。所以理想 LC 在
   first-order 下**沒有** flicker 上轉；現實中的不對稱（hard-switching、偏壓不對稱）才把 $c_0$ 撐起來。

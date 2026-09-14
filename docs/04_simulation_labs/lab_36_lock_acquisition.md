@@ -61,6 +61,8 @@ $$
 \omega_L=\frac{I_{inj}}{2q_{max}}\ [\text{rad/s}].
 $$
 
+**本站慣例**：本頁 $\Delta\omega$ 是失諧，不是 notation 表裡的「offset 頻率」；本頁之後凡提到 offset 頻率一律寫 $\omega$。
+
 （[P3] 自己把它寫成 $d\theta/dt=-\Delta\omega_{[P3]}+\Omega(\theta)$，Eq.(38), p.2115，
 $\Delta\omega_{[P3]}=\omega_{inj}-\omega_0$——差一個整體正負號，本頁結果只依賴
 $\Delta\omega^2$ 與 $r\equiv\Delta\omega/\omega_L$，不受影響。）本頁全程取

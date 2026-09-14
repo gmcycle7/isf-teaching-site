@@ -4,10 +4,11 @@ description: 從 cyclostationary device noise 推到 effective ISF Γ_eff(x)=Γ(
 ---
 
 import EffectiveIsfExplorer from "@site/src/components/EffectiveIsfExplorer";
+import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # Effective ISF 與 cyclostationary noise
 
-> **前置閱讀**：[isf_definition](/03_isf_core_theory/isf_definition)（$\Gamma$ 的定義）、[rms_isf](/03_isf_core_theory/rms_isf)（$\Gamma_{rms}$ 與 $\sum c_n^2$）、[stochastic_noise_basics](/02_foundations/stochastic_noise_basics)（stationary vs cyclostationary noise）。
+> 先備：[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion) ｜ 接下來：[capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)
 
 到目前為止，我們都假設 noise 源是 **stationary（穩態）**——它的統計性質（例如均方功率）
 不隨時間變。電阻的熱雜訊就是這樣。但振盪器裡最大宗的雜訊源是**電晶體**，而電晶體的雜訊功率
@@ -30,6 +31,59 @@ $\Gamma_{eff}=\Gamma\cdot\alpha$ 三條曲線疊在一起，以及 $\Gamma_{eff,
 相對 stationary 的 phase-noise 變化怎麼跟著動。
 
 <EffectiveIsfExplorer />
+
+<NumericQuiz
+  prompt="維持 explorer 預設值（中心相位 θc = 90°、寬度 50%、floor = 0——ISF 零點/最敏感相位的「壞」case），面板讀到的 Γ_eff,rms 是多少？"
+  answer={0.395}
+  tol={0.02}
+  hint="θc=90° 把窗心放在 Γ=−sin x 的 zero crossing（|Γ|=1，最敏感相位）；寬度 50% 表示窗覆蓋半個週期（widthFrac=0.5）。"
+  solutionNote="Γ_eff,rms≈0.395，是 stationary Γ_rms=0.707 的約 56%。把 θc 拉到 0°（波峰，Γ≈0，Colpitts-like）才會崩到 ≈0.18——即上面「Colpitts 的頓悟」段的重點。"
+/>
+
+<details>
+<summary><strong>驗證：重現面板的 Γ_eff,rms</strong>（對照 EffectiveIsfExplorer.js 的 gammaLc / alphaWindow / trapzRms）</summary>
+
+```python
+import numpy as np
+
+TWO_PI = 2 * np.pi
+N = 361  # EffectiveIsfExplorer.js 取樣點數
+
+def wrap_pi(d):
+    return np.arctan2(np.sin(d), np.cos(d))
+
+def gamma_lc(x):
+    return -np.sin(x)                                   # .js gammaLc()
+
+def alpha_window(x, center_rad, width_frac, floor):     # .js alphaWindow()，同一公式
+    width = width_frac * TWO_PI
+    d = wrap_pi(x - center_rad)
+    clipped = np.clip(d / (width / 2), -1, 1)
+    raised = 0.5 * (1 + np.cos(np.pi * clipped))
+    return floor + (1 - floor) * raised
+
+def trapz_rms(xs, ys):                                   # .js trapzRms()
+    s = 0.0
+    for i in range(len(xs) - 1):
+        s += 0.5 * (ys[i]**2 + ys[i+1]**2) * (xs[i+1] - xs[i])
+    return np.sqrt(s / TWO_PI)
+
+xs = np.array([TWO_PI * i / (N - 1) for i in range(N)])
+
+# widget 預設值：centerDeg=90, widthPct=50, floor=0（EffectiveIsfExplorer.js:122-124）
+center_rad = 90.0 * np.pi / 180
+width_frac = 50.0 / 100
+floor = 0.0
+
+gamma = gamma_lc(xs)
+alpha = alpha_window(xs, center_rad, width_frac, floor)
+gamma_eff = gamma * alpha
+
+grms_eff = trapz_rms(xs, gamma_eff)
+print("Gamma_eff,rms =", round(grms_eff, 3))              # -> 0.395
+```
+
+</details>
 
 > **物理直覺（先講結論）**：振盪器有兩個「時間之窗」在同時開合：
 > (1) **ISF $\Gamma(x)$**——振盪器「此刻對雜訊有多敏感」（波形哪裡好踢）；
@@ -262,11 +316,13 @@ ISF 在 [P1] 是用「物理直覺 + impulse 模擬」引入的。它背後其�
 ## Worked examples 數值例題
 
 格式照規範第 10.4：題目 → 逐步代入（帶單位）→ 結果 → dimension check → 一行 Python 驗證。
-**所有 $\alpha$ 的 duty 與相位皆為示意 toy 數字（非 transistor-level 萃取值）。**
+**所有 $\alpha$ 的 duty 與相位皆為示意 toy 數字（非 transistor-level 萃取值）。本站慣例**：以下例題把
+純量 duty cycle 記為 $d_{on}$（例如 $d_{on}=0.1$ 即 10% 導通比例），與 NMF 函數本身 $\alpha(x)$ 分開，
+避免同頁 $\alpha$ 究竟指純量或函數混淆——$\alpha(x)$ 之後一律專指 NMF 窗函數。
 
-### 例題 1：方波 gating NMF（duty $\alpha$）的 $\Gamma_{eff,rms}$
+### 例題 1：方波 gating NMF（duty $d_{on}$）的 $\Gamma_{eff,rms}$
 
-> **toy 題目**：理想 LC 的 $\Gamma(x)=-\sin x$。device 只在以 zero crossing（$x=\pi/2$，$|\Gamma|=1$ 最敏感處）為中心、寬度 duty $\alpha=0.1$（佔週期 $10\%$）的窄窗導通，其餘時間不漏雜訊。用方波 NMF $\alpha(x)\in\{0,1\}$（峰值已 normalize 到 1）。求 $\Gamma_{eff,rms}$。
+> **toy 題目**：理想 LC 的 $\Gamma(x)=-\sin x$。device 只在以 zero crossing（$x=\pi/2$，$|\Gamma|=1$ 最敏感處）為中心、寬度 duty $d_{on}=0.1$（佔週期 $10\%$）的窄窗導通，其餘時間不漏雜訊。用方波 NMF $\alpha(x)\in\{0,1\}$（峰值已 normalize 到 1）。求 $\Gamma_{eff,rms}$。
 
 **逐步代入**：方波 gating 下 $\Gamma_{eff}=\Gamma\cdot\alpha$ 只在那個窄窗 = $\Gamma$、其餘 = 0。因為窗很窄且中心在 $|\Gamma|\approx1$ 處，窗內 $\Gamma^2\approx1$，所以
 
@@ -296,7 +352,7 @@ print(gamma_rms(x, g_eff))                       # -> ~0.31
 
 ### 例題 2：相位對齊決定一切（Colpitts vs ring toy）＋ 相對 PN 變化
 
-> **toy 題目**：同 duty $\alpha=0.1$ 的方波 gating，但比較兩種「對齊」：
+> **toy 題目**：同 duty $d_{on}=0.1$ 的方波 gating，但比較兩種「對齊」：
 > (a) **ring-like**：窗中心在 $x=\pi/2$（$|\Gamma|$ 最大）；(b) **Colpitts-like**：窗中心在 $x=0$（波峰，$\Gamma\approx0$）。
 > 求各自 $\Gamma_{eff,rms}$，以及代進 [P1] Eq.(21) 相對「未閘控 stationary（$\Gamma_{rms}=0.707$）」的 phase-noise 變化（dB）。
 
@@ -349,7 +405,7 @@ for name, g in [("ring-like", g_ring), ("Colpitts-like", g_colpitts)]:
 
 > **toy 題目（gate 形狀為示意，非 transistor-level 萃取）**：差動對的兩顆 device **輪流導通**——
 > 正半週左管導通、負半週右管導通。從**單一 device 的雜訊**看出去，它的 $\alpha$ 是「每週期亮一次」的窄
-> 脈衝（duty $\alpha=0.1$）；但若把**差動對整體**（兩管雜訊都算）對 tank 的注入看成一個等效源，導通事件
+> 脈衝（duty $d_{on}=0.1$）；但若把**差動對整體**（兩管雜訊都算）對 tank 的注入看成一個等效源，導通事件
 > **每週期發生兩次**（$x=\pi/2$ 與 $x=3\pi/2$ 各一個窄 gate），所以等效 NMF 是 **2-per-period gate**
 > $\alpha(x)$：在 $x=\pi/2,\,3\pi/2$ 各一個半寬 $0.1\pi$、峰值 1 的窗，其餘為 0。
 > 取 ISF 為理想 LC 的 $\Gamma(x)=-\sin x$。求 $\Gamma_{eff}$ 的 $c_0^{eff}$、$c_2^{eff}$，並判斷 $1/f^3$。

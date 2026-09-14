@@ -1,6 +1,6 @@
 ---
 title: 時脈鏈雜訊記帳：×N、÷N、PLL、buffer 一頁查表
-description: 四條時脈鏈記帳規則的嚴格推導——×N 倍頻 +20logN（φ_out=Nφ_in）、÷N 除頻 −20logN（edge-picking）、過 PLL（reference ×N² 且低通、VCO 高通）、buffer/divider 的加成雜訊床（功率相加）——加上一條 100 MHz → ×50 PLL → 5 GHz → ÷2 → 2.5 GHz → buffer 的完整 worked chain：每級在 100 kHz 與 10 MHz 的 L、最終 27.6 fs 積分 jitter、以及 brick-wall 記帳 vs 完整 type-II 整形的誠實對照。
+description: 五條時脈鏈記帳規則的嚴格推導——×N 倍頻 +20logN（φ_out=Nφ_in）、÷N 除頻 −20logN（edge-picking）、過 PLL（reference ×N² 且低通、VCO 高通）、buffer/divider 的加成雜訊床（功率相加）、DLL 延遲線因為沒有振盪器而不累積 random walk（σ²_out=σ²_ref+Nσ²_stage）與相位內插器 UI/2^b 量化——加上一條 100 MHz → ×50 PLL → 5 GHz → ÷2 → 2.5 GHz → buffer 的完整 worked chain：每級在 100 kHz 與 10 MHz 的 L、最終 27.6 fs 積分 jitter、以及 brick-wall 記帳 vs 完整 type-II 整形的誠實對照。
 ---
 
 import NumericQuiz from "@site/src/components/NumericQuiz";
@@ -12,7 +12,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 真實系統裡沒有「一顆振盪器直接用」這回事：參考晶體被 PLL 倍頻上去、再被除頻器分下來、
 一路又過好幾級 buffer 才到取樣器。系統工程師每天的問題是：**給我源頭的 $\mathcal{L}(f)$，
 時脈樹（clock tree）每一個節點的 $\mathcal{L}(f)$ 是多少？最後那個 clock 的積分 jitter 是多少？**
-好消息是：整條鏈的記帳只需要**四條規則**。這頁把四條規則各自**逐步推導**（不跳步、帶單位、
+好消息是：整條鏈的記帳只需要**五條規則**。這頁把五條規則各自**逐步推導**（不跳步、帶單位、
 給失效條件），然後用一條完整的 worked chain 把它們串起來算到底。
 
 > **物理直覺（先講結論）**：時脈鏈上發生在相位身上的事，只有兩種——
@@ -32,6 +32,8 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 | 理想 ÷N 除頻 | $\phi_{out}=\phi_{in}/N$ | $\mathcal{L}-20\log_{10}N$ | 取樣摺疊（offset 接近 $f_{out}/2$）、divider 自身床 |
 | 過 PLL（×N） | in-band 跟 ref、out-of-band 跟 VCO | $N^2S_{ref}\lvert H_{lp}\rvert^2+S_{vco}\lvert H_{hp}\rvert^2$ | 純二階 loop 的 ref 尾巴（本頁第 6 步實算） |
 | buffer / divider 床 | $\phi_{out}=\phi_{in}+\phi_{add}$ | $10\log_{10}\big(10^{\mathcal{L}_{in}/10}+10^{\mathcal{L}_{buf}/10}\big)$ | 相關雜訊（共 supply/bias）時不能直接功率相加 |
+| DLL 延遲線（規則 5） | 每個參考 edge 獨立穿越一次，非積分器 | $\sigma_{t,out}^2=\sigma_{ref}^2+N\sigma_{stage}^2$（有界、不隨 $\Delta t$ 累積） | 鎖定範圍僅一個參考週期；tap 被接成環形會變回振盪器 |
+| PI 相位內插量化（規則 5） | 均勻量化，非相位縮放 | $\mathrm{DJ}_{pp}=UI/2^b$（確定性，不吃 $Q^{-1}(\mathrm{BER})$） | 真實 DNL/線性度使實際 DJ 大於理論值 |
 
 **慣例聲明（factor-of-2 紀律，全頁一致）**：本頁所有 $\mathcal{L}$ 都是 **SSB（單邊帶）dBc/Hz**，
 與 $S_\phi$ 的換算用小角近似 $\mathcal{L}=\tfrac12 S_\phi$（規範公式 16；`noise_utils` 同一慣例）。
@@ -150,12 +152,12 @@ $$
 角度小 $N$ 倍。與規則 1 完全對稱：×N 再 ÷N，$\mathcal{L}$ 回到原點，$\sigma_t$（秒）全程不變。
 
 <NumericQuiz
-  prompt="先自己算：理想 ÷2 除頻對 L(f) 的改變量 = ？（以 dB 作答，含負號）"
-  answer={-6.02}
+  prompt="先自己算：理想 ÷4 除頻（不是本節例子用的 ÷2）對 L(f) 的改變量 = ？（以 dB 作答，含負號）"
+  answer={-12.04}
   tol={0.01}
   unit="dB"
-  hint="ΔL = −20·log₁₀N，N=2。"
-  solutionNote="−20·log₁₀(2) ≈ −6.02 dB（與規則 1 的 +20log₁₀N 完全對稱）。"
+  hint="ΔL = −20·log₁₀N，這裡 N=4。"
+  solutionNote="−20·log₁₀(4) ≈ −12.04 dB（= 2×(−6.02) dB，因為 log₁₀4=2log₁₀2；仍與規則 1 的 +20log₁₀N 完全對稱）。"
 />
 
 **失效條件（兩個都重要）**：
@@ -265,12 +267,12 @@ $[\text{rad}]/[\text{rad/s}]=[\text{s}]$ ✓。（這個 16.0 fs 等下會在 wo
 原封不動出現。）
 
 <NumericQuiz
-  prompt="先自己算：buffer 平坦床 L_buf=−155 dBc/Hz、積分頻寬 B=100 MHz、f₀=2.5 GHz 時 σ_t,add = ？（以 fs 作答）"
-  answer={16.0}
+  prompt="先自己算：同一顆 buffer（L_buf=−155 dBc/Hz、f₀=2.5 GHz），若積分頻寬改成 B=200 MHz（上面例子的兩倍）時 σ_t,add = ？（以 fs 作答）"
+  answer={22.6}
   tol={0.02}
   unit="fs"
-  hint="σ_t,add = √(2·10^(L_buf/10)·B) / (2π f₀)。"
-  solutionNote="√(2×3.16×10⁻¹⁶×10⁸)/(2π×2.5×10⁹) ≈ 16.0 fs（這個數字會在下方 worked chain 的分解裡再次出現）。"
+  hint="套同一條公式 σ_t,add = √(2·10^(L_buf/10)·B) / (2π f₀)，只把 B 換成 200 MHz。"
+  solutionNote="√(2×3.16×10⁻¹⁶×2×10⁸)/(2π×2.5×10⁹) ≈ 22.6 fs（＝上例 16.0 fs 的 √2 倍，因為 σ_t,add∝√B）。"
 />
 
 四條規則的常數先用一個可核對的 Python 塊釘死（`# ->` 後面就是實跑輸出）：
@@ -285,6 +287,156 @@ print(round(10*np.log10(1 + 10**(-6/10)), 2))   # -> 0.97
 print(round(10*np.log10(1 + 10**(-3/10)), 2))   # -> 1.76
 print(round(10*np.log10(1 + 10**(0/10)), 2))    # -> 3.01
 ```
+
+## 規則 5：DLL——沒有振盪器就沒有 random walk
+
+**問題**：規則 1–4 涵蓋了「倍頻／除頻／PLL／buffer」，但時脈鏈裡還有一種常見元件本頁還沒
+記帳——**DLL（delay-locked loop，延遲鎖定迴路）**，以及緊接在它後面、把粗解析度再切細的
+**相位內插器（PI，phase interpolator）**。DLL 常被直覺誤認為「便宜版 PLL」，但它的雜訊行為
+和 PLL／自由跑 VCO **有本質差異**：不是慢一點的 random walk，而是**完全沒有 random walk**。
+這條規則把差異講清楚，並補上 PI 量化這個實務上常被忽略的 DJ（確定性抖動）來源。
+
+**第 1 步（DLL 為什麼沒有振盪器）。** PLL 裡的 VCO 是一個**積分器**：控制電壓的擾動
+$\delta v$ 先變成頻率擾動 $\delta\omega=K_{VCO}\delta v$，頻率**對時間積分**才變成相位——
+一次擾動之後，只要沒被迴路修正，相位誤差就**永遠留在那裡、繼續往後累積**（[P2] Eq.(8),
+p.792 的 $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ 正是這個積分＋隨機踢擊的直接後果）。
+DLL 裡的**延遲線**不是振盪器——它是一個**直通（feedforward）元件**：控制電壓直接決定
+「這一個 edge 要被延遲多久」，不涉及對時間的積分。今天量到的延遲誤差**不會傳給明天**，
+因為每一個輸出 edge 對應的是**一個全新的參考 edge** 穿過延遲線一次，不是同一個內部相位
+狀態不斷往前滾。這就是「沒有振盪器就沒有 random walk」的物理根源。
+
+**第 2 步（單次穿越：$N$ 級延遲線的加性 jitter，正交相加）。** 延遲線由 $N$ 級組成
+（每級名目延遲 $T_{ref}/N$）。和規則 4 第 1 步同一個機制——每級切換臨界點附近，device
+雜訊電壓 $v_n$ 把該級輸出 edge 推移 $\Delta t_{stage}=v_n/SR$（單位 s）——第 $i$ 級的加性
+jitter $\sigma_{stage}$ 彼此**不相關**（不同 device、不同雜訊源）。一個參考 edge 走完 $N$
+級，累積的延遲線雜訊是 $N$ 個獨立貢獻的功率和（同規則 4 第 2 步的「PSD 相加」邏輯）：
+
+$$
+\sigma_{t,DLL}^2=N\,\sigma_{stage}^2
+\qquad\Longrightarrow\qquad
+\sigma_{t,DLL}=\sqrt{N}\,\sigma_{stage}
+$$
+
+**Dimension check**：$\sqrt{N}$ 無因次、$[\text{s}]\times[-]=[\text{s}]$ ✓。
+
+**第 3 步（加上參考本身的 jitter，且對每個參考 edge 重新歸零）。** 輸出 edge 的總時間誤差
+是「這個參考 edge 自己帶的誤差 $\sigma_{ref}$」加上「這一次穿越延遲線撿到的 $N$ 級雜訊」，
+兩者不相關（來源不同）：
+
+$$
+\boxed{\ \sigma_{t,out}^2=\sigma_{ref}^2+N\,\sigma_{stage}^2\ }
+$$
+
+**關鍵**：下一個參考 edge 進來時，延遲線的 $N$ 級雜訊是**重新獨立抽樣**一次（device 熱雜訊
+在下一個切換瞬間與這一次無記憶關聯），$\sigma_{ref}$ 也是下一個（不同的）參考週期自己的
+誤差——輸出 jitter **不會因為多算幾個週期就長大**，$\sigma_{t,out}$ 對任何一個輸出 edge 都
+是同一個式子，與「這是第幾個週期」、「距上一個量測點多久」**無關**。對照 PLL／自由 VCO 的
+$\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$：那裡的 $\Delta t$ 出現在根號裡，量測間隔越長、
+誤差越大，因為**同一個振盪器的相位狀態被一路積分帶著走**；DLL 這裡沒有 $\Delta t$，因為
+根本沒有「被積分帶著走」的相位狀態可言——**有界**（bounded），這是本規則的核心對照。
+
+**第 4 步（鎖相迴路的一階整形，不改變「無累積」這個事實）。** DLL 仍然是個負回授迴路——
+相位偵測器比較「延遲線輸出 edge」與「參考 edge」，驅動延遲線的控制電壓，把總延遲鎖定在
+$T_{ref}$（Maneatis 1996 的 self-biased DLL 正是這種拓樸）。這個回授迴路本身通常是**一階**
+（單一積分器/電容，無 VCO 那種二階動態），閉迴路轉移函數
+
+$$
+H_{DLL}(s)=\frac{\omega_{DLL}}{s+\omega_{DLL}}
+$$
+
+對**參考雜訊**是低通——迴路頻寬內，輸出 edge 忠實跟著參考的慢速相位漂移走（這本來就是 DLL
+的工作：把參考「原封不動」搬到輸出，只是加了固定延遲）；對**延遲線自己的雜訊/漂移**是高通
+$1-H_{DLL}(s)=s/(s+\omega_{DLL})$——低頻的延遲線漂移（PVT、偏壓慢變）被迴路量到、修正掉，
+只有迴路頻寬以上、迴路來不及反應的快速延遲線雜訊才會漏到輸出。**但這個高通/低通整形跟第
+2–3 步的「有沒有 1/f² 累積」是兩件事**：即使把 $H_{DLL}$ 整個拿掉（開回路），第 2–3 步的
+$\sigma_{ref}^2+N\sigma_{stage}^2$ 依然有界、依然不隨時間累積——迴路只決定「延遲線雜訊的
+哪個頻段能漏出來」，不會**製造**一個 $\kappa\sqrt{\Delta t}$ 項，因為延遲線從頭到尾就不是
+積分器。這與 PLL 的高通 $\lvert H_{hp}\rvert^2$（規則 3）形成鮮明對比：PLL 的高通是為了
+**截斷** VCO 本來就會發散的 $1/f^2$ 尾巴；DLL 的高通只是決定延遲線本來就有界的雜訊有多少能
+穿透，**沒有東西可截斷發散，因為延遲線從不發散**。
+
+> **與 [cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol) 的關係**：該頁「側欄：
+> DLL 為什麼不累積 jitter」講的是最精簡的 PI-CDR——相位碼直接由數位累加器驅動，**沒有**
+> 本節的類比迴路濾波器，所以連「低通參考噪」都沒做，jitter 直接繼承參考時脈（見該頁第 3
+> 步）。本節多講的 $H_{DLL}(s)$ 是完整的類比 DLL（如 Maneatis 1996）多出來的一層濾波，
+> 「無 1/f² 累積」這個核心結論兩邊完全一致，只是完整 DLL 多了一個可調的濾波頻寬。
+
+**Worked（4 級延遲線 vs 規則 4 的 buffer 床）：**
+
+```python
+import numpy as np
+N, sigma_stage = 4, 50e-15
+sigma_dll = np.sqrt(N) * sigma_stage
+print(round(sigma_dll * 1e15, 1))   # -> 100.0
+```
+
+$N=4$、$\sigma_{stage}=50$ fs（illustrative）$\Rightarrow\sigma_{t,DLL}=\sqrt4\times50=100.0$ fs——
+這是**單次穿越、與時間無關**的加性數字，和規則 4 第 5 步算出的 buffer 床 $16.0$ fs（:262，
+同一種「加性、不累積」物理，只是規則 4 是 1 級 buffer、這裡是 4 級延遲線）同一量級、同一
+類別：兩者都是**功率相加、有界**，可以直接用規則 4 第 4 步的「dB 加法表」合併記帳。
+
+**對照自由跑 VCO 的 random walk（同一站內 canonical $\kappa^2=0.125\ \text{rad}^2/\text{s}$，
+[P2] Eq.(8)/(12), p.792–793）：**
+
+```python
+import numpy as np
+kappa2, f0 = 0.125, 5e9
+for dt in (1e-6, 1e-3):
+    sigma_phi = np.sqrt(kappa2 * dt)
+    sigma_t = sigma_phi / (2*np.pi*f0)
+    print(dt, round(sigma_t * 1e15, 1))
+# -> 1e-06 11.3
+# -> 0.001 355.9
+```
+
+自由跑 VCO 在 $\Delta t=1\ \mu\text{s}$ 只有 $11.3$ fs（比 DLL 的 $100$ fs 加性數字還小！），
+但到 $\Delta t=1$ ms 已經長到 $355.9$ fs——因為 $\sigma_{\Delta t}\propto\sqrt{\Delta t}$
+沒有上界，量測窗越長、數字越大；DLL 的 $100$ fs **不管 $\Delta t$ 多長都是同一個數字**。
+這正是規則 5 要傳達的設計訊息：**DLL/delay-line-based 時脈分配對長時間尺度的抖動有天生
+優勢**，代價是它不能像 PLL 一樣做頻率合成（只能延遲、不能倍頻），且鎖定範圍受限於一個
+參考週期。
+
+**第 5 步（相位內插器的量化：另一種「有界」，但是確定性的 DJ，不是隨機的 RJ）。** DLL 產生
+的是**離散的** $N$ 個相位 tap（間距 $T_{ref}/N$）。要在 tap 之間插出更細的相位（例如 CDR 的
+取樣相位、或更高解析度的輸出時脈），標準做法是**相位內插器（PI）**：用 $b$ 個位元把相鄰兩個
+tap 之間的區間（視為一個 UI 寬）切成 $2^b$ 格，取樣/輸出相位只能落在格點上：
+
+$$
+\Delta_{PI}=\frac{UI}{2^{b}}\qquad[\text{s}]
+$$
+
+這是**量化誤差**，不是雜訊——同一個 code 每次都給同一個延遲，**確定性**、**有界**（最多差
+$\pm\Delta_{PI}/2$），且分布是**均勻**的（掃過所有可能的目標相位時，落點誤差在
+$\pm\Delta_{PI}/2$ 之間等機率）。用本站 DJ 的語言（見
+[dj_dual_dirac](/06_design_insights/dj_dual_dirac) 第 2 步的 DJ 分類表）：PI 量化是
+peak-to-peak 記帳的 DJ，**不吃** $Q^{-1}(\text{BER})$：
+
+$$
+\boxed{\ \mathrm{DJ}_{pp,PI}=\Delta_{PI}=\frac{UI}{2^{b}}\ }
+$$
+
+**Worked（$UI=40$ ps、6-bit PI）：**
+
+```python
+UI, b = 40e-12, 6
+step = UI / 2**b
+print(round(step * 1e12, 3))     # -> 0.625
+print(round(step / UI, 4))       # -> 0.0156
+```
+
+$6$-bit 把 $40$ ps 的 UI 切成 $64$ 格，一格 $=0.625$ ps $\approx0.0156\ UI$（約 $0.016\ UI$）。
+**Dimension check**：$[\text{s}]/[-]=[\text{s}]$ ✓。**設計含意**：多加 1 bit 解析度減半量化
+DJ（$2^{b+1}$ 格），但 PI 電路本身的差分非線性（DNL）與線性度會吃掉理論解析度的一部分——
+$UI/2^b$ 是**下限**，不是實際值；真實 PI 的 DJ 通常比它大。這一列已同步補進
+[dj_dual_dirac](/06_design_insights/dj_dual_dirac) 的 DJ 來源表。
+
+**失效條件（規則 5 專屬）**：(1) DLL 的鎖定範圍只有**一個參考週期**——輸入邊沿位置必須落在
+延遲線可調範圍內，超出範圍會**失鎖**，這是 DLL 無法像 PLL 那樣做整數倍頻的根本原因；
+(2) 第 2–3 步的「有界、不累積」假設**每個參考 edge 都是獨立穿越延遲線一次**——若同一批
+延遲線 tap 被拿去做**環形**用途（tap 首尾相接自己形成振盪），就變回一個振盪器、重新獲得
+$\kappa\sqrt{\Delta t}$ 累積，規則 5 的「無累積」不再成立；(3) PI 量化的均勻分布假設目標
+相位在格點間**任意**分布（例如做時脈相位掃描/校準）；若目標相位固定鎖在少數幾個 code 附近
+抖動，實際 DJ 統計會偏離理想均勻分布。
 
 ## 第 5 步：守恆量——理想 ×N/÷N 下 $\sigma_t$（秒）不變
 
@@ -501,6 +653,8 @@ VCO 裙邊的交叉點在 $79.6$ kHz，遠低於 1 MHz。用
 | loop BW $f_n$ | 規則 3 | 本鏈最佳 $f_n^\*\approx53$ kHz（非 1 MHz）；交叉點 79.6 kHz 是第一手感 |
 | loop 階數（第 3 極點） | 規則 3 | 純二階的 ref 尾巴與 VCO 平行（本例恆 $+25$ dB）；加高階極點才能讓 out-of-band 真的交給 VCO |
 | VCO $\Gamma_{rms}/q_{max}$ | 規則 3 的 $S_{vco}$ | 本鏈 VCO 僅 0.42%——**先看記帳再決定要不要動它**（ISF 旋鈕見 [tank_swing](/06_design_insights/tank_swing)、[lc_vs_ring](/06_design_insights/lc_vs_ring)） |
+| DLL 級數 $N$／每級 $\sigma_{stage}$ | 規則 5 | $\sigma_{t,DLL}=\sqrt N\sigma_{stage}$；級數少、每級雜訊小最省，且**不像規則 3/4 那樣隨時間變糟**（有界） |
+| PI 位元數 $b$ | 規則 5 | 量化 DJ $=UI/2^b$，每加 1 bit 砍半；受限於電路 DNL，不是免費升級 |
 
 ## 與 SerDes 的關聯
 
@@ -522,14 +676,21 @@ $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$）一旦進入 PLL/CDR 的 loop 就被
 | 各級雜訊不相關 | 規則 4 功率相加 | 共用 supply/bias 的相關雜訊（如 PSIJ）要含交叉項，可能同相疊加 |
 | brick-wall PLL 記帳 | in-band 查表誤差 $\sim0.1$ dB | 純二階 loop：ref 尾巴與 VCO 平行（本例恆差 25 dB），out-of-band 那格可錯 7 dB、$\sigma_t$ 低估 59% |
 | 理想 edge-picking divider | $-20\log_{10}N$ | 真實 divider 自身床（規則 4）先當家；ILFD 近 lock-range 邊緣另計（[P4]） |
+| DLL「無振盪器」假設（規則 5） | 延遲線為 feedforward、$N$ 級 tap 未接成環 | 若 tap 首尾相接自建振盪，重新獲得 $\kappa\sqrt{\Delta t}$ 累積；輸入邊沿超出一個參考週期的可調範圍會失鎖 |
+| PI 均勻量化假設（規則 5） | 目標相位在格點間任意分布 | 鎖定在少數 code 附近時偏離均勻分布；真實 DNL 使 DJ 大於 $UI/2^b$ |
 
 ## 重點回顧
 
-- 四條規則：**×N 加 $20\log_{10}N$**（$\phi_{out}=N\phi_{in}$，offset 軸不動）；
+- 五條規則：**×N 加 $20\log_{10}N$**（$\phi_{out}=N\phi_{in}$，offset 軸不動）；
   **÷N 減 $20\log_{10}N$**（edge-picking，時間誤差原封不動、角度除 $N$）；
   **PLL**＝reference 走 $N^2\lvert H_{lp}\rvert^2$、VCO 走 $\lvert H_{hp}\rvert^2$
   （轉移函數沿用 [pll_noise_budget](/06_design_insights/pll_noise_budget)）；
-  **buffer/divider 床＝功率相加**，$\mathcal{L}_{out}=10\log_{10}(10^{\mathcal{L}_{in}/10}+10^{\mathcal{L}_{buf}/10})$。
+  **buffer/divider 床＝功率相加**，$\mathcal{L}_{out}=10\log_{10}(10^{\mathcal{L}_{in}/10}+10^{\mathcal{L}_{buf}/10})$；
+  **DLL＝沒有振盪器就沒有 random walk**，$\sigma_{t,out}^2=\sigma_{ref}^2+N\sigma_{stage}^2$
+  （有界，4 級 $\sigma_{stage}=50$ fs → 100.0 fs，不隨 $\Delta t$ 成長；對照自由 VCO
+  $\kappa^2=0.125\ \text{rad}^2/\text{s}$ 在 $1\ \mu\text{s}$ 只有 $11.3$ fs、但 $1$ ms 已
+  $355.9$ fs），PI 相位內插器量化 $\mathrm{DJ}_{pp}=UI/2^b$（$UI=40$ ps、6-bit → $0.625$ ps
+  $\approx0.0156\ UI$，均勻分布 DJ、不吃 BER）。
 - 守恆量：理想 ×N/÷N 下 **$\sigma_t$（秒）不變**（本例兩端都是 22.5 fs）；÷N 省的是「佔 UI 的比例」，不是秒。
 - worked chain（100 MHz→×50→5 GHz→÷2→2.5 GHz→buffer）：100 kHz 處 $-160\to-126.02\to-132.04\to-132.02$；
   10 MHz 處 $-160\to-168.00\to-174.02\to-154.95$（床當家）。
@@ -548,6 +709,8 @@ $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$）一旦進入 PLL/CDR 的 loop 就被
 - 把 $\sigma_t$ 接到 eye/BER：[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)
 - 大 $N$ 倍頻後小角近似崩潰的去處：[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
 - VCO 錨點 $-148$ dBc/Hz 的來源與 /2-vs-/4：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
+- DLL/PI 的另一個實例（bang-bang CDR 側欄）與 PI 量化的 hunting 效應：[cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol)
+- PI 量化 DJ 併入 dual-Dirac 的 DJ 來源表：[dj_dual_dirac](/06_design_insights/dj_dual_dirac)
 - 本頁模擬 script：`simulations/fig_clock_chain.py`
 
 ## 外部文獻（不在下載的 5 篇 PDF 內）
@@ -556,5 +719,8 @@ $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$）一旦進入 PLL/CDR 的 loop 就被
   （外部文獻，非本站 5 篇 PDF；任何 frequency-synthesis 教材皆有）。標準參考：
   W. F. Egan, *Frequency Synthesis by Phase Lock*, 2nd ed., Wiley, New York, 2000；
   B. Razavi, *RF Microelectronics*, 2nd ed., Prentice Hall, Upper Saddle River, NJ, 2012。
+- **DLL 為什麼沒有振盪器就不累積 jitter（規則 5）**（外部文獻，非本站 5 篇 PDF）：
+  J. G. Maneatis, "Low-Jitter Process-Independent DLL and PLL Based on Self-Biased
+  Techniques," *IEEE J. Solid-State Circuits*, vol. 31, no. 11, pp. 1723–1732, Nov. 1996。
 - 本站 5 篇 PDF 提供的是鏈上「源」的物理：[P1]（VCO 的 $\mathcal{L}$ 與 ISF）、
   [P2]（ring 的 $\kappa\sqrt{\Delta t}$ 累積）、[P3]/[P4]（注入鎖定與 ILFD 除頻機制）。

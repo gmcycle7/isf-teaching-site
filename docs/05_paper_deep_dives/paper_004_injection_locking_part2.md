@@ -71,8 +71,9 @@ $\Delta(\phi):=\int_0^\infty D(\tau,\phi)\,d\tau$（[P4] Eq.(19), p.2126，單�
 > **本站慣例（符號，對照 [P4] 註 6, p.2126）**：tilde 表「電荷歸一」——$\tilde\Gamma=\Gamma/q_{max}$、$\tilde\Lambda=\Lambda/q_{max}$
 > （[P4] 註 6 寫作 $\Lambda\equiv q_{max}\cdot\tilde\Lambda$，其中 $\Lambda$ 是其引文 [28] 的無因次振幅 ISF）；**APF $\Delta$ 本身不帶 tilde**，
 > 因為它已是 $\tilde\Lambda$ 乘上衰減函數的時間積分（單位 $1/\text{A}$），基波寫 $\Delta_1$（[P4] Eq.(26)）。本站一律寫 $\tilde\Lambda$（振幅 ISF）
-> 與 $\Delta(\phi)$（APF），不再用 $\Lambda$ 或 $\tilde\Lambda$ 指稱 APF。和相位不同，振幅擾動會衰減——
-ideal-LC 的 **amplitude decay function（振幅衰減函數）**（在 ideal-LC 一節 [P4] p.2127–2128）為：
+> 與 $\Delta(\phi)$（APF），不再用 $\Lambda$ 或 $\tilde\Lambda$ 指稱 APF。
+
+和相位不同，振幅擾動會衰減——ideal-LC 的 **amplitude decay function（振幅衰減函數）**（在 ideal-LC 一節 [P4] p.2127–2128）為：
 
 $$
 d(t,\phi)=e^{-t/\tau_0},\qquad \int_0^\infty d(t,\phi)\,dt=\tau_0=\frac{2Q}{\omega_{osc}}

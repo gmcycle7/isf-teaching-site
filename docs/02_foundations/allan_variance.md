@@ -4,6 +4,7 @@ description: 從兩樣本（Allan）變異數 σy²(τ)=⟨½(ȳ_{k+1}−ȳ_k)²
 ---
 
 import AdevLiveExplorer from '@site/src/components/AdevLiveExplorer';
+import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # Allan variance：相位雜訊的時域對應
 
@@ -219,6 +220,43 @@ def overlapping_adev(x, tau0, ms):
 <AdevLiveExplorer />
 
 **estimator 的獨立驗證**：把生成器切純 white FM（關掉 random-walk 與 flicker）、$h_0=10^{-19}$，在 Node 用同一套演算法跑 200 次重抽：每個倍頻 $\tau$ 的「量測/理論（$h_0/2\tau$ 閉式）」比值都落在 $0.94$–$1.00$（最大 $\tau$ 因 pairs 最少而略偏低，正是上一段講的效應），200 條曲線平均後 log–log 斜率擬合得 $-0.508$（理論 $\tau^{-1/2}$）；預設種子（seed=1234）單獨一次在最小 $\tau$ 已給出比值 $0.993$。widget 內的「最小 τ 的量測/理論」讀數就是這個自我檢查的即時版本。
+
+<NumericQuiz
+  prompt="維持 explorer 預設值（white FM h₀=10⁻¹⁹、random-walk FM h₋₂=10⁻²⁴ 已開啟、seed=1234），在 τ = 64 s 處，灰色虛線（解析疊加，跟藍點量測值無關）給出的 σ_y(τ) 大約是多少？（提示：用第 4 步的 white FM 與 random-walk FM 閉式相加）"
+  answer={3.47e-11}
+  tol={0.03}
+  hint="white FM 部份 σ²=h₀/(2τ)；random-walk FM 部份 σ²=(2π)²/6·h₋₂·τ；兩個獨立過程的變異數直接相加，再開根號。可用科學記號輸入，例如 3.47e-11。"
+  solutionNote="τ=64 s 時 white FM 貢獻 σ²≈7.81×10⁻²²、random-walk FM 貢獻 σ²≈4.21×10⁻²²，相加開根號 ≈3.47×10⁻¹¹——這附近正是這組 (h₀,h₋₂) 的『浴缸』最低點（τ 更小 white FM 主導上升、τ 更大 random-walk FM 主導上升）。"
+/>
+
+<details>
+<summary><strong>驗證：重現虛線在 τ=64 s 的解析值</strong>（對照 AdevLiveExplorer.js 的 analyticSigma）</summary>
+
+```python
+import math
+
+TWO_PI = 2 * math.pi
+LN2 = math.log(2)
+
+def analytic_sigma(tau, h_white, h_rw, h_flicker):         # AdevLiveExplorer.js analyticSigma()
+    var_white = h_white / (2 * tau) if h_white > 0 else 0.0
+    var_flicker = 2 * LN2 * h_flicker if h_flicker > 0 else 0.0
+    var_rw = (TWO_PI ** 2) / 6 * h_rw * tau if h_rw > 0 else 0.0
+    return math.sqrt(var_white + var_flicker + var_rw)
+
+# widget 預設值：logHWhite=-19, logHRW=-24, rwOn=true, flickerOn=false, seed=1234
+# （AdevLiveExplorer.js:196-201）
+h_white = 10 ** -19
+h_rw = 10 ** -24
+h_flicker = 0.0
+tau0 = 1  # TAU0，任意「秒」單位
+
+tau = 64 * tau0  # 其中一個倍頻 m 值（m=64）
+sigma_y = analytic_sigma(tau, h_white, h_rw, h_flicker)
+print("sigma_y(tau=64 s) =", sigma_y)      # -> 3.467e-11
+```
+
+</details>
 
 ## Worked examples 數值例題
 

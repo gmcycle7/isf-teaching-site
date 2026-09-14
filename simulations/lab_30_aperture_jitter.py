@@ -23,8 +23,10 @@ simulations/lab_08_jitter_integration.py). The aperture-jitter SNR formula
 itself is standard ADC theory (e.g. Kester MT-007; Walden JSAC 1999), not
 from the site's five PDFs.
 
-Also prints the design table (f_in = 1 / 2.5 / 5 / 10 GHz -> SNR, ENOB) and
-the inverse design point: sigma_t needed for 10 ENOB at f_in = 5 GHz.
+Also prints the design table (f_in = 0.5 / 1 / 2.5 / 5 / 10 GHz -> SNR, ENOB;
+0.5 GHz = Nyquist of a 1 GS/s clock, added for the 12-bit/1-GS/s worked
+example on the adc_aperture_jitter page) and the inverse design point:
+sigma_t needed for 10 ENOB at f_in = 5 GHz.
 
 Figure
 ------
@@ -92,7 +94,7 @@ def main():
     # ------------------------------------------------------------------
     print("\n    design table (sigma_t = 447.9 fs):")
     print("      f_in [GHz]   2*pi*f_in*sigma_t [rad]   SNR [dB]   ENOB [bit]")
-    for f_in in [1e9, 2.5e9, 5e9, 10e9]:
+    for f_in in [0.5e9, 1e9, 2.5e9, 5e9, 10e9]:
         s = snr_formula_db(f_in, SIGMA_T)
         print(f"      {f_in/1e9:8.1f}   {2*np.pi*f_in*SIGMA_T:.4e}"
               f"              {s:6.2f}     {enob(s):5.2f}")

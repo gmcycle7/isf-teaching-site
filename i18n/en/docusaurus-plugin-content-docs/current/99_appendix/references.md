@@ -7,13 +7,13 @@ description: Full citations for the 5 source PDFs [P1]-[P5], plus external suppl
 
 # References
 
-> **See also**: [glossary](/99_appendix/glossary) (terminology intuition), [equation_index](/01_paper_map/equation_index) (equation ↔ page-number index); external literature is used in [derivation_leeson](/99_appendix/derivation_leeson) ([E1]) and [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv) ([E2], [E3])
+> **See also**: [glossary](/99_appendix/glossary) (terminology intuition), [equation_index](/01_paper_map/equation_index) (equation ↔ page-number index); external literature is used in [derivation_leeson](/99_appendix/derivation_leeson) ([E1]), [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv) ([E2], [E3]), and [ltv_htm](/99_appendix/ltv_htm) ([E5])
 
 Every formula and conclusion on this site is tagged with its source. This page collects: **(A)** the 5 PDFs in the download folder (site-internal citation codes
 `[P1]`–`[P5]`, citation strings copied **verbatim** from Section 1 of the author's spec), **(B)** external supplementary literature that comes up in teaching but is **not in the download folder**,
 and **(C)** citation conventions plus a TODO list of items still awaiting manual verification.
 
-> **Honesty principle**: the formulas in [P1]–[P4] have all been **verified verbatim** against the original PDF rendering; for external literature [E1]–[E4] (flagged as **not
+> **Honesty principle**: the formulas in [P1]–[P4] have all been **verified verbatim** against the original PDF rendering; for external literature [E1]–[E5] (flagged as **not
 > among the 5 downloaded PDFs**), the volume/issue/page/DOI have been verified online, but the internal formulas of those papers are background only. [P5] is unrelated to the ISF.
 
 ---
@@ -47,7 +47,7 @@ IEEE J. Solid-State Circuits, vol. 34, no. 6, pp. 790–804, Jun. 1999.
   is nearly independent of stage count $N$."
 - **Used on this site in**: [lab_03](/04_simulation_labs/lab_03_ring_oscillator_toy_model),
   [lc_vs_ring](/06_design_insights/lc_vs_ring), [symmetry](/06_design_insights/symmetry).
-- **Key equations (verified)**: Eq.(8) $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ p.792, Eq.(12) $\kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ p.793,
+- **Key equations (verified)**: Eq.(8) $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ p.792, Eq.(12) $\kappa=\frac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ p.793 (time version, $\omega_0$ in the denominator; re-verified in v11),
   Eq.(15) $f_0=1/(2N\tau_D)$ (Eq.(14) is the normalized stage delay $\hat t_D$),
   Eq.(16) $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}$ p.794
   (re-verified in v7: the square root covers only the constant, $\Gamma_{rms}\propto N^{-3/2}$; triple-checked against the body-text $4/N^{1.5}$@$\eta=0.75$ and App.B Eq.(55),
@@ -162,7 +162,7 @@ pp. 291–299, Mar. 1950. **DOI: 10.1109/JRPROC.1950.231083**.
 
 1. **Site-internal citation format**: inline usage like `[P1] Eq.(21), p.185`; every definition/formula/conclusion/figure
    drawn from a paper is tagged with its source (see Section 1 of the author's spec).
-2. **Codes**: the core 5 papers use `[P1]`–`[P5]` (corresponding to `paper_001`–`paper_005`); external supplements use `[E1]`–`[E3]`,
+2. **Codes**: the core 5 papers use `[P1]`–`[P5]` (corresponding to `paper_001`–`paper_005`); external supplements use `[E1]`–`[E5]`,
    and always carry the note "**not among the 5 downloaded PDFs**."
 3. **LaTeX sources**: the formula LaTeX in [P1] has been confirmed against the PDF rendering pages (`manual_verification_needed=false`);
    some constants/forms in [P2]–[P4] are flagged ⚠️, see the TODO below.

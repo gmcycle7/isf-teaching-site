@@ -532,7 +532,7 @@ print([round(float(0.5*I*G1/(2*np.pi)/1e6), 1) for I in (5e-3, 7.5e-3, 10e-3)]) 
 |---|---|---|---|
 | 6 級差動 ring | 1.32 GHz | Fig. 14 | 與 Fig. 12 同拓樸 |
 | 3 級單端 inverter ring | 1.09 GHz | Fig. 14 | 每級輸出加電容負載、注入打在其中一個輸出 |
-| 17 級單端 inverter ring | 1.09 GHz | Fig. 14 | 同上；長 ring 的 lock range 明顯較窄（分數 lock range 只有百分之幾） |
+| 17 級單端 inverter ring | 1.09 GHz | Fig. 14 | 同上；長 ring 的 lock range 明顯較窄（分數 lock range 為百分之幾，在 $I_{inj}/I_{max}\approx5$–$7$ 時達約 $+6\%/-9\%$，見 Fig. 14 的實測點，p.2118） |
 | Bose 弛張振盪器 | 11.9 MHz | Fig. 15 | 與 Fig. 13 同拓樸（實測顆是低頻版） |
 | 差動 NMOS astable multivibrator | 874 MHz | Fig. 15 | 交叉耦合 RC 弛張振盪器 |
 

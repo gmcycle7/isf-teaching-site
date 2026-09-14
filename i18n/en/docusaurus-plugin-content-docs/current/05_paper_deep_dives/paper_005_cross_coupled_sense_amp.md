@@ -17,7 +17,7 @@ honestly flags that mismatch (claim C12) and offers only **one conceptual bridge
 
 > **Why write a page anyway**: Section 9 of the authoring conventions requires "[P5] must always be honestly described as
 > a sense-amplifier paper unrelated to ISF." We do not pretend it relates to the ISF, nor force equations onto it; we simply state
-> its actual content and point out its **only** legitimate connection to this course.
+> its actual content and point out its **only** legitimate connection to this course. Once you have read all five deep-dive papers, come back to the design layer: [symmetry](/06_design_insights/symmetry) (learning-path step 8).
 
 ## Citation
 

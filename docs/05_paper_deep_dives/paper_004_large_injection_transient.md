@@ -44,7 +44,7 @@ perturbation function，振幅擾動函數）定義、ideal-LC 的 ISF/APF quadr
 |---|---|---|---|
 | 失諧 | $\Delta\omega\equiv\omega_0-\omega_{inj}$ | $\Delta\omega\equiv\omega_{inj}/N-\omega_0$（p.2130） | 差一個整體正負號；本頁所有結果只依賴 $\Delta\omega^2$ 或明寫分支 |
 | ISF-only 半 lock range | $\omega_{L0}\equiv\dfrac{I_{inj}}{2q_{max,0}}$ | $\omega_L=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert$，ideal LC $\lvert\tilde\Gamma_1\rvert=1/q_{max,0}$（Eq.(26)） | 那個 $\tfrac12$ 是**積化和差的 $\tfrac12$**（[P3] Eq.(34)–(35), p.2114，本站 injection_locking_noise 已核實），與 phase-noise 的 SSB $/4$ vs 時域 $/2$ 慣例無關 |
-| 大注入半 lock range | $\omega_L\equiv\omega_{L0}/\sqrt{1-a^2}$ | Eq.(9)＝Eq.(23) at $\beta=90^\circ$ | 本頁凡寫 $\omega_L$ 皆指**含 APF 修正**的值；ISF-only 一律寫 $\omega_{L0}$ |
+| 大注入半 lock range | $\omega_L\equiv\omega_{L0}/\sqrt{1-a^2}$ | Eq.(9)＝Eq.(23) at $\beta=90^\circ$，其中 $\beta\equiv\angle\tilde\Gamma_1-\angle\Delta_1$（見下方 Eq.(23) 推導） | 本頁凡寫 $\omega_L$ 皆指**含 APF 修正**的值；ISF-only 一律寫 $\omega_{L0}$；**本站慣例**：此 $\beta$ 是 ISF–APF 相位差，與 subharmonic_injection 的 realignment factor $\beta$、FM 調變指數 $\beta$、MOS $\beta$ 是不同符號的四義 |
 | 注入強度（LC 專用） | $a\equiv\dfrac{I_{inj}}{I_{osc}}$ | $\tfrac12 I_{inj}\lvert\Delta_1\rvert=\tfrac12\tau_0\dfrac{I_{inj}}{q_{max,0}}$ | 恆等式 $\omega_0 q_{max,0}=Q\,I_{osc}$（p.2124）⟹ $a=\tau_0\,\omega_{L0}$（精確） |
 | 線性有效性 | $I_{inj}/I_{max}$，$I_{max}\equiv\omega_0 q_{max,0}$ | footnote 11, p.2130；Eq.(35), p.2132 | $I_{osc}=I_{max}/Q$（p.2132）：**兩個不同的歸一化**——$I_{max}$ 管一階線性是否成立，$I_{osc}$ 管 LC 的振幅效應多大 |
 | 振幅記憶時間 | $\tau_0=2Q/\omega_0$ [s] | Sec. III-B, p.2123；Eq.(25), p.2128 | 是**振幅**時間常數；能量時間常數是 $Q/\omega_0$（差 2 倍，見 [tank_Q](/02_foundations/tank_Q_and_energy_restoration)） |

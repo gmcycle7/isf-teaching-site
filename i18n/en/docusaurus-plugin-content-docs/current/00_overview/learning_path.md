@@ -35,11 +35,11 @@ re-derive every formula yourself and run every lab yourself).
   {id: "step-5", label: "Step 5: White noise → 1/f², flicker → 1/f³", href: "/03_isf_core_theory/white_noise_to_phase_noise"},
   {id: "step-6", label: "Step 6: The Fourier view of the ISF (c₀, cₙ, upconversion)", href: "/03_isf_core_theory/fourier_series_of_isf"},
   {id: "step-7", label: "Step 7: Simulation labs — build numerical feel", href: "/04_simulation_labs/numerical_feeling"},
-  {id: "step-8", label: "Step 8: Design takeaways (symmetry, swing, slope)", href: "/06_design_insights/symmetry"},
+  {id: "step-8", label: "Step 8: Design takeaways (swing, slope, symmetry)", href: "/06_design_insights/tank_swing"},
   {id: "step-9", label: "Step 9: Connect to SerDes clocking (jitter, eye, PLL/CDR)", href: "/02_foundations/psd_phase_noise_jitter"},
   {id: "step-10", label: "Step 10: Advanced theory — from κ to lineshape", href: "/03_isf_core_theory/diffusion_dictionary"},
   {id: "step-11", label: "Step 11: Injection locking and frequency conversion", href: "/05_paper_deep_dives/paper_003_injection_locking_part1"},
-  {id: "step-12", label: "Step 12: System integration and measurement", href: "/06_design_insights/clock_chain_budget"}
+  {id: "step-12", label: "Step 12: System integration and measurement", href: "/06_design_insights/pll_noise_budget"}
 ]} />
 
 ## Keep these three pages at hand as "dictionaries"
@@ -70,7 +70,11 @@ below; when stuck, return to these four pages first):
   along the cycle, no restoring force) from **amplitude** (radial away from the cycle,
   with a restoring force).
 - **Pages to read**: [oscillator_phase](/02_foundations/oscillator_phase) →
-  [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise).
+  [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) →
+  [tank_Q_and_energy_restoration](/02_foundations/tank_Q_and_energy_restoration)
+  (the three equivalent forms of the parallel-RLC-tank quality factor $Q$ and its
+  energy definition — every later page that says "high $Q$" is using the result
+  derived here).
 - **Prerequisites**: 2-D state space, the phase plane, the basic picture of RLC oscillation.
 - **Expected outcome**: you can explain "why a tangential perturbation persists forever
   while a radial one is pulled back" — this is exactly claim **C2**
@@ -146,7 +150,11 @@ below; when stuck, return to these four pages first):
   figures, check the numbers, and turn the conversions between rad, fs, dBc/Hz and
   jitter into reflexes.
 - **Pages to read**: first [numerical_feeling](/04_simulation_labs/numerical_feeling)
-  (three must-do mental calculations), then in order
+  (three must-do mental calculations), then open the
+  [Interactive Calculator](/04_simulation_labs/interactive_calculator)
+  (drag the sliders to verify examples A/B/C live — change $q_{max}$, $\Gamma_{rms}$,
+  $S_i$, $f_0$ and watch $\mathcal{L}$ and $\sigma_t$ move; this builds more feel than
+  numbers alone), then in order
   [lab_01](/04_simulation_labs/lab_01_sinusoidal_oscillator),
   [lab_02](/04_simulation_labs/lab_02_lc_oscillator_toy_model),
   [lab_04](/04_simulation_labs/lab_04_impulse_injection_sweep),
@@ -159,33 +167,56 @@ below; when stuck, return to these four pages first):
   functions in `simulations/common/`; every figure is traceable to its script and
   formula in the [figure_index](/01_paper_map/figure_index).
 
-## Step 8: Design takeaways (symmetry, swing, slope) {#step-8}
+## Step 8: Design takeaways (swing, slope, symmetry) {#step-8}
 
 - **What to achieve**: translate the formulas into **design knobs** — increase
   $q_{max}$, lower $\Gamma_{rms}$, enforce waveform symmetry to suppress $c_0$; and
   understand the ring result $\Gamma_{rms}\propto N^{-3/2}$ and "at fixed power and
   frequency, ring phase noise is almost independent of the number of stages $N$"
   (claims **C7/C8**).
-- **Pages to read**: [symmetry](/06_design_insights/symmetry) →
+- **Pages to read**: [tank_swing](/06_design_insights/tank_swing) (the most direct
+  knob — enlarging $q_{max}=CV_{max}$, with $\mathcal{L}\propto1/q_{max}^2$) →
+  [waveform_slope](/06_design_insights/waveform_slope) (how the switching-edge slope
+  directly sets how large the ISF is over that stretch) →
+  [device_noise_mapping](/06_design_insights/device_noise_mapping) (which phase
+  window each device's noise current maps onto, and how the effective
+  $\Gamma_{eff}$ sums up) →
+  [symmetry](/06_design_insights/symmetry) →
   [lc_vs_ring](/06_design_insights/lc_vs_ring).
-- **Prerequisites**: Steps 5–6.
-- **Expected outcome**: given an oscillator spec, you can say "which knob to turn first"
-  (for the quantitative version of "how many dB from the theoretical ceiling", see
-  Step 12's [fom_limit](/06_design_insights/fom_limit)).
+- **Prerequisites**: Steps 1, 5 and 6 (tank_Q_and_energy_restoration, white/flicker
+  upconversion, the ISF Fourier coefficients).
+- **Expected outcome**: given an oscillator spec, you can say, in order, "which knob to
+  turn first" — first swing ($q_{max}$), then how edge slope and device-noise mapping
+  feed $\Gamma_{rms}$ and $c_0$, and only then the topology-level symmetry/LC-vs-ring
+  trade-off (for the quantitative version of "how many dB from the theoretical
+  ceiling", see Step 12's [fom_limit](/06_design_insights/fom_limit)); to run these
+  knobs in reverse — from a spec sheet all the way to component values and jitter in
+  one complete 7-step recipe — see
+  [design_recipe](/06_design_insights/design_recipe).
 
 ## Step 9: Connect to SerDes clocking (jitter, eye, PLL/CDR) {#step-9}
 
 - **What to achieve**: integrate phase noise into rms jitter and connect it to eye
-  closure and BER in a SerDes link.
-- **Pages to read**: [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) →
-  [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection).
+  closure and BER in a SerDes link, and reach the first stop on the way to
+  book-keeping a single oscillator's $\mathcal{L}(f)$ into a whole PLL loop.
+- **Pages to read**: (optional) [dsp_view_of_phase_noise](/02_foundations/dsp_view_of_phase_noise)
+  (the DSP/sampling view of $S_\phi(f)$ — a warm-up for psd_phase_noise_jitter) →
+  [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) →
+  [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) →
+  [pll_noise_budget](/06_design_insights/pll_noise_budget) (the five noise sources plus
+  the $\lvert H_{lp}\rvert^2/\lvert H_{hp}\rvert^2$ transfers and the optimum loop BW —
+  final-exam Q8 and 06-chapter exercises Q4/Q8 both live on this page).
 - **Prerequisites**: Steps 5 and 7 (especially lab_08).
 - **Expected outcome**: you can do canonical example C — $f_0=5$ GHz,
   $\mathcal{L}(1\text{MHz})=-100$ dBc/Hz, $1/f^2$ slope, integrating 1→100 MHz
   $\Rightarrow\sigma_\phi=14.07$ mrad, $\sigma_t=447.9$ fs — and you know the integral is
   dominated by its **lower limit** (for the rigorous period/cycle-to-cycle kernels see
   Step 10's [jitter_kernels](/02_foundations/jitter_kernels); for the RJ/DJ decomposition
-  and TJ@BER see Step 12's [dj_dual_dirac](/06_design_insights/dj_dual_dirac)).
+  and TJ@BER see Step 12's [dj_dual_dirac](/06_design_insights/dj_dual_dirac)); and you
+  know how a PLL's output noise sums from five sources and how the loop BW is chosen to
+  minimize total jitter (Step 12's
+  [clock_chain_budget](/06_design_insights/clock_chain_budget) reuses this page's
+  result directly, without re-deriving it).
 
 ---
 
@@ -220,13 +251,17 @@ from standard literature) remains optional — read it before starting Step 10 i
   2. [jitter_kernels](/02_foundations/jitter_kernels) — the three jitters are the
      0th/1st/2nd-order differences of $\phi$; the prefactors and every single 2 are
      derived from first principles.
-  3. [beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian) — flicker FM turns the
+  3. [stochastic_noise_basics](/02_foundations/stochastic_noise_basics) — stationarity,
+     autocorrelation, Wiener–Khinchin: the beyond_lorentzian lineshape derivation is
+     built directly on this page, and skipping it leaves you stuck on "what exactly is
+     a PSD the Fourier transform of".
+  4. [beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian) — flicker FM turns the
      lineshape from Lorentzian into near-Gaussian, and rigorously answers "what does
      the instrument actually measure".
-  4. [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form) —
+  5. [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form) —
      the [P2] App. B closed form: compute $\Gamma_{rms}$, $c_0$ and the $1/f^3$ corner
      directly from the stage count $N$ and the asymmetry $A$.
-  5. [isf_from_waveform](/03_isf_core_theory/isf_from_waveform) — the three methods of
+  6. [isf_from_waveform](/03_isf_core_theory/isf_from_waveform) — the three methods of
      the [P1] appendix (impulse injection / closed form / first derivative), and where
      each extra approximation starts to fail.
 - **Prerequisites**: Steps 5, 6 and 9; plus
@@ -316,31 +351,51 @@ from standard literature) remains optional — read it before starting Step 10 i
   and spurs, dodge the 12 mines, and finally use the capstone to validate the whole
   site end to end.
 - **Pages to read (one line of "why" each)**:
-  1. [clock_chain_budget](/06_design_insights/clock_chain_budget) — the four
+  1. [pll_noise_budget](/06_design_insights/pll_noise_budget) — the transfer and sum
+     of five noise sources (reference / PFD-CP / divider / loop filter / VCO) and the
+     optimum loop BW; **clock_chain_budget's Rule 3 (PLL) reuses this page's
+     $\lvert H_{lp}\rvert^2$ / $\lvert H_{hp}\rvert^2$ results directly, without
+     re-deriving them**, so read it first.
+  2. [clock_chain_budget](/06_design_insights/clock_chain_budget) — the four
      bookkeeping rules (×N / ÷N / PLL / buffer) plus a complete worked chain
      100 MHz→5 GHz→2.5 GHz.
-  2. [fom_limit](/06_design_insights/fom_limit) — the FOM ceiling
+  3. [adpll_tdc_dco](/06_design_insights/adpll_tdc_dco) — swap pll_noise_budget's five
+     analog sources for the all-digital picture: TDC quantization floor, DCO frequency
+     quantization, ΔΣ dithering — the same $\lvert H_{lp}\rvert^2/\lvert H_{hp}\rvert^2$
+     bookkeeping still applies.
+  4. [fom_limit](/06_design_insights/fom_limit) — the FOM ceiling
      $=173.8-10\log_{10}(F_{eff})$ dB (300 K): know how many dB your design is from
      the physical limit.
-  3. [reference_oscillators](/06_design_insights/reference_oscillators) — a crystal is
+  5. [reference_oscillators](/06_design_insights/reference_oscillators) — a crystal is
      just an LC tank with an outrageously high $Q$: why nothing downstream can fix the
      reference's close-in noise.
-  4. [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter) — sampling error =
+  6. [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter) — sampling error =
      slope × timing error: clock quality directly sets the data converter's effective
      number of bits.
-  5. [dj_dual_dirac](/06_design_insights/dj_dual_dirac) — RJ unbounded, DJ bounded:
+  7. [dj_dual_dirac](/06_design_insights/dj_dual_dirac) — RJ unbounded, DJ bounded:
      the dual-Dirac model and the industry-standard TJ@BER bookkeeping.
-  6. [measurement_and_spurs](/06_design_insights/measurement_and_spurs) — the three
+  8. [cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol) — a real SerDes CDR is
+     bang-bang, not a linear PLL: the $K_{bb}$ linearized gain, the JTOL mask, and SSC
+     spread-spectrum tracking.
+  9. [measurement_and_spurs](/06_design_insights/measurement_and_spurs) — the three
      ways to measure $\mathcal{L}(f)$, telling spurs from random noise, and how to
      read a real PN plot.
-  7. [common_mistakes](/06_design_insights/common_mistakes) — 12 real mines: a full
+  10. [common_mistakes](/06_design_insights/common_mistakes) — 12 real mines: a full
      review of the site's factor-of-2 discipline.
-  8. [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end) — the site's
+  11. [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end) — the site's
      main spine end to end: state equations → ISF → spectrum → linewidth → jitter →
      BER. The finale.
-- **Prerequisites**: Steps 7–9; Step 10 (the jitter kernels and the diffusion
-  dictionary are used repeatedly); Step 11 helps too (sampling_pll already appeared
-  in Step 11).
+- **Suggested optional reading (topology-level, off the main line of this step but
+  frequently asked about)**:
+  [real_oscillator_topologies](/06_design_insights/real_oscillator_topologies)
+  (hand-calculated ISF for cross-coupled LC / Colpitts / CMOS ring stage and
+  class-C/D/F waveform engineering),
+  [varactor_tuning_supply_pushing](/06_design_insights/varactor_tuning_supply_pushing)
+  (how low-frequency noise voltage on the tuning line / supply FMs the carrier into
+  close-in phase noise).
+- **Prerequisites**: Steps 7–9 (pll_noise_budget already appeared once, in Step 9);
+  Step 10 (the jitter kernels and the diffusion dictionary are used repeatedly);
+  Step 11 helps too (sampling_pll already appeared in Step 11).
 - **Expected outcome**: you can draw up — and defend — a clock noise budget: from the
   reference to the sampler, every stage's $\mathcal{L}(f)$ and the final jitter have a
   traceable source.

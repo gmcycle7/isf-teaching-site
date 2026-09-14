@@ -125,7 +125,8 @@ def make_isf(theta):
             + 0.18 * np.cos(3 * theta) + 0.25)  # the +0.25 sets a non-zero c0
 ```
 
-對稱 vs 不對稱對照（`fig_symmetric_vs_asymmetric`）：
+對稱 vs 不對稱對照（`fig_symmetric_vs_asymmetric`；**本站慣例**：下面 `alpha` 是 toy ISF 的 DC 偏移
+$c_0=2\alpha$，與 [P1] 的 NMF $\alpha(\omega_0t)$ 無關）：
 
 ```python
     g_sym = np.cos(theta)               # c0 = 0 (symmetric)

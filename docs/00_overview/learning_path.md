@@ -30,11 +30,11 @@ import ProgressChecklist from "@site/src/components/ProgressChecklist";
   {id: "step-5", label: "第 5 步：白噪 → 1/f²，flicker → 1/f³", href: "/03_isf_core_theory/white_noise_to_phase_noise"},
   {id: "step-6", label: "第 6 步：ISF 的傅立葉觀點（c₀、cₙ、upconversion）", href: "/03_isf_core_theory/fourier_series_of_isf"},
   {id: "step-7", label: "第 7 步：模擬 lab，建立數值手感", href: "/04_simulation_labs/numerical_feeling"},
-  {id: "step-8", label: "第 8 步：設計 takeaways（symmetry、swing、slope）", href: "/06_design_insights/symmetry"},
+  {id: "step-8", label: "第 8 步：設計 takeaways（swing、slope、symmetry）", href: "/06_design_insights/tank_swing"},
   {id: "step-9", label: "第 9 步：接到 SerDes clocking（jitter、eye、PLL/CDR）", href: "/02_foundations/psd_phase_noise_jitter"},
   {id: "step-10", label: "第 10 步：進階理論——從 κ 到線形", href: "/03_isf_core_theory/diffusion_dictionary"},
   {id: "step-11", label: "第 11 步：注入鎖定與頻率轉換", href: "/05_paper_deep_dives/paper_003_injection_locking_part1"},
-  {id: "step-12", label: "第 12 步：系統整合與量測", href: "/06_design_insights/clock_chain_budget"}
+  {id: "step-12", label: "第 12 步：系統整合與量測", href: "/06_design_insights/pll_noise_budget"}
 ]} />
 
 ## 先把這三頁當「字典」
@@ -61,7 +61,10 @@ import ProgressChecklist from "@site/src/components/ProgressChecklist";
 - **要達成什麼**：建立 limit cycle（極限環，振盪器穩態走的閉合軌跡）的幾何圖像，
   分清楚**相位**（沿環的切向，無恢復力）與**振幅**（離環的徑向，有恢復力）。
 - **讀哪幾頁**：[oscillator_phase](/02_foundations/oscillator_phase) →
-  [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)。
+  [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) →
+  [tank_Q_and_energy_restoration](/02_foundations/tank_Q_and_energy_restoration)
+  （並聯 RLC tank 品質因數 $Q$ 的三種等價寫法與能量定義，之後每一頁提到「高 $Q$」
+  都在用這裡推出的結果）。
 - **先備**：二維狀態空間、相平面、RLC 振盪的基本圖像。
 - **預期收穫**：能解釋「為什麼擾動沿切向會永久留下、沿徑向會被拉回」，這正是
   claim **C2**（見 [claims_cross_reference](/01_paper_map/claims_cross_reference)）。
@@ -123,6 +126,9 @@ import ProgressChecklist from "@site/src/components/ProgressChecklist";
 - **要達成什麼**：把前面的公式**親手跑一遍**、看圖、對數字，把 rad、fs、dBc/Hz、
   jitter 之間的換算練成反射。
 - **讀哪幾頁**：先 [numerical_feeling](/04_simulation_labs/numerical_feeling)（三個必做口算），
+  再開 [互動計算器 interactive_calculator](/04_simulation_labs/interactive_calculator)
+  （拉滑桿即時驗證例 A/B/C——把 $q_{max}$、$\Gamma_{rms}$、$S_i$、$f_0$ 改一改，看
+  $\mathcal{L}$ 與 $\sigma_t$ 怎麼動，比純看數字更有手感），
   再依序 [lab_01](/04_simulation_labs/lab_01_sinusoidal_oscillator)、
   [lab_02](/04_simulation_labs/lab_02_lc_oscillator_toy_model)、
   [lab_04](/04_simulation_labs/lab_04_impulse_injection_sweep)、
@@ -134,29 +140,49 @@ import ProgressChecklist from "@site/src/components/ProgressChecklist";
 - **預期收穫**：能用 `simulations/common/` 的函式一行驗證 canonical 例 A/B/C；
   每張圖都能追溯到 [figure_index](/01_paper_map/figure_index) 的 script 與公式。
 
-## 第 8 步：設計 takeaways（symmetry、swing、slope） {#step-8}
+## 第 8 步：設計 takeaways（swing、slope、symmetry） {#step-8}
 
 - **要達成什麼**：把公式翻成**設計旋鈕**——拉大 $q_{max}$、壓低 $\Gamma_{rms}$、
   強制波形對稱以壓 $c_0$；並理解 ring 的 $\Gamma_{rms}\propto N^{-3/2}$ 與
   「固定功率/頻率下 ring phase noise 幾乎與級數 $N$ 無關」（claim **C7/C8**）。
-- **讀哪幾頁**：[symmetry](/06_design_insights/symmetry) →
+- **讀哪幾頁**：[tank_swing](/06_design_insights/tank_swing)（拉大 $q_{max}=CV_{max}$
+  這把最直接的旋鈕，$\mathcal{L}\propto1/q_{max}^2$）→
+  [waveform_slope](/06_design_insights/waveform_slope)（換流邊沿的斜率如何直接決定
+  ISF 在那一段有多大）→
+  [device_noise_mapping](/06_design_insights/device_noise_mapping)（不同 device 的
+  雜訊電流各自映到哪個相位窗、有效 $\Gamma_{eff}$ 怎麼疊加）→
+  [symmetry](/06_design_insights/symmetry) →
   [lc_vs_ring](/06_design_insights/lc_vs_ring)。
-- **先備**：第 5、6 步。
-- **預期收穫**：拿到一顆振盪器規格，能說出「先動哪個旋鈕」
+- **先備**：第 1、5、6 步（tank_Q_and_energy_restoration、白噪/flicker 上轉、
+  ISF 傅立葉係數）。
+- **預期收穫**：拿到一顆振盪器規格，能依序說出「先動哪個旋鈕」——先看 swing
+  ($q_{max}$)、再看邊沿斜率與 device 雜訊映射如何餵進 $\Gamma_{rms}$、$c_0$，
+  最後才是拓樸層級的 symmetry/LC-vs-ring 取捨
   （「離理論天花板還有幾 dB」的定量版，見第 12 步的
-  [fom_limit](/06_design_insights/fom_limit)）。
+  [fom_limit](/06_design_insights/fom_limit)）；把這些旋鈕反過來、從一張規格表
+  一路算到元件值與 jitter 的完整 7 步配方，見
+  [design_recipe](/06_design_insights/design_recipe)。
 
 ## 第 9 步：接到 SerDes clocking（jitter、eye、PLL/CDR） {#step-9}
 
-- **要達成什麼**：把 phase noise 積分成 rms jitter，連到 SerDes 的 eye 閉合與 BER。
-- **讀哪幾頁**：[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) →
-  [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)。
+- **要達成什麼**：把 phase noise 積分成 rms jitter，連到 SerDes 的 eye 閉合與 BER，
+  並拿到把單顆振盪器的 $\mathcal{L}(f)$ 記帳進整個 PLL 迴路的第一站。
+- **讀哪幾頁**：（選讀）[dsp_view_of_phase_noise](/02_foundations/dsp_view_of_phase_noise)
+  （$S_\phi(f)$ 的 DSP／取樣視角，psd_phase_noise_jitter 的暖身）→
+  [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) →
+  [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) →
+  [pll_noise_budget](/06_design_insights/pll_noise_budget)（五個雜訊源＋
+  $\lvert H_{lp}\rvert^2/\lvert H_{hp}\rvert^2$ 轉移、最佳 loop BW——期末考題 8、
+  06 章習題 4/8 都以這頁為家）。
 - **先備**：第 5、7 步（尤其 lab_08）。
 - **預期收穫**：能做 canonical 例 C——$f_0=5$ GHz、$\mathcal{L}(1\text{MHz})=-100$
   dBc/Hz、$1/f^2$、積 1→100 MHz $\Rightarrow\sigma_\phi=14.07$ mrad、$\sigma_t=447.9$ fs，
   並知道積分被**下限**主導（period／cycle-to-cycle 的嚴格核推導見第 10 步的
   [jitter_kernels](/02_foundations/jitter_kernels)；RJ/DJ 分解與 TJ@BER 見第 12 步的
-  [dj_dual_dirac](/06_design_insights/dj_dual_dirac)）。
+  [dj_dual_dirac](/06_design_insights/dj_dual_dirac)）；並知道一顆 PLL 的輸出雜訊
+  怎麼從五個源加總、loop BW 怎麼選才讓總 jitter 最小（第 12 步的
+  [clock_chain_budget](/06_design_insights/clock_chain_budget) 會直接沿用這頁的
+  結果，不重推）。
 
 ---
 
@@ -183,12 +209,15 @@ claim **C13**，**不在這 5 篇 PDF 內**，以標準文獻補充）維持選�
      （canonical $\kappa^2=0.125$ rad²/s）。
   2. [jitter_kernels](/02_foundations/jitter_kernels)——三種 jitter 是 $\phi$ 的
      0／1／2 階差分，前置常數與每一個 2 都從第一原理推出來。
-  3. [beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian)——flicker FM 把線形從
+  3. [stochastic_noise_basics](/02_foundations/stochastic_noise_basics)——平穩性、
+     自相關、Wiener–Khinchin：beyond_lorentzian 的線形推導直接建立在這頁之上，
+     沒讀過會卡在「PSD 到底是什麼的傅立葉轉換」。
+  4. [beyond_lorentzian](/03_isf_core_theory/beyond_lorentzian)——flicker FM 把線形從
      Lorentzian 變成近高斯，並嚴格回答「儀器到底量什麼」。
-  4. [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form)——
+  5. [asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form)——
      [P2] App. B 閉式：從級數 $N$ 與不對稱度 $A$ 直接算 $\Gamma_{rms}$、$c_0$ 與
      $1/f^3$ corner。
-  5. [isf_from_waveform](/03_isf_core_theory/isf_from_waveform)——[P1] 附錄三法
+  6. [isf_from_waveform](/03_isf_core_theory/isf_from_waveform)——[P1] 附錄三法
      （打脈衝／closed form／一階導數），知道每砍一刀近似會在哪裡失準。
 - **先備**：第 5、6、9 步；外加
   [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) 與
@@ -253,24 +282,39 @@ claim **C13**，**不在這 5 篇 PDF 內**，以標準文獻補充）維持選�
   節點、對照 FOM 理論天花板、懂參考源在買什麼、算 ADC 的 SNR/ENOB、把 RJ/DJ 分開記帳到
   TJ@BER、看懂量測圖與 spur、避開 12 個地雷，最後用 capstone 一條龍驗收全站。
 - **讀哪幾頁（每頁一句為什麼）**：
-  1. [clock_chain_budget](/06_design_insights/clock_chain_budget)——四條記帳規則
+  1. [pll_noise_budget](/06_design_insights/pll_noise_budget)——五個雜訊源
+     （reference／PFD-CP／divider／loop filter／VCO）的轉移與加總、最佳 loop BW；
+     **clock_chain_budget 的規則 3（PLL）直接沿用這頁的 $\lvert H_{lp}\rvert^2$／
+     $\lvert H_{hp}\rvert^2$ 結果，不重推**，所以放在它前面讀。
+  2. [clock_chain_budget](/06_design_insights/clock_chain_budget)——四條記帳規則
      （×N／÷N／PLL／buffer）＋一條 100 MHz→5 GHz→2.5 GHz 的完整 worked chain。
-  2. [fom_limit](/06_design_insights/fom_limit)——FOM 天花板
+  3. [adpll_tdc_dco](/06_design_insights/adpll_tdc_dco)——把 pll_noise_budget 的類比五源
+     換成全數位：TDC 量化帶內床、DCO 頻率量化、ΔΣ dithering，同一套 $\lvert H_{lp}\rvert^2/
+     \lvert H_{hp}\rvert^2$ 記帳法不變。
+  5. [fom_limit](/06_design_insights/fom_limit)——FOM 天花板
      $=173.8-10\log_{10}(F_{eff})$ dB（300 K）：知道你的設計離物理極限幾 dB。
-  3. [reference_oscillators](/06_design_insights/reference_oscillators)——crystal 就是
+  6. [reference_oscillators](/06_design_insights/reference_oscillators)——crystal 就是
      $Q$ 高到誇張的 LC tank：為什麼鏈上沒有東西能補救 reference 的 close-in 雜訊。
-  4. [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter)——取樣誤差＝斜率×
+  7. [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter)——取樣誤差＝斜率×
      時間誤差：時脈品質直接決定資料轉換器的有效位元數。
-  5. [dj_dual_dirac](/06_design_insights/dj_dual_dirac)——RJ 無界、DJ 有界：dual-Dirac
+  8. [dj_dual_dirac](/06_design_insights/dj_dual_dirac)——RJ 無界、DJ 有界：dual-Dirac
      與 TJ@BER 的業界標準記帳。
-  6. [measurement_and_spurs](/06_design_insights/measurement_and_spurs)——量
+  9. [cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol)——真實 SerDes CDR 是
+     bang-bang 而非線性 PLL：$K_{bb}$ 線性化增益、JTOL mask、SSC 展頻追蹤。
+  10. [measurement_and_spurs](/06_design_insights/measurement_and_spurs)——量
      $\mathcal{L}(f)$ 的三種方法、spur 與隨機雜訊的分辨、怎麼讀一張真實 PN 圖。
-  7. [common_mistakes](/06_design_insights/common_mistakes)——12 個真實地雷：整套
+  11. [common_mistakes](/06_design_insights/common_mistakes)——12 個真實地雷：整套
      factor-of-2 紀律的總複習。
-  8. [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)——全站主脊
+  12. [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)——全站主脊
      一條龍：state equations → ISF → 譜 → 線寬 → jitter → BER，收官。
-- **先備**：第 7–9 步；第 10 步（jitter 核與擴散字典會被反覆引用）；第 11 步讀過更佳
-  （sampling_pll 已在第 11 步出現）。
+- **建議選讀（拓樸層級，非本步主線但常被問到）**：
+  [real_oscillator_topologies](/06_design_insights/real_oscillator_topologies)
+  （cross-coupled LC／Colpitts／CMOS ring stage 與 class-C/D/F 波形工程的手算 ISF）、
+  [varactor_tuning_supply_pushing](/06_design_insights/varactor_tuning_supply_pushing)
+  （tuning line／supply pushing 怎麼把低頻雜訊電壓 FM 進 close-in phase noise）。
+- **先備**：第 7–9 步（尤其 pll_noise_budget 在第 9 步已先出現過一次）；第 10 步
+  （jitter 核與擴散字典會被反覆引用）；第 11 步讀過更佳（sampling_pll 已在第 11 步
+  出現）。
 - **預期收穫**：能開出並守住一份時鐘雜訊預算——從參考源到取樣器，每一級的
   $\mathcal{L}(f)$ 與最終 jitter 都有出處。
 - **自我檢查點**：

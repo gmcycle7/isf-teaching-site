@@ -410,8 +410,11 @@ def H_highpass_mag2(f, fn_hz, zeta=0.707):
 - **核心訊息**：鎖相把「吵雜 VCO 的 close-in」換成「乾淨參考的 close-in」，代價是 far-out
   仍由 VCO 決定。**環路頻寬 $f_n$ 是設計旋鈕**：$f_n$ 拉高 → 壓住更多 VCO close-in，但放進
   更多 reference far-out 與可能的 jitter peaking；$f_n$ 拉低則相反。
-- **CDR 視角**：把「reference」想成輸入資料的 jitter——CDR 低通追蹤低頻 input jitter（jitter
-  tolerance）、高通拒斥高頻——同一套整形。
+- **CDR 視角**：把「reference」想成輸入資料的 jitter——CDR 的低通**追蹤**低頻 input jitter，
+  這是 **jitter transfer** $\lvert H_{lp}\rvert^2$（恢復時脈「跟著」輸入 jitter 走多少），不是
+  jitter tolerance；CDR 真正能**容忍**多少輸入 jitter 而不出錯，是由追不上的誤差
+  $1-H_{lp}=H_{hp}$ 決定的另一件事（見
+  [pll_noise_budget](/06_design_insights/pll_noise_budget) 的「CDR jitter tolerance」小節）。
 
 ## 10. 對應 paper 公式/figure
 

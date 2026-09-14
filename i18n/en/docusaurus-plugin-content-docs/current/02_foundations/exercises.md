@@ -97,7 +97,7 @@ Take $\Delta q=1$ fC, $q_{max}=1$ pC.
   answer={-1}
   tol={0.02}
   unit="mrad"
-  hint="Γ(π/2) = −sin(π/2) = −1; Δφ = Γ×Δq/q_max, and Δq/q_max = 10⁻³."
+  hint="Γ(π/2) = −sin(π/2); Δφ = Γ×Δq/q_max, and Δq/q_max = 10⁻³."
   solutionNote="Δφ_a = (−1)×10⁻³ rad = −1 mrad. At the peak θ=0, Δφ_b = 0 (Γ=0). Details in the Exercise 5 solution below."
 />
 

@@ -760,6 +760,10 @@ $$
 \text{JTOL}(f)\approx\frac{\text{UI}-\text{TJ}_{eye}}{\lvert H_{hp}(f)\rvert}.
 $$
 
+> **慣例旗標（peak vs peak-to-peak，差 2×）**：這裡把同一條式子讀成 **peak** 幅度；
+> [cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol) 的同一式把它稱為 **peak-to-peak**
+> 才與業界 JTOL mask 對得上——數值完全相同，只是讀法差 2×，引用時要說清楚是哪一種。
+
 這裡的 $\lvert H_{hp}(f)\rvert=\sqrt{\lvert H_{hp}(f)\rvert^2}$ 是**線性（幅度）轉移**——單一頻率
 的正弦擾動走幅度轉移，不是本頁 PSD 加總用的功率轉移 $\lvert H_{hp}\rvert^2$，單位要分清楚。
 低頻（$f\ll f_n$）type-II 二階環的 $\lvert H_{hp}\rvert\propto(f/f_n)^2$（$-40$ dB/dec 的教科書
@@ -871,7 +875,7 @@ print(round(10**(8.3/20), 1), round(10**(8.3/10), 1))     # -> 2.6 6.8
 （本頁 1 kHz–1 GHz；文獻常見 1 kHz–100 MHz 或 10 kHz–40 MHz，頻寬不同數字不可比）；
 (ii) $\sigma_t$ 是否含 spur（本頁只算隨機 PN）；(iii) $P$ 是否含 reference、輸出 buffer。
 它也**不歸一化 $f_{out}$ 與調諧範圍**，所以只在同類架構、同頻段內才有意義；熱雜訊主導的
-$\propto1/P$ 假設在 flicker 主導或數位功耗（ADPLL 的邏輯、TDC）主導時失效。
+$\propto1/P$ 假設在 flicker 主導或數位功耗（[ADPLL](/06_design_insights/adpll_tdc_dco) 的邏輯、TDC）主導時失效。
 
 ## 適用與失效條件
 
@@ -915,6 +919,7 @@ $\propto1/P$ 假設在 flicker 主導或數位功耗（ADPLL 的邏輯、TDC）�
 
 - 兩條轉移函數的推導、charge-pump type-II 設計式（$R$、$C$、$C_3$）與 loop-filter 電阻雜訊：[lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer)
 - 振盪器 FOM 與其天花板（與 $\mathrm{FOM}_{jitter}$ 的慣例對照）：[fom_limit](/06_design_insights/fom_limit)
+- 數位功耗（ADPLL 的 TDC 量化、DCO 更新）如何取代類比 CP/loop-filter 雜訊項：[adpll_tdc_dco](/06_design_insights/adpll_tdc_dco)
 - $\mathrm{FOM}_{jitter}$ 定義的出處：X. Gao, E. A. M. Klumperink, M. Bohsali, and B. Nauta, *"A Low Noise
   Sub-Sampling PLL in Which Divider Noise Is Eliminated and PD/CP Noise Is Not Multiplied by N²,"*
   IEEE J. Solid-State Circuits, vol. 44, no. 12, pp. 3253–3263, Dec. 2009（外部文獻，非本站 5 篇 PDF）

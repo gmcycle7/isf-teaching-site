@@ -80,7 +80,7 @@ $$
 $$
 
 - 所以「加大 swing 降 phase noise」與「加大 swing 降 jitter」是**同一件事**——它們共用
-  $\Gamma_{rms}^2/q_{max}^2$ 這個核心比值。（[P2] Eq.(12), p.793 已核實：$\kappa=\dfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\,\overline{i_n^2}/\Delta f}$。）
+  $\Gamma_{rms}^2/q_{max}^2$ 這個核心比值。（[P2] Eq.(12), p.793 印刷式 $\kappa_t=\dfrac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\tfrac12\,\overline{i_n^2}/\Delta f}$，時間版、分母含 $\omega_0$；相位版 $\kappa=\omega_0\kappa_t$，v11 重核。）
 
 ## 第 3 步：增大 $q_{max}$ 的兩條路——加 $V_{max}$ vs 加 $C$
 

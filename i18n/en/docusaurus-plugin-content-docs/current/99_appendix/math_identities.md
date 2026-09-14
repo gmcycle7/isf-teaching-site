@@ -305,15 +305,15 @@ $$
 $$
 
 - The measurement interval is $\Delta t=M\cdot T$, so $M=\Delta t/T$, $\mathrm{Var}(\Phi_M)=\dfrac{\sigma_1^2}{T}\,\Delta t\propto\Delta t$.
-- Converting to time jitter ($\sigma_t=\sigma_\phi/(2\pi f_0)$) and taking the square root:
+- Converting to time jitter ($\sigma_t=\sigma_\phi/(2\pi f_0)$, i.e. the phase-to-time conversion of [P2] Eq.(10), p.793) and taking the square root:
 
 $$
-\sigma_{\Delta t}=\kappa\,\sqrt{\Delta t}\qquad([P2]\ \text{Eq.}(10),\ \text{p.793}).
+\sigma_{\Delta t}=\kappa\,\sqrt{\Delta t}\qquad([P2]\ \text{Eq.}(8),\ \text{p.792}).
 $$
 
 $\kappa$ is a proportionality constant specific to each device, with units $\sqrt{\text{s}}$; it is determined by the same
 $\Gamma_{rms}^2/q_{max}^2$ ratio
-([P2] Eq.(12), p.793: $\kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$, verified verbatim).
+([P2] Eq.(12), p.793 as printed: $\kappa=\frac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$, with $\omega_0$ in the denominator, hence units $\sqrt{\text{s}}$; re-verified in v11. The phase version $\kappa_\phi=\omega_0\kappa$ is in [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)).
 
 **Key intuition**: variance (power) grows linearly, standard deviation (rms) grows as a square root. This is the hallmark of a random walk;
 it appears whenever phase errors **accumulate independently with no restoring force** (contrast: with a PLL locked, there is a restoring force and jitter is suppressed,

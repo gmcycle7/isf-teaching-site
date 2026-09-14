@@ -249,7 +249,9 @@ $$
 $$
 
 $\beta$ ＝ 注入電荷 × ISF 在鎖定點的斜率，無因次（C × rad/C/rad ✓）。它就是「一根脈衝把當下的相位誤差拉回幾成」：
-$\beta=1$ 一步對齊（MDLL 式的硬重置）、$\beta\ll1$ 每次只拉一點。
+$\beta=1$ 一步對齊（MDLL 式的硬重置）、$\beta\ll1$ 每次只拉一點。**本站慣例**：此 $\beta$ 為 realignment factor，
+與 [P4] Eq.(23)（paper_004_large_injection_transient）的 ISF–APF 相位差 $\beta$ 無關（另外 FM 調變指數 $\beta$、
+MOS $\beta=\mu C_{ox}W/L$ 也是不同符號，各頁首次出現處另有本站慣例註記）。
 
 - **穩定**：$\vert1-\beta\vert\lt1\iff0\lt\beta\lt2$。$\beta\gt1$ 是「拉過頭再擺回來」（交替收斂）；$\beta\ge2$ 發散。
   弱注入下 $\beta\ll1$，條件退化成 $\tilde\Gamma'(\theta_{ss})\lt0$——與 [paper_003](/05_paper_deep_dives/paper_003_injection_locking_part1)

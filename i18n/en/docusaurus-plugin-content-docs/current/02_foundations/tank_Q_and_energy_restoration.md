@@ -5,7 +5,11 @@ description: "Derive the quality factor Q cleanly from the parallel RLC tank —
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
+> **Translator's note**: all equations are preserved byte-for-byte from the original. Chinese labels appearing inside math read as follows: 儲存能量 / 每週期儲存的能量 = stored energy (/ per period), 耗散功率 / 每週期耗散的能量 = dissipated power (/ per period), 包絡 = envelope, 起振條件 = startup condition, 載波/雜訊功率正規化 = carrier/noise-power normalization.
+
 # Tank Q and Energy Restoration
+
+> Prerequisites: [oscillator_phase](/02_foundations/oscillator_phase) | Next: [tank_swing](/06_design_insights/tank_swing)
 
 The "quality factor $Q$ (the measure of how 'sharp' a resonance is and how much energy is lost per cycle)" appears on almost every page of this site: the Leeson model writes it as $\dfrac{1}{2Q}$ ([derivation_leeson](/99_appendix/derivation_leeson)), the LC-vs-ring comparison hinges on it ([lc_vs_ring](/06_design_insights/lc_vs_ring)), and the tank-swing trade-off needs it too ([tank_swing](/06_design_insights/tank_swing)). Yet on all of those pages it is **used as a given — it has never been cleanly derived from the circuit**. This page fills that hole: starting from the most basic parallel RLC tank, we derive the three equivalent forms of $Q$ and its energy definition step by step, then show how it connects to the active core's $-R$, to the tank thermal noise $4kT/R_p$, and finally to how it determines phase noise.
 

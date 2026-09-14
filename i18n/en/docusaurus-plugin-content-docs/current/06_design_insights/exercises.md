@@ -9,7 +9,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # Design Chapter Exercises (with Full Solutions)
 
-> **Prerequisites**: [tank_swing](/06_design_insights/tank_swing), [symmetry](/06_design_insights/symmetry), [lc_vs_ring](/06_design_insights/lc_vs_ring), [pll_noise_budget](/06_design_insights/pll_noise_budget), [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) (every problem on this page uses the ISF formulas from these pages) | **Other exercise sets**: [02 Foundations chapter exercises](/02_foundations/exercises), [03 ISF core-theory chapter exercises](/03_isf_core_theory/exercises)
+> **Prerequisites**: [tank_swing](/06_design_insights/tank_swing), [symmetry](/06_design_insights/symmetry), [lc_vs_ring](/06_design_insights/lc_vs_ring), [pll_noise_budget](/06_design_insights/pll_noise_budget), [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection) (every problem on this page uses the ISF formulas from these pages) | **Other exercise sets**: [02 Foundations chapter exercises](/02_foundations/exercises), [03 ISF core-theory chapter exercises](/03_isf_core_theory/exercises) | Next: [final_exam](/04_simulation_labs/final_exam) → [math_identities](/99_appendix/math_identities)
 
 This page is the complete exercise set for **Chapter 06, Design Insights**. The focus is on **design back-calculation problems** (given a target spec, solve for the knob)
 and **comparison/trade-off problems** (ring vs LC, loop-BW trade-off, tail-noise countermeasures), all answered with the ISF formulas.

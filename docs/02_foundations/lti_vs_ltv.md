@@ -7,6 +7,11 @@ description: 從 LTI 的 h(t-τ) 到 LTV 的 h(t,τ)；為何振盪器對 noise 
 
 > 先備：[oscillator_phase](/02_foundations/oscillator_phase) · [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) ｜ 接下來：[從 impulse 到 phase shift 的推導](/03_isf_core_theory/impulse_to_phase_shift)
 
+> **這頁要回答什麼**：
+> 1. LTI 的 $h(t-\tau)$ 跟 LTV 的 $h_\phi(t,\tau)$，差在哪一個自變數上？
+> 2. 同一顆 impulse 打在波峰跟打在零交越，為什麼相位效果完全不同——$\Delta q=1$ fC、$q_{max}=1$ pC 時是 $0$ vs $-1$ mrad？
+> 3. 為什麼這個時變性正是 ISF 存在的理由？
+
 訊號與系統課教我們用脈衝響應 $h(t)$ 與卷積描述線性系統。但那套是 **LTI（Linear
 Time-Invariant，線性非時變）** 的故事。Hajimiri–Lee 在 [P1] 最關鍵的洞見是：
 

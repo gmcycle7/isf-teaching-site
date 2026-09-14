@@ -7,7 +7,7 @@ description: From the white current-noise PSD through ISF weighting and phase in
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
-> **Prerequisites**: [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) ($c_n$ folds noise near $n\omega_0$ back onto the carrier), [rms_isf](/03_isf_core_theory/rms_isf) ($\sum c_n^2=2\Gamma_{rms}^2$), [convolution_derivation](/03_isf_core_theory/convolution_derivation) (the phase integral), [stochastic_noise_basics](/02_foundations/stochastic_noise_basics) (white-noise PSD / Parseval).
+> Prerequisites: [convolution_derivation](/03_isf_core_theory/convolution_derivation) | Next: [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) · [rms_isf](/03_isf_core_theory/rms_isf)
 >
 > **Hands-on verification**: see [lab_06](/04_simulation_labs/lab_06_white_noise_phase_noise) for this page's "white noise → $1/f^2$ phase noise" time-domain simulation matching theory.
 
@@ -245,172 +245,11 @@ $$
 - **Dimension check, same as Step 3**: $\Gamma_{rms}^2/q_{max}^2$ carries $1/\text{C}^2$; multiplying by $S_i/\Delta\omega^2$,
   which carries $\text{A}^2\text{s}/\text{s}^{-2}=\text{A}^2\text{s}^3=\text{C}^2\text{s}$ ✓ this reduces to $\text{s}$ → per-Hz.
 
-## Rigorous spectral derivation (cyclostationary autocorrelation → Wiener-Khinchin)
-
-The Step-3 route above — "treat white noise as countless independent small tones, compute each tone's sideband, then sum" — is [P1]'s original path.
-Its physical intuition is strong, but algebraically it is **heuristic**: the steps "white noise $=$ superposition of tones" and "factor-8 bookkeeping"
-rely on hand-tallied power accounting. This section redoes the same result with the **rigorous machinery of signals and systems** —
-write down the **time-averaged autocorrelation** of the LTV output phase directly, expand it with the ISF's Fourier
-coefficients so that $\sum c_n^2=2\Gamma_{rms}^2$ **falls out of the autocorrelation by itself**, then take the spectrum with the **Wiener-Khinchin theorem**.
-If you are comfortable with "LTI systems: $S_y=|H|^2S_x$", this section upgrades that to the "**LTV / cyclostationary**" version.
-
-> **Why this section exists**: an oscillator is a **periodically time-varying** system; its output is not strictly
-> stationary but **cyclostationary** (its statistics repeat with period $T$). For a cyclostationary
-> process, the correct spectral analysis first averages over the **absolute time $t$** over one period, "stationarizing" it, and only then applies Wiener-Khinchin.
-> This section walks that path honestly; at the end you will see that $\Gamma_{rms}$ is not "conjured up" — it is the **inevitable product**
-> of the period average of the autocorrelation.
-
-### Step A: write down the two-time autocorrelation of the phase
-
-Starting from the phase integral of [P1] Eq.(11), define $g(\tau)\equiv\Gamma(\omega_0\tau)/q_{max}$ (folding the ISF and the
-normalization into a single weighting kernel), so that $\phi(t)=\int_{-\infty}^{t}g(\tau)\,i_n(\tau)\,d\tau$.
-To see the spectrum cleanly, however, we switch to the **time derivative of the phase** $\dot\phi$ (the instantaneous frequency perturbation), whose autocorrelation is more direct
-(the phase itself is a non-stationary random walk, see [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth);
-it is $\dot\phi$ that is cyclostationary-stationary). By the fundamental theorem of calculus:
-
-$$
-\dot\phi(t)=g(t)\,i_n(t)=\frac{\Gamma(\omega_0 t)}{q_{max}}\,i_n(t).
-$$
-
-This is a **multiplicative LTV**: the input white noise $i_n(t)$ is modulated pointwise by a **deterministic periodic weight** $g(t)$. Compute its
-**two-time autocorrelation**:
-
-$$
-R_{\dot\phi}(t,\,t+\tau)=\big\langle\dot\phi(t)\,\dot\phi(t+\tau)\big\rangle=g(t)\,g(t+\tau)\,\big\langle i_n(t)\,i_n(t+\tau)\big\rangle.
-$$
-
-- **Math used**: $g$ is a deterministic function (it can be pulled outside the expectation); only $i_n$ is random.
-- **The white-noise autocorrelation is a delta**: white noise at different instants is uncorrelated, $\langle i_n(t)i_n(t+\tau)\rangle=S_i\,\delta(\tau)$
-  (where $S_i=\overline{i_n^2}/\Delta f$ is its (two-sided) PSD, a constant). Substituting:
-
-$$
-R_{\dot\phi}(t,\,t+\tau)=g(t)\,g(t+\tau)\,S_i\,\delta(\tau).
-$$
-
-- **Key observation (cyclostationary)**: this autocorrelation **explicitly contains the absolute time $t$** (through $g(t)g(t+\tau)$),
-  and it repeats with period $T$ ($g$ is $T$-periodic) — exactly the defining feature of a **cyclostationary** process, **not** a stationary one.
-  You cannot apply Wiener-Khinchin directly; you must first period-average over $t$.
-- **Unit check**: $[g]=1/\text{C}$ ($\Gamma$ dimensionless $/q_{max}$), $[g^2 S_i\delta(\tau)]=
-  \text{C}^{-2}\cdot(\text{A}^2/\text{Hz})\cdot(1/\text{s})$. With $\delta(\tau)$ carrying $1/\text{s}$ and $\text{Hz}^{-1}=\text{s}$,
-  this reduces to $\text{C}^{-2}\text{A}^2=\text{s}^{-2}$, i.e. $[\dot\phi^2]=(\text{rad/s})^2$ ✓.
-
-### Step B: period-average over absolute time → stationarize the cyclostationary process
-
-The **time-averaged autocorrelation** of a cyclostationary process is defined by averaging over the absolute time $t$ over one period:
-
-$$
-\bar R_{\dot\phi}(\tau)=\frac{1}{T}\int_{0}^{T}R_{\dot\phi}(t,\,t+\tau)\,dt=\Big[\frac{1}{T}\int_{0}^{T}g(t)\,g(t+\tau)\,dt\Big]\,S_i\,\delta(\tau).
-$$
-
-The bracketed quantity is the **(deterministic, periodic) autocorrelation** of the weighting kernel $g$; denote it
-
-$$
-\bar g(\tau)\equiv\frac{1}{T}\int_{0}^{T}g(t)\,g(t+\tau)\,dt=\frac{1}{q_{max}^2}\cdot\frac{1}{T}\int_{0}^{T}\Gamma(\omega_0 t)\,\Gamma(\omega_0(t+\tau))\,dt.
-$$
-
-Because $\delta(\tau)$ is nonzero only at $\tau=0$, we **only need $\bar g(0)$**:
-
-$$
-\bar R_{\dot\phi}(\tau)=\bar g(0)\,S_i\,\delta(\tau),\qquad\bar g(0)=\frac{1}{q_{max}^2}\cdot\frac{1}{T}\int_{0}^{T}\Gamma^2(\omega_0 t)\,dt.
-$$
-
-- **Physics/math used**: averaging away the absolute time is the same as averaging the oscillator's sensitivity "at every phase within one period" —
-  exactly the standard "equivalent stationarization" maneuver for cyclostationary systems.
-- **$\Gamma_{rms}$ is about to emerge here**: $\dfrac{1}{T}\int_0^T\Gamma^2(\omega_0t)\,dt$ is precisely the **mean square** of the ISF.
-
-### Step C: expand with the ISF Fourier coefficients → $\sum c_n^2=2\Gamma_{rms}^2$ falls out naturally
-
-Substituting the Fourier series of $\Gamma$ ([P1] Eq.(12)) into that mean-square integral in $\bar g(0)$ produces $\sum c_n^2$ **all by itself**.
-First convert the mean-square integral into an integral over the phase $x=\omega_0 t$ ($dt=dx/\omega_0$; one period $t:0\to T$ corresponds to $x:0\to2\pi$):
-
-$$
-\frac{1}{T}\int_{0}^{T}\Gamma^2(\omega_0 t)\,dt=\frac{1}{2\pi}\int_{0}^{2\pi}\Gamma^2(x)\,dx.
-$$
-
-Insert $\Gamma(x)=\dfrac{c_0}{2}+\sum_{n\ge1}c_n\cos(nx+\theta_n)$ and square. Using the **orthogonality** of the trigonometric functions
-(cross-harmonic integrals vanish; same-harmonic $\int_0^{2\pi}\cos^2=\pi$; the DC term gives $\int_0^{2\pi}dx=2\pi$):
-
-$$
-\frac{1}{2\pi}\int_{0}^{2\pi}\Gamma^2(x)\,dx=\Big(\frac{c_0}{2}\Big)^2+\sum_{n=1}^{\infty}\frac{c_n^2}{2}=\frac{c_0^2}{4}+\frac12\sum_{n=1}^{\infty}c_n^2.
-$$
-
-Writing the DC part as the $n=0$ term and arranging it into "half of $\sum_{n\ge0}c_n^2$" form (the same bookkeeping as [P1] Eq.(20):
-the $c_0$ term carries coefficient $\tfrac14$, which equals $\tfrac12\cdot\tfrac12$ — i.e. $c_0^2$ is also folded into the $\tfrac12\sum$ with the
-DC half-weight restored), we get:
-
-$$
-\frac{1}{2\pi}\int_{0}^{2\pi}\Gamma^2(x)\,dx=\Gamma_{rms}^2,\qquad\text{where}\quad\Gamma_{rms}^2\equiv\frac{1}{2\pi}\int_0^{2\pi}\Gamma^2(x)\,dx.
-$$
-
-This is precisely the **definition** of $\Gamma_{rms}$. Now compare with the Parseval relation of [P1] Eq.(20) (note it uses $\tfrac1\pi$ rather than $\tfrac1{2\pi}$):
-
-$$
-\sum_{n=0}^{\infty}c_n^2=\frac{1}{\pi}\int_0^{2\pi}\Gamma^2(x)\,dx=2\cdot\frac{1}{2\pi}\int_0^{2\pi}\Gamma^2(x)\,dx=\boxed{\,2\,\Gamma_{rms}^2\,}.
-$$
-
-> **Note (DC half-weight)**: in this $\sum_{n=0}^{\infty}c_n^2$ the DC term enters as $c_0^2/2$ (half weight);
-> if you mistakenly use the full weight $c_0^2$, the sum exceeds $2\Gamma_{rms}^2$ by $c_0^2/2$. This is exactly Parseval's bookkeeping for a DC term written as $\tfrac{c_0}{2}$
-> (the first term of the $\Gamma$ series is written $\tfrac{c_0}{2}$; squared, it gives $\tfrac{c_0^2}{4}=\tfrac12\cdot\tfrac{c_0^2}{2}$),
-> see [rms_isf](/03_isf_core_theory/rms_isf) for details.
-
-**And so $\sum c_n^2=2\Gamma_{rms}^2$ drops naturally out of the period average of the autocorrelation** — no hand-tallied
-factor-8 bookkeeping of Step 3b required. The only difference is the factor of 2 from the "$\tfrac1\pi$ vs $\tfrac1{2\pi}$" Parseval convention, fully consistent with
-[rms_isf](/03_isf_core_theory/rms_isf). Hence
-
-$$
-\bar g(0)=\frac{1}{q_{max}^2}\cdot\Gamma_{rms}^2=\frac{\Gamma_{rms}^2}{q_{max}^2}.
-$$
-
-- **Physical meaning**: the strength of the time-averaged autocorrelation of $\dot\phi$ (the weight at $\tau=0$) is **proportional to $\Gamma_{rms}^2/q_{max}^2$** —
-  the effective gain with which the oscillator "stirs" white noise into phase is the ISF's mean square divided by $q_{max}^2$. All the details of the individual $c_n$ are
-  collected by Parseval into a single $\Gamma_{rms}$.
-
-### Step D: Wiener-Khinchin → phase spectrum $S_\phi\propto1/\Delta\omega^2$
-
-Now $\bar R_{\dot\phi}(\tau)=\dfrac{\Gamma_{rms}^2}{q_{max}^2}S_i\,\delta(\tau)$ is a stationary autocorrelation **depending only on $\tau$**,
-so we may safely apply **Wiener-Khinchin** (Fourier transform of the autocorrelation $=$ PSD):
-
-$$
-S_{\dot\phi}(\Delta\omega)=\int_{-\infty}^{\infty}\bar R_{\dot\phi}(\tau)\,e^{-j\Delta\omega\tau}\,d\tau=\frac{\Gamma_{rms}^2}{q_{max}^2}\,S_i\int_{-\infty}^{\infty}\delta(\tau)e^{-j\Delta\omega\tau}d\tau=\frac{\Gamma_{rms}^2}{q_{max}^2}\,S_i.
-$$
-
-The Fourier transform of $\delta$ is the constant $1$ — so **the spectrum of $\dot\phi$ (the instantaneous frequency perturbation) is white**, with strength
-$\Gamma_{rms}^2 S_i/q_{max}^2$. Final step: phase is the integral of frequency, and **integration in the frequency domain is division by $j\Delta\omega$**,
-so the power spectrum divides by $\Delta\omega^2$:
-
-$$
-S_\phi(\Delta\omega)=\frac{S_{\dot\phi}(\Delta\omega)}{\Delta\omega^2}=\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{S_i}{\Delta\omega^2}\qquad[\text{rad}^2/\text{Hz}].
-$$
-
-This is **verbatim identical** to the earlier "clean time-domain version" (the one in the factor-of-2 note), $S_\phi=\Gamma_{rms}^2S_i/(q_{max}^2(2\pi f)^2)$
-(with $\Delta\omega=2\pi f$).
-
-- **The rigorous origin of $1/f^2$**: this $1/\Delta\omega^2$ comes **entirely from "the one integration $\dot\phi\to\phi$"**
-  (the $1/(j\Delta\omega)$ filter) — word for word the physical intuition at the top of this page, only now it is proven rigorously via Wiener-Khinchin
-  rather than assembled from hand-computed sidebands.
-- **The role of the white spectrum**: $\dot\phi$ is white; only $\phi$ is $1/f^2$ — which also explains why the phase is a random walk
-  (the integral of white frequency perturbations $=$ a Wiener process), exactly the starting point of the Lorentzian on the next page.
-
-### Rigorous vs heuristic: side-by-side table
-
-| Item | Heuristic (Step 3, [P1]'s original route) | Rigorous (this section, cyclostationary autocorrelation) |
-|---|---|---|
-| Starting point | white noise $=$ countless independent tones | two-time autocorrelation of $\dot\phi=g(t)i_n(t)$ |
-| Stationarization | implicit in the "sum over $n$" | explicit period average over absolute time $t$ |
-| Origin of $\Gamma_{rms}$ | Parseval substituted by hand (Eq.20) | generated naturally by the period-average integral $\tfrac1{2\pi}\int\Gamma^2$ |
-| $\sum c_n^2=2\Gamma_{rms}^2$ | applied externally | falls out of the autocorrelation $\bar g(0)$ |
-| Origin of $1/\Delta\omega^2$ | the $1/\Delta\omega^2$ of single-tone sidebands | the $1/(j\Delta\omega)$ of the $\dot\phi\to\phi$ integration |
-| Obtaining the spectrum | accumulating sideband powers | Wiener-Khinchin (FT of the autocorrelation) |
-| factor-of-2 | SSB bookkeeping ($/4$) | clean time-domain ($/2$); same factor-2 gap as noted |
-
-> **Summary**: the rigorous version wields three tools — "cyclostationary autocorrelation → period average → Wiener-Khinchin" — turning both $\Gamma_{rms}$
-> and $1/f^2$ into **mechanical inevitabilities**. $\sum c_n^2=2\Gamma_{rms}^2$ is no coincidence, but the Parseval incarnation of the
-> ISF's mean square. This autocorrelation machinery is also precisely the entry point of the next page, [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth):
-> there, "$\dot\phi$ white ⇒ $\phi$ is a random walk" is pushed to its conclusion, yielding the **carrier autocorrelation
-> $R_x(\tau)=\tfrac12\cos(\omega_0\tau)e^{-D|\tau|}$**, and Wiener-Khinchin then produces the **Lorentzian** —
-> resolving the spurious divergence of $1/f^2$ as $\Delta\omega\to0$. The $S_\phi=\Gamma_{rms}^2S_i/(q_{max}^2\Delta\omega^2)$ computed in this section
-> is exactly the source of $D=\Gamma_{rms}^2S_i/(4q_{max}^2)$ there (this site's single-sided bookkeeping is $S_\phi=4D/\Delta\omega^2$, two-sided
-> $2D/\Delta\omega^2$; corrected in v5, reconciliation in [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)).
+> **Rigorous re-derivation from scratch**: Step 3 above follows the "white noise $=$ superposition of tones" heuristic route; if you want to see the same
+> result re-derived from scratch with the **rigorous machinery of signals and systems** (the two-time autocorrelation of the LTV phase → period-averaging
+> over absolute time to stationarize the cyclostationary process → the Wiener-Khinchin theorem for the spectrum) — letting $\sum c_n^2=2\Gamma_{rms}^2$
+> **fall out of the autocorrelation by itself**, with no hand-tallied factor-8 bookkeeping — see the appendix
+> [derivation_autocorrelation_wiener_khinchin](/99_appendix/derivation_autocorrelation_wiener_khinchin).
 
 ## The relation between $S_\phi(f)$ and $\mathcal{L}(\Delta f)$ (dBc/Hz intuition)
 
@@ -609,136 +448,10 @@ print(round(L, 1), "dBc/Hz")   # -> -145.0 dBc/Hz
 (Both problems use Eq.(21) in the SSB $/4$ convention; with this site's lab_06 clean time-domain $/2$ version, each gains another $+3$ dB — see the factor-of-2 note above.
 Full libraries: `simulations/common/noise_utils.py`, `simulations/common/isf_utils.py`.)
 
-> **Example 3 (adding two noise sources)**: A real oscillator is never driven by just one noise source.
-> This example demonstrates **multi-source superposition** — two independent white-noise sources hitting
-> the same ideal-LC node at once. How do we combine them into a total phase noise?
-
-**Problem setup.** Reuse the oscillator parameters from Example 1 ($f_0=5$ GHz, $\Delta f=1$ MHz, $q_{max}=1$ pC).
-Superpose two statistically independent white-noise current sources on the node:
-
-- **Device A** (e.g. the main transconductor, which sees the full ISF): $\Gamma_{A,rms}=0.5$, $S_{i,A}=\overline{i_{n,A}^2}/\Delta f=1\times10^{-24}\ \text{A}^2/\text{Hz}$.
-- **Device B** (a tail-current-source-type device, which only contributes noise during part of the cycle
-  because of cyclostationary gating — see [effective_isf](/03_isf_core_theory/effective_isf) and
-  $\Gamma_{eff}=\Gamma\alpha$): effective $\Gamma_{eff,B,rms}=0.25$ (half of A's — an illustrative value),
-  but with larger current-noise power $S_{i,B}=4\times10^{-24}\ \text{A}^2/\text{Hz}$ (e.g. a device biased with a larger current).
-
-The two are **distinct physical noise sources and are independent** (uncorrelated), so the question is:
-what is the combined $\mathcal{L}_{total}(1\text{MHz})$?
-
-**Step 0: why independent sources add in $S_\phi$ (power), not in dB.** Each noise source is separately
-weighted by its (possibly different) ISF and independently integrated into a phase perturbation
-$\phi_A(t)$, $\phi_B(t)$ (see [P1] Eq.(11)); the total excess phase at the node is the linear superposition
-$\phi(t)=\phi_A(t)+\phi_B(t)$. For independent (uncorrelated) random processes, the variance/power spectral
-density adds and the cross term has zero expectation:
-
-$$
-S_{\phi,total}(\Delta\omega)=\big\langle(\phi_A+\phi_B)(\phi_A+\phi_B)\big\rangle_{\text{spectrum}}=S_{\phi,A}(\Delta\omega)+S_{\phi,B}(\Delta\omega)+\underbrace{2\,\text{Re}\langle\phi_A\phi_B^*\rangle}_{=0\ (\text{independent})}.
-$$
-
-**This is the "one-line rule" for this problem: independent sources add in $S_\phi$ (linear power) —
-you must never add or average two dBc/Hz numbers directly.** You have to convert each back to linear,
-add, and only then take a single $10\log_{10}$.
-
-**Step 1: compute Device A alone (same recipe as Example 1, using [P1] Eq.(21)).**
-
-$$
-\mathcal{L}_A=10\log_{10}\!\left(\frac{\Gamma_{A,rms}^2}{q_{max}^2}\cdot\frac{S_{i,A}}{4\,\Delta\omega^2}\right),\qquad \Delta\omega=2\pi\times10^6=6.283\times10^6\ \text{rad/s},\ \Delta\omega^2=3.948\times10^{13}.
-$$
-
-$$
-\frac{\Gamma_{A,rms}^2}{q_{max}^2}=\frac{0.25}{10^{-24}}=2.5\times10^{23}\ \text{C}^{-2},\qquad
-\frac{S_{i,A}}{4\Delta\omega^2}=\frac{10^{-24}}{1.579\times10^{14}}=6.332\times10^{-39}.
-$$
-
-Linear value inside the parentheses: $\ell_A=2.5\times10^{23}\times6.332\times10^{-39}=1.583\times10^{-15}$,
-so $\mathcal{L}_A=10\log_{10}(1.583\times10^{-15})\approx-148.0\ \text{dBc/Hz}$ (matches Example 1 — same parameters).
-
-**Step 2: compute Device B alone (same formula, with $\Gamma\to\Gamma_{eff,B,rms}$, $S_i\to S_{i,B}$).**
-
-$$
-\frac{\Gamma_{eff,B,rms}^2}{q_{max}^2}=\frac{0.25^2}{10^{-24}}=\frac{0.0625}{10^{-24}}=6.25\times10^{22}\ \text{C}^{-2},\qquad
-\frac{S_{i,B}}{4\Delta\omega^2}=\frac{4\times10^{-24}}{1.579\times10^{14}}=2.533\times10^{-38}.
-$$
-
-Linear value: $\ell_B=6.25\times10^{22}\times2.533\times10^{-38}=1.583\times10^{-15}$,
-so $\mathcal{L}_B=10\log_{10}(1.583\times10^{-15})\approx-148.0\ \text{dBc/Hz}$.
-
-**"You'd think A dominates — it doesn't"**: at first glance $\Gamma_{eff,B,rms}=0.25$ is only half of
-$\Gamma_{A,rms}=0.5$, so intuition suggests Device B's ISF-weight term $\Gamma_{eff,B,rms}^2/q_{max}^2$ is
-$4\times$ smaller ($-6$ dB) and B should be completely swamped by A and safely ignored.
-**But Device B's current noise $S_{i,B}$ happens to be exactly $4\times$ larger** ($+6$ dB) — the two
-$\pm6$ dB effects exactly cancel, giving $\mathcal{L}_A=\mathcal{L}_B\approx-148.0$ dBc/Hz: **B is just as
-strong as A and contributes equally — it cannot be neglected.** This is exactly the trap you fall into by
-judging a noise source's contribution from $\Gamma_{rms}$ alone: what actually sets the contribution is the
-product $\Gamma_{rms}^2\cdot S_i$, and both factors must be considered together.
-
-**Step 3: power-sum (add in the linear domain, not in dB).**
-
-$$
-\mathcal{L}_{total}=10\log_{10}\big(\ell_A+\ell_B\big)=10\log_{10}\big(1.583\times10^{-15}+1.583\times10^{-15}\big)=10\log_{10}(3.166\times10^{-15}).
-$$
-
-Cross-check with the equivalent "dB-domain power-combining formula" (convert each back to linear via
-$10^{L/10}$, add, then take a single $10\log_{10}$):
-
-$$
-\mathcal{L}_{total}=10\log_{10}\!\Big(10^{\mathcal{L}_A/10}+10^{\mathcal{L}_B/10}\Big)=10\log_{10}\!\Big(10^{-148.0/10}+10^{-148.0/10}\Big).
-$$
-
-**Result:** $\mathcal{L}_{total}(1\,\text{MHz})\approx-145.0\ \text{dBc/Hz}$.
-
-- **What just happened arithmetically**: $A$ and $B$ have equal power, so together they give exactly
-  **twice the power** $\Rightarrow 10\log_{10}2\approx3.01$ dB, so $\mathcal{L}_{total}\approx\mathcal{L}_A+3.0\ \text{dB}=-148.0+3.0=-145.0$ dBc/Hz.
-  Device B's contribution to the total noise, expressed as "how much worse than A alone," is
-  **X = 3.0 dB** — not the 0 dB you'd wrongly conclude by reasoning that "$\Gamma_{eff,B,rms}$ is only half" and therefore negligible.
-- **One-line rule (memorize this)**: **uncorrelated (independent) noise sources add in $S_\phi$/power —
-  never add dBc/Hz numbers directly, and never average them.** Two equal-power sources combine to
-  $\times2=+3.0$ dB, not $+6$ dB (that would only happen for coherent/voltage-amplitude addition; white-noise
-  sources here are uncorrelated).
-
-**Dimension check:** $\ell_A$ and $\ell_B$ each have the form $\Gamma_{rms}^2/q_{max}^2\cdot S_i/(4\Delta\omega^2)$,
-just as in Examples 1 and 2, and both reduce to $\text{s}$ (per-Hz, see the dimension check in Example 1) —
-only quantities with the same dimension may be added; the sum is still $\text{s}$, and after $10\log_{10}$ it reads as dBc/Hz ✓.
-
-```python
-import numpy as np
-
-qmax = 1e-12                       # C
-dw = 2*np.pi*1e6                   # rad/s (offset Δf = 1 MHz)
-
-# Device A: main transconductor, sees the full ISF
-gamma_A, Si_A = 0.5, 1e-24         # (–, A^2/Hz)
-# Device B: tail device; smaller effective Gamma_eff,rms after cyclostationary gating, but larger current noise
-gamma_effB, Si_B = 0.25, 4e-24     # (–, A^2/Hz)
-
-def bracket(gamma_rms, Si, qmax, dw):
-    return (gamma_rms**2 / qmax**2) * (Si / (4 * dw**2))   # linear value inside [P1] Eq.(21)
-
-ell_A = bracket(gamma_A, Si_A, qmax, dw)
-ell_B = bracket(gamma_effB, Si_B, qmax, dw)
-L_A = 10*np.log10(ell_A)
-L_B = 10*np.log10(ell_B)
-print(round(L_A, 1), "dBc/Hz  (A alone)")   # -> -148.0 dBc/Hz
-print(round(L_B, 1), "dBc/Hz  (B alone)")   # -> -148.0 dBc/Hz
-
-# Correct approach: sum the power (linear S_phi), then take one log; never add two dB numbers
-L_total_via_linear = 10*np.log10(ell_A + ell_B)
-L_total_via_powersum = 10*np.log10(10**(L_A/10) + 10**(L_B/10))   # equivalent form, for cross-check
-print(round(L_total_via_linear, 1), "dBc/Hz  (A+B power-summed)")     # -> -145.0 dBc/Hz
-print(round(L_total_via_powersum, 1), "dBc/Hz  (cross-check)")        # -> -145.0 dBc/Hz
-
-X_dB = L_total_via_linear - L_A   # degradation contributed by B: here A and B contribute equally
-print(round(X_dB, 1), "dB  (B's contribution, even though Gamma_eff,B,rms is only half of Gamma_A,rms)")  # -> 3.0 dB
-```
-
-(This example continues the [P1] Eq.(21) SSB $/4$ convention; both sources use the same formula, each with
-its own $\Gamma_{rms}$ (or $\Gamma_{eff,rms}$) and $S_i$, and are summed in **power**. Using the lab_06 clean
-time-domain $/2$ version instead would shift $\mathcal{L}_A$, $\mathcal{L}_B$, and $\mathcal{L}_{total}$ all
-up by $3$ dB together — leaving the **3.0 dB gap between them unchanged**. This echoes the factor-of-2 note
-above: the constant convention does not affect scaling/relative relationships. The full rule for multi-source
-superposition and the derivation of the cyclostationary $\Gamma_{eff}$ are in
-[effective_isf](/03_isf_core_theory/effective_isf); full libraries: `simulations/common/noise_utils.py`,
-`simulations/common/isf_utils.py`.)
+> **Where Example 3 (adding two noise sources) moved to**: a real oscillator is never driven by just one noise source; the full worked example on
+> "multi-source superposition" (two independent white-noise sources combined, added in $S_\phi$ power rather than in dB) now lives in
+> [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)'s Worked examples, **Example E** — it reuses this page's Example 1
+> parameters and the logic is unchanged.
 
 ## Key takeaways
 
@@ -754,7 +467,9 @@ superposition and the derivation of the cyclostationary $\Gamma_{eff}$ are in
 
 - Upstream integral: [convolution_derivation](/03_isf_core_theory/convolution_derivation)
 - $\Gamma_{rms}$ and Parseval: [rms_isf](/03_isf_core_theory/rms_isf)
+- Rigorous re-derivation from scratch via autocorrelation / Wiener-Khinchin: [derivation_autocorrelation_wiener_khinchin](/99_appendix/derivation_autocorrelation_wiener_khinchin)
 - Close-in $1/f^3$: [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)
 - Resolving the spurious divergence of $1/f^2$ as $\Delta f\to0$ (near-carrier Lorentzian, linewidth $D/\pi$): [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
 - Integrating $\mathcal{L}$ back into jitter: [numerical_feeling](/04_simulation_labs/numerical_feeling)
 - Simulation verification: [lab_06](/04_simulation_labs/lab_06_white_noise_phase_noise)
+- Multi-source superposition example (formerly Example 3): [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter), Worked examples, Example E

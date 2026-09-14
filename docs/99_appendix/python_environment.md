@@ -1,6 +1,6 @@
 ---
 title: Python 環境與模擬程式庫 Python Environment
-description: 如何建環境（Python 3.12、numpy/scipy/matplotlib、CJK 字型 Heiti TC）、目錄結構、跑 run_all_sims.py、common 模組與函式一覽、固定 rng seed 的 reproducibility。
+description: 如何建環境（Python 3.12、numpy/scipy/matplotlib、CJK 字型自動偵測）、目錄結構、跑 run_all_sims.py、common 七模組與函式一覽、固定 rng seed 的 reproducibility。
 ---
 
 # Python 環境與模擬程式庫 Python Environment
@@ -38,22 +38,39 @@ description: 如何建環境（Python 3.12、numpy/scipy/matplotlib、CJK 字型
 
 ---
 
-## 2. CJK 字型（Heiti TC）
+## 2. CJK 字型（自動偵測，非寫死）
 
-圖上有中文標籤（軸名、圖例），matplotlib 預設字型不含中文會出現「豆腐方塊」。本站在 macOS 上
-用系統內建的 **Heiti TC（黑體-繁）**：
+圖上有中文標籤（軸名、圖例），matplotlib 預設字型不含中文會出現「豆腐方塊」。本站**不是**寫死
+單一字型名稱，而是在 `simulations/common/plot_utils.py` 用 `matplotlib.font_manager` 掃描機器上
+**實際安裝**的字型，依偏好清單挑第一個存在的（`import` 在 `plot_utils.py:24`，掃描／挑選邏輯在
+`plot_utils.py:26–29`）：
 
 ```python
-import matplotlib.pyplot as plt
-plt.rcParams["font.family"] = "Heiti TC"     # 繁體中文字型 (macOS 內建)
-plt.rcParams["axes.unicode_minus"] = False    # 避免負號變方塊
+import matplotlib.font_manager as _fm
+
+_available = {f.name for f in _fm.fontManager.ttflist}
+_cjk_prefs = ["Heiti TC", "Arial Unicode MS", "STHeiti", "Hiragino Sans GB",
+              "Songti SC", "PingFang TC"]
+_cjk_font = next((f for f in _cjk_prefs if f in _available), None)
+
+plt.rcParams["font.family"] = ([_cjk_font] if _cjk_font else []) + ["DejaVu Sans", "sans-serif"]
+plt.rcParams["axes.unicode_minus"] = False
 ```
 
-- **`axes.unicode_minus=False`** 很關鍵：matplotlib 預設用 Unicode 減號 U+2212，很多字型缺這個
+- **`_available`**：`_fm.fontManager.ttflist` 是 matplotlib 啟動時掃到的所有已安裝字型物件；
+  取 `.name` 集合起來，就是「這台機器實際有的字型名稱」。
+- **`_cjk_prefs`**：6 個常見 macOS 中文字型的優先順序清單（Heiti TC、Arial Unicode MS、
+  STHeiti、Hiragino Sans GB、Songti SC、PingFang TC）。`_cjk_font = next(...)` 依序挑
+  **第一個「在偏好清單裡、且這台機器真的有」**的字型；六個都沒有就回傳 `None`。
+- **優雅降級（不是寫死 Heiti TC）**：`([_cjk_font] if _cjk_font else [])` 在找不到任何 CJK 字型
+  時變成空列表，`font.family` 就只剩 `["DejaVu Sans", "sans-serif"]`——matplotlib 內建、
+  不含 CJK glyph 的字型；此時圖仍會**正常產生**（不會噴例外），只是中文標籤會變成方塊。
+- **`axes.unicode_minus=False`** 仍然關鍵：matplotlib 預設用 Unicode 減號 U+2212，很多字型缺這個
   glyph，會讓「$-100$ dBc/Hz」的負號變方塊；設成 `False` 改用 ASCII 連字號就正常。
-- **非 macOS 平台**：把 `"Heiti TC"` 換成系統有的 CJK 字型（如 Linux 的 `"Noto Sans CJK TC"`、
-  Windows 的 `"Microsoft JhengHei"`）。`TODO: manual verification needed` —— 跨平台字型名稱請依
-  實際系統 `fc-list` 結果調整。
+- **非 macOS 平台**：`_cjk_prefs` 目前只列了 6 個 macOS 字型；在 Linux／Windows 上要讓中文標籤
+  正常顯示，把系統實際有的 CJK 字型（如 Linux 的 `Noto Sans CJK TC`、Windows 的
+  `Microsoft JhengHei`）加進 `_cjk_prefs` 清單最前面即可——探測邏輯會自動挑到它，不需要改
+  任何其他程式碼。
 
 ---
 
@@ -65,21 +82,28 @@ plt.rcParams["axes.unicode_minus"] = False    # 避免負號變方塊
 #     isf_utils.py            # ISF 形狀、傅立葉、impulse->phase
 #     noise_utils.py          # 噪訊產生、PSD、jitter 積分、dBc/Hz
 #     oscillator_models.py    # toy 振盪器、ISF 萃取、ring edge times
+#     pll_utils.py            # type-II PLL/CDR loop transfer（H_lp/H_hp）、loop 設計
+#     serdes_utils.py         # SerDes eye/BER（Q 函式、bathtub、眼圖 traces）
+#     signal_utils.py         # 通用訊號工具（time axis、Hilbert phase、zero-crossing、jitter 核）
+#     plot_utils.py           # 存圖到 static/figures/、CJK 字型自動偵測（見第 2 節）
 #   lab_01_sinusoidal_oscillator.py
-#   lab_02_lc_oscillator_isf.py
-#   lab_03_ring_oscillator_toy_model.py
-#   lab_04_impulse_injection_sweep.py
-#   lab_05_fourier_decomposition.py
+#   lab_02_lc_toy_model.py
+#   lab_03_ring_toy_model.py
+#   lab_04_impulse_sweep.py
+#   lab_05_fourier_isf.py
 #   lab_06_white_noise_phase_noise.py
-#   lab_07_flicker_upconversion.py
+#   lab_07_flicker_noise.py
 #   lab_08_jitter_integration.py
+#   …共 52 個 lab_*.py / fig_*.py（42 個 lab_*、10 個 fig_*），完整清單見 figure_index
 # scripts/
-#   run_all_sims.py           # 一鍵重跑全部 lab，產生所有圖
+#   run_all_sims.py           # 一鍵重跑全部 lab_*.py + fig_*.py，產生所有圖
 # static/figures/             # 產出的 .png（網站用 /figures/<name>.png 引用）
 ```
 
-- **`common/`** 放可重用的核心函式，三個 lab 共用；**各 lab** 只負責「擺參數、呼叫 common、出圖」。
-  這樣公式只實作一次，任何 lab 改參數都用同一份權威實作。
+- **`common/`** 放可重用的核心函式，各 lab 共用；**各 lab** 只負責「擺參數、呼叫 common、出圖」。
+  這樣公式只實作一次，任何 lab 改參數都用同一份權威實作。`common/` 目前共 **7 個模組**
+  （`isf_utils`、`noise_utils`、`oscillator_models`、`pll_utils`、`serdes_utils`、
+  `signal_utils`、`plot_utils`），第 5 節逐一列出函式簽章。
 - **圖的輸出**一律落在 `static/figures/`，網站頁面用 `![alt](/figures/<name>.png)` 引用
   （見 [authoring spec 第 4 節] 的圖表清單）。
 
@@ -92,24 +116,30 @@ plt.rcParams["axes.unicode_minus"] = False    # 避免負號變方塊
 #   python scripts/run_all_sims.py
 ```
 
-`scripts/run_all_sims.py` 會依序跑 lab_01 ~ lab_08 的 `main()` / `fig_*()`，把全部 14 張 PNG
-重新產生到 `static/figures/`。要重現網站上的任何一張圖，這一行就夠。各圖對應的 script 與函式：
+`scripts/run_all_sims.py` 用 `glob.glob` 抓齊 `simulations/lab_*.py` 與 `simulations/fig_*.py`
+（`scripts/run_all_sims.py:24–25`），依序在各自的 subprocess 中執行，把全部圖重新產生到
+`static/figures/`；某一支腳本失敗不會中斷其他腳本，最後印出成敗總表。目前共
+**52 支**腳本（42 個 `lab_*.py` + 10 個 `fig_*.py`）→ **60 張** PNG。要重現網站上的任何一張圖，
+這一行就夠。
+
+下表是 **lab_01–08 示範子集**（8 個最基礎的 lab，對應第 7 節一行驗算與 canonical 例 A/B/C）；
+完整 52 支腳本 × 60 張圖的對照見 [figure_index](/01_paper_map/figure_index)。
 
 | 圖檔 | script | function |
 |---|---|---|
 | `limit_cycle_phase_amplitude.png` | `lab_01_sinusoidal_oscillator.py` | `fig_limit_cycle` |
 | `waveform_with_impulse_markers.png` | `lab_01_sinusoidal_oscillator.py` | `fig_impulse_markers` |
-| `lc_waveform_and_isf.png` | `lab_02_lc_oscillator_isf.py` | `main` |
-| `ring_oscillator_timing_noise_accumulation.png` | `lab_03_ring_oscillator_toy_model.py` | `fig_accumulation` |
-| `lc_vs_ring_isf_comparison.png` | `lab_03_ring_oscillator_toy_model.py` | `fig_lc_vs_ring_isf` |
-| `sinusoidal_impulse_phase_sweep.png` | `lab_04_impulse_injection_sweep.py` | `fig_isf_sweep` |
-| `isf_impulse_sweep_sinusoidal.png` | `lab_04_impulse_injection_sweep.py` | `fig_isf_sweep` |
-| `lti_vs_ltv_impulse_response.png` | `lab_04_impulse_injection_sweep.py` | `fig_lti_vs_ltv` |
-| `isf_fourier_reconstruction.png` | `lab_05_fourier_decomposition.py` | `fig_reconstruction` |
-| `isf_fourier_coefficients.png` | `lab_05_fourier_decomposition.py` | `fig_coefficients` |
-| `symmetric_vs_asymmetric_isf_c0.png` | `lab_05_fourier_decomposition.py` | `fig_symmetric_vs_asymmetric` |
+| `lc_waveform_and_isf.png` | `lab_02_lc_toy_model.py` | `main` |
+| `ring_oscillator_timing_noise_accumulation.png` | `lab_03_ring_toy_model.py` | `fig_accumulation` |
+| `lc_vs_ring_isf_comparison.png` | `lab_03_ring_toy_model.py` | `fig_lc_vs_ring_isf` |
+| `sinusoidal_impulse_phase_sweep.png` | `lab_04_impulse_sweep.py` | `fig_isf_sweep` |
+| `isf_impulse_sweep_sinusoidal.png` | `lab_04_impulse_sweep.py` | `fig_isf_sweep` |
+| `lti_vs_ltv_impulse_response.png` | `lab_04_impulse_sweep.py` | `fig_lti_vs_ltv` |
+| `isf_fourier_reconstruction.png` | `lab_05_fourier_isf.py` | `fig_reconstruction` |
+| `isf_fourier_coefficients.png` | `lab_05_fourier_isf.py` | `fig_coefficients` |
+| `symmetric_vs_asymmetric_isf_c0.png` | `lab_05_fourier_isf.py` | `fig_symmetric_vs_asymmetric` |
 | `white_noise_phase_noise_psd.png` | `lab_06_white_noise_phase_noise.py` | `main` |
-| `flicker_upconversion_symmetric_vs_asymmetric.png` | `lab_07_flicker_upconversion.py` | `main` |
+| `flicker_upconversion_symmetric_vs_asymmetric.png` | `lab_07_flicker_noise.py` | `main` |
 | `phase_noise_to_jitter_integration.png` | `lab_08_jitter_integration.py` | `main` |
 
 ---
@@ -169,6 +199,56 @@ plt.rcParams["axes.unicode_minus"] = False    # 避免負號變方塊
 
 > 全部都是 **toy / 概念模型**（toy model，非 transistor-level）。它們重現的是**公式的行為與
 > scaling**，不是真實電晶體電路的精確數值。
+
+### 5.4 `simulations/common/pll_utils.py` —— type-II PLL/CDR loop transfer
+
+| 函式 | 簽章 | 做什麼 | 對應公式 |
+|---|---|---|---|
+| `loop_natural_freq` | `loop_natural_freq(fn_hz)` | $\omega_n=2\pi f_n$（Hz→rad/s 的小工具） | — |
+| `H_lowpass_mag2` | `H_lowpass_mag2(f, fn_hz, zeta=0.707)` | $\lvert H_{lp}(j2\pi f)\rvert^2$（reference→output） | 規範 10.2 PLL 公式 |
+| `H_highpass_mag2` | `H_highpass_mag2(f, fn_hz, zeta=0.707)` | $\lvert H_{hp}\rvert^2=\lvert1-H_{lp}\rvert^2$（VCO→output） | 規範 10.2 PLL 公式 |
+| `shape_output_phase_noise` | `shape_output_phase_noise(f, S_ref, S_vco, fn_hz, zeta=0.707)` | $S_{out}=S_{ref}\lvert H_{lp}\rvert^2+S_{vco}\lvert H_{hp}\rvert^2$，回傳 `(S_out, S_ref_shaped, S_vco_shaped)` | 規範 10.3 PLL 雜訊預算 |
+| `design_type2` | `design_type2(fn, zeta, N, Kvco, Icp)` | charge-pump type-II 2nd-order loop 的 $(R,C)$ 反推（`Kvco` 站內慣例為 **Hz/V**，函式內部乘 $2\pi$） | 開迴路 $G(s)=\omega_n^2(1+sRC)/s^2$ |
+
+對應頁：[pll_noise_budget](/06_design_insights/pll_noise_budget)、
+[pll_cdr_jitter_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer)、
+[cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol)。
+
+### 5.5 `simulations/common/serdes_utils.py` —— SerDes 眼圖與 BER
+
+| 函式 | 簽章 | 做什麼 | 對應公式 |
+|---|---|---|---|
+| `Q` | `Q(x)` | 高斯尾機率 $Q(x)=\tfrac12\,\mathrm{erfc}(x/\sqrt2)$ | 規範 10.2 SerDes BER |
+| `ber_bathtub` | `ber_bathtub(t_offsets, sigma_t, ui)` | RJ-only 的取樣時刻 vs BER（浴缸曲線），$\text{BER}(t)=\tfrac12[Q(\tfrac{UI/2-t}{\sigma_t})+Q(\tfrac{UI/2+t}{\sigma_t})]$，回傳值下限裁到 $10^{-300}$ 方便取 log | 規範 10.2 SerDes BER |
+| `eye_traces` | `eye_traces(sigma_t, ui, n_traces=400, n_pts=200, rng=None)` | 產生疊圖用的 NRZ 眼圖 traces（每條 trace 的 edge 加 $N(0,\sigma_t)$ 抖動），回傳 `(t_axis, traces)` | 眼圖視覺化（僅 RJ，無 ISI/DJ） |
+
+對應頁：[serdes_eye_ber_bathtub](/04_simulation_labs/lab_12_serdes_eye_ber)。
+
+### 5.6 `simulations/common/signal_utils.py` —— 通用訊號工具
+
+| 函式 | 簽章 | 做什麼 | 對應公式 |
+|---|---|---|---|
+| `time_axis` | `time_axis(fs, duration)` | $[0,\text{duration})$、取樣率 $f_s$ 的均勻時間向量，回傳 `(t, dt)` | — |
+| `instantaneous_phase` | `instantaneous_phase(x, analytic=True)` | 用 Hilbert transform（解析訊號）估瞬時（已展開）相位 | [P1] Eq.(1) 的數值萃取 |
+| `zero_crossings_rising` | `zero_crossings_rising(x, t)` | 內插求上升零交越時刻 | ring edge 偵測 |
+| `period_jitter` | `period_jitter(edge_times, T_nominal)` | period jitter：$T_k-T_{nominal}$ | 規範第 2 節 period jitter 定義 |
+| `cycle_to_cycle_jitter` | `cycle_to_cycle_jitter(edge_times)` | cycle-to-cycle jitter：$T_{k+1}-T_k$ | 規範第 2 節 cycle-to-cycle 定義 |
+| `db10` | `db10(x)` | $10\log_{10}x$（含下限避免 $-\infty$） | — |
+| `db20` | `db20(x)` | $20\log_{10}\lvert x\rvert$（含下限避免 $-\infty$） | — |
+
+對應頁：[jitter_kernels](/02_foundations/jitter_kernels)、
+[psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter)。
+
+### 5.7 `simulations/common/plot_utils.py` —— 存圖與 CJK 字型
+
+| 函式 | 簽章 | 做什麼 |
+|---|---|---|
+| `figure_path` | `figure_path(name)` | 回傳 `static/figures/<name>` 的絕對路徑（自動補 `.png`、確保目錄存在） |
+| `savefig` | `savefig(fig, name, verbose=True)` | 把 `fig` 存到 `figure_path(name)`、`plt.close(fig)`、印出相對路徑 |
+
+模組載入時即執行第 2 節說明的 CJK 字型自動偵測（`_cjk_prefs` → `_cjk_font` → 設定
+`plt.rcParams["font.family"]`），所有 lab/fig script 只要 `from simulations.common.plot_utils
+import savefig` 就會套用同一套字型與版面風格（`figure.dpi=120`、`axes.grid=True` 等）。
 
 ---
 
@@ -245,9 +325,12 @@ repo 目錄樹內任何位置執行（每本 notebook 的 setup cell 會自動�
 
 ## 重點回顧
 
-- Python 3.12 + `numpy`/`scipy`/`matplotlib`，CJK 用 `Heiti TC` 並關閉 `unicode_minus`。
-- `common/` 三模組（`isf_utils`、`noise_utils`、`oscillator_models`）放權威實作；各 lab 只擺參數。
-- `python scripts/run_all_sims.py` 一鍵重產 14 張圖到 `static/figures/`。
+- Python 3.12 + `numpy`/`scipy`/`matplotlib`，CJK 字型用 `plot_utils.py` 的 `_cjk_prefs` 清單
+  自動偵測（找不到就降級為 `DejaVu Sans`），並關閉 `unicode_minus`。
+- `common/` 七模組（`isf_utils`、`noise_utils`、`oscillator_models`、`pll_utils`、`serdes_utils`、
+  `signal_utils`、`plot_utils`）放權威實作；各 lab 只擺參數。
+- `python scripts/run_all_sims.py` 一鍵重產全部 **60 張**圖到 `static/figures/`
+  （來自 52 支 `lab_*.py`/`fig_*.py`）。
 - 全部是 toy model；用固定 `default_rng(seed)` 保證逐位元可重現。
 - 七個主線 lab 有可下載的 Jupyter notebook（第 8 節），由 `scripts/make_notebooks.py`
   自動產生（generated snapshot）。

@@ -93,7 +93,7 @@ $f_1=10^3$ Hz 到 $f_2=10^6$ Hz 的相位變異 $\sigma_\phi^2$ 與 $\sigma_\phi
   answer={-1}
   tol={0.02}
   unit="mrad"
-  hint="Γ(π/2) = −sin(π/2) = −1；Δφ = Γ×Δq/q_max，Δq/q_max = 10⁻³。"
+  hint="Γ(π/2) = −sin(π/2)；Δφ = Γ×Δq/q_max，Δq/q_max = 10⁻³。"
   solutionNote="Δφ_a = (−1)×10⁻³ rad = −1 mrad。峰值 θ=0 處則 Δφ_b = 0（Γ=0）。詳見下方習題 5 解答。"
 />
 

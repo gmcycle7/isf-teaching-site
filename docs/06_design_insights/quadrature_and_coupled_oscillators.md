@@ -7,13 +7,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # Quadrature 產生與 coupled-oscillator phase noise
 
-> **本頁定位（先講清楚）**：這是一頁**進階（advanced）**設計頁。它把「怎麼生出一對相位差
-> $90^\circ$ 的時脈（**quadrature**，正交，即 I/Q）」這個 SerDes／收發機天天要面對的需求，
-> 放回本站既有的 **ISF + 廣義 Adler** 機器裡解釋。**前置（prerequisite）**：先讀懂
-> [P1] 的 ISF（[isf_definition](/03_isf_core_theory/isf_definition)、[effective_isf](/03_isf_core_theory/effective_isf)）、
-> [P3] 的廣義 Adler 注入鎖定（[paper_003](/05_paper_deep_dives/paper_003_injection_locking_part1)），
-> 以及 [P4] 的 ILFD／頻率除法（[paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2)）。
-> 沒讀過這三頁，本頁的公式會看起來像憑空冒出來。
+> **先備**：[isf_definition](/03_isf_core_theory/isf_definition)、[effective_isf](/03_isf_core_theory/effective_isf)、[paper_003](/05_paper_deep_dives/paper_003_injection_locking_part1)、[paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2) ｜ **接下來**：[sampling_pll](/06_design_insights/sampling_pll)
 
 **quadrature（正交，相位差 $90^\circ$ 的一對訊號 I 與 Q）** 是現代收發機的基本元件：image-reject
 mixer（鏡像抑制混頻器）、單邊帶調變、half-rate（半速率）SerDes 的 4 相取樣、CDR 的相位偵測，
@@ -459,9 +453,10 @@ $1/(2\omega_L)=$ 1/(rad/s) $=$ s ✓。
   IEEE Trans. Circuits Syst. I, vol. 53, no. 7, pp. 1579–1588, Jul. 2006（及相關 parallel-vs-series
   QVCO 文獻）。（parallel vs series coupling 的 phase-noise 比較依據。卷期/頁碼已查證。）
 - **[E-Mirzaei-QVCO]** A. Mirzaei, M. E. Heidari, R. Bagheri, S. Chehrazi, A. A. Abidi, *"The Quadrature LC
-  Oscillator: A Complete Portrait Based on Injection Locking,"* IEEE J. Solid-State Circuits, 2007.
+  Oscillator: A Complete Portrait Based on Injection Locking,"* IEEE J. Solid-State Circuits, vol. 42,
+  no. 9, pp. 1916–1932, Sep. 2007, DOI 10.1109/JSSC.2007.903047.
   （把 QVCO 嚴格當成互注入鎖定來分析、陽春 parallel 耦合的 in-phase／quadrature 模式退化與耦合相移的角色；
-  第 4 節「數值驗證」第 3 點的依據。卷期/頁碼待查證。）
+  第 4 節「數值驗證」第 3 點的依據。卷期/頁碼已查證。）
 - **[E-Behbahani-PPF]** F. Behbahani, Y. Kishigami, J. Leete, A. A. Abidi, *"CMOS Mixers and Polyphase
   Filters for Large Image Rejection,"* IEEE JSSC, vol. 36, no. 6, pp. 873–887, Jun. 2001.
   （RC-CR polyphase filter 的設計與插損／頻寬權衡依據。卷期/頁碼已查證。）

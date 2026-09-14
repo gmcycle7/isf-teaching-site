@@ -4,6 +4,7 @@ description: RJ（無界高斯，來自 phase noise）與 DJ（有界：ISI、du
 ---
 
 import DualDiracFitter from "@site/src/components/DualDiracFitter";
+import NumericQuiz from "@site/src/components/NumericQuiz";
 
 # DJ 與 dual-Dirac 模型：TJ@BER 的業界標準工具
 
@@ -57,9 +58,13 @@ DJ 是 ISF 理論「看不見」的那一半（它不來自振盪器的隨機雜
 | **ISI**（inter-symbol interference，碼間干擾） | 通道頻寬有限、有記憶：edge 位置依賴前面的位元 pattern | 多支離散尖峰（每種 pattern 一支） | 通道脈衝響應長度有限 |
 | **DCD**（duty-cycle distortion，佔空比失真） | 上升/下降緣不對稱、threshold 偏移：上升緣系統性偏早、下降緣偏晚 | **恰好兩支 Dirac** | 不對稱量固定 |
 | **PJ/SJ**（periodic/sinusoidal jitter；電源 spur、串擾） | 電源漣波經 supply pushing 調變 VCO（見 [varactor_tuning_supply_pushing](/06_design_insights/varactor_tuning_supply_pushing)）、鄰近時脈耦合 | arcsine（雙角）分布 | 弦波幅度固定 |
+| **PI 量化**（phase interpolator quantization，相位內插器量化） | $b$-bit 相位內插器把一個 UI 切成 $2^b$ 格，取樣/輸出相位只能落在格點上（推導見 [clock_chain_budget](/06_design_insights/clock_chain_budget) 規則 5） | 均勻分布（寬度 $UI/2^b$） | 格數固定，$\mathrm{DJ}_{pp}=UI/2^b$（額定下限；真實 DNL 會更大） |
 
 注意 **DCD 的 PDF 本來就是兩支 Dirac**——dual-Dirac 模型對它是**精確**的；
-模型的名字與形狀正是從這種「最壞情況形狀」來的。
+模型的名字與形狀正是從這種「最壞情況形狀」來的。**PI 量化的 PDF 是均勻分布**——既不是
+弦波的雙角、也不是 DCD 的兩點——是第三種常見的 DJ 形狀；$b=6$、$UI=40$ ps 時
+$\mathrm{DJ}_{pp}=UI/2^6=0.625$ ps（[clock_chain_budget](/06_design_insights/clock_chain_budget)
+規則 5 的完整推導與 `# ->` 驗證）。
 
 **弦波 DJ 的 PDF（arcsine 分布），逐步推導。** 這是 lab_31 用的 DJ，也是電源 spur 的標準模型。
 設 edge 的時間偏移 $x=A\sin\theta$，$A$ 為幅度（單位 s），spur 與資料不同步，
@@ -349,6 +354,33 @@ $[10^{-6},10^{-9}]$）之間切換，即時看到 $\mathrm{DJ}_{\delta\delta}$�
 
 <DualDiracFitter />
 
+<NumericQuiz
+  prompt="維持 explorer 預設值（σ = 1.0 ps、A = 2.0 ps），若直接用『真實』峰值 DJ_pp = 2A（不是擬合出的較保守 DJ_δδ）代入 TJ(BER) 外插公式，TJ@10⁻¹² 大約是多少？"
+  answer={18.07}
+  tol={0.01}
+  unit="ps"
+  hint="TJ = DJ_pp + 2·Q⁻¹(10⁻¹²)·σ = 2A + 2×7.034×σ。這是把 DJ 直接當峰值代入的寫法，跟第 8 步用擬合出的 DJ_δδ=3.16 ps 算出的 17.65 ps 不同——因為 DJ_δδ ≤ DJ_pp（見第 7 步『誠實聲明』）。"
+  solutionNote="TJ@1e-12 = 2×2.0 + 2×7.034×1.0 = 4.0 + 14.068 = 18.07 ps。比第 8 步用擬合 DJ_δδ 算出的 17.65 ps 略大——這裡用了未經擬合折算的峰值 DJ_pp，呼應第 7 步『DJ_δδ ≤ DJ_pp，而且低報是故意的』的誠實聲明：直接用峰值代入會比實際更保守（TJ 估得更大）。"
+/>
+
+<details>
+<summary><strong>驗證：TJ@1e-12 的峰值估計</strong>（對照 DualDiracFitter.js 的預設值與 Q_INV_1E12 常數）</summary>
+
+```python
+# widget 預設值：sigma_ps=1.0, A_ps=2.0（DualDiracFitter.js:201-203）；
+# Q_INV_1E12 = 7.034（DualDiracFitter.js 常數，對應本頁第 3 步）。
+sigma_ps = 1.0
+A_ps = 2.0
+Q_INV_1E12 = 7.034
+
+DJ_pp_ps = 2 * A_ps                                   # 真實峰對峰 DJ（不是擬合出的 DJ_dd）
+tj_ps = DJ_pp_ps + 2 * Q_INV_1E12 * sigma_ps          # TJ(BER) 公式（第 6 步），用 DJ_pp 取代 DJ_dd
+print("DJ_pp =", DJ_pp_ps, "ps")
+print("TJ@1e-12 =", round(tj_ps, 2), "ps")            # -> 18.07
+```
+
+</details>
+
 一行式驗證（引用 lab_31 的真實函式；跑一次約數秒）：
 
 ```python
@@ -475,3 +507,4 @@ print("L(1MHz) max =", round(-100 + dL, 1), "dBc/Hz")      # -> -96.0
 - RJ 為何高斯（Monte-Carlo）：[lab_11_monte_carlo_jitter](/04_simulation_labs/lab_11_monte_carlo_jitter)
 - spur 與隨機 phase noise 的量測區分：[measurement_and_spurs](/06_design_insights/measurement_and_spurs)
 - 端到端 capstone（LC → phase noise → jitter → BER）：[capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)
+- PI 量化 DJ 與 DLL「沒有振盪器就不累積」的完整推導：[clock_chain_budget](/06_design_insights/clock_chain_budget) 規則 5

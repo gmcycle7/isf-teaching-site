@@ -12,7 +12,7 @@ SerDes clocking 設計直覺。**繁體中文**，保留必要英文專業詞。
 
 ![social card](static/img/social-card.png)
 
-**規模**：97 頁教學、56 張重現圖、49 個可重跑模擬、21 個互動工具、160 個可自動驗證的數值例題
+**規模**：102 頁教學、60 張重現圖、52 個可重跑模擬、21 個互動工具、211 個可自動驗證的數值例題
 （`scripts/verify_examples.py` 全綠）。
 
 技術棧：**Docusaurus 3 + MDX + KaTeX**（數學）＋ **Mermaid**（方塊圖）＋ Python (NumPy/SciPy/Matplotlib) 模擬。
@@ -45,7 +45,7 @@ npm run start          # 開發伺服器，預設 http://localhost:3000
 python scripts/run_all_sims.py
 ```
 
-會執行 `simulations/lab_*.py`，把所有圖輸出到 `static/figures/`（56 張）。
+會執行 `simulations/lab_*.py` + `fig_*.py`（52 支），把所有圖輸出到 `static/figures/`（60 張）。
 
 ## Build（產生靜態網站）
 
@@ -75,7 +75,7 @@ isf-teaching-site/
 │   ├── 01_paper_map/          # 論文地圖、公式/圖表索引、claims 交叉引用
 │   ├── 02_foundations/        # 振盪器相位、LTI vs LTV、雜訊基礎、PSD↔jitter
 │   ├── 03_isf_core_theory/    # ISF 定義、推導、Fourier、白噪/flicker、rms/effective ISF
-│   ├── 04_simulation_labs/    # 9 個模擬實驗 + numerical_feeling
+│   ├── 04_simulation_labs/    # 25 個頁面：21 個 lab_*.md（lab_01..lab_40，非連續編號）+ final_exam/interactive_calculator/numerical_feeling/worked_examples
 │   ├── 05_paper_deep_dives/   # 逐篇精讀（5 篇 PDF）
 │   ├── 06_design_insights/    # symmetry/slope/swing/LC vs ring/SerDes
 │   └── 99_appendix/           # 數學工具、Python 環境、glossary、references
@@ -85,8 +85,8 @@ isf-teaching-site/
 │   ├── extracted_equations.json / extracted_figures.json / extracted_claims.json
 │   └── _AUTHORING_SPEC.md      # 撰寫規範（不會被 build）
 ├── simulations/
-│   ├── common/                # signal/noise/oscillator/isf/plot 工具庫
-│   └── lab_01..lab_08.py       # 各模擬腳本
+│   ├── common/                # signal/noise/oscillator/isf/pll/serdes/plot 工具庫
+│   └── lab_01..lab_43.py（42 個，非連續編號，缺 lab_09）+ fig_*.py（10 個）= 52 個腳本
 ├── static/figures/            # 由模擬產生的 PNG（網站以 /figures/x.png 引用）
 └── scripts/
     ├── extract_papers.py       # 掃描 PDF、dump 純文字、產生 auto metadata

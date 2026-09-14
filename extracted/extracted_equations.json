@@ -5,7 +5,7 @@
       "concept": "impulse charge",
       "latex": "\\Delta q = \\int i(t)\\, dt",
       "final_or_step": "step",
-      "source_paper": "paper_001 (general.pdf), around Eq. (9), p.182",
+      "source_paper": "paper_001 (general.pdf), around Eq. (9), p.181",
       "derivation_page": "03_isf_core_theory/impulse_to_phase_shift",
       "manual_verification_needed": false
     },
@@ -13,7 +13,7 @@
       "concept": "charge to voltage step",
       "latex": "\\Delta V = \\dfrac{\\Delta q}{C_{node}}",
       "final_or_step": "step",
-      "source_paper": "paper_001, Eq. (9), p.182",
+      "source_paper": "paper_001, Eq. (9), p.181",
       "derivation_page": "03_isf_core_theory/impulse_to_phase_shift",
       "manual_verification_needed": false
     },
@@ -163,9 +163,9 @@
     },
     {
       "concept": "amplitude perturbation function (APF)",
-      "latex": "\\tilde\\Lambda\\ (\\text{APF}):\\ d(t,\\phi)=e^{-t/\\tau_0},\\ \\tau_0=\\frac{2Q}{\\omega_{osc}};\\quad \\tilde\\Gamma_1=\\tfrac{1}{q_{max}}\\angle90^\\circ,\\ \\tilde\\Lambda_1=\\tfrac{\\tau_0}{q_{max}}\\angle0^\\circ\\ (\\text{quadrature})",
+      "latex": "\\Delta(\\phi)=\\tau_0\\,\\tilde\\Lambda(\\phi)\\ (\\text{APF }\\Delta:\\ 1/\\text{A};\\ \\text{amplitude ISF }\\tilde\\Lambda:\\ 1/\\text{C}),\\ d(t,\\phi)=e^{-t/\\tau_0},\\ \\tau_0=\\frac{2Q}{\\omega_{osc}};\\quad \\tilde\\Gamma_1=\\tfrac{1}{q_{max}}\\angle90^\\circ,\\ \\Delta_1=\\tfrac{\\tau_0}{q_{max}}\\angle0^\\circ\\ (\\text{quadrature})",
       "final_or_step": "final (verified)",
-      "source_paper": "paper_004 (Hong Part II 2019), Eq.(25),(26),(27), p.2128 (verified verbatim)",
+      "source_paper": "paper_004 (Hong Part II 2019), Eq.(24),(25),(26),(27), p.2128 (verified verbatim; the APF carries no tilde — [P4] footnote 6, p.2126)",
       "derivation_page": "05_paper_deep_dives/paper_004_injection_locking_part2",
       "manual_verification_needed": false
     },

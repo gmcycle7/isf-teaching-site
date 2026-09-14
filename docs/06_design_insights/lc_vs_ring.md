@@ -163,7 +163,7 @@ $$
 $$
 
 - 兩份來源：**差動電晶體**（下標 $N$，指 NMOS 差動管）＋**負載電阻** $R_L$。$V_{char}$：
-  long-channel 平衡級為 $(V_{GS}-V_T)/\gamma$、short-channel 為 $E_cL/\gamma$（[P2] p.796 原文）。
+  long-channel 平衡級為 $(V_{GS}-V_T)/\gamma$、short-channel 為 $E_cL/\gamma$（[P2] p.796 原文）；短通道 $E_cL/\gamma$ 的來歷（Eq.(27)–(30)）與 Sec. VIII 實測對照見 [paper_002 Eq.(27)–(30) 節](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring)。
 - **單位檢查**：$4kT I_{tail}/V_{char}=[\text{J}][\text{A}]/[\text{V}]$；$[\text{J}]=[\text{V·A·s}]$，
   故 $=[\text{V·A·s·A/V}]=[\text{A}^2\text{·s}]=[\text{A}^2/\text{Hz}]$ ✓。
 - **$2N$ 個節點**：每級差動有**兩個**輸出節點，全環共 $2N$ 個 single-ended 節點；[P2] p.796

@@ -33,7 +33,7 @@ description: 一頁速查：核心公式、canonical 數值、單位換算、設
 | ring $\Gamma_{rms}$ | $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}\Rightarrow\Gamma_{rms}\propto N^{-3/2}$（$\eta=0.75$ 時 $\approx4/N^{1.5}$，即 [P2] Fig.8 實線；根號只含常數） | [P2] Eq.(16) |
 | ring FOM | $\mathcal{L}=\dfrac{8}{3\eta}\dfrac{kT}{P}\dfrac{V_{DD}}{V_{char}}\Big(\dfrac{f_0}{\Delta f}\Big)^2$（無 $N$！） | [P2] Eq.(23) |
 | 廣義 Adler | $\dfrac{d\theta}{dt}=(\omega_0-\omega_{inj})+\Omega(\theta)$，$\Omega=\langle\tilde\Gamma\,i_{inj}\rangle$ | [P3] Eq.(30)(33) |
-| APF / 振幅衰減 | $\tau_0=\dfrac{2Q}{\omega_{osc}}$，$\tilde\Lambda_1=\dfrac{\tau_0}{q_{max}}\angle0°$（與 ISF quadrature） | [P4] Eq.(25)(26) |
+| 振幅 ISF / APF / 振幅衰減 | $\tau_0=\dfrac{2Q}{\omega_{osc}}$，APF $\Delta=\tau_0\tilde\Lambda$（振幅 ISF $\tilde\Lambda$：1/C；APF $\Delta$：1/A，不帶 tilde），基波 $\Delta_1=\dfrac{\tau_0}{q_{max}}\angle0°$（與 ISF $\tilde\Gamma_1=\dfrac{1}{q_{max}}\angle90°$ 互成 quadrature） | [P4] Eq.(24)(25)(26) |
 
 ## Canonical 數值（全站一致）
 

@@ -126,7 +126,7 @@ $$
 
 Inject $\Delta q=0.5$ fC into node 1 at phase $\theta_j=j\cdot2\pi/24$; the equivalent
 voltage step
-([P1] Eq.(9), p.182):
+([P1] Eq.(9), p.181):
 
 $$
 \Delta V=\frac{\Delta q}{C_L}=\frac{0.5\ \text{fC}}{10\ \text{fF}}=0.05\ \text{V}.
@@ -331,7 +331,7 @@ moves $\Gamma$ by only 0.1%; period spread $10^{-8}$ ps. The numbers are trustwo
 ## 10. Mapping to paper equations/figures
 
 - **Operational ISF definition**: [P1] Eq.(10)–(11), p.182 together with
-  $\Delta V=\Delta q/C$ (Eq.(9), p.182)
+  $\Delta V=\Delta q/C$ (Eq.(9), p.181)
   — this lab's extraction procedure uses these two equations as the measurement instrument.
 - **Linearity premise**: [P1] Fig. 6, p.182 ($\Delta\phi\propto\Delta q$ for small charge;
   this lab verifies by

@@ -50,7 +50,7 @@ $$
 - Here $\mu=0$ (no amplitude restoration), corresponding to the "marginally stable ideal LC". In the simulations, to keep the
   trajectory cleanly on the ring, we use a small $\mu=0.3$ (weak restoration) in (a)(b), and $\mu=0$ in (c) to watch pure rotation.
 
-**Impulse → voltage step** ([P1] Eq.(9), p.182):
+**Impulse → voltage step** ([P1] Eq.(9), p.181):
 
 $$
 \Delta V=\frac{\Delta q}{C_{node}}.
@@ -192,7 +192,7 @@ To run: `python scripts/run_all_sims.py` or `python simulations/lab_02_lc_toy_mo
 
 ## 10. Corresponding paper equations / figures
 
-- **Charge → voltage step**: [P1] Eq.(9), p.182: $\Delta V=\Delta q/C_{node}$.
+- **Charge → voltage step**: [P1] Eq.(9), p.181: $\Delta V=\Delta q/C_{node}$.
 - **ISF impulse response and convolution**: [P1] Eq.(10),(11), p.182:
 
   
@@ -232,4 +232,4 @@ $$
 - $|\Gamma|$ magnitude = waveform slope: most sensitive at zero crossings ($\Gamma=-1$), insensitive at peaks ($\Gamma=0$).
 - In the small-signal regime $\Delta\phi=\Gamma\,\Delta q/q_{max}$; simulation confirms **linearity** with slope $-1$ ([P1] Fig. 6).
 - Zero-crossing injection = pure phase jump (state radius unchanged, phase permanently shifted).
-- Sources: [P1] Eq.(9),(10),(11), p.182; Fig. 4, 6, 7(a).
+- Sources: [P1] Eq.(9), p.181, Eqs.(10),(11), p.182; Fig. 4, 6, 7(a).

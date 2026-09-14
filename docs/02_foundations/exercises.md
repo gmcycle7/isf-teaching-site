@@ -32,6 +32,8 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 ### 習題 1（數值題）— phase ↔ time 換算
 
+*對應學習路徑：[第 3 步 — ISF 的操作型定義（impulse → phase）](/00_overview/learning_path#step-3)*
+
 一顆 $f_0=5$ GHz 的振盪器，某瞬間 excess phase 偏移 $\Delta\phi=5\times10^{-4}$ rad。
 求對應的 timing error $\Delta t$（fs），並把 $\Delta\phi$ 換成「度」。
 
@@ -45,10 +47,14 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 ### 習題 2（數值題）— rms jitter 由相位變異反推
 
+*對應學習路徑：[第 9 步 — 接到 SerDes clocking（jitter、eye、PLL/CDR）](/00_overview/learning_path#step-9)*
+
 已知某時鐘的 rms phase $\sigma_\phi=14.07$ mrad（在 1→100 MHz 積分頻段內），$f_0=5$ GHz。
 求 rms timing jitter $\sigma_t$（fs）。
 
 ### 習題 3（推導題 + 數值）— Parseval：由 ISF 算 $\Gamma_{rms}$ 與 $\sum c_n^2$
+
+*對應學習路徑：[第 6 步 — ISF 的傅立葉觀點（c₀、cₙ、upconversion）](/00_overview/learning_path#step-6)*
 
 理想 LC 振盪器的 ISF 是 $\Gamma(\theta)=-\sin\theta$。
 
@@ -56,6 +62,8 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 (b) 用 Parseval（規範公式 11）求 $\sum_{n=0}^{\infty}c_n^2$，並說明只有哪個 $c_n$ 非零。
 
 ### 習題 4（數值題）— PSD 積分得相位變異
+
+*對應學習路徑：[第 9 步 — 接到 SerDes clocking（jitter、eye、PLL/CDR）](/00_overview/learning_path#step-9)*
 
 某振盪器在 offset $f$ 的單邊 phase PSD 在 $1/f^2$ 區可寫成 $S_\phi(f)=\dfrac{K}{f^2}$，
 其中 $K=10^{-4}\ \text{rad}^2\cdot\text{Hz}$（即 $S_\phi(1\,\text{Hz})=10^{-4}$）。求積分頻段
@@ -71,6 +79,8 @@ $f_1=10^3$ Hz 到 $f_2=10^6$ Hz 的相位變異 $\sigma_\phi^2$ 與 $\sigma_\phi
 />
 
 ### 習題 5（概念 + 推導題）— LTI vs LTV：同 impulse、不同相位
+
+*對應學習路徑：[第 2 步 — noise 是小擾動，振盪器對它是 LTV 而非 LTI](/00_overview/learning_path#step-2)*
 
 理想 LC 的 ISF $\Gamma(\theta)=-\sin\theta$。同一顆 $\Delta q$ 的電荷脈衝，分別在
 (a) 波形**過零點**（zero-crossing，$\theta=\pi/2$，此處 $\cos$ 波形斜率最大、$-\sin$ 取極值）
@@ -89,6 +99,8 @@ $f_1=10^3$ Hz 到 $f_2=10^6$ Hz 的相位變異 $\sigma_\phi^2$ 與 $\sigma_\phi
 
 ### 習題 6（設計反推題）— Lorentzian 線寬反推 phase diffusion
 
+*對應學習路徑：[第 10 步 — 進階理論——從 κ 到線形](/00_overview/learning_path#step-10)*
+
 某自由運轉振盪器量到的載波 3-dB 線寬（FWHM）$\Delta f_{3\mathrm{dB}}=1$ kHz。
 
 (a) 反推 phase diffusion 係數 $D$（rad²/s）。
@@ -105,11 +117,15 @@ $f_1=10^3$ Hz 到 $f_2=10^6$ Hz 的相位變異 $\sigma_\phi^2$ 與 $\sigma_\phi
 
 ### 習題 7（概念 + 斜率判讀題）— Allan deviation 斜率
 
+*對應學習路徑：[第 10 步 — 進階理論——從 κ 到線形](/00_overview/learning_path#step-10)*
+
 在 log–log 的 Allan deviation 圖 $\sigma_y(\tau)$ 上量到三段不同斜率：
 $-1/2$、$0$、$+1/2$。分別對應哪一種 FM 雜訊型態？並說明為何「flicker FM」會在 ADEV 上
 形成一段**平台（floor）**。
 
 ### 習題 8（數值題）— 由 $\mathcal{L}(\Delta f)$ 換 $S_\phi$ 再換單音 jitter
+
+*對應學習路徑：[第 9 步 — 接到 SerDes clocking（jitter、eye、PLL/CDR）](/00_overview/learning_path#step-9)*
 
 某 spur-free 振盪器在 $\Delta f=1$ MHz 量到 $\mathcal{L}(1\,\text{MHz})=-120$ dBc/Hz。
 (a) 求該 offset 的 $S_\phi$（rad²/Hz）。

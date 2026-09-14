@@ -86,7 +86,7 @@ $$
 $$
 
 Write it in the standard perturbation form $\dot{\mathbf x}=A_0\mathbf x+B\,i_n$, where the **injection vector** $B=(1/C,\ 0)^T$ —
-the mathematical ID card of "a current through the capacitor becomes $\dot v$" (the differential version of [P1] Eq.(9), p.182, $\Delta V=\Delta q/C$).
+the mathematical ID card of "a current through the capacitor becomes $\dot v$" (the differential version of [P1] Eq.(9), p.181, $\Delta V=\Delta q/C$).
 
 - **Unit check (B)**: $[B\,i_n]=[\text{A}]/[\text{F}]=\text{V/s}$, same units as $\dot v$ ✓.
 
@@ -461,7 +461,7 @@ Collect all eight stations' "equation → number → source page/equation → di
 | Station | Object | Key expression | Canonical value | Units / dim check | Source page + equation |
 |---|---|---|---|---|---|
 | ① | LC state eqs | $\dot v=-i_L/C,\ \dot i_L=v/L$ | $\omega_0=1/\sqrt{LC}$ | $[\dot v]=\text{V/s}$, $[\dot i_L]=\text{A/s}$ ✓ | This page, Station ①; [lab_02](/04_simulation_labs/lab_02_lc_oscillator_toy_model) |
-| ① | noise injection | $\dot{\mathbf x}=A_0\mathbf x+B\,i_n,\ B=(1/C,0)^T$ | — | $[B i_n]=\text{V/s}$ ✓ | [P1] Eq.(9) p.182 |
+| ① | noise injection | $\dot{\mathbf x}=A_0\mathbf x+B\,i_n,\ B=(1/C,0)^T$ | — | $[B i_n]=\text{V/s}$ ✓ | [P1] Eq.(9) p.181 |
 | ② | Floquet phase direction | $\dot{\mathbf x}_s$ is a homogeneous solution, $\lambda_1=0$ | $\lambda_1=0$ (never decays) | $[\lambda]=1/\text{s}$ ✓ | [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv) ([E2] external) |
 | ③ | ISF | $\Gamma(\theta)=-\sin\theta$ | $\vert\Gamma\vert_{\max}=1$ @ zero crossing | $\Gamma$ dimensionless ✓ | [P1] Eq.(10)(11) p.182; [isf_definition](/03_isf_core_theory/isf_definition) |
 | ④ | $\Gamma_{rms}$ | $\Gamma_{rms}=\sqrt{\tfrac1{2\pi}\int\vert\Gamma\vert^2dx}$; $\;2\Gamma_{rms}^2=\sum c_n^2$ | $\Gamma_{rms}=1/\sqrt2=0.707$ | dimensionless ✓ | [P1] Eq.(20) p.185; [rms_isf](/03_isf_core_theory/rms_isf) |

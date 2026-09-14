@@ -1,6 +1,6 @@
 ---
 title: Leeson 模型推導與 ISF 對照
-description: 從 tank 熱雜訊、feedback、品質因數 Q 出發逐步建立 Leeson 經驗相位雜訊模型，再與 [P1] Eq.(21),(23),(24) 的 ISF 結果逐項對照（Q↔Γrms/qmax、F 經驗 vs ISF 物理、1/f³ corner），並嵌入 Leeson vs ISF 疊圖。明標 Leeson 1966 不在下載的 5 篇 PDF 內。
+description: 從 tank 熱雜訊、feedback、品質因數 Q 出發逐步建立 Leeson 經驗相位雜訊模型，再與 [P1] Eq.(21),(23),(24) 的 ISF 結果逐項對照（Q↔Γrms/qmax、F 經驗 vs ISF 物理、1/f³ corner），再用 [P1] Sec.III-F Eq.(28)–(29) 示範 ISF 一般式如何收斂回 LTI 特例（含 Craninckx–Steyaert 2× 差），並嵌入 Leeson vs ISF 疊圖。明標 Leeson 1966 不在下載的 5 篇 PDF 內。
 ---
 
 # Leeson 模型推導與 ISF 對照
@@ -16,6 +16,7 @@ description: 從 tank 熱雜訊、feedback、品質因數 Q 出發逐步建立 L
 1. Leeson 式的每一項（floor、$1/f^2$、$1/f^3$）物理上從哪來？
 2. 為什麼斜率是 $1/f^2$ 與 $1/f^3$，corner 在哪？
 3. Leeson 的 $Q$、$F$、$\omega_{1/f^3}$ 對應 ISF 的哪些量？哪些是 ISF 講得更清楚的？
+4. [P1] 自己怎麼證明「既有 LTI 模型是 ISF 的簡化特例」（Sec.III-F Eq.(28)–(29)）？那個著名的 2× 差從哪來？
 
 > **物理直覺（先講結論）**：Leeson 把振盪器想成「一個被熱雜訊持續餵食、又被高 $Q$ tank 窄帶濾波的回授系統」。三件事疊起來：(1) 放大器/tank 注入一塊**白色雜訊地板**（$2FkT/P_s$）；(2) 因為是**自治振盪器**，載波附近的相位擾動沒有恢復力，閉迴路把雜訊乘上 $(\omega_0/2Q\Delta\omega)^2$ 的「相位積分」轉移函數，生出 $1/f^2$ 裙帶；(3) device 的 $1/f$ flicker 雜訊再被往上搬一階，生出最靠近載波的 $1/f^3$。ISF 理論講的是**同三段**，只是把 $1/2Q$ 換成 $\Gamma_{rms}/q_{max}$、把 $F$ 換成可由 $\Gamma_{eff}$ 算出的物理量。
 
@@ -124,6 +125,118 @@ flowchart LR
 
 **(c) $1/f^3$ corner。** Leeson 直接把 $\omega_{1/f^3}$ 當輸入參數，等於承認「我不知道它從哪來」。早期工程界甚至誤以為它就等於 device 的 $1/f$ corner。ISF 的 [P1] Eq.(24) 一錘定音：$\Delta\omega_{1/f^3}=\omega_{1/f}\cdot c_0^2/(2\Gamma_{rms}^2)$——它由 **ISF 的 DC 係數 $c_0$**（波形對稱性）決定。**讓波形上升/下降對稱 → $c_0\to0$ → $1/f^3$ corner 大幅下移 → 近載波相位雜訊大降**。這是 Leeson 完全給不出的設計法則，也是 [P2] 用對稱性壓 ring 相位雜訊的理論依據（見 [symmetry](/06_design_insights/symmetry)、[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)）。
 
+## 第 6 步：[P1] 自己的收斂——Sec.III-F「既有模型是簡化特例」（Eq.(28)–(29)）
+
+前五步是「Leeson 對 ISF」的**外部對照**。[P1] 自己在 Sec.III-F（p.187）也做了一次**內部收斂**：把 ISF 一般式 Eq.(19) 加上 LTI 模型的全部簡化假設，看它退化成什麼。這一段是本頁最有說服力的證據——**兩個模型不只是「曲線重疊」，而是同一條公式的特例關係**。
+
+**(1) LTI 假設在 ISF 語言裡等於什麼。** [P1] p.187 列出 LTI 模型（其文獻 [3] 與 [8]）的四個假設：線性非時變、所有雜訊源 stationary、只有 $\omega_0$ 附近的雜訊重要、無雜訊波形是完美弦波。用 ISF 的傅立葉級數（[P1] Eq.(12)）翻譯：**丟掉 $c_1$ 以外的所有項，並令 $c_1=1$**（[P1] p.187 原文設定；已對照渲染頁核實）。這正是理想 LC 的 ISF（[lab_02](/04_simulation_labs/lab_02_lc_oscillator_toy_model)、[capstone](/03_isf_core_theory/capstone_lc_end_to_end)）：
+
+$$
+\Gamma(\theta)=-\sin\theta=\cos\!\big(\theta+\tfrac{\pi}{2}\big)\;\Rightarrow\;c_0=0,\quad c_1=1,\quad c_{n\ge2}=0,\quad \Gamma_{rms}^2=\frac{1}{2\pi}\int_0^{2\pi}\sin^2\theta\,d\theta=\tfrac12 .
+$$
+
+Parseval（[P1] Eq.(20)）自洽：$\sum c_n^2=c_1^2=1=2\Gamma_{rms}^2$ ✓，故 $\Gamma_{rms}=1/\sqrt2\approx0.707$（本站「true LC」值；代表值 $0.5$ 是刻意保守的教學值，見 [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)）。$c_0=0$ 順便說明：**理想弦波 LC 沒有 $1/f^3$ 上轉**——LTI 模型看不到 $\omega_{1/f^3}$ 由什麼決定，根子就在它把 $c_0$ 也一起丟掉了。
+
+**(2) 注入 tank 並聯電阻的熱雜訊（[P1] Eq.(28), p.187）。** 考慮 [P1] Fig. 2 的 RLC 振盪器，只算 tank 並聯電阻 $R_p$ 這一個雜訊源：
+
+$$
+\frac{\overline{i_n^2}}{\Delta f}=\frac{4kT}{R_p},\qquad q_{max}=C\cdot V_{max}.
+$$
+
+- $4kT/R_p$：第 1 步 $4kTR$ 的 Norton 電流版（單邊 PSD，A²/Hz）。
+- $q_{max}=CV_{max}$：tank 電容上的最大電荷擺幅——這就是全站 $q_{max}=C\cdot V_{max}$ 定義的論文出處，也是 LTI 變數（$C$、$V_{max}$）與 ISF 變數（$q_{max}$）之間的「翻譯字典」。
+
+**(3) 代入 Eq.(19) 得 Eq.(29)。** [P1] Eq.(19)（白噪求和式，p.185）：
+
+$$
+\mathcal{L}\{\Delta\omega\}=10\log_{10}\!\left(\frac{\overline{i_n^2}/\Delta f\;\sum_{n=0}^{\infty}c_n^2}{8\,q_{max}^2\,\Delta\omega^2}\right).
+$$
+
+代 $\sum c_n^2=c_1^2=1$、$\overline{i_n^2}/\Delta f=4kT/R_p$、$q_{max}=CV_{max}$：
+
+$$
+\begin{aligned}
+\mathcal{L}\{\Delta\omega\}
+&=10\log_{10}\!\left(\frac{4kT/R_p}{8\,C^2V_{max}^2\,\Delta\omega^2}\right)
+=10\log_{10}\!\left(\frac{kT}{2\,R_p\,C^2V_{max}^2\,\Delta\omega^2}\right)\\
+&=10\log_{10}\!\left[\frac12\cdot\frac{kT}{V_{max}^2}\cdot\frac{1}{R_p\,(C\omega_0)^2}\cdot\Big(\frac{\omega_0}{\Delta\omega}\Big)^2\right].
+\end{aligned}
+$$
+
+最後一行就是 **[P1] Eq.(29), p.187**（已對照渲染頁逐字核實）——只是把 $C^2\Delta\omega^2$ 改寫成 $(C\omega_0)^2(\Delta\omega/\omega_0)^2$，好讓「tank 導納 $C\omega_0$」與「相對 offset $\omega_0/\Delta\omega$」分開看。
+
+- **單位檢查**：$[kT/V_{max}^2]=\text{J/V}^2=\text{C/V}=\text{F}$；$[1/(R_p(C\omega_0)^2)]=1/(\Omega\cdot\text{S}^2)=\Omega$；$\text{F}\cdot\Omega=\text{s}=1/\text{Hz}$ ✓；$(\omega_0/\Delta\omega)^2$ 無因次 ✓。
+- **物理**：$1/\Delta\omega^2$（相位積分）、$\propto1/R_p$（$R_p$ 越大＝$Q$ 越高＝雜訊電流越小）、$\propto1/(CV_{max})^2=1/q_{max}^2$（電荷擺幅越大越好）——第 5 步表格的每一格在這條式子裡都有對應。
+
+**(4) 數值（沿用 [tank_Q_and_energy_restoration](/02_foundations/tank_Q_and_energy_restoration) 的 5 GHz tank）**：$L=1$ nH、$C=1.013$ pF、$R_p=314\ \Omega$、$T=300$ K（$Q=\omega_0R_pC\approx10$）、取 $V_{max}=1$ V、$\Delta f=1$ MHz。
+
+- $kT=1.380649\times10^{-23}\times300=4.142\times10^{-21}$ J；$\tfrac12\,kT/V_{max}^2=2.071\times10^{-21}$ F。
+- $C\omega_0=1.013\times10^{-12}\times3.1416\times10^{10}=3.182\times10^{-2}$ S；$R_p(C\omega_0)^2=314\times1.0128\times10^{-3}=0.3180$ S，倒數 $=3.145\ \Omega$。
+- $(\omega_0/\Delta\omega)^2=(5\times10^9/10^6)^2=2.5\times10^7$。
+- 乘起來：$2.071\times10^{-21}\times3.145\times2.5\times10^7=1.628\times10^{-13}$（單位 F·Ω = s ✓）→ $\mathcal{L}=10\log_{10}(1.628\times10^{-13})=-127.9$ dBc/Hz。
+- **用 Eq.(21) 重算必得同值**（$\Gamma_{rms}^2=\tfrac12$、$q_{max}=CV_{max}=1.013$ pC、$S_i=4kT/R_p=5.276\times10^{-23}$ A²/Hz）：$\dfrac{0.5}{(1.013\times10^{-12})^2}\cdot\dfrac{5.276\times10^{-23}}{4\,(2\pi\times10^6)^2}=1.628\times10^{-13}$ ✓。
+- **對照 canonical 例 B 的 $-148.0$ dBc/Hz**（$S_i=10^{-24}$ A²/Hz、$\Gamma_{rms}=0.5$、$q_{max}=1$ pC）：這裡 $S_i$ 大 52.8 倍（$+17.2$ dB）、$\Gamma_{rms}^2$ 大 2 倍（$+3.0$ dB）、$q_{max}^2$ 大 $1.013^2$ 倍（$-0.1$ dB）：$-148.0+17.2+3.0-0.1=-127.9$ ✓。
+
+**(5) Craninckx–Steyaert 的 2×，與本站 factor-of-2 的真身。** [P1] p.187 接著指出：其文獻 [8]（J. Craninckx and M. Steyaert, "Low-noise voltage controlled oscillators using enhanced LC-tanks," IEEE Trans. Circuits Syst. II, vol. 42, no. 12, pp. 794–804, Dec. 1995；**外部文獻，非本站 5 篇 PDF**；[P1] 參考文獻表印作 pp. 794–904，應為 804 之誤植）假設振幅與相位對 $\mathcal{L}_{total}$ 的貢獻相等，因此 [8] 的結果**恰為 Eq.(29) 的兩倍**。換句話說，Eq.(19)→(29) 這條鏈**只計了相位那一半**；LTI 模型的 $\mathcal{L}_{total}$（[P1] Eq.(2), p.180 的量測定義，含 AM）把振幅雜訊也算了進去。
+
+本站再自己做一個對照（非論文原文，可用下方 Python 重跑）：把 [P1] p.181 的 Leeson 型 Eq.(6) 取 $F=1$，用 $Q=\omega_0R_pC$、$P_s=V_{max}^2/(2R_p)$ 換算：
+
+$$
+\frac{2kT}{P_s}\Big(\frac{\omega_0}{2Q\,\Delta\omega}\Big)^2=\frac{4kTR_p}{V_{max}^2}\cdot\frac{\omega_0^2}{4\,\omega_0^2R_p^2C^2\,\Delta\omega^2}=\frac{kT}{R_p\,C^2V_{max}^2\,\Delta\omega^2}=2\times\big[\text{Eq.(29)}\big].
+$$
+
+所以在 [P1] 自己的記帳裡，**Eq.(6) 取 $F=1$ 也比 Eq.(29) 高 3 dB**（$-124.9$ vs $-127.9$ dBc/Hz）——即使 [P1] 在 Eq.(6) 下方已註明其 $\tfrac12$ 來自略去振幅雜訊。這個 2 跟 [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise) factor-of-2 註記的「時域乾淨 $/2$ vs Eq.(21) 的 $/4$」是同一個 2（canonical 例 B 的 $-145$ vs $-148$ dBc/Hz），也是文獻上著名的小爭議所在。本站誠實列出、**不裁決**哪個常數「對」：**scaling（$\propto1/(R_pC^2V_{max}^2\Delta\omega^2)$）與 $-20$ dB/dec 斜率是物理，這個 2 是 AM/PM 與 SSB 記帳慣例**。
+
+**(6) 與第 5 步 $F$/$Q$ 對映收尾。** 由上式，Eq.(29) $=\tfrac12\cdot\tfrac{2kT}{P_s}\big(\tfrac{\omega_0}{2Q\Delta\omega}\big)^2$，即
+
+$$
+\mathcal{L}\{\Delta\omega\}=10\log_{10}\!\left[\frac{kT}{P_s}\Big(\frac{\omega_0}{2Q\,\Delta\omega}\Big)^2\right]
+$$
+
+（理想弦波 LC、僅 tank $R_p$ 熱雜訊）。
+
+- 這就是 Leeson 式的 $1/f^2$ 項，**而且前置常數正好落在第 1 步說的「最乾淨寫法」$FkT/P_s$、$F=1$**；若硬套本頁開頭的 $2FkT/P_s$ 寫法，等價於 $F=\tfrac12$。[P1] p.187 的原話是 (29) 配上 (24) 就得到 (6)——差別全在 $F$ 吸收了多少記帳常數。
+- **$Q\leftrightarrow\Gamma_{rms}/q_{max}$ 的顯式等式**：ISF 側 $\dfrac{\Gamma_{rms}^2}{q_{max}^2}\cdot\dfrac{\overline{i_n^2}/\Delta f}{4}=\dfrac12\cdot\dfrac{4kT/R_p}{4C^2V_{max}^2}=\dfrac{kT}{2R_pC^2V_{max}^2}$；Leeson 側 $\dfrac{kT}{P_s}\cdot\dfrac{\omega_0^2}{4Q^2}=\dfrac{2kTR_p}{V_{max}^2}\cdot\dfrac{1}{4R_p^2C^2}=\dfrac{kT}{2R_pC^2V_{max}^2}$——兩邊逐字相等 ✓。這把第 5 步 (a) 的「$1/2Q\leftrightarrow\Gamma_{rms}/q_{max}$（含正規化）」寫成了可核對的等式。
+- **ISF 版的 $F$ 不再是黑盒**：對任何真實 ISF，$F$ 的角色由 $\sum c_n^2=2\Gamma_{rms}^2$（相對理想 LC 的 $c_1^2=1$）與 $\Gamma_{eff}$（cyclostationary）接手；$\omega_{1/f^3}$ 由 Eq.(24) 的 $c_0^2/(2\Gamma_{rms}^2)$ 接手。[P1] p.187 明說其一般化方法能用 ISF 的 $c_n$ 與 device 的 $\omega_{1/f}$ **算出** Eq.(3) 的擬合參數 $F$ 與 $\Delta\omega_{1/f^3}$——這句話就是第 5 步表格三列的論文原始出處。
+
+Python 驗證（`# ->` 為實跑輸出）：
+
+```python
+import numpy as np
+from simulations.common.isf_utils import gamma_rms, compute_fourier_coefficients
+# (1) 理想 LC 的 ISF Γ(θ) = -sin θ：只有 c1，且 c1 = 1（[P1] p.187 的 LTI 設定）
+theta = np.linspace(0, 2*np.pi, 4097)          # 含端點，供梯形積分
+gam = -np.sin(theta)
+c0, _, _, c, _ = compute_fourier_coefficients(theta, gam, 3)   # c[n] = c_n
+Grms = gamma_rms(theta, gam)
+print(round(float(c0), 4), round(float(c[1]), 4), round(float(c[2]), 4), round(float(Grms), 4))
+# -> 0.0 1.0 0.0 0.7071   (c0, c1, c2, Γrms；Parseval：c1² = 1 = 2Γrms²)
+# (2) [P1] Eq.(28)：tank_Q 頁的 5 GHz tank（L=1 nH、C=1.013 pF、Rp=314 Ω、T=300 K），Vmax = 1 V
+k, T = 1.380649e-23, 300.0
+f0, C, Rp, Vmax = 5e9, 1.013e-12, 314.0, 1.0
+w0 = 2*np.pi*f0
+Q  = w0*Rp*C
+Si = 4*k*T/Rp            # A²/Hz
+qmax = C*Vmax            # C
+dw = 2*np.pi*1e6         # Δω @ 1 MHz
+print(round(Q, 3), f"{Si:.3e}", f"{qmax:.3e}")
+# -> 9.993 5.276e-23 1.013e-12   (Q、i_n²/Δf [A²/Hz]、q_max [C])
+# (3) [P1] Eq.(29) vs Eq.(19)（只留 c1）vs Eq.(21)（Γrms² = 1/2）——三者必須同值
+L29 = 0.5*k*T/Vmax**2 / (Rp*(C*w0)**2) * (w0/dw)**2
+L19 = Si*c[1]**2 / (8*qmax**2*dw**2)
+L21 = Grms**2/qmax**2 * Si/(4*dw**2)
+print(round(10*np.log10(L29), 2), round(10*np.log10(L19), 2), round(10*np.log10(L21), 2))
+# -> -127.88 -127.88 -127.88   (dBc/Hz @ 1 MHz)
+# (4) Leeson 形式對照：[P1] Eq.(6) 取 F = 1，以及收尾式 (kT/Ps)(ω0/2QΔω)²
+Ps = Vmax**2/(2*Rp)
+L6 = 2*k*T/Ps * (w0/(2*Q*dw))**2
+L29_leeson = k*T/Ps * (w0/(2*Q*dw))**2
+print(round(10*np.log10(L6), 2), round(L6/L29, 4), round(L29_leeson/L29, 4))
+# -> -124.87 2.0 1.0   (Eq.(6)|F=1 比 Eq.(29) 高 3 dB＝正好 2×；Eq.(29) ≡ (kT/Ps)(ω0/2QΔω)²)
+```
+
+> **適用條件**：Eq.(29) 只在四個 LTI 假設全部成立時才是等式（理想弦波、只有 $c_1$、stationary 雜訊、只算 $\omega_0$ 附近）。ring oscillator（$c_{n\ge2}\neq0$、$\Gamma_{rms}\propto N^{-3/2}$）、非對稱波形（$c_0\neq0$ → $1/f^3$）、cyclostationary 元件雜訊（$\Gamma_{eff}=\Gamma\alpha$）都會讓它失效——此時回到 Eq.(19)/(21)，用真實的 $c_n$ 與 $\Gamma_{eff}$，$F$ 就自動被算出來而不是被 fit 出來。
+
 ## 數值例子（建立手感）
 
 > **例（$1/f^3$ corner 對照）**：取 device $1/f$ corner $f_{1/f}=1$ MHz（$\omega_{1/f}=2\pi\times10^6$ rad/s）。比較「對稱」與「不對稱」波形的相位雜訊 $1/f^3$ corner。
@@ -174,12 +287,14 @@ print(corner_asym/(2*np.pi)/1e3, "kHz ;", corner_sym/(2*np.pi)/1e3, "kHz")
 | $F$ 可由量測 fit | 可事後配適曲線 | 想**事前預測**或拆解物理 → 必須用 ISF（$F$ 是黑盒） |
 | $\omega_{1/f^3}$ 已知 | $1/f^3$ 段對得上 | 想知道 corner 由什麼決定/如何壓 → ISF Eq.(24)（$c_0$、對稱性） |
 | 線性/弱非線性、加性雜訊 | 三段模型夠用 | 強 cyclostationary → ISF 的 $\Gamma_{eff}=\Gamma\alpha$ 才算得準 |
+| 理想弦波 LC、僅 tank $R_p$ 熱雜訊（第 6 步） | [P1] Eq.(29) 就是 Leeson 的 $1/f^2$ 項：$\tfrac{kT}{P_s}(\tfrac{\omega_0}{2Q\Delta\omega})^2$（$F=1$ 於 $FkT/P_s$ 寫法） | $c_{n\ge2}\neq0$、$c_0\neq0$、cyclostationary → 回到 Eq.(19)/(21)，$F$ 由 $2\Gamma_{rms,eff}^2$ 與 $c_0$ 算出而非 fit |
 
 ## 與哪些 paper／公式對應
 
 - **Leeson 模型本身**：[E1] D. B. Leeson, Proc. IEEE 54(2):329–330, Feb. 1966 —— **不在下載的 5 篇 PDF 內**；卷期/DOI 已查證（10.1109/PROC.1966.4682，見 [references](/99_appendix/references) 的 [E1]）；本式為標準 Leeson 形式（$F$ 為經驗 noise factor，前置常數依文獻略異）。
 - **ISF 對照式（5 篇 PDF 內、已核）**：$1/f^2$ [P1] Eq.(21), p.185；$1/f^3$ [P1] Eq.(23), p.185；$1/f^3$ corner [P1] Eq.(24), p.185；device flicker [P1] Eq.(22), p.185。
 - **cyclostationary（解釋「實效 $F$」）**：[P1] Eqs.(25)–(27), p.186（見 [effective_isf](/03_isf_core_theory/effective_isf)）。
+- **[P1] 內部收斂（第 6 步）**：Sec.III-F Eq.(28)–(29), p.187（$c_1=1$、$4kT/R_p$、$q_{max}=CV_{max}$）；Leeson 型 Eq.(3), p.180 與 Eq.(6), p.181；量測定義 $\mathcal{L}_{total}$ Eq.(2), p.180；其文獻 [8] Craninckx–Steyaert, IEEE TCAS-II 42(12):794–804, Dec. 1995（**外部文獻，非本站 5 篇 PDF**）。
 - **疊圖**：`/figures/leeson_vs_isf_overlay.png`，`simulations/lab_16_leeson_vs_isf.py`（規範 10.1，lab_16）。
 
 ## 重點回顧
@@ -189,6 +304,7 @@ print(corner_asym/(2*np.pi)/1e3, "kHz ;", corner_sym/(2*np.pi)/1e3, "kHz")
 - **逐項對照**：$Q\leftrightarrow\Gamma_{rms}/q_{max}$（高 $Q$＝低 $\Gamma_{rms}/q_{max}$）；$F$ 經驗黑盒 ↔ ISF 可算的 $\overline{i_n^2}\cdot\Gamma_{eff}$（含 cyclostationary）；$\omega_{1/f^3}$ 神祕參數 ↔ [P1] Eq.(24) 由 $c_0$（對稱性）決定。
 - **ISF 的三大超越**：(1) 對無 $Q$ 的 ring 也成立；(2) 事前可算、不靠 fit；(3) 把 $1/f^3$ corner 變成可用對稱性壓兩個數量級的設計旋鈕。
 - 兩模型在 log–log 疊圖上三段重疊（`leeson_vs_isf_overlay.png`）——同一條曲線、不同物理語言。
+- **[P1] 自己的收斂（Sec.III-F）**：LTI 假設 ⇔ 只留 $c_1=1$（$\Gamma=-\sin\theta$、$\Gamma_{rms}=1/\sqrt2$）；代 $4kT/R_p$、$q_{max}=CV_{max}$ 進 Eq.(19) 得 Eq.(29) $=\tfrac{kT}{P_s}(\tfrac{\omega_0}{2Q\Delta\omega})^2$——Leeson 的 $1/f^2$ 項是 ISF 的特例（5 GHz、$Q=10$、$V_{max}=1$ V 例：$-127.9$ dBc/Hz @ 1 MHz）；[8] Craninckx–Steyaert（外部）因 AM/PM 等量計入而大 2×，與本站 factor-of-2 是同一個 2。
 
 ## 延伸閱讀
 

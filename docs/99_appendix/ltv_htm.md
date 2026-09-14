@@ -391,7 +391,7 @@ $$
 ## 與哪些 paper／公式對應
 
 - **本站主線（5 篇 PDF 內）**：LTV 卷積 [P1] Eq.(11)、ISF 傅立葉級數 [P1] Eq.(12)、分諧波相位響應
-  [P1] Eq.(13)，p.182–183（見 [convolution_derivation](/03_isf_core_theory/convolution_derivation)、
+  [P1] Eq.(13)，p.183（見 [convolution_derivation](/03_isf_core_theory/convolution_derivation)、
   [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)）。本頁的 HTM 是 Eq.(13) 的頻域重述。
 - **單音 sideband 的 HTM 重推**：對回 [P1] Eq.(16/17), p.183（第 5 步）。
 - **嚴格基礎的另一面孔**：PPV/Floquet（ISF $=v_1^T\mathbf b$）見

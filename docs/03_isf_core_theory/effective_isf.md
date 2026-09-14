@@ -204,28 +204,32 @@ flowchart LR
 
 - 原始 $\Gamma(x)=-\sin x$：$\Gamma_{rms}^2=\frac{1}{2\pi}\int_0^{2\pi}\sin^2x\,dx=\tfrac12
   \Rightarrow\Gamma_{rms}=0.707$。
-- 加上窄的 $\alpha$（duty 約 $10\%$、且峰落在 $|\Gamma|\approx1$ 的**最敏感**相位）：$\Gamma_{eff}$ 只在那個窄窗非零，
-  其能量 $\Gamma_{rms}^{eff}{}^2=\frac{1}{2\pi}\int \Gamma^2\alpha^2\,dx$ 約是原來的 duty 倍 $\to$
-  $\Gamma_{rms}^{eff}\approx0.707\times\sqrt{0.1}\approx0.22$。
+- 加上窄的 $\alpha$（方波近似、duty 約 $10\%$、窗中心落在 $|\Gamma|\approx1$ 的**最敏感**相位）：
+  $\Gamma_{eff}=\Gamma\cdot\alpha$ 只在窗內非零，其能量是「窗內局部 $\langle\Gamma^2\rangle$」乘上 duty——
+  **不是**未閘控的 $\Gamma_{rms}$ 乘上 $\sqrt{\text{duty}}$（這兩個量不一樣，混用正是常見算錯的來源）。
+  窗內 $\sin^2x$ 平均約 $0.97$（半寬 $0.1\pi$，算法同下面例題 1），故
+  $\Gamma_{rms}^{eff}\approx\sqrt{0.97\times0.1}\approx0.31$。
 
 代進 [P1] Eq.(21)（用 $\Gamma_{rms}^{eff}$ 取代 $\Gamma_{rms}$），其餘照例 B
 （$f_0=5$ GHz、$\Delta f=1$ MHz、$q_{max}=1$ pC、$S_i=10^{-24}$）：
 
 $$
-\mathcal{L}=10\log_{10}\!\left(\frac{(0.22)^2}{(10^{-12})^2}\cdot\frac{10^{-24}}{4(2\pi\times10^6)^2}\right)
-=10\log_{10}\!\left(\frac{0.0484}{10^{-24}}\cdot6.332\times10^{-39}\right).
+\mathcal{L}=10\log_{10}\!\left(\frac{(0.31)^2}{(10^{-12})^2}\cdot\frac{10^{-24}}{4(2\pi\times10^6)^2}\right)
+=10\log_{10}\!\left(\frac{0.0961}{10^{-24}}\cdot6.332\times10^{-39}\right).
 $$
 
 $$
-=10\log_{10}(3.065\times10^{-16})=-155.1\ \text{dBc/Hz}.
+=10\log_{10}(6.085\times10^{-16})=-152.2\ \text{dBc/Hz}.
 $$
 
-- **手感**：這個 0.22 是從**未閘控的 $-\sin$ LC**（$\Gamma_{rms}=0.707$，$\mathcal{L}\approx-145.0$ dBc/Hz）
-  閘控而來，所以要跟**同一個來源**比：把 cyclostationary 閘控算進去後改善約 **10 dB**
-  （$\Gamma_{rms}^{eff}$ 從 0.707 掉到 0.22，$20\log_{10}(0.707/0.22)\approx10.1$ dB）。即使**窗落在最敏感
-  相位**（壞對齊），光是「只在一小段相位漏雜訊」就省了約 10 dB——**不算 $\alpha$ 會嚴重高估雜訊**。
-  （另比：相對規範例 B 的 $\Gamma_{rms}=0.5$／$-148.0$ dBc/Hz 約為 $20\log_{10}(0.5/0.22)\approx7.1$ dB；
-  但 0.22 並非由 0.5 閘控而來，故以 0.707 為自洽基準。）
+- **手感**：這個 0.31 是從**未閘控的 $-\sin$ LC**（$\Gamma_{rms}=0.707$，$\mathcal{L}\approx-145.0$ dBc/Hz）
+  閘控而來，所以要跟**同一個來源**比：把 cyclostationary 閘控算進去後改善約 **7.2 dB**
+  （$\Gamma_{rms}^{eff}$ 從 0.707 掉到 0.31，$20\log_{10}(0.707/0.31)\approx7.2$ dB）。即使**窗落在最敏感
+  相位**（壞對齊），光是「只在一小段相位漏雜訊」就省了約 7 dB——**不算 $\alpha$ 仍會高估雜訊，但沒有
+  「未閘控 $\Gamma_{rms}$ 直接乘 $\sqrt{\text{duty}}$」這個錯誤捷徑暗示的那麼多**。這個 0.31 與下面
+  例題 1、例題 2(a) 是**同一個 toy 場景**（duty $10\%$、窗心在最敏感相位），數字理當一致。
+  （另比：相對規範例 B 的 $\Gamma_{rms}=0.5$／$-148.0$ dBc/Hz 約為 $20\log_{10}(0.5/0.31)\approx4.2$ dB；
+  但 0.31 並非由 0.5 閘控而來，故以 0.707 為自洽基準。）
 - **務必註明**：此處 $\alpha$ 的 duty 與相位是**示意 toy 數字**，非真實 Colpitts 萃取值；
   真實 $\alpha$ 要從 device 工作點/模擬取得。**TODO: 用實際 Colpitts 模擬萃取 $\alpha(x)$ 與
   $\Gamma_{eff}$，替換此 toy 估計。**

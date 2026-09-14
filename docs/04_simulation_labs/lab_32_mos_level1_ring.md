@@ -101,7 +101,7 @@ $$
 ### 2.3 ISF 萃取：打脈衝＋門檻交越比對
 
 對節點 1 在相位 $\theta_j=j\cdot2\pi/24$ 注入 $\Delta q=0.5$ fC，等效電壓步階
-（[P1] Eq.(9), p.182）：
+（[P1] Eq.(9), p.181）：
 
 $$
 \Delta V=\frac{\Delta q}{C_L}=\frac{0.5\ \text{fC}}{10\ \text{fF}}=0.05\ \text{V}.
@@ -271,7 +271,7 @@ $\Gamma$ 只動 0.1%；週期 spread $10^{-8}$ ps。數字可信。
 
 ## 10. 對應 paper 公式／figure
 
-- **操作型 ISF 定義**：[P1] Eq.(10)–(11), p.182 與 $\Delta V=\Delta q/C$（Eq.(9), p.182）
+- **操作型 ISF 定義**：[P1] Eq.(10)–(11), p.182 與 $\Delta V=\Delta q/C$（Eq.(9), p.181）
   ——本 lab 的萃取程序就是把這兩式當量測儀器用。
 - **線性前提**：[P1] Fig. 6, p.182（$\Delta\phi\propto\Delta q$ 小電荷線性；本 lab 用
   $\Delta q$ 減半驗證，差 0.1%）。

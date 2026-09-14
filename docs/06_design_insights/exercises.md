@@ -30,6 +30,8 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 ### 習題 1（設計反推題）— $q_{max}$、$\Gamma_{rms}$ 達標組合
 
+*對應學習路徑：[第 8 步 — 設計 takeaways（symmetry、swing、slope）](/00_overview/learning_path#step-8)*
+
 某 5 GHz LC 振盪器目前 $\mathcal{L}(1\,\text{MHz})=-140$ dBc/Hz（套 Eq.(21)，$\Gamma_{rms}=0.7$、
 $q_{max}=1$ pC、$S_i=3.2\times10^{-24}\ \text{A}^2/\text{Hz}$，代入 Eq.(21) 自洽得 $-140$）。目標把它再壓低 9 dB 到 $-149$ dBc/Hz。
 列出兩種達標方案：(a) 只動 $q_{max}$；(b) 只動 $\Gamma_{rms}$。各需多少？
@@ -43,6 +45,8 @@ $q_{max}=1$ pC、$S_i=3.2\times10^{-24}\ \text{A}^2/\text{Hz}$，代入 Eq.(21) 
 />
 
 ### 習題 2（設計反推題）— 對稱性壓 $1/f^3$ corner
+
+*對應學習路徑：[第 8 步 — 設計 takeaways（symmetry、swing、slope）](/00_overview/learning_path#step-8)*
 
 某環振 $\Gamma_{rms}=0.9$、$c_0=0.3$、device $f_{1/f}=2$ MHz。
 (a) 用 [P1] Eq.(24)（精確式 $\Delta\omega_{1/f^3}=\omega_{1/f}c_0^2/(2\Gamma_{rms}^2)$）求 $1/f^3$ corner $\Delta f_{1/f^3}$。
@@ -59,6 +63,8 @@ $q_{max}=1$ pC、$S_i=3.2\times10^{-24}\ \text{A}^2/\text{Hz}$，代入 Eq.(21) 
 
 ### 習題 3（比較題）— ring vs LC 的 $\Gamma_{rms}$ scaling
 
+*對應學習路徑：[第 8 步 — 設計 takeaways（symmetry、swing、slope）](/00_overview/learning_path#step-8)*
+
 (a) 用 [P2] Eq.(16) 的 scaling $\Gamma_{rms}\propto N^{-3/2}$，問把 ring 級數從 $N=5$ 加到 $N=15$，
 $\Gamma_{rms}$ 降幾倍？相位雜訊（$\propto\Gamma_{rms}^2$）改善幾 dB？
 (b) 一句話說明為何 LC 通常仍比 ring 乾淨（從 $\Gamma_{rms}$ 與 $q_{max}$ 兩個旋鈕談）。
@@ -74,6 +80,8 @@ $\Gamma_{rms}$ 降幾倍？相位雜訊（$\propto\Gamma_{rms}^2$）改善幾 dB
 
 ### 習題 4（設計題）— PLL 最佳 loop BW（直覺 + 數值）
 
+*對應學習路徑：[第 9 步 — 接到 SerDes clocking（jitter、eye、PLL/CDR）](/00_overview/learning_path#step-9)*
+
 一顆 ring VCO 自身相位雜訊 $1/f^2$ 很差（$S_{vco}=K_v/f^2$，$K_v=10^{2}\ \text{rad}^2\text{Hz}$），
 參考源很乾淨且為白底（$S_{ref}=K_r=10^{-14}\ \text{rad}^2/\text{Hz}$，分頻比 $N=1$）。
 用規範 10.2 的 type-II 2nd-order transfer，掃 loop 自然頻率 $f_n$，找使輸出積分 jitter
@@ -81,10 +89,14 @@ $\Gamma_{rms}$ 降幾倍？相位雜訊（$\propto\Gamma_{rms}^2$）改善幾 dB
 
 ### 習題 5（數值題）— $\sigma_t\to$ BER bathtub
 
+*對應學習路徑：[第 9 步 — 接到 SerDes clocking（jitter、eye、PLL/CDR）](/00_overview/learning_path#step-9)*
+
 某 25 Gb/s SerDes，UI $=1/25\text{G}=40$ ps，取樣時鐘 RJ $\sigma_t=1.2$ ps（高斯）。
 求 (a) 在 eye 中心（$t=0$）取樣的 BER；(b) 達 $\text{BER}=10^{-12}$ 的時間裕度（取樣可偏離中心多少 ps）。
 
 ### 習題 6（設計反推題）— BER 預算反推容許 $\sigma_t$
+
+*對應學習路徑：[第 9 步 — 接到 SerDes clocking（jitter、eye、PLL/CDR）](/00_overview/learning_path#step-9)*
 
 同上 SerDes（UI $=40$ ps），規格要求在中心取樣 $\text{BER}\le10^{-15}$。求容許的最大 RJ $\sigma_t$（ps）。
 （提示：$\text{BER}\approx Q(\tfrac{UI/2}{\sigma_t})$，查 $Q^{-1}(10^{-15})\approx7.94$。）
@@ -99,12 +111,16 @@ $\Gamma_{rms}$ 降幾倍？相位雜訊（$\propto\Gamma_{rms}^2$）改善幾 dB
 
 ### 習題 7（對策題）— tail noise 對策（cross-coupled LC VCO）
 
+*對應學習路徑：[第 8 步 — 設計 takeaways（symmetry、swing、slope）](/00_overview/learning_path#step-8)*
+
 cross-coupled LC VCO 的 tail current source 的雜訊，會經 $2\times$ 上轉（落在 $2\omega_0$ 附近，
 經 ISF 的 $c_2$ 與其 DC 分量 $c_0$ 折回 close-in）。用「effective ISF 的 $c_0,c_2$ 才是 tail 雜訊
 的麻煩」這個觀點，列出三個降低 tail 雜訊貢獻的設計手段，並各用一條 ISF 量（$c_0$、$c_2$、
 $\Gamma_{eff,rms}$、$q_{max}$）說明為什麼有效。此題為 illustrative（標明）。
 
 ### 習題 8（設計反推題）— jitter 預算分配到 PLL 頻段
+
+*對應學習路徑：[第 9 步 — 接到 SerDes clocking（jitter、eye、PLL/CDR）](/00_overview/learning_path#step-9)*
 
 一個時鐘總 rms jitter 預算 $\sigma_{t,\text{tot}}=300$ fs（$f_0=10$ GHz）。已知近載波（ref/in-band）
 貢獻 $\sigma_{t,\text{ref}}=180$ fs。RJ 各源不相關（方差相加）。問留給 VCO（out-of-band）的

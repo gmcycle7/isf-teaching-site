@@ -403,7 +403,7 @@ Placing this page's LTV objects side by side with the reader's familiar LTI obje
 ## Correspondence to papers/equations
 
 - **This site's main thread (within the 5 PDFs)**: LTV convolution [P1] Eq.(11), ISF Fourier series [P1] Eq.(12), harmonic-resolved phase response
-  [P1] Eq.(13), p.182–183 (see [convolution_derivation](/03_isf_core_theory/convolution_derivation),
+  [P1] Eq.(13), p.183 (see [convolution_derivation](/03_isf_core_theory/convolution_derivation),
   [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)). This page's HTM is a frequency-domain restatement of Eq.(13).
 - **Re-derivation of the single-tone sideband via HTM**: matches back to [P1] Eq.(16/17), p.183 (Step 5).
 - **The other face of the rigorous foundation**: PPV/Floquet (ISF $=v_1^T\mathbf b$), see

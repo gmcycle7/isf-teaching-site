@@ -10,8 +10,8 @@ description: "Hong–Hajimiri 2019 Part II deep dive — APF (amplitude counterp
 > **Prerequisites (recommended reading order)**: [paper_001](/05_paper_deep_dives/paper_001_general_theory_phase_noise) (the ISF $\Gamma$ is the tangential projection) → [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) (why amplitude is pulled back while phase accumulates) → [paper_003](/05_paper_deep_dives/paper_003_injection_locking_part1) (phase-only generalized Adler). This page is **advanced**; the APF is the radial dual of the ISF.
 
 [P3] covered phase only; this paper (Part II, **advanced**) adds the **amplitude** dimension. It introduces the
-**APF (Amplitude Perturbation Function)** $\Lambda(\phi)$ — the "amplitude version of the ISF," with units $1/\text{A}$
-— and uses it to explain amplitude modulation of LC oscillators under injection, transient locking behavior,
+**APF (Amplitude Perturbation Function)** $\Delta(\phi)$ — the "amplitude version of the ISF" $\tilde\Lambda(\phi)$ (amplitude ISF, units $1/\text{C}$)
+multiplied by the amplitude memory time, units $1/\text{A}$ — and uses it to explain amplitude modulation of LC oscillators under injection, transient locking behavior,
 and **injection-locked frequency division (ILFD)**. For an ideal LC, the ISF and APF
 are **in quadrature** with each other.
 
@@ -29,7 +29,7 @@ are **in quadrature** with each other.
 
 ## One-sentence contribution
 
-Defines the amplitude version of the ISF — the APF $\Lambda(\phi)$ (units $1/\text{A}$) — completing the phase framework of [P3]
+Defines the amplitude version of the ISF — the amplitude ISF $\tilde\Lambda(\phi)$ (units $1/\text{C}$) and the APF $\Delta(\phi)$ (units $1/\text{A}$) — completing the phase framework of [P3]
 into a full phase + amplitude model, explaining amplitude modulation under injection, transient locking, and ILFD frequency division;
 for an ideal LC, the ISF and APF are in quadrature (claim C11).
 
@@ -40,7 +40,7 @@ phase noise and weak injection, but not for **strong injection, transients, or f
 amplitude is visibly modulated, and phase and amplitude couple. Part II adds this dimension:
 
 - **The APF is the ISF of amplitude**: the ISF $\Gamma$ projects injected charge onto the **tangential**
-  (phase) direction of the limit cycle; the APF $\Lambda$ projects it onto the **radial** (amplitude) direction.
+  (phase) direction of the limit cycle; the amplitude ISF $\tilde\Lambda$ projects it onto the **radial** (amplitude) direction, and the APF $\Delta$ multiplies that radial projection by its decay time.
   Only together do they form the complete projection of a perturbation.
 - **In an ideal LC, the ISF and APF are in quadrature** (90° apart): at the moment of maximum phase sensitivity
   (the zero-crossing), amplitude sensitivity is minimal; at the moment of maximum amplitude sensitivity (the peak),
@@ -60,18 +60,23 @@ Per paper_metadata (paper_004.assumptions):
 
 > **Physical intuition (2-D projection)**: an injected charge $\Delta q$ nudges the state point. Decompose the
 > nudge along the two orthogonal directions of the limit cycle — tangential (phase, permanent) measured by $\Gamma$,
-> radial (amplitude, pulled back) measured by $\Lambda$. Phase noise cares only about the tangential part;
+> radial (amplitude, pulled back) measured by the amplitude ISF $\tilde\Lambda$. Phase noise cares only about the tangential part;
 > the full dynamics of injection need both.
 
 ## Key equations
 
 ### APF definition and amplitude decay function (verified against the original PDF ✓)
 
-The APF $\tilde\Lambda$ is the **amplitude analog** of Part I's unit-bearing ISF $\tilde\Gamma=\Gamma/q_{max}$: the weight
+The **amplitude ISF** $\tilde\Lambda(\phi):=D(0,\phi)$ (units $1/\text{C}$) is the **amplitude analog** of Part I's unit-bearing ISF $\tilde\Gamma=\Gamma/q_{max}$ (units rad/C): the weight
 with which an injected current impulse projects onto the **radial (amplitude) direction** of the limit cycle. [P4] factors the
-amplitude perturbation into the product of an APF and a decay,
+amplitude perturbation into the product of the amplitude ISF and a decay,
 $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$ ([P4] Eq.(18), p.2126), and defines the **APF**
-$\Delta(\phi):=\int_0^\infty D(\tau,\phi)\,d\tau$ ([P4] Eq.(19), p.2126, units $1/\text{A}$). Unlike phase, amplitude perturbations decay —
+$\Delta(\phi):=\int_0^\infty D(\tau,\phi)\,d\tau$ ([P4] Eq.(19), p.2126, units $1/\text{A}$; dimension check: $[1/\text{C}]\times[\text{s}]=1/\text{A}$ ✓).
+
+> **Site convention (symbols, cf. [P4] footnote 6, p.2126)**: the tilde denotes "charge normalization" — $\tilde\Gamma=\Gamma/q_{max}$, $\tilde\Lambda=\Lambda/q_{max}$
+> ([P4] footnote 6 writes $\Lambda\equiv q_{max}\cdot\tilde\Lambda$, where $\Lambda$ is the dimensionless amplitude ISF of its ref. [28]); **the APF $\Delta$ itself carries no tilde**,
+> because it is already $\tilde\Lambda$ times the time integral of the decay function (units $1/\text{A}$), and its fundamental is written $\Delta_1$ ([P4] Eq.(26)). This site always writes $\tilde\Lambda$ (amplitude ISF)
+> and $\Delta(\phi)$ (APF), and never uses $\Lambda$ or $\tilde\Lambda$ to denote the APF. Unlike phase, amplitude perturbations decay —
 the ideal-LC **amplitude decay function** (in the ideal-LC section, [P4] p.2127–2128) is:
 
 $$
@@ -87,10 +92,11 @@ $\Delta(\phi)=\tau_0\,\tilde\Lambda(\phi)$.
 
 | Quantity | Projection direction | Symbol | Fate of the perturbation |
 |---|---|---|---|
-| ISF | tangential (phase) | $\tilde\Gamma=\Gamma/q_{max}$ | accumulates permanently (impulse response = unit step) |
-| APF | radial (amplitude) | $\tilde\Lambda$ | decays back to the limit cycle as $e^{-t/\tau_0}$, $\tau_0=2Q/\omega_{osc}$ |
+| ISF | tangential (phase) | $\tilde\Gamma=\Gamma/q_{max}$ (rad/C) | accumulates permanently (impulse response = unit step) |
+| amplitude ISF | radial (amplitude, initial kick) | $\tilde\Lambda=D(0,\phi)$ (1/C) | decays back to the limit cycle as $e^{-t/\tau_0}$, $\tau_0=2Q/\omega_{osc}$ |
+| APF | radial (amplitude, kick × decay time) | $\Delta=\int_0^\infty D\,d\tau$, ideal LC $=\tau_0\tilde\Lambda$ (1/A) | measures the product of "how much amplitude changes" and "how long it takes to decay" |
 
-> **Verified**: the APF factorization $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$ ([P4] Eq.(18), p.2126), the APF definition
+> **Verified**: the amplitude-perturbation factorization $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$ ([P4] Eq.(18), p.2126; $\tilde\Lambda$ is the amplitude ISF), the APF definition
 > $\Delta(\phi)=\int_0^\infty D\,d\tau$ ([P4] Eq.(19), p.2126, units $1/\text{A}$), and the ideal-LC decay function
 > $e^{-t/\tau_0}$, $\tau_0=2Q/\omega_{osc}$ ([P4] ideal-LC section, p.2127–2128) have all been confirmed verbatim against the rendered original PDF.
 
@@ -100,8 +106,10 @@ The ISF and APF **fundamentals** of an ideal LC ([P4] Eq.(26), p.2128):
 
 $$
 \tilde\Gamma_1=\frac{1}{q_{max}}\,\angle 90^\circ,\qquad
-\tilde\Lambda_1=\frac{\tau_0}{q_{max}}\,\angle 0^\circ
+\Delta_1=\frac{\tau_0}{q_{max}}\,\angle 0^\circ
 $$
+
+(The ideal-LC sin/cos forms are [P4] Eq.(24): $\tilde\Gamma(\varphi)=-\sin\varphi/q_{max}$, $\tilde\Lambda(\varphi)=\cos\varphi/q_{max}$; the APF follows from Eq.(25) $\Delta=\tau_0\tilde\Lambda$, which is why $\Delta_1$ carries one more factor of $\tau_0$ than $\tilde\Lambda_1=\frac{1}{q_{max}}\angle0^\circ$.)
 
 Their phase difference is exactly **$90^\circ$ (quadrature)** (claim C11). Physical meaning: injecting at the zero-crossing changes almost purely phase
 ($\tilde\Gamma$ large, $\tilde\Lambda$ small); injecting at the peak changes almost purely amplitude ($\tilde\Lambda$ large, $\tilde\Gamma$ small).
@@ -109,7 +117,7 @@ Note the APF fundamental carries an extra factor of $\tau_0$ relative to the ISF
 which is also why LC injection locking often comes with substantial amplitude modulation.
 
 **Amplitude-corrected Adler (augmented pulling, ideal-LC special case [P4] Eq.(27), p.2128)**: substitute the ISF and APF
-together. The general sinusoidal-injection form is [P4] Eq.(22), p.2126 (with a $+$ sign and phase-offset terms $\cos(\theta+\angle\tilde\Gamma_1)/\cos(\theta+\angle\tilde\Lambda_1)$);
+together. The general sinusoidal-injection form is [P4] Eq.(22), p.2126 (with a $+$ sign and phase-offset terms $\cos(\theta+\angle\tilde\Gamma_1)/\cos(\theta+\angle\Delta_1)$);
 substituting the ideal-LC quadrature angles $\angle 90^\circ/\angle 0$ (Eq.(26)) into Eq.(22), the phase equation under sinusoidal injection simplifies to
 
 $$
@@ -118,7 +126,7 @@ $$
 
 The denominator term is the **amplitude-modulation correction** contributed by the APF; Part I's phase-only Adler is the special case with denominator $=1$.
 
-> **Verified**: the quadrature of $\tilde\Gamma_1,\tilde\Lambda_1$ ([P4] Eq.(26), p.2128; sin/cos form in Eq.(24))
+> **Verified**: the quadrature of $\tilde\Gamma_1,\Delta_1$ ([P4] Eq.(26), p.2128; sin/cos form in Eq.(24))
 > and the amplitude-corrected Adler shown above — i.e., **the ideal-LC special case [P4] Eq.(27), p.2128** (obtained by substituting the $\angle 90^\circ/\angle 0$ of Eq.(26) into the general form Eq.(22), p.2126, with the $-$ sign, the $\sin\theta$ numerator, and the $\tau_0$ factor) — have both been confirmed verbatim against the rendered original PDF.
 
 ### Amplitude modulation (the Fourier view of the APF)
@@ -293,6 +301,43 @@ PYTHONPATH=. python simulations/lab_37_ilfd_lock.py
 **Limitations**: a first-order phase-only toy (no APF/amplitude dynamics, no noise); ISF harmonics only up to $n=3$;
 the lock-edge determination is limited by the 600 ns integration window and grid resolution (~1–3%).
 
+### Sec. VII-A: ISF shaping for frequency division (Fig. 15–16, Table III–IV, p.2132–2134, verified ✓)
+
+In its design section [P4] turns "half-wave symmetry cannot divide by 2" around: **make the waveform asymmetric on
+purpose to manufacture the even harmonics**. The key points (the full teaching version — time-domain proof, this site's
+toy reproduction figure `/figures/isf_shaping_division.png`, the Table IV worked example and the Python recomputation —
+is the "[P4] Sec. VII-A: ISF shaping" section of [injection_locked_division](/06_design_insights/injection_locked_division)):
+
+- **footnote 14, p.2132**: the mathematical definition of half-wave symmetry, $\tilde\Gamma(x)=-\tilde\Gamma(x+\pi)$.
+  Fig. 15(a), p.2133 shows in the time domain that the phase kicks a second-harmonic injection delivers in two
+  consecutive injection cycles (= two consecutive oscillation half-cycles) **cancel exactly**, independent of the
+  relative phase $\theta$ — the time-domain version of $\vert\tilde\Gamma_2\vert=0$ in Eq.(30).
+- **footnote 15, p.2133**: the general definition of the upper lock-range edge
+  $\omega_L^{+}:=\max_\theta\big\langle\tilde\Gamma(\tfrac{\omega_{inj}}{N}t+\theta)\,i_{inj}(t)\big\rangle_{NT_{inj}}$
+  (the maximum over $\theta$ of the injection term of Eq.(29); for sinusoidal injection in the linear regime it reduces
+  to Eq.(30)'s $\tfrac12I_{inj}\vert\tilde\Gamma_N\vert$); Fig. 15(b) shows unequal kicks in consecutive injection
+  cycles and a net phase accrual once the waveform is asymmetric. footnote 16: the ISF amplitude scales roughly as
+  1/(charge swing of the injection node).
+- **Fig. 16 / Table IV, p.2134**: a 1-GHz 17-stage single-ended inverter-chain ring with only $W_P/W_N$ changed
+  ($1.37$ fairly symmetric → $8.33$ PFET-dominant → $0.175$ NFET-dominant; $t_F/t_R$ 0.74 → 1.92 → 0.30):
+  $\vert\tilde\Gamma_2\vert/\tilde\Gamma_{rms}$ 0.0927 → 0.301 → 0.371, $\tilde\Gamma_{rms}$ 0.282 → 1.33 → 1.64 rad/pC
+  (the overall ISF grows too, the "added benefit"), second-harmonic compliance $\eta_2$ (Sec. VI Eq.(35)–(36), p.2132)
+  $2.98\times10^{-3}$ → 0.0104 → 0.0130, and the simulated ÷2 lock range $2f_L$ for a 1.5 mA sinusoidal injection
+  16 → 560 → 710 MHz. footnote 17: nonlinear behavior is already prevalent at this injection strength, so the simulated
+  lock range is much wider than $I_{inj}\vert\tilde\Gamma_2\vert/2$ (this site's recomputed linear values
+  $2f_L=I_{inj}\vert\tilde\Gamma_2\vert/2\pi=6.2/95.6/145.3$ MHz; the simulations are 2.6/5.9/4.9× larger).
+  Fig. 16 caption: because of the electron's higher mobility, strengthening the NMOS is more efficient than
+  strengthening the PMOS.
+- **Why the worse $1/f$ is no concern** (p.2134): asymmetric inverters up-convert $1/f$ noise more (the symmetry rule of
+  [P2]; [P4] cites its [27]), but the close-in phase noise of an injection-locked oscillator is dominated by the
+  injection, not by the free-running oscillator ([P4] cites its [29]).
+- **Table III, p.2133** (the compliance summary of Sec. VI for the oscillators measured in this paper and [P3]): the
+  17-stage ring measures $\eta_1=0.0192$, $\eta_2=3.08\times10^{-3}$, $\eta_3=0.0175$, $\eta_5=0.0148$; the LC
+  $\eta_{LC}$ (Eq.(38)) is covered in
+  [paper_004_large_injection_transient](/05_paper_deep_dives/paper_004_large_injection_transient) §1.7. Trends (p.2132):
+  LC oscillators that convert bias current to swing more efficiently are less compliant, rings become less compliant
+  as they grow longer, relaxation oscillators are the most compliant, and higher-harmonic compliances are typically lower.
+
 ## Key figures
 
 | Paper figure | Page | Content | Teaching purpose |
@@ -300,6 +345,8 @@ the lock-edge determination is limited by the 600 ns integration window and grid
 | Fig. 5 | 2126 | Characterizing the effect of an instantaneous charge injection on the oscillator: ISF / excess phase, the amplitude decay function, and the quadrature relation between ISF and APF (verified) | The single best figure connecting phase (ISF) and amplitude (APF) sensitivities |
 | Fig. 11 | 2130 | Superharmonic sinusoidal lock characteristic simulations: 1-mA and 2-mA second-harmonic injections into the **tail** of a differential LC ($I_{tail}=1$ mA), and a 5-mA third-harmonic injection into an ideal Bose oscillator (caption verified) | ÷2/÷3 lock characteristics against Eq.(30); injecting at the tail for ÷2 bypasses the $c_2\approx0$ of the differential nodes |
 | Fig. 12 | 2131 | Superharmonic lock range measurements: Bose relaxation ($N=2..5$), 17-stage ring ($N=2,5$), various oscillators ($N=3$), differential LC tail ($N=2$) (caption verified) | Experimental verification of $\omega_L=I_{inj}\vert\tilde\Gamma_N\vert/2$: linear in $I_{inj}$ |
+| Fig. 15 | 2133 | Time-domain view under an $N=2$ sinusoidal injection: (a) a half-wave-symmetric ISF — the phase kicks of consecutive injection cycles cancel; (b) an asymmetric waveform — a net phase accrues (caption verified) | The pictorial version of footnotes 14/15; this site's toy reproduction is in [injection_locked_division](/06_design_insights/injection_locked_division) |
+| Fig. 16 | 2134 | Simulated free-running waveform and ISF of a 1-GHz 17-stage single-ended ring for (a) fairly symmetric, (b) PFET-dominant, (c) NFET-dominant inverters, with the normalized magnitudes of the first five Fourier coefficients (caption verified) | Asymmetry ⟹ $c_0,c_2,c_4$ grow together; the figure behind Table IV |
 
 This figure is the best visual for "why amplitude noise decays while phase noise does not": the perturbation associated with the APF
 is pulled back by the amplitude decay function, whereas the phase perturbation associated with the ISF remains permanently. This site uses
@@ -353,7 +400,7 @@ Per paper_metadata (paper_004.limitations):
 | Which part of this page | Corresponding teaching page | What that page adds |
 |---|---|---|
 | The ÷$N$ lock range rides on $c_N$; half-wave symmetry ⟹ $c_2=0$ cannot divide by 2 | [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) | ISF Fourier expansion, the Step-7 symmetry table (odd function ⟹ $c_0=0$; half-wave symmetry ⟹ even harmonics vanish) |
-| Injection phase sets the effective weight of $\Gamma$ / $\Lambda$ (cyclostationary concept) | [effective_isf](/03_isf_core_theory/effective_isf) | $\Gamma_{eff}=\Gamma\cdot\alpha$, bias-dependent thermal-noise NMF, switching-pair worked example |
+| Injection phase sets the effective weight of $\tilde\Gamma$ / $\tilde\Lambda$ (cyclostationary concept) | [effective_isf](/03_isf_core_theory/effective_isf) | $\Gamma_{eff}=\Gamma\cdot\alpha$, bias-dependent thermal-noise NMF, switching-pair worked example |
 | How injection phase changes the effective ISF (numerical feel) | [lab_14_cyclostationary_isf](/04_simulation_labs/lab_14_cyclostationary_isf) | Runnable toy: noise injection phase $\to$ $\Gamma_{eff,rms}$ (**pedagogical toy, not transistor-level**) |
 | ISF / APF quadrature, coupled oscillators under injection locking | [quadrature_and_coupled_oscillators](/06_design_insights/quadrature_and_coupled_oscillators) | Quadrature injection, phase relations and design of coupled oscillators |
 
@@ -361,7 +408,7 @@ Per paper_metadata (paper_004.limitations):
 
 ## What to remember
 
-- **APF = the amplitude version of the ISF**, units $1/\text{A}$; the ISF projects onto the tangential direction (phase), the APF onto the radial direction (amplitude).
+- **Amplitude ISF $\tilde\Lambda$ (1/C) = the amplitude version of the ISF; APF $\Delta=\int\tilde\Lambda\,d\,d\tau$ (1/A, no tilde)**; the ISF projects onto the tangential direction (phase), the amplitude ISF / APF onto the radial direction (amplitude).
 - **Ideal LC: the ISF and APF are in quadrature ($90°$ apart)** — when phase is most sensitive, amplitude is least sensitive, and vice versa
   (claim C11).
 - **Phase accumulates permanently; amplitude is pulled back by the decay function** — this is the justification for "tracking only phase" in phase noise.
@@ -371,5 +418,9 @@ Per paper_metadata (paper_004.limitations):
   locked phases spaced $2\pi/N$ apart.
 - **A half-wave-symmetric ISF ($c_2=0$) cannot divide by 2 to first order** — the symmetry that is good for phase noise is bad news for the ILFD;
   [P4]'s ÷2 experiments inject $2f_0$ into the tail of a differential LC to get around it.
+- **ISF shaping (Sec. VII-A, p.2132–2134)**: deliberately asymmetric single-ended inverter rings ($W_P/W_N$) enlarge
+  $\vert\tilde\Gamma_2\vert$ by 15–23× (Table IV), and the simulated 1.5 mA ÷2 lock range goes 16 → 560 / 710 MHz; in the
+  time domain half-wave symmetry = the phase kicks of consecutive injection cycles cancel exactly (footnote 14); the upper
+  lock-range edge is $\omega_L^{+}=\max_\theta\langle\tilde\Gamma\,i_{inj}\rangle_{NT_{inj}}$ (footnote 15).
 - This page is **advanced**; the exact APF equations ([P4] Eq.(18)–(22), p.2126; quadrature Eq.(26), p.2128) and
   the M:N locking (Eq.(28)–(30), p.2129; $\omega_L$, p.2130) have been verified against the original.

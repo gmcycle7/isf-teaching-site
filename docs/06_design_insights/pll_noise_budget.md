@@ -1,6 +1,6 @@
 ---
 title: PLL 完整相位雜訊預算與最佳 loop BW
-description: 五個雜訊源（reference、PFD/charge-pump、divider、loop filter、VCO）各自的轉移與加總 S_out=(S_ref N²+S_cp)|H_lp|²+S_vco|H_hp|²，in-band vs out-of-band 切換，reference spur，並對積分 jitter 求極小得最佳 loop BW（fn≈6.9 MHz、σt≈259 fs）；加映 type-II peaking 閉式解（ζ=0.707→2.09 dB @0.786fn、級聯 0.1 dB 法則）與 fractional-N ΔΣ 量化雜訊第三項（MASH-m、+40 dB/dec 斜坡）。
+description: 五個雜訊源（reference、PFD/charge-pump、divider、loop filter、VCO）各自的轉移與加總 S_out=(S_ref N²+S_cp)|H_lp|²+S_vco|H_hp|²，in-band vs out-of-band 切換，reference spur，並對積分 jitter 求極小得最佳 loop BW（fn≈6.9 MHz、σt≈259 fs）；加映 type-II peaking 閉式解（ζ=0.707→2.09 dB @0.786fn、級聯 0.1 dB 法則）與 fractional-N ΔΣ 量化雜訊第三項（MASH-m、+40 dB/dec 斜坡）、loop-filter 電阻雜訊閉式、以及 PLL 的 jitter–power FOM（σt=259 fs、10 mW → −241.7 dB）。
 ---
 
 # PLL 完整相位雜訊預算與最佳 loop BW
@@ -69,7 +69,7 @@ flowchart LR
 | reference | $S_{ref}$ | 晶體/參考的相位雜訊 | $\times N$ 再低通 | $N^2\lvert H_{lp}\rvert^2$（in-band，被 $N^2$ 放大） |
 | PFD/charge-pump | $S_{cp}$ | CP 電流雜訊、PFD dead-zone、mismatch | 低通 | $\lvert H_{lp}\rvert^2$（in-band，平坦底） |
 | divider | $S_{div}$ | ÷N 邏輯的 jitter | 低通（與 ref 同路徑） | $\lvert H_{lp}\rvert^2$（in-band；常併入 $S_{cp}$） |
-| loop filter | $S_{lf}$ | 濾波電阻熱雜訊調 VCO | 帶通（峰在 $f_n$ 附近） | $\propto\lvert H_{lp}\rvert^2$（常較小，略） |
+| loop filter | $S_{lf}$ | 濾波電阻熱雜訊調 VCO | 帶通（峰恰在 $f_n$） | $4kTR\,K_{vco}^2/(2\pi f)^2\cdot\lvert H_{hp}\rvert^2$（第 2 步閉式；$I_{cp}$ 小、$R$ 大時不可略） |
 | VCO | $S_{vco}$ | tank/tail 熱雜訊經 ISF（本站主線） | 高通 | $\lvert H_{hp}\rvert^2$（out-of-band 主宰） |
 
 **為什麼 reference 要乘 $N^2$。** divider 把輸出頻率 $f_{out}=N f_{ref}$ 拉回 $f_{ref}$ 比相，等於
@@ -99,8 +99,10 @@ $$
 - **Dimension check**：$\omega,\omega_n$ 同為 rad/s，分子分母同階（$\omega^4$ 或 $\omega_n^4$），
   $\lvert H\rvert^2$ 無因次 ✓。
 
-這兩條轉移函數的詳細推導（從 PFD gain $K_d$、VCO gain $K_v$、loop filter $F(s)$ 寫開環
-$G(s)=K_dK_vF(s)/s$ 再求閉環）見 [lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer)；
+這兩條轉移函數的詳細推導（從 charge-pump $K_{cp}=I_{cp}/2\pi$、loop filter $R+1/sC$、VCO $K_{vco}/s$、
+divider $1/N$ 寫開環 $G(s)=\frac{I_{cp}}{2\pi}(R+\frac{1}{sC})\frac{K_{vco}}{s}\frac{1}{N}$ 再求閉環，得
+$\omega_n=\sqrt{I_{cp}K_{vco}/(2\pi NC)}$、$\zeta=\frac{R}{2}\sqrt{I_{cp}K_{vco}C/(2\pi N)}$，含 $R$、$C$ 的 worked
+design 與第三極 $C_3$）見 [lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer) §2；
 那條鏈路與 type-II 穩定性屬標準 PLL 文獻（不在 5 篇 PDF 內）。
 
 ## 第 2 步：加總成輸出預算
@@ -117,9 +119,37 @@ $$
 - **divider 去哪了**：$S_{div}$ 與 charge-pump 走同一條低通路徑、在輸出同樣是 $\lvert H_{lp}\rvert^2$
   整形，故工程上常把 $S_{div}$ 併進 $S_{cp}$ 當作「環路前端等效 in-band 地板」。本頁的 $S_{cp}$
   就是「PFD + charge-pump + divider」的合計。
-- **loop-filter 那一項**：$S_{lf}$（濾波電阻熱雜訊調制 VCO）的轉移在 $f_n$ 附近有個小峰，量級
-  通常比 ref/CP 與 VCO 小，本頁的 toy 預算略去（標 illustrative）；真實設計要納入並做電阻雜訊
-  最佳化。
+- **loop-filter 那一項（閉式）**：濾波電阻 $R$ 的熱雜訊電壓（PSD $4kTR$）直接疊在 $V_{ctrl}$ 上、經
+  VCO 的 $K_{vco}/s$ 再被環路以 $1/(1+G)=H_{hp}$ 糾正（推導見
+  [lab_13](/04_simulation_labs/lab_13_pll_cdr_transfer) §2）：
+
+$$
+S_{lf}(f)=S_{\phi,R}(f)=\frac{4kTR\,K_{vco}^{2}}{(2\pi f)^{2}}\,\lvert H_{hp}(f)\rvert^{2}\quad[\text{rad}^2/\text{Hz}],
+\qquad S_{\phi,R}(f_n)=\frac{4kTR\,K_{vco}^{2}}{(2\zeta\omega_n)^{2}}
+$$
+
+  （$K_{vco}$ 用 rad/s/V；低頻 $\propto f^2$ 上升、高頻 $\propto1/f^2$ 下降，**帶通、峰恰在 $f_n$**）。
+  **它不一定小**：用 lab_13 的 worked design（$f_n=1$ MHz、$\zeta=0.707$、$N=100$、$K_{vco}=50$ MHz/V、
+  $I_{cp}=100\ \mu$A → $R=178$ kΩ、$C=1.27$ pF），$S_{\phi,R}(1\ \text{MHz})=3.68\times10^{-12}\ \text{rad}^2/\text{Hz}$
+  （$-117.4$ dBc/Hz）——比本頁 in-band 地板 $1.5\times10^{-12}$ **高 2.5 倍**，但比 ring VCO 在 $f_n$ 的
+  $10^{-10}$ 低 27 倍；單獨積分 1 kHz–1 GHz 給 $\sigma_{t,R}=91$ fs（對照最佳點 259 fs）。固定 $f_n,\zeta$ 下
+  $R\propto1/I_{cp}$，所以**加大 CP 電流**同時壓電阻項與 $(2\pi N/I_{cp})^2S_{i,cp}$ 的 CP 項（代價：功率、$C$ 面積）。
+  lab_20 的圖（下）未含此項（其 $I_{cp}$ 未指定，標 illustrative）；真實設計要納入。
+
+```python
+import numpy as np
+from simulations.common.pll_utils import design_type2, H_highpass_mag2
+R, C = design_type2(1e6, 0.707, 100, 50e6, 100e-6)     # lab_13 worked design: Hz, -, -, Hz/V, A
+kv = 2*np.pi*50e6                                       # rad/s/V
+Sv = 4*1.380649e-23*300*R                               # V^2/Hz
+f = np.logspace(3, 9, 200001)
+S_R = Sv*kv**2/(2*np.pi*f)**2*H_highpass_mag2(f, 1e6, 0.707)
+i = np.argmin(abs(f - 1e6))
+print(round(R/1e3, 1), f"{S_R[i]:.2e}", round(10*np.log10(0.5*S_R[i]), 1),
+      round(np.sqrt(np.trapezoid(S_R, f))/(2*np.pi*5e9)*1e15, 0))
+# -> 177.7 3.68e-12 -117.4 91.0
+```
+
 - **fractional-N 的第三項**：若除數由 ΔΣ 調變器抖動（fractional-N），量化雜訊以
   $S_{\Delta\Sigma}(f)\,\lvert H_{lp}\rvert^2$ 進預算——與 CP 同路徑低通，但**不乘 $N^2$**、
   形狀是 $+20(m-1)$ dB/dec 的上升斜坡。完整推導與 worked example 見本頁
@@ -621,7 +651,10 @@ $$
 > 仍以淨 $+20$ dB/dec 續爬，直到 $\sin$ 封頂：$f_n=100$ kHz 時峰值 $-103.6$ dBc/Hz 落在
 > $\approx18.6$ MHz，比同 offset 的 VCO 項（$-125.4$ dBc/Hz）還高約 22 dB。真實 fractional-N
 > 迴路因此**必加 loop-filter 高頻極點**（三階／四階環），讓 out-of-band 滾降快過
-> $20(m-1)$ dB/dec（外部標準做法，見 Gardner、Razavi 教材；非本站 5 篇 PDF）。這正是
+> $20(m-1)$ dB/dec（外部標準做法，見 Gardner、Razavi 教材；非本站 5 篇 PDF）。第三極的
+> 設計式（$R$–$C$ 支路並聯 $C_3$，$\omega_{p3}=(C+C_3)/(RCC_3)$，$C_3\approx C/10$ 給 $f_{p3}=11f_z$）
+> 與它吃掉的 phase margin（$65.5^\circ\to53.1^\circ$）見 [lab_13](/04_simulation_labs/lab_13_pll_cdr_transfer) §2——
+> 注意三階環只把 $m=3$ 的 $+40$ dB/dec **壓平**，要淨下降得四階。這正是
 > 「紙上第三項看似無害、silicon 上高頻 hump 冒出來」的經典事故來源。
 
 ### Worked example（例 3：MASH-1-1-1 的 spot 貢獻）
@@ -702,8 +735,143 @@ PLL 輸出的 $\sigma_t$（本頁右圖最低點 $\approx259$ fs）就是餵給�
 裡，這個 $\sigma_t$ 直接決定眼圖（eye diagram）的水平閉合與 BER（bit error rate）：UI（unit
 interval，單位間隔）越短（資料率越高），同樣的 $\sigma_t$ 吃掉的眼寬比例越大。所以**選對
 loop BW 把 PLL jitter 壓到最低，是整條 SerDes link 預算的源頭**。CDR（時脈資料回復）本身也是
-一個 PLL，它對輸入 jitter 的 jitter-tolerance（容忍）轉移就是這裡的 $\lvert H_{lp}\rvert^2$
-（低頻 jitter 追得上→容忍、高頻→靠眼圖裕度），見 [lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer)。
+一個 PLL，但要分清楚兩個不同的量：CDR 對輸入資料 jitter 的 **jitter transfer**（恢復出的時脈
+「跟著」輸入 jitter 走多少）用的正是這裡的低通 $\lvert H_{lp}\rvert^2$（同頁 $S_{out}=
+S_{ref}\lvert H_{lp}\rvert^2+S_{vco}\lvert H_{hp}\rvert^2$，見
+[lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer)）；但 CDR 能**容忍**多大
+輸入 jitter 而不出錯（**jitter tolerance**，下一節）是另一件事，由互補的高通
+$H_{hp}=1-H_{lp}$ 決定，不是 $\lvert H_{lp}\rvert^2$。
+
+### CDR jitter tolerance：由 $1-H_{lp}=H_{hp}$ 決定，不是 $\lvert H_{lp}\rvert^2$
+
+**常見誤標**：把 CDR 的 jitter tolerance 也寫成 $\lvert H_{lp}\rvert^2$——那其實是上一段的
+jitter transfer。Tolerance 問的是不同的問題：CDR 的取樣時鐘 $\phi_{clk}(f)\approx
+H_{lp}(f)\,\phi_{data}(f)$ 會追蹤輸入資料的 jitter $\phi_{data}(f)$，但追不上的部分（誤差）
+才會吃掉眼圖：
+
+$$
+\phi_{err}(f)=\phi_{data}(f)-\phi_{clk}(f)=\big[1-H_{lp}(f)\big]\,\phi_{data}(f)=H_{hp}(f)\,\phi_{data}(f).
+$$
+
+**JTOL 判據**：令眼圖本身已有的裕度（扣掉 DJ、取樣不確定性等）為 $\text{UI}-\text{TJ}_{eye}$，
+CDR 能容忍的最大單頻正弦輸入 jitter（peak 幅度）為
+
+$$
+\text{JTOL}(f)\approx\frac{\text{UI}-\text{TJ}_{eye}}{\lvert H_{hp}(f)\rvert}.
+$$
+
+這裡的 $\lvert H_{hp}(f)\rvert=\sqrt{\lvert H_{hp}(f)\rvert^2}$ 是**線性（幅度）轉移**——單一頻率
+的正弦擾動走幅度轉移，不是本頁 PSD 加總用的功率轉移 $\lvert H_{hp}\rvert^2$，單位要分清楚。
+低頻（$f\ll f_n$）type-II 二階環的 $\lvert H_{hp}\rvert\propto(f/f_n)^2$（$-40$ dB/dec 的教科書
+斜率），CDR 追得上、容忍度隨頻率降低而發散；高頻（$f\gg f_n$）$\lvert H_{hp}\rvert\to1$，CDR
+完全追不上，容忍度封頂在 $\text{UI}-\text{TJ}_{eye}$（只剩靜態眼圖裕度）。
+
+> **worked example（站台值）**：UI $=40$ ps（[final_exam](/04_simulation_labs/final_exam) 題 10
+> 的 25 Gb/s NRZ link）、自由跑（free-running）VCO 的 $\sigma_t=447.9$ fs（例 C，本站 canonical），
+> CDR 環路取本頁/lab_13 的 $f_n=1$ MHz、$\zeta=0.707$，求 100 kHz／1 MHz／10 MHz 三點的 JTOL。
+
+**逐步代入：**
+
+1. 用 per-Gaussian 慣例 $Q^{-1}(10^{-12})\approx7.03$（同 final_exam 題 10）估這顆 RJ 單獨吃掉的
+   眼圖裕度：
+   $\text{TJ}_{eye}=2\,Q^{-1}(10^{-12})\,\sigma_t=2\times7.03\times0.4479\ \text{ps}=6.30\ \text{ps}
+   =0.157\ \text{UI}$。
+2. 剩下可分給輸入 jitter 的裕度：$\text{UI}-\text{TJ}_{eye}=40-6.30=33.70\ \text{ps}=0.843$ UI。
+3. 用本頁 $\lvert H_{hp}\rvert^2$ 公式取平方根得幅度轉移 $\lvert H_{hp}(f)\rvert$，代入
+   $\text{JTOL}(f)=0.843\ \text{UI}/\lvert H_{hp}(f)\rvert$。
+
+**結果：** JTOL $\approx84$ UI @100 kHz（低頻幾乎全容忍）、$1.19$ UI @1 MHz（環路頻寬附近，
+$\lvert H_{hp}\rvert^2\approx0.5$）、$0.84$ UI @10 MHz（高頻封頂在靜態眼圖裕度附近）。這正是
+業界 JTOL mask 的典型形狀：低頻一條 $-40$ dB/dec 斜線、高頻封頂在常數。
+
+**Dimension check：** $\text{UI}-\text{TJ}_{eye}$ 與 $\text{JTOL}$ 同單位（UI，無因次時間比例）；
+$\lvert H_{hp}(f)\rvert$ 無因次（幅度轉移函數）；相除仍是 UI ✓。
+
+```python
+import numpy as np
+from simulations.common.pll_utils import H_highpass_mag2
+
+UI = 40e-12          # s，25 Gb/s NRZ（final_exam 題10）
+sigma_t = 447.9e-15  # s，站台 canonical free-running jitter（例C）
+qinv = 7.03          # per-Gaussian Q^-1(1e-12)，本站慣用值（final_exam 題10）
+TJ_eye = 2 * qinv * sigma_t
+frac_UI = TJ_eye / UI
+margin_UI = 1 - frac_UI
+print(round(TJ_eye * 1e12, 2), round(frac_UI, 3), round(margin_UI, 3))
+# -> 6.3 0.157 0.843
+
+fn, zeta = 1e6, 0.707   # Hz；本頁/lab_13 的 f_n, zeta
+for f in [1e5, 1e6, 1e7]:
+    H_hp = np.sqrt(H_highpass_mag2(np.array([f]), fn, zeta)[0])
+    jtol_UI = margin_UI / H_hp
+    print(f, round(H_hp, 4), round(jtol_UI, 2))
+# -> 100000.0 0.01 84.26
+# -> 1000000.0 0.7072 1.19
+# -> 10000000.0 1.0 0.84
+```
+
+**外部文獻**（外部文獻，非本站 5 篇 PDF）：B. Razavi, *Design of Integrated Circuits for
+Optical Communications*, 2nd ed., Wiley, 2012（CDR jitter tolerance 一章；節號待查）。
+
+## PLL 的 jitter–power FOM
+
+振盪器有 FOM（[fom_limit](/06_design_insights/fom_limit)：把 $\mathcal{L}$、$(f_0/\Delta f)^2$、$P$
+歸一化），整顆 PLL 也有一個常用的品質指標。PLL 的自然輸出量不是某個 offset 的 $\mathcal{L}$，
+而是**積分 rms jitter** $\sigma_t$（第 5 步；它已把 $f_0$ 吃進去：$\sigma_t=\sigma_\phi/2\pi f_0$），
+再配上**總功耗** $P$：
+
+$$
+\mathrm{FOM}_{jitter}=20\log_{10}\!\Big(\frac{\sigma_t}{1\ \text{s}}\Big)+10\log_{10}\!\Big(\frac{P}{1\ \text{mW}}\Big)\qquad[\text{dB}]
+$$
+
+（外部慣例，非本站 5 篇 PDF；此定義由 X. Gao, E. A. M. Klumperink, M. Bohsali, and B. Nauta,
+*"A Low Noise Sub-Sampling PLL in Which Divider Noise Is Eliminated and PD/CP Noise Is Not
+Multiplied by N²,"* IEEE J. Solid-State Circuits, vol. 44, no. 12, pp. 3253–3263, Dec. 2009 推廣，
+[sampling_pll](/06_design_insights/sampling_pll) 已引用。）
+
+- **為什麼是 $\sigma_t^2\times P$（$20\log\sigma_t+10\log P$）**：熱雜訊主導的 PLL 裡每一項都
+  $\propto1/P$——VCO 項 $S_{vco}\propto F_{eff}\,kT/P$（[fom_limit](/06_design_insights/fom_limit)
+  第 1 步的萬用形）、CP 項 $(2\pi N/I_{cp})^2S_{i,cp}\propto1/I_{cp}$（$S_{i,cp}\propto I_{cp}$）、
+  loop-filter 電阻項 $\propto R\propto1/I_{cp}$（第 2 步／lab_13）。所以 $\sigma_\phi^2\propto1/P$，
+  $\sigma_t^2\cdot P\approx$ 常數——取 $10\log_{10}$ 就是上式。**功率加倍只能買到 $\sigma_t/\sqrt2$**。
+- **正負號慣例 flag**：本式**恆為負、越負越好**（$\sigma_t\ll1$ s）；與 fom_limit 的振盪器 FOM
+  「正值、越大越好」相反。兩者不能互換也不能相加——一個歸一化 $f_0/\Delta f$、一個歸一化
+  $f_0$ 進 $\sigma_t$。
+- **Dimension check**：$\sigma_t/1\ \text{s}$、$P/1\ \text{mW}$ 皆無因次 → dB ✓。
+
+> **worked example（本頁最佳點）**：$\sigma_t=259$ fs（第 5 步右圖最低點，積分 1 kHz–1 GHz）、
+> 假設整顆 PLL 功耗 $P=10$ mW（lab_20 不建模功率，此值為 illustrative 假設）。求 $\mathrm{FOM}_{jitter}$，
+> 以及 $\sigma_t$ 減半、$P$ 減半各改善多少。
+
+**逐步代入：**
+
+1. $20\log_{10}(259\times10^{-15})=20\times(\log_{10}2.59-13)=20\times(0.4133-13)=20\times(-12.587)=-251.7$ dB。
+2. $10\log_{10}(10\ \text{mW}/1\ \text{mW})=+10.0$ dB。
+3. $\mathrm{FOM}_{jitter}=-251.7+10.0=\mathbf{-241.7}$ dB。
+4. $\sigma_t$ 減半：$20\log_{10}(0.5)=-6.02$ dB（更好）；$P$ 減半：$10\log_{10}(0.5)=-3.01$ dB。
+   **jitter 減半值兩倍的功率減半**——這是 $\sigma_t^2P$ 記帳的直接後果。
+5. **距離 state-of-the-art**：文獻常把 $\approx-250$ dB 當作近年最佳 PLL 的量級（外部慣例，
+   數值待查證、且隨年份與積分頻寬定義變動）。同樣 10 mW 要到 $-250$ dB 需
+   $\sigma_t=10^{(-250-10)/20}=10^{-13}$ s $=100$ fs；本頁 $-241.7$ dB 差 8.3 dB——等於同功率下
+   $\sigma_t$ 大 2.6 倍，或同 jitter 下功率多 6.8 倍。往前走的路就是本頁的旋鈕：降 $S_{vco}$
+  （LC 取代 ring、[fom_limit](/06_design_insights/fom_limit) 的 $Q$）、降 in-band 地板
+  （sub-sampling 免 $\times N^2$、[sampling_pll](/06_design_insights/sampling_pll)）、再重選 $f_n$。
+
+```python
+import numpy as np
+sigma_t, P = 259e-15, 10e-3          # s (lab_20 optimum), W (assumed PLL power, illustrative)
+FOM_j = 20*np.log10(sigma_t/1.0) + 10*np.log10(P/1e-3)
+print(round(20*np.log10(sigma_t), 1), round(FOM_j, 1))      # -> -251.7 -241.7
+print(round(20*np.log10(0.5), 2), round(10*np.log10(0.5), 2))   # -> -6.02 -3.01
+print(round(10**((-250 - 10)/20)*1e15, 1), round(-241.7 - (-250), 1))   # -> 100.0 8.3
+print(round(10**(8.3/20), 1), round(10**(8.3/10), 1))     # -> 2.6 6.8
+```
+
+**適用與失效（$\mathrm{FOM}_{jitter}$）：** 比較兩顆 PLL 前先對齊三件事——(i) **積分頻寬**
+（本頁 1 kHz–1 GHz；文獻常見 1 kHz–100 MHz 或 10 kHz–40 MHz，頻寬不同數字不可比）；
+(ii) $\sigma_t$ 是否含 spur（本頁只算隨機 PN）；(iii) $P$ 是否含 reference、輸出 buffer。
+它也**不歸一化 $f_{out}$ 與調諧範圍**，所以只在同類架構、同頻段內才有意義；熱雜訊主導的
+$\propto1/P$ 假設在 flicker 主導或數位功耗（ADPLL 的邏輯、TDC）主導時失效。
 
 ## 適用與失效條件
 
@@ -712,7 +880,7 @@ loop BW 把 PLL jitter 壓到最低，是整條 SerDes link 預算的源頭**。
 | 各源不相關 | 功率直接相加（本頁加總式） | 若 CP 與 divider 相關，需含交叉項 |
 | 線性 PLL（小相位誤差） | type-II 二階閉環有效 | 大失鎖/slew → 非線性，轉移函數不成立 |
 | VCO 為 $1/f^2$（白噪上轉） | $S_{vco}=k/f^2$，本頁 U 形 | 含 flicker（$1/f^3$ close-in）→ 最佳 BW 偏移、要重積分 |
-| 忽略 loop-filter 與 spur | toy 預算夠用 | 精確設計要納 $S_{lf}$、reference spur、fractional 雜散 |
+| 忽略 loop-filter 與 spur | toy 預算夠用（lab_20 圖） | $S_{lf}$ 已有閉式（第 2 步；小 $I_{cp}$ 時可比 in-band 地板高）、reference spur、fractional 雜散都要納入 |
 | 整數-N | reference $\times N^2$ | fractional-N：ΔΣ 量化雜訊第三項（本頁「fractional-N 的第三項」節已補） |
 
 ## 重點回顧
@@ -724,6 +892,9 @@ loop BW 把 PLL jitter 壓到最低，是整條 SerDes link 預算的源頭**。
 - **最佳 loop BW**：對 $\int S_{out}df$ 求極小，$f_n^\*\propto\sqrt{S_{vco}/(S_{ref}N^2+S_{cp})}$；
   太窄 VCO 漏出、太寬 ref/CP 漏出。lab_20 數值：$f_n^\*\approx6.90$ MHz、$\sigma_t\approx259$ fs。
 - 這顆 ring-PLL U 形左臂比右臂陡 → 偏好稍大的 loop BW。
+- loop-filter 電阻項有閉式 $S_{\phi,R}=4kTR\,K_{vco}^2/(2\pi f)^2\cdot\lvert H_{hp}\rvert^2$（帶通、峰在 $f_n$）；
+  lab_13 的 worked design（$R=178$ kΩ）給 $-117.4$ dBc/Hz @1 MHz、$\sigma_{t,R}=91$ fs——「略去」不總是成立，
+  加大 $I_{cp}$ 同時壓它與 CP 項。
 - type-II 帶零點**必有 peaking**：$f_{pk}=f_n\sqrt{2/(s+1)}$、
   $\lvert H_{lp}\rvert^2_{max}=(s+1)^2/[(s-1)(s+3)]$，$s=\sqrt{1+8\zeta^2}$；
   $\zeta=0.707\to2.09$ dB @ $0.786f_n$（峰值恰為黃金比例 $\varphi$）。級聯時峰值 dB 相加 →
@@ -732,10 +903,23 @@ loop BW 把 PLL jitter 壓到最低，是整條 SerDes link 預算的源頭**。
   $\mathcal{L}_{\Delta\Sigma}=\frac{(2\pi\Delta)^2}{12f_{ref}}[2\sin(\pi f/f_{ref})]^{2(m-1)}\lvert H_{lp}\rvert^2$
   （SSB 讀法；本站單邊 $S_\phi$ 要 $\times2$），**無 $\times N^2$**、$+40$ dB/dec（$m=3$）上爬；
   $f_{ref}$ 加倍 $-15$ dB、窄 BW 砍斜坡；二階環壓不住 $m=3$ 的高頻 hump（要加濾波極點）。
+- **CDR jitter transfer 與 jitter tolerance 是兩件事**：transfer（輸入 jitter 有多少原樣出現在
+  恢復時脈上）$=\lvert H_{lp}\rvert^2$；tolerance（CDR 能容忍多大輸入 jitter 而不出錯）由誤差
+  轉移 $H_{hp}=1-H_{lp}$ 決定，$\text{JTOL}(f)\approx(\text{UI}-\text{TJ}_{eye})/\lvert
+  H_{hp}(f)\rvert$——低頻 $-40$ dB/dec 高容忍、高頻封頂在靜態眼圖裕度。
+- **PLL 的 jitter–power FOM**：$\mathrm{FOM}_{jitter}=20\log_{10}(\sigma_t/1\ \text{s})+10\log_{10}(P/1\ \text{mW})$（越負越好；
+  $\sigma_t^2P$ 不變量）；本頁 259 fs、10 mW → $-241.7$ dB；$\sigma_t$ 減半 $-6$ dB、$P$ 減半 $-3$ dB；
+  比較前先對齊積分頻寬、spur、功耗範圍。
 
 ## 延伸閱讀
 
-- 兩條轉移函數的推導與 jitter transfer：[lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer)
+- 兩條轉移函數的推導、charge-pump type-II 設計式（$R$、$C$、$C_3$）與 loop-filter 電阻雜訊：[lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer)
+- 振盪器 FOM 與其天花板（與 $\mathrm{FOM}_{jitter}$ 的慣例對照）：[fom_limit](/06_design_insights/fom_limit)
+- $\mathrm{FOM}_{jitter}$ 定義的出處：X. Gao, E. A. M. Klumperink, M. Bohsali, and B. Nauta, *"A Low Noise
+  Sub-Sampling PLL in Which Divider Noise Is Eliminated and PD/CP Noise Is Not Multiplied by N²,"*
+  IEEE J. Solid-State Circuits, vol. 44, no. 12, pp. 3253–3263, Dec. 2009（外部文獻，非本站 5 篇 PDF）
+- CDR jitter tolerance 標準教材：B. Razavi, *Design of Integrated Circuits for Optical
+  Communications*, 2nd ed., Wiley, 2012（外部文獻，非本站 5 篇 PDF；節號待查）
 - VCO 那一項從哪來（ISF→$1/f^2$）：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
 - 為什麼 ring 的 $S_{vco}$ 高、LC 低：[lc_vs_ring](/06_design_insights/lc_vs_ring)
 - 把 $\sigma_t$ 餵進 eye/BER：[serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)

@@ -172,8 +172,8 @@ export default function NumericQuiz({
       </div>
       <div style={{fontSize: '0.75rem', opacity: 0.65, marginTop: '0.4rem'}}>
         {isEn
-          ? `Graded correct within ±${Math.round(tol * 100)}% relative error; scientific notation is accepted.`
-          : `判定：相對誤差 ±${Math.round(tol * 100)}% 內算對；可用科學記號輸入。`}
+          ? `Graded correct within ±${(tol * 100).toFixed(tol < 0.01 ? 1 : 0)}% relative error; scientific notation is accepted.`
+          : `判定：相對誤差 ±${(tol * 100).toFixed(tol < 0.01 ? 1 : 0)}% 內算對；可用科學記號輸入。`}
       </div>
     </div>
   );

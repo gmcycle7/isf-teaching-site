@@ -1,6 +1,6 @@
 ---
 title: 真實拓樸的 ISF：cross-coupled LC VCO、Colpitts、CMOS ring stage
-description: 手算層級把三種主流振盪器拓樸的 device noise → ISF 諧波 → close-in phase noise 走成完整鏈：cross-coupled LC VCO 的差動 tank（純 c1）與 tail current source 的有效 ISF（c0 上轉、c2 折回、tail filter 調 2f0）、Colpitts 為何 ISF 集中在窄相位窗、CMOS inverter ring stage 由 switching slope 推 ISF。含多個 worked example，標明 illustrative。
+description: 手算層級把三種主流振盪器拓樸的 device noise → ISF 諧波 → close-in phase noise 走成完整鏈：cross-coupled LC VCO 的差動 tank（純 c1）與 tail current source 的有效 ISF（c0 上轉、c2 折回、tail filter 調 2f0）、Colpitts 為何 ISF 集中在窄相位窗、CMOS inverter ring stage 由 switching slope 推 ISF。含多個 worked example，標明 illustrative；§(d) 用 ISF 講 class-C／class-D／class-F 波形工程（lab_43）。
 ---
 
 # 真實拓樸的 ISF：cross-coupled LC VCO、Colpitts、CMOS ring stage
@@ -411,6 +411,161 @@ print(round(L1,1), round(L5,1), "dBc/Hz")               # 實算 ~ -137.7 / -130
 
 ---
 
+## (d) 波形工程：class-C／class-D／class-F 用 ISF 講
+
+(a)–(c) 講的是「device 在哪個相位窗注入、看到多大的 $\Gamma$」。設計者手上其實有兩支獨立的旋鈕：
+**改注入窗**（動 $\alpha(\theta)$）與**改波形本身**（動 $\Gamma(\theta)$ 的形狀與 $q_{max}$）。Andreani 系的
+class-C／class-D 與 Staszewski 系的 class-F 就是把這兩支旋鈕各推到極致的三個經典拓樸（**皆為外部文獻，
+不在下載的 5 篇 PDF 內**，卷期／頁碼／DOI 見頁末）。本節保持拓樸層級——不碰 PDK、不做 transistor-level
+萃取；凡有數字，皆由 `simulations/lab_43_classc_classf_isf.py` 產生。
+
+### (d-1) class-C：把 Colpitts 的「脈衝落在 ISF 零點」搬進交叉耦合對
+
+**電路**：交叉耦合對的閘極偏壓 $V_{bias}$ 壓到門檻以下（$V_{bias}<V_{th}$），共源節點掛一顆大 tail 電容
+（交流接地，tail 電流可在週期內大幅擺動）。於是每顆電晶體只在「自己的閘極（＝對面汲極）最高、亦即
+**自己的汲極（tank 電壓）最低**」那一小段才導通，汲極電流是一連串窄脈衝——跟 §(b) 的 Colpitts 一模一樣：
+脈衝落在 tank 電壓極值，正是 $\Gamma=-\sin\theta$ 的**零點**（同 §(b) 引的 [P1] §IV.D 那句）。
+
+**第一個機制（注入窗對準 ISF 零點）**：用 [P1] Eq.(27) 的慣例（導通時 $\alpha=1$、截止時 $\alpha=0$），
+差動對兩顆電晶體各給一個半寬 $\phi$（導通角 $2\phi$）的窗，中心在 $\theta=0$ 與 $\theta=\pi$：
+
+$$
+\Gamma_{eff,rms}^2=\frac{1}{2\pi}\left[\int_{-\phi}^{\phi}\sin^2\theta\,d\theta+\int_{\pi-\phi}^{\pi+\phi}\sin^2\theta\,d\theta\right]
+=\frac{1}{\pi}\int_{-\phi}^{\phi}\sin^2\theta\,d\theta=\frac{\phi-\sin\phi\cos\phi}{\pi}.
+$$
+
+- **檢查 1**：$2\phi=180^\circ$（class-B 硬切換，每顆導通半週）→ $\Gamma_{eff,rms}^2=\tfrac{\pi/2}{\pi}=\tfrac12$，
+  剛好回到 stationary 值（§(b) 情形 A）✓。
+- **檢查 2**：$2\phi=60^\circ$（$\phi=\pi/6$）→ $\dfrac{0.5236-0.5\times0.8660}{\pi}=\dfrac{0.0906}{\pi}=0.0288$，
+  比 $\tfrac12$ 低 $10\log_{10}(0.5/0.0288)=12.4$ dB（lab_43 數值 0.0288 ✓）。
+- **對照最糟的對準**（窗中心放在零交越 $\theta=\pi/2,3\pi/2$）：$\Gamma_{eff,rms}^2=(\phi+\sin\phi\cos\phi)/\pi$，
+  $60^\circ$ 時 $=0.3045$——同樣窄的窗，放錯相位只降 2.2 dB。**窄窗本身不是重點，窄窗對準零點才是**。
+- **Dimension check**：$\phi$ 為 rad、$\sin\phi\cos\phi$ 無因次，兩者同量綱可相減；除以 $\pi$ 後無因次 ✓。
+
+> **誠實標註（幾何窗因子 ≠ 完整 F 記帳）**：上式假設「導通時的雜訊密度不隨導通角變」。實際上同 $I_{bias}$ 下
+> 脈衝越窄、峰值電流越大、$g_m$ 越大，[effective_isf](/03_isf_core_theory/effective_isf) 第 1 步的
+> $\alpha^2\propto g_m(t)$ 峰值也跟著上升——窄窗不是白吃的午餐。Mazzanti–Andreani 2008 把這筆帳算完，
+> 摘要說所有特定 LC 拓樸的相位雜訊關係都是「一個非常一般且非常簡單的結果」的特例；在那套記帳下，
+> class-C 對 class-B 在**同電流**下的淨優勢來自振幅，即下面的第二個機制。
+
+**第二個機制（同 $I_{bias}$ 下基波 tank 電流 $\times\pi/2$）**。單端、每顆電晶體記帳（要注意不要單端與差動混用）：
+
+1. **class-B**：每顆汲極電流是 $0\leftrightarrow I_{bias}$ 的方波（平均 $I_{bias}/2$）。方波 Fourier：
+   $I_{bias}\big[\tfrac12+\tfrac{2}{\pi}\cos\theta-\tfrac{2}{3\pi}\cos3\theta+\dots\big]$ → 基波振幅 $I_1^{B}=\dfrac{2I_{bias}}{\pi}$。
+2. **class-C 極限**：每顆汲極電流是面積 $Q=\tfrac{I_{bias}}{2}T$ 的脈衝列（平均仍 $I_{bias}/2$）。脈衝列 Fourier：
+   $\tfrac{Q}{T}\big[1+2\sum_n\cos n\theta\big]$ → 基波振幅 $I_1^{C}=\dfrac{2Q}{T}=I_{bias}$。
+3. （差動記帳則是 $4I_{bias}/\pi$ 對 $2I_{bias}$，比值同樣是 $\pi/2$。）
+4. tank 只留基波：$A=R_p I_1$ → $\dfrac{A_C}{A_B}=\dfrac{I_{bias}}{2I_{bias}/\pi}=\dfrac{\pi}{2}=1.571$；$q_{max}=C\,A$ 同比放大。
+5. [P1] Eq.(21) 的 $\mathcal{L}\propto\Gamma_{rms}^2 S_i/q_{max}^2$，在 $\Gamma_{rms}$、$S_i$ 不變的假設下：
+
+$$
+\Delta\mathcal{L}=-20\log_{10}\!\left(\frac{\pi}{2}\right)=-3.92\ \text{dB}.
+$$
+
+這就是 Mazzanti–Andreani 摘要裡的「theoretical 3.9 dB phase noise improvement」（同電流消耗）。
+套到例 B（$f_0=5$ GHz、$\Gamma_{rms}=1/\sqrt2$、$q_{max}=1$ pC、$S_i=10^{-24}$ A²/Hz、[P1] Eq.(21) SSB「/4」→ $-148.0$ dBc/Hz @ 1 MHz）：
+class-C 同偏壓 $\to-148.0-3.92=-151.9$ dBc/Hz；若用時域「/2」慣例（$-145.0$）則為 $-148.9$ dBc/Hz——
+**兩種慣例差的那顆 2 與本節無關，$-3.92$ dB 的差值兩邊一樣**。
+
+- **Dimension check**：$I_1\,[\text{A}]\times R_p\,[\Omega]=[\text{V}]$；$C\,[\text{F}]\times A\,[\text{V}]=[\text{C}]$ ✓；$\Delta\mathcal{L}$ 是比值的 dB，無因次 ✓。
+- **失效條件**：振幅受 $V_{DD}$ 與「電晶體必須留在飽和區」限制（$V_{bias}+A$ 不能把 device 推進三極管區，否則 class-C 特性消失）；
+  $V_{bias}<V_{th}$ 使小訊號 $g_m$ 很小，**起振與偏壓穩定是 class-C 的工程代價**（原文有專門處理，本站不轉錄）。
+
+### (d-2) class-D：把 $q_{max}$ 推到底、由 $\gamma$ 限制 $F$
+
+Fanori–Andreani 2013 的 class-D 拿掉 tail 電流源，交叉耦合對被當 **switch** 用、rail-to-rail 驅動：每個汲極節點
+半週被 switch 夾在地、另半週由 tank 甩高，單端擺幅遠超 $V_{DD}$（原文推導峰值約 $3V_{DD}$，**本站未重推、待查證**）。用 ISF 講：
+
+- **被夾住的半週 $\Gamma\approx0$**：節點被 $r_{on}$ 釘在地、$dV/dt\approx0$，注入的電荷直接被 switch 吃掉而不進 tank——
+  與 §(c) 「rail 上 $\Gamma\approx0$」同一個論證。相位敏感度集中在 switch 釋放的那半週與切換瞬間。
+- **$q_{max}=C\,A$ 在同 $V_{DD}$ 下最大**：[P1] Eq.(21) 的分母被推到極限，這是 class-D 在 0.4–1 V 級低電壓下相位雜訊仍好的主因；
+  在 [fom_limit](/06_design_insights/fom_limit) 的語言裡，動的是 $\eta_P$ 那一項。
+- **代價**：$F$ 由 switch 的通道噪聲（$4kT\gamma g_m$，切換瞬間）與 $r_{on}$ 對 tank 的負載決定——**$\gamma$ 是天花板**；
+  振幅正比 $V_{DD}$ → supply pushing 大（見 [varactor_tuning_supply_pushing](/06_design_insights/varactor_tuning_supply_pushing)）；
+  波形離正弦很遠，上升／下降不對稱時 $c_0\neq0$，$1/f^3$ 要靠對稱設計壓（[symmetry](/06_design_insights/symmetry)）。
+
+本節對 class-D 不給數字：它的振幅、頻率與 $F$ 表達式是原文的核心貢獻，非本站 toy 能重推。
+
+### (d-3) class-F：$\omega_0$ 與 $3\omega_0$ 同時諧振 → 準方波 → $\Gamma_{rms}^2$ 降（lab_43 產數字）
+
+Babaie–Staszewski 2013 用 transformer 型 tank 在 $3\omega_0$ 多做一個阻抗峰，汲極電流的三次諧波不再被 tank 濾掉，
+tank 電壓變成 $V=V_{p1}\sin\omega_0t+V_{p3}\sin(3\omega_0t+\Delta\phi)$、$\zeta\equiv V_{p3}/V_{p1}$（原文 §II；該 PDF 不在本站 5 篇內，式號／頁碼待查證）。
+本站把它寫成無因次波形 $f(\theta)=\sin\theta+\zeta\sin3\theta$，**從波形推 ISF**（[isf_from_waveform](/03_isf_core_theory/isf_from_waveform) 的方法 C／[P1] Eq.(38) 形狀，
+斜率對自己的最大值歸一，也是 [互動工具 7 IsfSandbox](/04_simulation_labs/interactive_calculator) 的引擎）：
+
+$$
+f'(\theta)=\cos\theta+3\zeta\cos3\theta,\qquad \Gamma(\theta)=\frac{f'(\theta)}{f'_{max}},\qquad f'_{max}=f'(0)=1+3\zeta .
+$$
+
+$$
+\Gamma_{rms}^2=\frac{\overline{f'^{\,2}}}{f'^{\,2}_{max}}=\frac{\tfrac12(1+9\zeta^2)}{(1+3\zeta)^2}
+\quad\Rightarrow\quad \frac{d\Gamma_{rms}^2}{d\zeta}=0\ \text{在}\ 18\zeta(1+3\zeta)=6(1+9\zeta^2)\ \Rightarrow\ \zeta=\frac13,\quad \Gamma_{rms}^2\Big|_{\zeta=1/3}=\frac{\tfrac12\cdot2}{4}=\frac14 .
+$$
+
+這與 Babaie–Staszewski 原文 §II 的閉式一致（$\Gamma_{rms}^2=\tfrac12\tfrac{1+9\zeta^2}{(1+3\zeta)^2}$，最小值 $1/4$ 於 $\zeta=1/3$；本站以 [P1] 波形法獨立推出，原文式號待查證）；
+lab_43 的數值掃描（$\zeta\in[0,0.6]$）與此閉式最大差 $\sim10^{-16}$（浮點零；lab 印出 $1.7\times10^{-16}$，下方頁內 block 用 trapezoid 積分得 $\sim10^{-16}$ 同級），最小值落在 $\zeta=0.335$（格點解析度 0.005）。
+**結論由 lab 產生**：$\Gamma_{rms}^2$ 從正弦的 $0.5$ 降到 $0.25$，即 **$-3.01$ dB**。
+
+用 ISF 講它為什麼有效（兩件事同時發生）：
+
+1. **零交越變陡**：switching pair 在零交越換流、在那裡注入噪聲；同一個 $V_{max}$ 下準方波的零交越斜率是正弦的
+   $f'(0)/\max\lvert f\rvert=2/0.943=2.12$ 倍，斜率主導區的敏感度 $\approx1/\text{slope}$（[P1] Eq.(37), p.193 在 $f''=0$ 處退化成 $1/f'$）→ 注入處 $\lvert\Gamma\rvert$ 從 $1$ 降到 $0.471$。
+2. **平頂 $\Gamma\approx0$**：$f'\approx0$ 的平頂正是 $g_m$ 元件進三極管區、被負載的 tank 一起大量注入噪聲的時段——
+   但 $\Gamma\approx0$，噪聲進得去、相位動不了（原文 §II 的論證；圖號待查證）。
+
+lab_43 再套一個 $\pm30^\circ$ 的零交越注入窗算 $\Gamma_{eff}$：正弦 $0.3045$ → class-F $0.2212$，差 $1.39$ dB（toy 量級）。
+
+![lab_43：(a) class-C 電流脈衝對準 -sin 零點的 Γ_eff；(b) Γ_eff,rms² 隨導通角，對準零點 vs 對準零交越；(c) class-F 準方波 (ζ=0, 1/3) 與斜率歸一 ISF、零交越注入窗；(d) Γ_rms² 隨 ζ：數值 vs Babaie–Staszewski 閉式，ζ=1/3 時 1/2→1/4](/figures/classc_classf_isf.png)
+
+（完整 script：`simulations/lab_43_classc_classf_isf.py`，跑法 `PYTHONPATH=. python3 simulations/lab_43_classc_classf_isf.py`，約 1 s。
+**皆為拓樸層級 toy**：class-C 的 $-\sin$ 是嚴格的、窗是 [P1] Eq.(27) 的 $\alpha\le1$ 慣例；class-F 的 ISF 是「從波形推」的
+斜率歸一近似，圖 (d) 另畫 [P1] Eq.(37), p.193 二階閉式作交叉檢查——它在 $\zeta=1/9$ 有 $f'=f''=0$ 的病點、在四階 tank 的平頂反曲點
+出現假凸點，正是 isf_from_waveform 警告過的失效情形，所以只當參考不當結論。）
+
+> **兩種歸一慣例的差別（要誠實講）**：斜率歸一（Babaie–Staszewski 的閉式）與 [P1] 以 $V_{max}$ 歸一的 $q_{max}$ 參考點不同——
+> 前者把 $\Gamma(\text{零交越})$ 釘在 1，後者讓它降到 $0.471$。兩者對「$\Gamma_{rms}^2$ 降 ~3 dB 級」的結論一致，
+> 但把 3 dB 直接加到 $\mathcal{L}$ 上要小心：同 $V_{p1}$ 下 $\zeta=1/3$ 波形的峰值只有 $0.943$，$q_{max}$ 的記帳跟著變。
+> 原文量測（依摘要記憶；本站無該 PDF，數字待查證）：65 nm CMOS、約 5.9–7.6 GHz、約 $-136$ dBc/Hz @ 3 MHz、FoM 約 192 dBc/Hz、1.25 V／12 mA。
+> 工程代價：$3\omega_0$ 阻抗峰要靠 transformer 耦合係數精準落點，且迴路增益在 $3\omega_0$ 也不小，要防止在輔助峰起振（原文 §II 討論）。
+
+```python
+import numpy as np
+# --- class-C：幾何窗因子 (phi - sin phi cos phi)/pi，導通角 60° ---
+phi = np.deg2rad(60.0)/2
+g2_null  = (phi - np.sin(phi)*np.cos(phi))/np.pi
+g2_worst = (phi + np.sin(phi)*np.cos(phi))/np.pi
+print(round(g2_null, 4), round(10*np.log10(0.5/g2_null), 1), "dB")   # -> 0.0288 12.4 dB（對準零點）
+print(round(g2_worst, 4))                                             # -> 0.3045（對準零交越，最糟）
+# --- class-C：同 I_bias 基波 ×pi/2 → q_max ×pi/2 → Eq.(21) ---
+dL = -20*np.log10(np.pi/2)
+print(round(dL, 2), round(-148.0 + dL, 1), round(-145.0 + dL, 1))     # -> -3.92 -151.9 -148.9（dB；SSB /4；時域 /2）
+# --- class-F：從波形推 ISF（斜率歸一），Gamma_rms^2 vs zeta ---
+th = np.linspace(0, 2*np.pi, 20001)
+def g2(z):
+    f1 = np.cos(th) + 3*z*np.cos(3*th)
+    g = f1/np.max(np.abs(f1))
+    return np.trapezoid(g**2, th)/(2*np.pi)
+zs = np.linspace(0, 0.6, 121)
+vals = np.array([g2(z) for z in zs])
+print(round(g2(1/3), 4), round(10*np.log10(0.5/g2(1/3)), 2), "dB")   # -> 0.25 3.01 dB（zeta=1/3）
+print(round(zs[np.argmin(vals)], 3))                                  # -> 0.335（數值最小值位置，格點 0.005）
+eq3 = 0.5*(1+9*zs**2)/(1+3*zs)**2
+print(round(np.max(np.abs(vals-eq3))*1e12, 3))                        # -> 0.0（vs Babaie–Staszewski 閉式，差 ×1e12 仍為 0：浮點零）
+vmax = np.max(np.abs(np.sin(th) + np.sin(3*th)/3))
+print(round(vmax, 3), round(vmax/2, 3))                               # -> 0.943 0.471（同 V_max 下零交越 1/slope）
+```
+
+> **設計旋鈕（波形工程總表）**：
+>
+> | 拓樸 | 動哪支旋鈕 | ISF 機制 | 量級（本節） | 代價 |
+> |---|---|---|---|---|
+> | class-B（基準） | — | $\Gamma=-\sin$、每顆導通半週 | $\Gamma_{eff,rms}^2=\tfrac12$ | — |
+> | class-C | $\alpha$ 窄窗 ＋ 基波 $\times\pi/2$ | 脈衝落在 ISF 零點；$q_{max}$ 放大 | 同電流 $-3.92$ dB | 起振／偏壓、飽和區限制振幅 |
+> | class-D | $q_{max}$ 推到 rail-to-rail | 被夾半週 $\Gamma\approx0$ | 不給數字（原文） | $F$ 受 $\gamma$ 限、supply pushing、$c_0$ |
+> | class-F | 波形（$3\omega_0$ 諧振） | 零交越變陡、平頂 $\Gamma\approx0$ | $\Gamma_{rms}^2$ $0.5\to0.25$（$-3.01$ dB） | transformer 落點、輔助峰起振風險 |
+
+---
+
 ## 三拓樸對照總表
 
 | 維度 | cross-coupled LC VCO | Colpitts | CMOS ring stage |
@@ -436,6 +591,7 @@ print(round(L1,1), round(L5,1), "dBc/Hz")               # 實算 ~ -137.7 / -130
 | tail filter 在 $2f_0$ 確實高阻抗 | $c_2$ 折回被掐死 | 失諧或 $Q$ 不足 → 殘留 $2\omega_0$ 折回 |
 | 波形對稱（$c_0\to0$） | $1/f^3$ corner 小 | 不對稱 → $c_0$ 大 → close-in 抬高 |
 | 本頁 $c_n$ 數值為 illustrative | 示範機制與量級 | 精確設計需 transistor-level / PSS+PNOISE（Spectre） |
+| §(d) 的 class-C 窗因子用 $\alpha=1$ 慣例、class-F ISF 為斜率歸一近似 | 給出拓樸層級的量級（$-3.92$ dB、$\Gamma_{rms}^2$ 降 3 dB 級） | 完整 $F$ 記帳（脈衝越窄 $g_m$ 峰值越高）與 $q_{max}$ 參考點要回到原文；四階 tank 上 [P1] Eq.(37) 失真 |
 
 ---
 
@@ -452,8 +608,11 @@ print(round(L1,1), round(L5,1), "dBc/Hz")               # 實算 ~ -137.7 / -130
   ISF 峰與 noise 峰**重疊** → cyclostationary 幫不上忙 + 無蓄能 → close-in 天生較差。
 - 三個 worked example 各走完整鏈（device noise → ISF 諧波 → close-in PN）：tail $1/f^3$ corner $\approx255$ kHz、
   Colpitts 窄窗壓 $\Gamma_{eff,rms}^2$ 約 7 dB、5 級 ring $\approx-129$ dBc/Hz @1MHz（皆手算量級）。
+- **波形工程（§(d)）**：class-C 把電流脈衝對準 $-\sin$ 的零點（$60^\circ$ 導通角的幾何窗因子 $0.0288$，且對準零交越只得 $0.3045$）、
+  同 $I_{bias}$ 基波 $\times\pi/2$ → $-3.92$ dB（例 B $-148.0\to-151.9$ dBc/Hz）；class-D 把 $q_{max}$ 推到 rail-to-rail、$F$ 受 $\gamma$ 限；
+  class-F 以 $3\omega_0$ 諧振做準方波，lab_43 從波形推得 $\Gamma_{rms}^2$ 在 $\zeta=1/3$ 由 $0.5$ 降到 $0.25$（$-3.01$ dB，與 Babaie–Staszewski 的閉式一致）。
 - 來源：[P1] Eq.(21),(23),(24) p.185、Eq.(27) p.186、Fig. 5/13/14；圖 `cross_coupled_vco_isf.png`
-  （lab_21，illustrative）、`lc_vs_ring_isf_comparison.png`（lab_03）。
+  （lab_21，illustrative）、`lc_vs_ring_isf_comparison.png`（lab_03）、`classc_classf_isf.png`（lab_43，拓樸層級 toy）。
 
 ## 延伸閱讀
 
@@ -474,3 +633,11 @@ print(round(L1,1), round(L5,1), "dBc/Hz")               # 實算 ~ -137.7 / -130
 - tail filter @ $2f_0$ 的經典出處亦見 E. Hegazi, H. Sjöland, A. A. Abidi, *"A Filtering Technique to
   Lower LC Oscillator Phase Noise,"* IEEE JSSC, vol. 36, no. 12, pp. 1921–1930, Dec. 2001.
   （**不在 5 篇 PDF 內**；卷期/頁碼已查證。）
+- **[E-Mazzanti]** A. Mazzanti and P. Andreani, *"Class-C Harmonic CMOS VCOs, With a General Result on Phase Noise,"*
+  IEEE J. Solid-State Circuits, vol. 43, no. 12, pp. 2716–2729, Dec. 2008（DOI 10.1109/JSSC.2008.2004867）。
+  （§(d-1) 的 class-C 拓樸、同電流 3.9 dB 與「general result」之出處；卷期/頁碼/DOI 已查證。）
+- **[E-Fanori]** L. Fanori and P. Andreani, *"Class-D CMOS Oscillators,"* IEEE J. Solid-State Circuits, vol. 48, no. 12,
+  pp. 3105–3119, Dec. 2013（DOI 10.1109/JSSC.2013.2271531）。（§(d-2) 的 class-D 拓樸；振幅／頻率／$F$ 表達式在原文，本站未重推。卷期/頁碼/DOI 已查證。）
+- **[E-Babaie]** M. Babaie and R. B. Staszewski, *"A Class-F CMOS Oscillator,"* IEEE J. Solid-State Circuits, vol. 48, no. 12,
+  pp. 3120–3133, Dec. 2013（DOI 10.1109/JSSC.2013.2273823）。（§(d-3) 的準方波與 $\Gamma_{rms}^2$ 閉式出處（原文 §II）；
+  本站 lab_43 以 [P1] 波形法獨立重算該閉式。卷期/頁碼/DOI 已查證；原文內部式號／圖號待查證。）

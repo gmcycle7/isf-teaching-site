@@ -42,7 +42,7 @@ and the rules' numbers are convention-independent — which is why the accountin
 
 ## Rule 1: ideal ×N multiplication — why it is $+20\log_{10}N$
 
-**Step 1 (write the signal as a function of phase).** Using the decomposition of [P1] Eq.(1), p.181, take a sinusoidal waveform:
+**Step 1 (write the signal as a function of phase).** Using the decomposition of [P1] Eq.(1), p.180, take a sinusoidal waveform:
 
 $$
 V_{in}(t)=\cos\big(\Phi_{in}(t)\big),\qquad \Phi_{in}(t)=\omega_{ref}\,t+\phi_{in}(t)

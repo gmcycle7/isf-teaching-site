@@ -91,7 +91,7 @@ below; when stuck, return to these four pages first):
 
 - **What to achieve**: derive, starting from the capacitor relation $q=Cv$, the
   operational definition of the ISF
-  $\Delta\phi=\Gamma(\omega_0\tau)\,\Delta q/q_{max}$ ([P1] Eq.(9)–(11), p.182),
+  $\Delta\phi=\Gamma(\omega_0\tau)\,\Delta q/q_{max}$ ([P1] Eq.(9) p.181, Eqs.(10)–(11) p.182),
   and understand why $\Gamma$ is dimensionless and $2\pi$-periodic.
 - **Pages to read**: [impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift) →
   [isf_definition](/03_isf_core_theory/isf_definition).

@@ -79,7 +79,7 @@ $$
 $$
 
 寫成標準擾動形式 $\dot{\mathbf x}=A_0\mathbf x+B\,i_n$，其中**注入向量** $B=(1/C,\ 0)^T$——
-這就是「電流經電容變成 $\dot v$」的數學身分證（[P1] Eq.(9), p.182 的微分版 $\Delta V=\Delta q/C$）。
+這就是「電流經電容變成 $\dot v$」的數學身分證（[P1] Eq.(9), p.181 的微分版 $\Delta V=\Delta q/C$）。
 
 - **單位檢查（B）**：$[B\,i_n]=[\text{A}]/[\text{F}]=\text{V/s}$，與 $\dot v$ 同單位 ✓。
 
@@ -454,7 +454,7 @@ $$
 | 站 | 物件 | 關鍵式 | canonical 數值 | 單位 / dim check | 來源頁＋公式 |
 |---|---|---|---|---|---|
 | ① | LC state eqs | $\dot v=-i_L/C,\ \dot i_L=v/L$ | $\omega_0=1/\sqrt{LC}$ | $[\dot v]=\text{V/s}$, $[\dot i_L]=\text{A/s}$ ✓ | 本頁站①；[lab_02](/04_simulation_labs/lab_02_lc_oscillator_toy_model) |
-| ① | noise 注入 | $\dot{\mathbf x}=A_0\mathbf x+B\,i_n,\ B=(1/C,0)^T$ | — | $[B i_n]=\text{V/s}$ ✓ | [P1] Eq.(9) p.182 |
+| ① | noise 注入 | $\dot{\mathbf x}=A_0\mathbf x+B\,i_n,\ B=(1/C,0)^T$ | — | $[B i_n]=\text{V/s}$ ✓ | [P1] Eq.(9) p.181 |
 | ② | Floquet 相位方向 | $\dot{\mathbf x}_s$ 是齊次解，$\lambda_1=0$ | $\lambda_1=0$（永久不衰減） | $[\lambda]=1/\text{s}$ ✓ | [derivation_floquet_ppv](/99_appendix/derivation_floquet_ppv)（[E2] 外部） |
 | ③ | ISF | $\Gamma(\theta)=-\sin\theta$ | $\vert\Gamma\vert_{\max}=1$ @ 過零 | $\Gamma$ 無因次 ✓ | [P1] Eq.(10)(11) p.182；[isf_definition](/03_isf_core_theory/isf_definition) |
 | ④ | $\Gamma_{rms}$ | $\Gamma_{rms}=\sqrt{\tfrac1{2\pi}\int\vert\Gamma\vert^2dx}$；$\;2\Gamma_{rms}^2=\sum c_n^2$ | $\Gamma_{rms}=1/\sqrt2=0.707$ | 無因次 ✓ | [P1] Eq.(20) p.185；[rms_isf](/03_isf_core_theory/rms_isf) |

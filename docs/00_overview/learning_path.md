@@ -78,7 +78,7 @@ import ProgressChecklist from "@site/src/components/ProgressChecklist";
 ## 第 3 步：ISF 的操作型定義（impulse → phase） {#step-3}
 
 - **要達成什麼**：從電容 $q=Cv$ 一路推到 ISF 的操作型定義
-  $\Delta\phi=\Gamma(\omega_0\tau)\,\Delta q/q_{max}$（[P1] Eq.(9)–(11), p.182），
+  $\Delta\phi=\Gamma(\omega_0\tau)\,\Delta q/q_{max}$（[P1] Eq.(9) p.181、Eqs.(10)–(11) p.182），
   並理解 $\Gamma$ 為何無因次、為何 $2\pi$ 週期。
 - **讀哪幾頁**：[impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift) →
   [isf_definition](/03_isf_core_theory/isf_definition)。

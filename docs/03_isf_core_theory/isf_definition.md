@@ -38,7 +38,7 @@ $$
 把前一頁的鏈條快速串一遍，因為定義 $\Gamma$ 必須站在這條鏈上：
 
 1. **current impulse → charge**：很窄的電流脈衝沉積電荷 $\Delta q=\int i(t)\,dt$。單位 $[\text{A}]\cdot[\text{s}]=[\text{C}]$ ✓。
-2. **charge → voltage step**：節點電容 $C_{node}$ 上電壓瞬跳 $\Delta V=\Delta q/C_{node}$（[P1] Eq.(9), p.182）。單位 $[\text{C}]/[\text{F}]=[\text{V}]$ ✓。
+2. **charge → voltage step**：節點電容 $C_{node}$ 上電壓瞬跳 $\Delta V=\Delta q/C_{node}$（[P1] Eq.(9), p.181）。單位 $[\text{C}]/[\text{F}]=[\text{V}]$ ✓。
 3. **voltage step → state perturbation**：在 LC 中，電流脈衝只能瞬間改**電容電壓**（電感電流不能瞬變），所以擾動是 state-space 裡一個**沿電壓軸的水平位移**。
 
 到這裡，狀態被推離 limit cycle 一點點。關鍵問題是：這個位移有多少變成**相位**？
@@ -201,7 +201,7 @@ print(dphi, "rad")                        # -> 0.0005 rad
 |---|---|---|---|---|
 | **[P1]** Hajimiri–Lee 1998 | $\Gamma(\omega_0\tau)$ | phase noise（LTV impulse response） | **本站定義的原始出處**，Eq.(10),(11) | high（公式已核） |
 | **[P2]** Hajimiri–Limotyrakis–Lee 1999 | $\Gamma(\omega_0\tau)$ | ring oscillator 的 jitter／phase noise | 同一個 $\Gamma$；強調 $\Gamma_{rms}\propto N^{-3/2}$ scaling（[P2] Eq.(16), p.794，v7 已重核：根號只蓋常數，正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}） | high（敘述與 scaling 皆已核實） |
-| **[P3]** Hong–Hajimiri 2019 Part I | $\Gamma(\theta+\phi)$ | injection locking／pulling（廣義 Adler） | **同一個 $\Gamma$**，搬到注入脈絡：$\frac{d\phi}{dt}=\Delta\omega-\frac{1}{q_{max}}\langle\Gamma(\theta+\phi)\,i_{inj}(\theta)\rangle$（[P3] Eq.(30), p.2113；本站 $\Gamma$ 取與 [P3] 相反符號慣例，故平均項前為 $-$，數值等價） | high（已對照原始 PDF） |
+| **[P3]** Hong–Hajimiri 2019 Part I | $\Gamma(\theta+\phi)$ | injection locking／pulling（廣義 Adler） | **同一個 $\Gamma$**，搬到注入脈絡：$\frac{d\phi}{dt}=\Delta\omega+\frac{1}{q_{max}}\langle\Gamma(\theta+\phi)\,i_{inj}(\theta)\rangle$，$\Delta\omega\equiv\omega_0-\omega_{inj}$（[P3] Eq.(30), p.2113，平均項前為**加號**；[P3] 的 $\tilde\Gamma=\Gamma/q_{max}$（Eq.(26), p.2113）與本站 $\Gamma=-\sin\theta$ **同號**：[P4] Eq.(24), p.2128 給 $\tilde\Gamma(\varphi)=-\sin\varphi/q_{max,0}$、Eq.(26) 給 $\tilde\Gamma_1=(1/q_{max,0})\angle90^\circ$。本站統一 $\Delta\omega\equiv\omega_0-\omega_{inj}$，與 [P3] Fig. 5 的 $\Delta\omega\equiv\omega_{inj}-\omega_0$ 差一個整體正負號） | high（已對照原始 PDF；v11 更正：舊版誤寫減號並稱「本站取相反符號慣例」） |
 | **[P4]** Hong–Hajimiri 2019 Part II | $\Lambda(\phi)$（APF） | amplitude modulation（振幅域） | **振幅版**：把 impulse 投影到**徑向**而非切向；單位 $\text{A}^{-1}$；ideal LC 中 ISF 與 APF 正交（quadrature，[P4] Eq.(26), p.2128） | ✓（APF=[P4] Eq.(19)、Fig. 5, p.2126，已核實） |
 | **[P5]** Hajimiri–Heald 1998 | — | sense amplifier | **與 ISF 無關**（sense amplifier 論文，誠實標明 mislabeled） | high（明顯離題） |
 

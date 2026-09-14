@@ -30,7 +30,7 @@ as the amplitude-domain counterpart of the ISF.
 
 ## 1. Why phase noise matters
 
-Write the oscillator output in the standard decomposition ([P1] Eq.(1), p.181):
+Write the oscillator output in the standard decomposition ([P1] Eq.(1), p.180):
 
 $$
 V_{out}(t)=A(t)\,f\!\big(\omega_0 t+\phi(t)\big).

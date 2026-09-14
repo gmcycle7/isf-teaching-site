@@ -1,6 +1,6 @@
 ---
 title: Complete PLL phase-noise budget and optimal loop BW
-description: The transfer of each of five noise sources (reference, PFD/charge-pump, divider, loop filter, VCO) and their sum S_out=(S_ref N²+S_cp)|H_lp|²+S_vco|H_hp|², the in-band vs out-of-band handoff, reference spur, and minimizing the integrated jitter to find the optimal loop BW (fn≈6.9 MHz, σt≈259 fs); plus the closed-form type-II peaking (ζ=0.707→2.09 dB @0.786fn, the cascaded 0.1-dB rule) and the fractional-N ΔΣ quantization-noise third term (MASH-m, +40 dB/dec ramp).
+description: The transfer of each of five noise sources (reference, PFD/charge-pump, divider, loop filter, VCO) and their sum S_out=(S_ref N²+S_cp)|H_lp|²+S_vco|H_hp|², the in-band vs out-of-band handoff, reference spur, and minimizing the integrated jitter to find the optimal loop BW (fn≈6.9 MHz, σt≈259 fs); plus the closed-form type-II peaking (ζ=0.707→2.09 dB @0.786fn, the cascaded 0.1-dB rule) and the fractional-N ΔΣ quantization-noise third term (MASH-m, +40 dB/dec ramp), the closed-form loop-filter resistor noise, and the PLL jitter–power FOM (σt=259 fs, 10 mW → −241.7 dB).
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -87,7 +87,7 @@ Each source takes a different path to the output, so **the shaping differs**:
 | reference | $S_{ref}$ | crystal/reference phase noise | $\times N$ then low-pass | $N^2\lvert H_{lp}\rvert^2$ (in-band, amplified by $N^2$) |
 | PFD/charge-pump | $S_{cp}$ | CP current noise, PFD dead-zone, mismatch | low-pass | $\lvert H_{lp}\rvert^2$ (in-band, flat floor) |
 | divider | $S_{div}$ | jitter of the ÷N logic | low-pass (same path as ref) | $\lvert H_{lp}\rvert^2$ (in-band; often folded into $S_{cp}$) |
-| loop filter | $S_{lf}$ | filter resistor thermal noise modulating the VCO | band-pass (peaks near $f_n$) | $\propto\lvert H_{lp}\rvert^2$ (usually small, omitted) |
+| loop filter | $S_{lf}$ | filter resistor thermal noise modulating the VCO | band-pass (peak exactly at $f_n$) | $4kTR\,K_{vco}^2/(2\pi f)^2\cdot\lvert H_{hp}\rvert^2$ (closed form in Step 2; not negligible for small $I_{cp}$ / large $R$) |
 | VCO | $S_{vco}$ | tank/tail thermal noise via ISF (this site's main thread) | high-pass | $\lvert H_{hp}\rvert^2$ (dominates out-of-band) |
 
 **Why the reference is multiplied by $N^2$.** The divider pulls the output frequency
@@ -125,9 +125,11 @@ $$
   order ($\omega^4$ or $\omega_n^4$), $\lvert H\rvert^2$ is dimensionless — confirmed.
 
 The detailed derivation of these two transfer functions (writing the open-loop gain
-$G(s)=K_dK_vF(s)/s$ from the PFD gain $K_d$, VCO gain $K_v$, and loop filter $F(s)$, then taking
-the closed loop) is in
-[lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer); that derivation chain
+$G(s)=\frac{I_{cp}}{2\pi}(R+\frac{1}{sC})\frac{K_{vco}}{s}\frac{1}{N}$ from the charge-pump $K_{cp}=I_{cp}/2\pi$, the
+loop filter $R+1/sC$, the VCO $K_{vco}/s$ and the divider $1/N$, then taking the closed loop to get
+$\omega_n=\sqrt{I_{cp}K_{vco}/(2\pi NC)}$, $\zeta=\frac{R}{2}\sqrt{I_{cp}K_{vco}C/(2\pi N)}$, with a worked $R$, $C$
+design and the third pole $C_3$) is in
+[lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer) §2; that derivation chain
 and type-II stability belong to standard PLL literature (not among the five source PDFs).
 
 ## Step 2: summing into the output budget
@@ -146,10 +148,39 @@ $$
   shaped identically by $\lvert H_{lp}\rvert^2$ at the output, so in practice $S_{div}$ is often
   folded into $S_{cp}$ as "the loop front end's equivalent in-band floor." This page's $S_{cp}$
   is the combined total of "PFD + charge-pump + divider."
-- **The loop-filter term**: $S_{lf}$'s (loop-filter resistor thermal noise modulating the VCO)
-  transfer has a small peak near $f_n$, usually smaller in magnitude than ref/CP and VCO; this
-  page's toy budget omits it (marked illustrative). A real design needs to include it and
-  optimize resistor noise.
+- **The loop-filter term (closed form)**: the thermal noise voltage of the filter resistor $R$ (PSD $4kTR$)
+  adds directly onto $V_{ctrl}$, passes through the VCO's $K_{vco}/s$, and is then corrected by the loop as
+  $1/(1+G)=H_{hp}$ (derivation in [lab_13](/04_simulation_labs/lab_13_pll_cdr_transfer) §2):
+
+$$
+S_{lf}(f)=S_{\phi,R}(f)=\frac{4kTR\,K_{vco}^{2}}{(2\pi f)^{2}}\,\lvert H_{hp}(f)\rvert^{2}\quad[\text{rad}^2/\text{Hz}],
+\qquad S_{\phi,R}(f_n)=\frac{4kTR\,K_{vco}^{2}}{(2\zeta\omega_n)^{2}}
+$$
+
+  ($K_{vco}$ in rad/s/V; rising $\propto f^2$ at low frequency, falling $\propto1/f^2$ at high frequency —
+  **band-pass, peak exactly at $f_n$**). **It is not necessarily small**: with lab_13's worked design ($f_n=1$ MHz,
+  $\zeta=0.707$, $N=100$, $K_{vco}=50$ MHz/V, $I_{cp}=100\ \mu$A → $R=178$ kΩ, $C=1.27$ pF),
+  $S_{\phi,R}(1\ \text{MHz})=3.68\times10^{-12}\ \text{rad}^2/\text{Hz}$ ($-117.4$ dBc/Hz) — **2.5× above** this
+  page's in-band floor of $1.5\times10^{-12}$, but 27× below the ring VCO's $10^{-10}$ at $f_n$; integrated alone
+  over 1 kHz–1 GHz it gives $\sigma_{t,R}=91$ fs (compare the 259 fs optimum). At fixed $f_n,\zeta$,
+  $R\propto1/I_{cp}$, so **raising the CP current** suppresses the resistor term and the CP term
+  $(2\pi N/I_{cp})^2S_{i,cp}$ together (cost: power, capacitor area). The lab_20 figure (below) does not include
+  this term (its $I_{cp}$ is unspecified; marked illustrative); a real design must.
+
+```python
+import numpy as np
+from simulations.common.pll_utils import design_type2, H_highpass_mag2
+R, C = design_type2(1e6, 0.707, 100, 50e6, 100e-6)     # lab_13 worked design: Hz, -, -, Hz/V, A
+kv = 2*np.pi*50e6                                       # rad/s/V
+Sv = 4*1.380649e-23*300*R                               # V^2/Hz
+f = np.logspace(3, 9, 200001)
+S_R = Sv*kv**2/(2*np.pi*f)**2*H_highpass_mag2(f, 1e6, 0.707)
+i = np.argmin(abs(f - 1e6))
+print(round(R/1e3, 1), f"{S_R[i]:.2e}", round(10*np.log10(0.5*S_R[i]), 1),
+      round(np.sqrt(np.trapezoid(S_R, f))/(2*np.pi*5e9)*1e15, 0))
+# -> 177.7 3.68e-12 -117.4 91.0
+```
+
 - **The fractional-N third term**: if the divider modulus is dithered by a ΔΣ modulator
   (fractional-N), the quantization noise enters the budget as
   $S_{\Delta\Sigma}(f)\,\lvert H_{lp}\rvert^2$ — same low-pass path as the CP, but **not
@@ -721,7 +752,11 @@ wall climbs high enough to hurt.
 > $\approx18.6$ MHz, about 22 dB **above** the VCO term at the same offset ($-125.4$ dBc/Hz).
 > Real fractional-N loops therefore **must add high-frequency loop-filter poles** (third/
 > fourth-order loops) so the out-of-band rolloff beats $20(m-1)$ dB/dec (external standard
-> practice — see the Gardner and Razavi textbooks; not among this site's five source PDFs).
+> practice — see the Gardner and Razavi textbooks; not among this site's five source PDFs). The design
+> equation for that third pole ($C_3$ in parallel with the $R$–$C$ branch, $\omega_{p3}=(C+C_3)/(RCC_3)$; $C_3\approx C/10$
+> gives $f_{p3}=11f_z$) and the phase margin it costs ($65.5^\circ\to53.1^\circ$) are in
+> [lab_13](/04_simulation_labs/lab_13_pll_cdr_transfer) §2 — note that a third-order loop only **flattens** the
+> $+40$ dB/dec of $m=3$; a net decline needs a fourth-order loop.
 > This is the classic origin of "the third term looks harmless on paper, then a high-frequency
 > hump pops up in silicon."
 
@@ -807,10 +842,160 @@ directly determines the eye diagram's horizontal closure and BER (bit error rate
 the UI (unit interval, i.e. the higher the data rate), the larger the fraction of the eye width
 the same $\sigma_t$ eats up. So **choosing the right loop BW to minimize PLL jitter is the
 source of the entire SerDes link's budget**. The CDR (clock-data recovery) itself is also a
-PLL, and its jitter-tolerance transfer for input jitter is exactly this page's
-$\lvert H_{lp}\rvert^2$ (low-frequency jitter can be tracked → tolerated, high-frequency →
-relies on eye margin), see
-[lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer).
+PLL, but two different quantities must be kept apart: the CDR's **jitter transfer** for input
+data jitter (how much of the input jitter the recovered clock "follows") is exactly this page's
+low-pass $\lvert H_{lp}\rvert^2$ (the same $S_{out}=S_{ref}\lvert H_{lp}\rvert^2+
+S_{vco}\lvert H_{hp}\rvert^2$ on this page; see
+[lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer)). But how much input
+jitter the CDR can **tolerate** without erroring (**jitter tolerance**, next section) is a
+different question, set by the complementary high-pass $H_{hp}=1-H_{lp}$, not by
+$\lvert H_{lp}\rvert^2$.
+
+### CDR jitter tolerance: set by $1-H_{lp}=H_{hp}$, not by $\lvert H_{lp}\rvert^2$
+
+**Common mislabeling**: writing the CDR's jitter tolerance as $\lvert H_{lp}\rvert^2$ too — that
+is actually the jitter transfer from the paragraph above. Tolerance asks a different question:
+the CDR's sampling clock $\phi_{clk}(f)\approx H_{lp}(f)\,\phi_{data}(f)$ tracks the input data's
+jitter $\phi_{data}(f)$, but the part it fails to track (the error) is what eats into the eye:
+
+$$
+\phi_{err}(f)=\phi_{data}(f)-\phi_{clk}(f)=\big[1-H_{lp}(f)\big]\,\phi_{data}(f)=H_{hp}(f)\,\phi_{data}(f).
+$$
+
+**JTOL criterion**: let the eye's own margin (after subtracting DJ, sampling uncertainty, etc.)
+be $\text{UI}-\text{TJ}_{eye}$. The maximum single-tone sinusoidal input jitter (peak amplitude)
+the CDR can tolerate is
+
+$$
+\text{JTOL}(f)\approx\frac{\text{UI}-\text{TJ}_{eye}}{\lvert H_{hp}(f)\rvert}.
+$$
+
+Here $\lvert H_{hp}(f)\rvert=\sqrt{\lvert H_{hp}(f)\rvert^2}$ is the **linear (amplitude)
+transfer** — a single-frequency sinusoidal disturbance goes through the amplitude transfer, not
+the power transfer $\lvert H_{hp}\rvert^2$ this page uses for summing PSDs; keep the units
+straight. At low frequency ($f\ll f_n$) a type-II second-order loop has $\lvert H_{hp}\rvert
+\propto(f/f_n)^2$ (the textbook $-40$ dB/dec slope), so the CDR tracks well and tolerance
+diverges as frequency drops; at high frequency ($f\gg f_n$) $\lvert H_{hp}\rvert\to1$, the CDR
+cannot track at all, and tolerance caps out at $\text{UI}-\text{TJ}_{eye}$ itself (the static
+eye margin alone).
+
+> **Worked example (site values)**: UI $=40$ ps (the 25 Gb/s NRZ link in
+> [final_exam](/04_simulation_labs/final_exam) problem 10), free-running VCO $\sigma_t=447.9$ fs
+> (Example C, this site's canonical value), CDR loop at this page's/lab_13's $f_n=1$ MHz,
+> $\zeta=0.707$. Find JTOL at 100 kHz, 1 MHz, and 10 MHz.
+
+**Step by step:**
+
+1. Using the per-Gaussian convention $Q^{-1}(10^{-12})\approx7.03$ (same as final_exam
+   problem 10), the eye margin this RJ alone consumes is
+   $\text{TJ}_{eye}=2\,Q^{-1}(10^{-12})\,\sigma_t=2\times7.03\times0.4479\ \text{ps}=6.30\ \text{ps}
+   =0.157\ \text{UI}$.
+2. The margin left for input jitter: $\text{UI}-\text{TJ}_{eye}=40-6.30=33.70\ \text{ps}
+   =0.843$ UI.
+3. Take the square root of this page's $\lvert H_{hp}\rvert^2$ formula to get the amplitude
+   transfer $\lvert H_{hp}(f)\rvert$, and substitute into
+   $\text{JTOL}(f)=0.843\ \text{UI}/\lvert H_{hp}(f)\rvert$.
+
+**Result:** JTOL $\approx84$ UI @100 kHz (almost fully tolerated at low frequency), $1.19$ UI
+@1 MHz (near the loop bandwidth, $\lvert H_{hp}\rvert^2\approx0.5$), $0.84$ UI @10 MHz (capped
+near the static eye margin at high frequency). This is exactly the shape of an industry JTOL
+mask: a $-40$ dB/dec slope at low frequency, capped at a constant at high frequency.
+
+**Dimension check:** $\text{UI}-\text{TJ}_{eye}$ and $\text{JTOL}$ share the same unit (UI, a
+dimensionless time ratio); $\lvert H_{hp}(f)\rvert$ is dimensionless (an amplitude transfer
+function); the quotient is still UI ✓.
+
+```python
+import numpy as np
+from simulations.common.pll_utils import H_highpass_mag2
+
+UI = 40e-12          # s, 25 Gb/s NRZ (final_exam problem 10)
+sigma_t = 447.9e-15  # s, site canonical free-running jitter (Example C)
+qinv = 7.03          # per-Gaussian Q^-1(1e-12), site convention (final_exam problem 10)
+TJ_eye = 2 * qinv * sigma_t
+frac_UI = TJ_eye / UI
+margin_UI = 1 - frac_UI
+print(round(TJ_eye * 1e12, 2), round(frac_UI, 3), round(margin_UI, 3))
+# -> 6.3 0.157 0.843
+
+fn, zeta = 1e6, 0.707   # Hz; this page's/lab_13's f_n, zeta
+for f in [1e5, 1e6, 1e7]:
+    H_hp = np.sqrt(H_highpass_mag2(np.array([f]), fn, zeta)[0])
+    jtol_UI = margin_UI / H_hp
+    print(f, round(H_hp, 4), round(jtol_UI, 2))
+# -> 100000.0 0.01 84.26
+# -> 1000000.0 0.7072 1.19
+# -> 10000000.0 1.0 0.84
+```
+
+**External literature** (external literature, not one of this site's 5 PDFs): B. Razavi,
+*Design of Integrated Circuits for Optical Communications*, 2nd ed., Wiley, 2012 (the CDR
+jitter tolerance chapter; section number TBD).
+
+## The PLL jitter–power FOM
+
+Oscillators have a FOM ([fom_limit](/06_design_insights/fom_limit): it normalizes $\mathcal{L}$,
+$(f_0/\Delta f)^2$ and $P$); a whole PLL has a commonly used quality metric too. A PLL's natural output
+quantity is not $\mathcal{L}$ at some offset but the **integrated rms jitter** $\sigma_t$ (Step 5; it already
+absorbs $f_0$: $\sigma_t=\sigma_\phi/2\pi f_0$), paired with the **total power** $P$:
+
+$$
+\mathrm{FOM}_{jitter}=20\log_{10}\!\Big(\frac{\sigma_t}{1\ \text{s}}\Big)+10\log_{10}\!\Big(\frac{P}{1\ \text{mW}}\Big)\qquad[\text{dB}]
+$$
+
+(External convention, not among this site's 5 PDFs; the definition was popularized by X. Gao,
+E. A. M. Klumperink, M. Bohsali, and B. Nauta, *"A Low Noise Sub-Sampling PLL in Which Divider Noise Is
+Eliminated and PD/CP Noise Is Not Multiplied by N²,"* IEEE J. Solid-State Circuits, vol. 44, no. 12,
+pp. 3253–3263, Dec. 2009, already cited in [sampling_pll](/06_design_insights/sampling_pll).)
+
+- **Why $\sigma_t^2\times P$ ($20\log\sigma_t+10\log P$)**: in a thermal-noise-dominated PLL every term is
+  $\propto1/P$ — the VCO term $S_{vco}\propto F_{eff}\,kT/P$ (the universal form of Step 1 in
+  [fom_limit](/06_design_insights/fom_limit)), the CP term $(2\pi N/I_{cp})^2S_{i,cp}\propto1/I_{cp}$
+  ($S_{i,cp}\propto I_{cp}$), the loop-filter resistor term $\propto R\propto1/I_{cp}$ (Step 2 / lab_13). Hence
+  $\sigma_\phi^2\propto1/P$ and $\sigma_t^2\cdot P\approx$ const — taking $10\log_{10}$ gives the expression above.
+  **Doubling the power only buys $\sigma_t/\sqrt2$.**
+- **Sign-convention flag**: this expression is **always negative, more negative is better** ($\sigma_t\ll1$ s);
+  the opposite of fom_limit's oscillator FOM ("positive, bigger is better"). The two can neither be swapped nor
+  added — one normalizes $f_0/\Delta f$, the other folds $f_0$ into $\sigma_t$.
+- **Dimension check**: $\sigma_t/1\ \text{s}$ and $P/1\ \text{mW}$ are both dimensionless → dB ✓.
+
+> **Worked example (this page's optimum)**: $\sigma_t=259$ fs (the minimum of the Step 5 right panel,
+> integrated 1 kHz–1 GHz), assumed whole-PLL power $P=10$ mW (lab_20 does not model power; this value is an
+> illustrative assumption). Find $\mathrm{FOM}_{jitter}$, and the improvement from halving $\sigma_t$ or halving $P$.
+
+**Step by step:**
+
+1. $20\log_{10}(259\times10^{-15})=20\times(\log_{10}2.59-13)=20\times(0.4133-13)=20\times(-12.587)=-251.7$ dB.
+2. $10\log_{10}(10\ \text{mW}/1\ \text{mW})=+10.0$ dB.
+3. $\mathrm{FOM}_{jitter}=-251.7+10.0=\mathbf{-241.7}$ dB.
+4. Halving $\sigma_t$: $20\log_{10}(0.5)=-6.02$ dB (better); halving $P$: $10\log_{10}(0.5)=-3.01$ dB.
+   **Halving the jitter is worth twice as much as halving the power** — a direct consequence of the $\sigma_t^2P$ bookkeeping.
+5. **Distance to state of the art**: the literature often quotes $\approx-250$ dB as the order of magnitude of
+   recent best PLLs (external convention; value to be verified, and it drifts with year and with the integration
+   bandwidth definition). Reaching $-250$ dB at the same 10 mW needs
+   $\sigma_t=10^{(-250-10)/20}=10^{-13}$ s $=100$ fs; this page's $-241.7$ dB is 8.3 dB away — equivalent to a
+   2.6× larger $\sigma_t$ at equal power, or 6.8× more power at equal jitter. The way forward is this page's knobs:
+   lower $S_{vco}$ (LC instead of ring, the $Q$ of [fom_limit](/06_design_insights/fom_limit)), lower the
+   in-band floor (sub-sampling avoids the $\times N^2$, [sampling_pll](/06_design_insights/sampling_pll)), then
+   re-optimize $f_n$.
+
+```python
+import numpy as np
+sigma_t, P = 259e-15, 10e-3          # s (lab_20 optimum), W (assumed PLL power, illustrative)
+FOM_j = 20*np.log10(sigma_t/1.0) + 10*np.log10(P/1e-3)
+print(round(20*np.log10(sigma_t), 1), round(FOM_j, 1))      # -> -251.7 -241.7
+print(round(20*np.log10(0.5), 2), round(10*np.log10(0.5), 2))   # -> -6.02 -3.01
+print(round(10**((-250 - 10)/20)*1e15, 1), round(-241.7 - (-250), 1))   # -> 100.0 8.3
+print(round(10**(8.3/20), 1), round(10**(8.3/10), 1))     # -> 2.6 6.8
+```
+
+**Applicability and failure ($\mathrm{FOM}_{jitter}$):** before comparing two PLLs, align three things —
+(i) the **integration bandwidth** (this page: 1 kHz–1 GHz; the literature commonly uses 1 kHz–100 MHz or
+10 kHz–40 MHz, and numbers with different bandwidths are not comparable); (ii) whether $\sigma_t$ includes spurs
+(this page counts random PN only); (iii) whether $P$ includes the reference and the output buffers. It also does
+**not normalize $f_{out}$ or the tuning range**, so it is meaningful only within the same architecture class and
+frequency band; the thermal-noise-dominated $\propto1/P$ assumption fails when flicker or digital power (an
+ADPLL's logic, TDC) dominates.
 
 ## Conditions of validity and failure
 
@@ -819,7 +1004,7 @@ relies on eye margin), see
 | sources uncorrelated | powers add directly (this page's sum formula) | if CP and divider are correlated, cross terms are needed |
 | linear PLL (small phase error) | type-II second-order closed loop is valid | large unlock/slew → nonlinear, transfer function no longer holds |
 | VCO is $1/f^2$ (white-noise upconversion) | $S_{vco}=k/f^2$, this page's U-shape | with flicker ($1/f^3$ close-in) present → optimal BW shifts, re-integration needed |
-| ignoring loop-filter and spur | toy budget is adequate | precise design must include $S_{lf}$, reference spur, fractional spurs |
+| ignoring loop-filter and spur | toy budget is adequate (lab_20 figure) | $S_{lf}$ now has a closed form (Step 2; it can exceed the in-band floor for small $I_{cp}$); reference spur and fractional spurs must all be included |
 | integer-N | reference $\times N^2$ | fractional-N: ΔΣ quantization-noise third term (now covered in this page's "The third term for fractional-N" section) |
 
 ## Key takeaways
@@ -831,6 +1016,9 @@ relies on eye margin), see
 - **Optimal loop BW**: minimize $\int S_{out}df$, $f_n^\*\propto\sqrt{S_{vco}/(S_{ref}N^2+S_{cp})}$;
   too narrow leaks VCO, too wide leaks ref/CP. lab_20 numerics: $f_n^\*\approx6.90$ MHz, $\sigma_t\approx259$ fs.
 - This ring-PLL's U-shape has a steeper left arm than right → favors a somewhat larger loop BW.
+- The loop-filter resistor term has a closed form $S_{\phi,R}=4kTR\,K_{vco}^2/(2\pi f)^2\cdot\lvert H_{hp}\rvert^2$ (band-pass, peak at $f_n$);
+  lab_13's worked design ($R=178$ kΩ) gives $-117.4$ dBc/Hz @1 MHz, $\sigma_{t,R}=91$ fs — "omitted" does not always hold,
+  and raising $I_{cp}$ suppresses it together with the CP term.
 - A type-II with a zero **always peaks**: $f_{pk}=f_n\sqrt{2/(s+1)}$,
   $\lvert H_{lp}\rvert^2_{max}=(s+1)^2/[(s-1)(s+3)]$, $s=\sqrt{1+8\zeta^2}$;
   $\zeta=0.707\to2.09$ dB @ $0.786f_n$ (the peak is exactly the golden ratio $\varphi$). In a
@@ -841,10 +1029,25 @@ relies on eye margin), see
   (SSB reading; this site's single-sided $S_\phi$ needs $\times2$), **no $\times N^2$**,
   climbing at $+40$ dB/dec ($m=3$); doubling $f_{ref}$ gives $-15$ dB, a narrow BW chops the
   ramp; a 2nd-order loop cannot contain the $m=3$ high-frequency hump (add filter poles).
+- **CDR jitter transfer and jitter tolerance are two different things**: transfer (how much
+  input jitter shows up unchanged in the recovered clock) $=\lvert H_{lp}\rvert^2$; tolerance
+  (how much input jitter the CDR can take without erroring) is set by the error transfer
+  $H_{hp}=1-H_{lp}$: $\text{JTOL}(f)\approx(\text{UI}-\text{TJ}_{eye})/\lvert H_{hp}(f)\rvert$ —
+  high tolerance at $-40$ dB/dec low frequency, capped at the static eye margin at high frequency.
+- **The PLL jitter–power FOM**: $\mathrm{FOM}_{jitter}=20\log_{10}(\sigma_t/1\ \text{s})+10\log_{10}(P/1\ \text{mW})$ (more negative is better;
+  $\sigma_t^2P$ is the invariant); this page's 259 fs, 10 mW → $-241.7$ dB; halving $\sigma_t$ gives $-6$ dB, halving $P$ gives $-3$ dB;
+  align the integration bandwidth, spurs and power scope before comparing.
 
 ## Further reading
 
-- Derivation of the two transfer functions and jitter transfer: [lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer)
+- Derivation of the two transfer functions, the charge-pump type-II design equations ($R$, $C$, $C_3$) and the loop-filter resistor noise: [lab_13_pll_cdr_transfer](/04_simulation_labs/lab_13_pll_cdr_transfer)
+- The oscillator FOM and its ceiling (convention contrast with $\mathrm{FOM}_{jitter}$): [fom_limit](/06_design_insights/fom_limit)
+- Source of the $\mathrm{FOM}_{jitter}$ definition: X. Gao, E. A. M. Klumperink, M. Bohsali, and B. Nauta, *"A Low Noise
+  Sub-Sampling PLL in Which Divider Noise Is Eliminated and PD/CP Noise Is Not Multiplied by N²,"*
+  IEEE J. Solid-State Circuits, vol. 44, no. 12, pp. 3253–3263, Dec. 2009 (external literature, not among this site's five source PDFs)
+- Standard reference for CDR jitter tolerance: B. Razavi, *Design of Integrated Circuits for
+  Optical Communications*, 2nd ed., Wiley, 2012 (external literature, not one of this site's 5
+  PDFs; section number TBD)
 - Where the VCO term comes from (ISF→$1/f^2$): [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
 - Why ring's $S_{vco}$ is high and LC's is low: [lc_vs_ring](/06_design_insights/lc_vs_ring)
 - Feeding $\sigma_t$ into eye/BER: [serdes_clocking_connection](/06_design_insights/serdes_clocking_connection)

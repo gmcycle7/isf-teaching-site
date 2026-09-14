@@ -1,6 +1,6 @@
 ---
 title: "ISF in real topologies: cross-coupled LC VCO, Colpitts, CMOS ring stage"
-description: At the hand-calculation level, walks the full chain device noise → ISF harmonics → close-in phase noise for three mainstream oscillator topologies — the cross-coupled LC VCO's differential tank (pure c1) versus its tail current source's effective ISF (c0 upconversion, c2 fold-back, tail filter tuned to 2f0), why Colpitts ISF concentrates in a narrow phase window, and the CMOS inverter ring stage's ISF derived from switching slope. Includes multiple worked examples, marked illustrative.
+description: At the hand-calculation level, walks the full chain device noise → ISF harmonics → close-in phase noise for three mainstream oscillator topologies — the cross-coupled LC VCO's differential tank (pure c1) versus its tail current source's effective ISF (c0 upconversion, c2 fold-back, tail filter tuned to 2f0), why Colpitts ISF concentrates in a narrow phase window, and the CMOS inverter ring stage's ISF derived from switching slope. Includes multiple worked examples, marked illustrative; §(d) tells class-C / class-D / class-F waveform engineering with the ISF (lab_43).
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -328,6 +328,149 @@ print(round(L1,1), round(L5,1), "dBc/Hz")               # computed ~ -137.7 / -1
 > 3. **Symmetric rising/falling edges** (NMOS/PMOS matched) → suppresses $c_0$, curbs flicker upconversion (see [symmetry](/06_design_insights/symmetry)).
 > 4. A ring has no tank energy storage, and cyclostationary effects offer no help → for the same $q_{max}$, close-in performance is inherently worse than LC.
 
+## (d) Waveform engineering: class-C / class-D / class-F told with the ISF
+
+(a)–(c) were about "in which phase window the device injects, and how large a $\Gamma$ it sees there." The designer actually holds two independent knobs: **change the injection window** (act on $\alpha(\theta)$) and **change the waveform itself** (act on the shape of $\Gamma(\theta)$ and on $q_{max}$). Andreani's class-C / class-D and Staszewski's class-F are the three classic topologies that push each of these knobs to its limit (**all external literature, not among the five source PDFs**; volume / pages / DOI at the end of the page). This section stays at the topology level — no PDK, no transistor-level extraction; every number is produced by `simulations/lab_43_classc_classf_isf.py`.
+
+### (d-1) class-C: moving the Colpitts "pulse lands on an ISF null" into the cross-coupled pair
+
+**Circuit**: the gate bias $V_{bias}$ of the cross-coupled pair is pushed below threshold ($V_{bias}<V_{th}$), and a large tail capacitor hangs on the common-source node (an AC ground, so the tail current can swing widely within a cycle). Each transistor therefore conducts only during the short interval when "its own gate (= the opposite drain) is highest, i.e. **its own drain (tank voltage) is lowest**"; the drain current is a train of narrow pulses — exactly as in the Colpitts of §(b): the pulse lands at a tank-voltage extremum, which is precisely a **null** of $\Gamma=-\sin\theta$ (the same [P1] §IV.D sentence quoted in §(b)).
+
+**First mechanism (injection window aligned with the ISF null)**: with the [P1] Eq.(27) convention ($\alpha=1$ while conducting, $\alpha=0$ while cut off), give each of the two transistors of the differential pair a window of half-width $\phi$ (conduction angle $2\phi$), centred on $\theta=0$ and $\theta=\pi$:
+
+$$
+\Gamma_{eff,rms}^2=\frac{1}{2\pi}\left[\int_{-\phi}^{\phi}\sin^2\theta\,d\theta+\int_{\pi-\phi}^{\pi+\phi}\sin^2\theta\,d\theta\right]
+=\frac{1}{\pi}\int_{-\phi}^{\phi}\sin^2\theta\,d\theta=\frac{\phi-\sin\phi\cos\phi}{\pi}.
+$$
+
+- **Check 1**: $2\phi=180^\circ$ (class-B hard switching, each device conducts half a cycle) → $\Gamma_{eff,rms}^2=\tfrac{\pi/2}{\pi}=\tfrac12$, exactly the stationary value (§(b) case A) ✓.
+- **Check 2**: $2\phi=60^\circ$ ($\phi=\pi/6$) → $\dfrac{0.5236-0.5\times0.8660}{\pi}=\dfrac{0.0906}{\pi}=0.0288$,
+  i.e. $10\log_{10}(0.5/0.0288)=12.4$ dB below $\tfrac12$ (lab_43 numeric value 0.0288 ✓).
+- **Compare the worst alignment** (windows centred on the zero crossings $\theta=\pi/2,3\pi/2$): $\Gamma_{eff,rms}^2=(\phi+\sin\phi\cos\phi)/\pi$,
+  which at $60^\circ$ is $0.3045$ — the same narrow window in the wrong phase buys only 2.2 dB. **The narrow window itself is not the point; the narrow window aligned with the null is.**
+- **Dimension check**: $\phi$ is in rad and $\sin\phi\cos\phi$ is dimensionless, so the two are commensurate and can be subtracted; after dividing by $\pi$ the result is dimensionless ✓.
+
+> **Honesty note (geometric window factor ≠ full $F$ bookkeeping)**: the expression above assumes "the noise density while conducting does not change with the conduction angle." In reality, at the same $I_{bias}$ a narrower pulse means a higher peak current and a higher $g_m$, so the peak of $\alpha^2\propto g_m(t)$ from step 1 of
+> [effective_isf](/03_isf_core_theory/effective_isf) rises as well — the narrow window is no free lunch. Mazzanti–Andreani 2008 close that bookkeeping;
+> their abstract frames the phase-noise relations of all specific LC topologies as special cases of one very general and very simple result, and under that bookkeeping
+> the net advantage of class-C over class-B at the **same current** comes from amplitude — the second mechanism below.
+
+**Second mechanism (fundamental tank current $\times\pi/2$ at the same $I_{bias}$)**. Single-ended, per-transistor bookkeeping (take care not to mix single-ended and differential):
+
+1. **class-B**: each drain current is a $0\leftrightarrow I_{bias}$ square wave (mean $I_{bias}/2$). Square-wave Fourier series:
+   $I_{bias}\big[\tfrac12+\tfrac{2}{\pi}\cos\theta-\tfrac{2}{3\pi}\cos3\theta+\dots\big]$ → fundamental amplitude $I_1^{B}=\dfrac{2I_{bias}}{\pi}$.
+2. **class-C limit**: each drain current is an impulse train of area $Q=\tfrac{I_{bias}}{2}T$ (mean still $I_{bias}/2$). Impulse-train Fourier series:
+   $\tfrac{Q}{T}\big[1+2\sum_n\cos n\theta\big]$ → fundamental amplitude $I_1^{C}=\dfrac{2Q}{T}=I_{bias}$.
+3. (Differential bookkeeping gives $4I_{bias}/\pi$ versus $2I_{bias}$; the ratio is the same $\pi/2$.)
+4. The tank keeps only the fundamental: $A=R_p I_1$ → $\dfrac{A_C}{A_B}=\dfrac{I_{bias}}{2I_{bias}/\pi}=\dfrac{\pi}{2}=1.571$; $q_{max}=C\,A$ scales by the same factor.
+5. [P1] Eq.(21) has $\mathcal{L}\propto\Gamma_{rms}^2 S_i/q_{max}^2$; assuming $\Gamma_{rms}$ and $S_i$ unchanged:
+
+$$
+\Delta\mathcal{L}=-20\log_{10}\!\left(\frac{\pi}{2}\right)=-3.92\ \text{dB}.
+$$
+
+This is the "theoretical 3.9 dB phase noise improvement" of the Mazzanti–Andreani abstract (at the same current consumption).
+Applied to example B ($f_0=5$ GHz, $\Gamma_{rms}=1/\sqrt2$, $q_{max}=1$ pC, $S_i=10^{-24}$ A²/Hz, [P1] Eq.(21) SSB "/4" → $-148.0$ dBc/Hz @ 1 MHz):
+class-C at the same bias $\to-148.0-3.92=-151.9$ dBc/Hz; with the time-domain "/2" convention ($-145.0$) it is $-148.9$ dBc/Hz —
+**the factor of 2 between the two conventions has nothing to do with this section; the $-3.92$ dB difference is the same on both sides**.
+
+- **Dimension check**: $I_1\,[\text{A}]\times R_p\,[\Omega]=[\text{V}]$; $C\,[\text{F}]\times A\,[\text{V}]=[\text{C}]$ ✓; $\Delta\mathcal{L}$ is the dB of a ratio, dimensionless ✓.
+- **Failure conditions**: the amplitude is bounded by $V_{DD}$ and by "the transistors must stay in saturation" ($V_{bias}+A$ must not push the device into triode, or the class-C behaviour is lost);
+  $V_{bias}<V_{th}$ makes the small-signal $g_m$ tiny, so **start-up and bias stability are the engineering price of class-C** (the original paper treats this specifically; not transcribed here).
+
+### (d-2) class-D: pushing $q_{max}$ to the limit, with $F$ bounded by $\gamma$
+
+The class-D of Fanori–Andreani 2013 removes the tail current source; the cross-coupled pair is used as a **switch**, driven rail-to-rail: each drain node
+is clamped to ground by the switch for half a cycle and flung upward by the tank for the other half, with a single-ended swing well above $V_{DD}$ (the original derives a peak of about $3V_{DD}$, **not re-derived on this site, unverified**). In ISF language:
+
+- **$\Gamma\approx0$ during the clamped half cycle**: the node is pinned to ground through $r_{on}$, $dV/dt\approx0$, and injected charge is simply eaten by the switch instead of entering the tank —
+  the same argument as "$\Gamma\approx0$ on the rail" in §(c). Phase sensitivity is concentrated in the released half cycle and the switching instants.
+- **$q_{max}=C\,A$ is the largest attainable at a given $V_{DD}$**: the denominator of [P1] Eq.(21) is pushed to its limit, which is the main reason class-D phase noise stays good at 0.4–1 V supplies;
+  in the language of [fom_limit](/06_design_insights/fom_limit), the knob being turned is the $\eta_P$ term.
+- **Price**: $F$ is set by the switch's channel noise ($4kT\gamma g_m$, at the switching instants) and by the loading of the tank through $r_{on}$ — **$\gamma$ is the ceiling**;
+  the amplitude is proportional to $V_{DD}$ → large supply pushing (see [varactor_tuning_supply_pushing](/06_design_insights/varactor_tuning_supply_pushing));
+  the waveform is far from sinusoidal, so rise/fall asymmetry gives $c_0\neq0$ and $1/f^3$ has to be suppressed by symmetric design ([symmetry](/06_design_insights/symmetry)).
+
+This section gives no numbers for class-D: its amplitude, frequency and $F$ expressions are the core contribution of the original paper and cannot be re-derived by this site's toy.
+
+### (d-3) class-F: simultaneous resonance at $\omega_0$ and $3\omega_0$ → pseudo-square wave → lower $\Gamma_{rms}^2$ (numbers from lab_43)
+
+Babaie–Staszewski 2013 use a transformer-based tank with an additional impedance peak at $3\omega_0$, so the third harmonic of the drain current is no longer filtered out by the tank and
+the tank voltage becomes $V=V_{p1}\sin\omega_0t+V_{p3}\sin(3\omega_0t+\Delta\phi)$, $\zeta\equiv V_{p3}/V_{p1}$ (original §II; that PDF is not among the site's five, equation / page numbers unverified).
+This site writes it as the dimensionless waveform $f(\theta)=\sin\theta+\zeta\sin3\theta$ and **derives the ISF from the waveform** (method C of [isf_from_waveform](/03_isf_core_theory/isf_from_waveform) / the [P1] Eq.(38) shape,
+slope normalised to its own maximum — also the engine behind [Tool 7 IsfSandbox](/04_simulation_labs/interactive_calculator)):
+
+$$
+f'(\theta)=\cos\theta+3\zeta\cos3\theta,\qquad \Gamma(\theta)=\frac{f'(\theta)}{f'_{max}},\qquad f'_{max}=f'(0)=1+3\zeta .
+$$
+
+$$
+\Gamma_{rms}^2=\frac{\overline{f'^{\,2}}}{f'^{\,2}_{max}}=\frac{\tfrac12(1+9\zeta^2)}{(1+3\zeta)^2}
+\quad\Rightarrow\quad \frac{d\Gamma_{rms}^2}{d\zeta}=0\ \text{at}\ 18\zeta(1+3\zeta)=6(1+9\zeta^2)\ \Rightarrow\ \zeta=\frac13,\quad \Gamma_{rms}^2\Big|_{\zeta=1/3}=\frac{\tfrac12\cdot2}{4}=\frac14 .
+$$
+
+This agrees with the closed form in Babaie–Staszewski's §II ($\Gamma_{rms}^2=\tfrac12\tfrac{1+9\zeta^2}{(1+3\zeta)^2}$, minimum $1/4$ at $\zeta=1/3$; derived independently here with the [P1] waveform method, original equation number unverified);
+lab_43's numeric sweep ($\zeta\in[0,0.6]$) differs from this closed form by at most $\sim10^{-16}$ (floating-point zero; the lab prints $1.7\times10^{-16}$, and the in-page block below, which integrates with trapezoid, gets the same $\sim10^{-16}$ order), with the minimum at $\zeta=0.335$ (grid resolution 0.005).
+**Conclusion produced by the lab**: $\Gamma_{rms}^2$ drops from the sinusoidal $0.5$ to $0.25$, i.e. **$-3.01$ dB**.
+
+Why it works, in ISF terms (two things happen at once):
+
+1. **Steeper zero crossings**: the switching pair commutates at the zero crossings and injects its noise there; at the same $V_{max}$ the pseudo-square wave's zero-crossing slope is
+   $f'(0)/\max\lvert f\rvert=2/0.943=2.12$ times the sinusoid's, and in the slope-dominated region the sensitivity is $\approx1/\text{slope}$ ([P1] Eq.(37), p.193 reduces to $1/f'$ where $f''=0$) → $\lvert\Gamma\rvert$ at the injection point drops from $1$ to $0.471$.
+2. **$\Gamma\approx0$ on the flat top**: the flat top where $f'\approx0$ is exactly when the $g_m$ devices enter triode and, together with the loaded tank, inject a lot of noise —
+   but $\Gamma\approx0$, so the noise gets in and the phase does not move (the argument of the original §II; figure number unverified).
+
+lab_43 then applies a $\pm30^\circ$ zero-crossing injection window to get $\Gamma_{eff}$: sinusoid $0.3045$ → class-F $0.2212$, a difference of $1.39$ dB (toy order of magnitude).
+
+![lab_43: (a) class-C current pulses aligned with the nulls of -sin and the resulting Γ_eff; (b) Γ_eff,rms² versus conduction angle, null-aligned vs zero-crossing-aligned; (c) class-F pseudo-square waves (ζ=0, 1/3) with the slope-normalised ISF and the zero-crossing injection window; (d) Γ_rms² versus ζ: numeric vs the Babaie–Staszewski closed form, 1/2→1/4 at ζ=1/3](/figures/classc_classf_isf.png)
+
+(Full script: `simulations/lab_43_classc_classf_isf.py`, run with `PYTHONPATH=. python3 simulations/lab_43_classc_classf_isf.py`, about 1 s.
+**All topology-level toys**: the class-C $-\sin$ is exact and the window follows the [P1] Eq.(27) $\alpha\le1$ convention; the class-F ISF is the slope-normalised
+"from the waveform" approximation, and panel (d) also plots the [P1] Eq.(37), p.193 second-order closed form as a cross-check — it has a pathological point at $\zeta=1/9$ where $f'=f''=0$ and shows spurious bumps at the flat-top inflection
+points of the fourth-order tank, exactly the failure case isf_from_waveform warns about, so it is kept as a reference and not as a conclusion.)
+
+> **The two normalisation conventions differ (be honest about it)**: slope normalisation (the Babaie–Staszewski closed form) and [P1]'s $V_{max}$-normalised $q_{max}$ use different reference points —
+> the former pins $\Gamma(\text{zero crossing})$ at 1, the latter lets it fall to $0.471$. Both agree on the conclusion "$\Gamma_{rms}^2$ drops by about 3 dB",
+> but adding that 3 dB straight onto $\mathcal{L}$ takes care: at the same $V_{p1}$ the $\zeta=1/3$ waveform peaks at only $0.943$, so the $q_{max}$ bookkeeping changes with it.
+> Measured results of the original (from memory of its abstract; this site does not hold that PDF, numbers unverified): 65 nm CMOS, about 5.9–7.6 GHz, about $-136$ dBc/Hz @ 3 MHz, FoM about 192 dBc/Hz, 1.25 V / 12 mA.
+> Engineering price: the $3\omega_0$ impedance peak has to be placed precisely via the transformer coupling coefficient, and the loop gain at $3\omega_0$ is not small either, so oscillation at the auxiliary peak must be prevented (discussed in the original §II).
+
+```python
+import numpy as np
+# --- class-C: geometric window factor (phi - sin phi cos phi)/pi, conduction angle 60 deg ---
+phi = np.deg2rad(60.0)/2
+g2_null  = (phi - np.sin(phi)*np.cos(phi))/np.pi
+g2_worst = (phi + np.sin(phi)*np.cos(phi))/np.pi
+print(round(g2_null, 4), round(10*np.log10(0.5/g2_null), 1), "dB")   # -> 0.0288 12.4 dB (null-aligned)
+print(round(g2_worst, 4))                                             # -> 0.3045 (zero-crossing-aligned, worst case)
+# --- class-C: same I_bias, fundamental x pi/2 -> q_max x pi/2 -> Eq.(21) ---
+dL = -20*np.log10(np.pi/2)
+print(round(dL, 2), round(-148.0 + dL, 1), round(-145.0 + dL, 1))     # -> -3.92 -151.9 -148.9 (dB; SSB /4; time-domain /2)
+# --- class-F: ISF from the waveform (slope normalised), Gamma_rms^2 vs zeta ---
+th = np.linspace(0, 2*np.pi, 20001)
+def g2(z):
+    f1 = np.cos(th) + 3*z*np.cos(3*th)
+    g = f1/np.max(np.abs(f1))
+    return np.trapezoid(g**2, th)/(2*np.pi)
+zs = np.linspace(0, 0.6, 121)
+vals = np.array([g2(z) for z in zs])
+print(round(g2(1/3), 4), round(10*np.log10(0.5/g2(1/3)), 2), "dB")   # -> 0.25 3.01 dB (zeta=1/3)
+print(round(zs[np.argmin(vals)], 3))                                  # -> 0.335 (numeric minimum location, grid 0.005)
+eq3 = 0.5*(1+9*zs**2)/(1+3*zs)**2
+print(round(np.max(np.abs(vals-eq3))*1e12, 3))                        # -> 0.0 (vs the Babaie–Staszewski closed form; the difference is still 0 after ×1e12: floating-point zero)
+vmax = np.max(np.abs(np.sin(th) + np.sin(3*th)/3))
+print(round(vmax, 3), round(vmax/2, 3))                               # -> 0.943 0.471 (zero-crossing 1/slope at the same V_max)
+```
+
+> **Design knobs (waveform-engineering summary table)**:
+>
+> | Topology | Which knob | ISF mechanism | Order of magnitude (this section) | Price |
+> |---|---|---|---|---|
+> | class-B (baseline) | — | $\Gamma=-\sin$, each device conducts half a cycle | $\Gamma_{eff,rms}^2=\tfrac12$ | — |
+> | class-C | narrow $\alpha$ window + fundamental $\times\pi/2$ | pulse lands on the ISF null; $q_{max}$ enlarged | $-3.92$ dB at the same current | start-up / bias, saturation limits the amplitude |
+> | class-D | $q_{max}$ pushed to rail-to-rail | clamped half cycle has $\Gamma\approx0$ | no numbers given (original paper) | $F$ bounded by $\gamma$, supply pushing, $c_0$ |
+> | class-F | waveform ($3\omega_0$ resonance) | steeper zero crossings, flat top has $\Gamma\approx0$ | $\Gamma_{rms}^2$ $0.5\to0.25$ ($-3.01$ dB) | transformer placement, risk of oscillating at the auxiliary peak |
+
 ---
 
 ## Comparison table across the three topologies
@@ -355,6 +498,7 @@ print(round(L1,1), round(L5,1), "dBc/Hz")               # computed ~ -137.7 / -1
 | Tail filter is genuinely high-impedance at $2f_0$ | $c_2$ fold-back is choked off | Mistuning or insufficient $Q$ → residual $2\omega_0$ fold-back |
 | Waveform symmetry ($c_0\to0$) | Small $1/f^3$ corner | Asymmetry → large $c_0$ → close-in raised |
 | This page's $c_n$ values are illustrative | Demonstrates mechanism and order of magnitude | Precise design needs transistor-level / PSS+PNOISE (Spectre) |
+| §(d)'s class-C window factor uses the $\alpha=1$ convention; the class-F ISF is a slope-normalised approximation | Gives topology-level orders of magnitude ($-3.92$ dB, a 3 dB-class drop in $\Gamma_{rms}^2$) | Full $F$ bookkeeping (narrower pulse → higher $g_m$ peak) and the $q_{max}$ reference point must go back to the original papers; [P1] Eq.(37) is distorted on a fourth-order tank |
 
 ---
 
@@ -365,7 +509,10 @@ print(round(L1,1), round(L5,1), "dBc/Hz")               # computed ~ -137.7 / -1
 - **Colpitts**: the device current is a narrow pulse; $\alpha$ windows $\Gamma_{eff}$ down to a narrow phase interval; the pulse aligns with the tank-voltage trough (**small**-ISF region) → low $\Gamma_{eff,rms}$ → clean close-in ([P1] Fig. 13/14, Eq.(27)).
 - **CMOS ring stage**: deriving $\Gamma\propto1/\lvert dV/dt\rvert$ from transition slope shows it concentrates at the transition (triangular toy); the ISF peak **overlaps** the noise peak → cyclostationary effects offer no help, and there's no energy storage → close-in is inherently worse.
 - The three worked examples each walk the full chain (device noise → ISF harmonics → close-in PN): tail $1/f^3$ corner $\approx255$ kHz, Colpitts narrow-window suppression of $\Gamma_{eff,rms}^2$ by about 7 dB, 5-stage ring $\approx-129$ dBc/Hz @1MHz (all hand-calculated order of magnitude).
-- Sources: [P1] Eq.(21),(23),(24) p.185, Eq.(27) p.186, Fig. 5/13/14; figures `cross_coupled_vco_isf.png` (lab_21, illustrative), `lc_vs_ring_isf_comparison.png` (lab_03).
+- **Waveform engineering (§(d))**: class-C aligns the current pulses with the nulls of $-\sin$ (geometric window factor $0.0288$ at a $60^\circ$ conduction angle, versus only $0.3045$ when aligned with the zero crossings) and
+  raises the fundamental by $\times\pi/2$ at the same $I_{bias}$ → $-3.92$ dB (example B $-148.0\to-151.9$ dBc/Hz); class-D pushes $q_{max}$ to rail-to-rail with $F$ bounded by $\gamma$;
+  class-F builds a pseudo-square wave with a $3\omega_0$ resonance, and lab_43 derives from the waveform that $\Gamma_{rms}^2$ falls from $0.5$ to $0.25$ at $\zeta=1/3$ ($-3.01$ dB, consistent with the Babaie–Staszewski closed form).
+- Sources: [P1] Eq.(21),(23),(24) p.185, Eq.(27) p.186, Fig. 5/13/14; figures `cross_coupled_vco_isf.png` (lab_21, illustrative), `lc_vs_ring_isf_comparison.png` (lab_03), `classc_classf_isf.png` (lab_43, topology-level toy).
 
 ## Further reading
 
@@ -385,3 +532,11 @@ print(round(L1,1), round(L5,1), "dBc/Hz")               # computed ~ -137.7 / -1
 - The classic source for the tail filter @ $2f_0$ is also E. Hegazi, H. Sjöland, A. A. Abidi, *"A Filtering Technique to
   Lower LC Oscillator Phase Noise,"* IEEE JSSC, vol. 36, no. 12, pp. 1921–1930, Dec. 2001.
   (**Not among the five source PDFs**; volume/issue/pages verified.)
+- **[E-Mazzanti]** A. Mazzanti and P. Andreani, *"Class-C Harmonic CMOS VCOs, With a General Result on Phase Noise,"*
+  IEEE J. Solid-State Circuits, vol. 43, no. 12, pp. 2716–2729, Dec. 2008 (DOI 10.1109/JSSC.2008.2004867).
+  (Source of the class-C topology of §(d-1), the 3.9 dB at the same current and the "general result"; volume/issue/pages/DOI verified.)
+- **[E-Fanori]** L. Fanori and P. Andreani, *"Class-D CMOS Oscillators,"* IEEE J. Solid-State Circuits, vol. 48, no. 12,
+  pp. 3105–3119, Dec. 2013 (DOI 10.1109/JSSC.2013.2271531). (The class-D topology of §(d-2); the amplitude / frequency / $F$ expressions are in the original and are not re-derived here. Volume/issue/pages/DOI verified.)
+- **[E-Babaie]** M. Babaie and R. B. Staszewski, *"A Class-F CMOS Oscillator,"* IEEE J. Solid-State Circuits, vol. 48, no. 12,
+  pp. 3120–3133, Dec. 2013 (DOI 10.1109/JSSC.2013.2273823). (Source of the pseudo-square wave and the $\Gamma_{rms}^2$ closed form of §(d-3) (original §II);
+  this site's lab_43 re-derives that closed form independently with the [P1] waveform method. Volume/issue/pages/DOI verified; the original's internal equation / figure numbers unverified.)

@@ -29,7 +29,7 @@ oscillator model. After finishing this site, you should be able to:
 
 ## Start from your goal
 
-The full 9-step sequential path is in the [Learning Path](/00_overview/learning_path);
+The full 12-step sequential path (a nine-step backbone plus three advanced steps) is in the [Learning Path](/00_overview/learning_path);
 but if you already have a concrete goal in mind, it is faster to jump in through one of
 the three "entry cards" below.
 
@@ -41,7 +41,7 @@ physical intuition of "what an oscillator's phase actually is", then follow the
 planned path.
 
 - [What is oscillator phase?](/02_foundations/oscillator_phase) — phase vs. amplitude seen from the limit cycle
-- [Learning Path](/00_overview/learning_path) — the complete 9-step route, from basics to advanced
+- [Learning Path](/00_overview/learning_path) — the complete 12-step route, from basics to advanced (a nine-step backbone plus three advanced steps)
 
 ### I have a phase-noise plot and need jitter
 

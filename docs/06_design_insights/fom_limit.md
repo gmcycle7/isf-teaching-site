@@ -40,6 +40,11 @@ $$
   把這個 $B_{ref}=1$ Hz 寫出來，FOM 的 log 引數才嚴格無因次；FOM 的完整參考基準是
   「**1 Hz 頻寬、1 mW 功率**」。下一步會看到這件事不是學究——它正好讓 $kT$ 乾淨現身。
 - **Dimension check**：三項各是無因次比值的 $10\log_{10}$（$\mathcal{L}_{lin}B_{ref}$、$(f_0/\Delta f)^2$、$P/P_{ref}$）→ dB ✓。
+- **別跟 PLL 的 jitter–power FOM 混用**：整顆 PLL 常用
+  $\mathrm{FOM}_{jitter}=20\log_{10}(\sigma_t/1\ \text{s})+10\log_{10}(P/1\ \text{mW})$（**恆為負、越負越好**；
+  $\sigma_t^2P$ 為不變量，jitter 減半 $-6$ dB、功率減半 $-3$ dB；例：$\sigma_t=259$ fs、$P=10$ mW → $-241.7$ dB）。
+  它歸一化的是積分 jitter 與功耗、**不含 $f_0/\Delta f$**，與本頁的振盪器 FOM 是兩個不同量、不可互換或相加；
+  定義與 worked example 見 [pll_noise_budget](/06_design_insights/pll_noise_budget)「PLL 的 jitter–power FOM」一節。
 
 ## 第 1 步：參考常數——173.8 dB 是 $1\cdot kT$，不是 $2kT$
 

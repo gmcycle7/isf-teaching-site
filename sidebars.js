@@ -161,6 +161,7 @@ const sidebars = {
             '06_design_insights/real_oscillator_topologies',
             '06_design_insights/varactor_tuning_supply_pushing',
             '06_design_insights/fom_limit',
+            '06_design_insights/design_recipe',
           ],
         },
         {
@@ -173,6 +174,7 @@ const sidebars = {
             '06_design_insights/injection_locked_division',
             '06_design_insights/subharmonic_injection',
             '06_design_insights/sampling_pll',
+            '06_design_insights/adpll_tdc_dco',
             '06_design_insights/pll_noise_budget',
             '06_design_insights/clock_chain_budget',
           ],
@@ -183,6 +185,7 @@ const sidebars = {
           collapsed: true,
           items: [
             '06_design_insights/serdes_clocking_connection',
+            '06_design_insights/cdr_bang_bang_jtol',
             '06_design_insights/adc_aperture_jitter',
             '06_design_insights/dj_dual_dirac',
             '06_design_insights/reference_oscillators',

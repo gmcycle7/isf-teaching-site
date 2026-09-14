@@ -24,6 +24,8 @@ description: 全站一致的符號、單位、與各論文之間的符號對照�
 | $\Delta\phi$ | 相位步階／相位誤差 | rad | all | 一次 impulse 造成的跳變 |
 | $A(t)$ | 瞬時振幅 | V 或 normalized | [P1][P4] | 擾動會被拉回（見 [P4] APF） |
 | $\Gamma(\omega_0\tau)$ | **ISF**，振盪器對 noise 的「相位敏感度」，無因次、$2\pi$ 週期 | — | [P1] | 不是 noise 本身，是權重函數 |
+| $\tilde\Lambda(\phi)$ | **振幅 ISF**（amplitude ISF，電荷歸一）：單位脈衝電荷打在相位 $\phi$ 造成的**初始**相對振幅變化 $D(0,\phi)$ | 1/C | [P4] | [P4] Eq.(18),(24)；tilde 表電荷歸一（同 $\tilde\Gamma=\Gamma/q_{max}$）；ideal LC $\tilde\Lambda=\cos\phi/q_{max}$；[P4] 註 6 的 $\Lambda\equiv q_{max}\tilde\Lambda$ 是其引文 [28] 的無因次版，本站不用 |
+| $\Delta(\phi)$ | **APF**（amplitude perturbation function，振幅擾動函數）$=\int_0^\infty D\,d\tau=\tilde\Lambda\int_0^\infty d\,d\tau$；ideal LC $=\tau_0\tilde\Lambda$ | 1/A | [P4] | [P4] Eq.(19),(25)；APF 本身**不帶 tilde**；基波 $\Delta_1=\frac{\tau_0}{q_{max}}\angle0°$（Eq.(26)）；帶引數的函數 $\Delta(\cdot)$，勿與差分前綴 $\Delta q$、$\Delta\omega$ 混淆 |
 | $q_{max}$ | 節點最大電荷擺幅 $=C\cdot V_{max}$ | C | [P1] | normalize 用；越大 phase noise 越低 |
 | $\Delta q$ | 注入電荷 $=\int i\,dt$ | C | [P1] | 例：1 fC |
 | $i_n(t)$ | noise 電流 | A | [P1][P2] | 注入到節點的雜訊源 |
@@ -66,7 +68,7 @@ description: 全站一致的符號、單位、與各論文之間的符號對照�
 | ISF | $\Gamma(\omega_0\tau)$ | [P1][P2] 用 $\Gamma$；有些後續文獻用 $h$ 或 ISF |
 | 最大電荷 | $q_{max}$ | [P1] $q_{max}=C_{node}V_{max}$；ring 中對應每級節點電荷 |
 | offset 頻率 | $\Delta\omega$ 或 $\Delta f$ | [P1] 多用 $\Delta\omega$；datasheet 用 $\Delta f$（Hz） |
-| 相位敏感度的振幅版 | （見 [P4]）APF $\tilde\Lambda$ | [P4] amplitude perturbation function；ideal LC 基波 $\tilde\Lambda_1=\frac{\tau_0}{q_{max}}\angle0°$，與 ISF quadrature；$\tau_0=2Q/\omega_0$ |
+| 相位敏感度的振幅版 | 振幅 ISF $\tilde\Lambda$（1/C）／APF $\Delta=\tau_0\tilde\Lambda$（1/A，ideal LC） | [P4] Eq.(18),(24)：$\tilde\Lambda(\phi)=D(0,\phi)$，tilde 表電荷歸一；Eq.(19),(25)：APF $\Delta(\phi)=\int_0^\infty D\,d\tau$，**不帶 tilde**（[P4] 註 6, p.2126：$\Lambda\equiv q_{max}\tilde\Lambda$ 是 [28] 的無因次振幅 ISF）；ideal LC 基波 $\tilde\Gamma_1=\frac{1}{q_{max}}\angle90°$、$\Delta_1=\frac{\tau_0}{q_{max}}\angle0°$（Eq.(26), p.2128），互成 quadrature；$\tau_0=2Q/\omega_0$ |
 | 有單位的 ISF | $\tilde\Gamma=\Gamma/q_{max}$ | [P3] Eq.(26)：Hong 用有單位版本（rad/C）；本站核心用無因次 $\Gamma$ |
 | 相位方程（injection） | 廣義 Adler | [P3] Eq.(30),(33)：$\frac{d\theta}{dt}=(\omega_0-\omega_{inj})+\Omega(\theta)$，$\Omega=\langle\tilde\Gamma\,i_{inj}\rangle$ |
 | PPV / adjoint / Floquet | — | **不在這 5 篇 PDF**；屬 Demir 等外部文獻，見 [effective_isf](/03_isf_core_theory/effective_isf) |

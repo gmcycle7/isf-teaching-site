@@ -75,7 +75,7 @@ constants are never altered.
 
 ### Eq.(1): output decomposition (where phase noise lives)
 
-**Original formula** ([P1] Eq.(1), p.181):
+**Original formula** ([P1] Eq.(1), p.180):
 
 $$
 V_{out}(t)=A(t)\,f\!\big(\omega_0 t+\phi(t)\big)
@@ -93,7 +93,7 @@ and only $\phi(t)$ tracked. This step collapses the problem from a "2-D state" t
 
 ### Eq.(9): charge → voltage step (the physical entry point of noise)
 
-**Original formula** ([P1] Eq.(9), p.182):
+**Original formula** ([P1] Eq.(9), p.181):
 
 $$
 \Delta V=\frac{\Delta q}{C_{node}}

@@ -290,8 +290,8 @@ rule, because the "maximum slope" and "maximum amplitude" of $-\sin$ are both 1.
 > $0.95\,\Delta\omega_L$ only $0.0156$ — still locked, but almost no restoring force left. $\beta/T_{inj}=0.05/4\ \text{ns}=1.25\times10^{7}$ rad/s = $\Delta\omega_L$ ✓.
 
 **Where on the waveform is the lock point? (an APF reminder)** The LC's $\Gamma=-\sin\theta$ is zero at $\theta=0$ (the voltage **peak**) with
-maximum slope. So at zero detuning the pulse lands exactly on the peak — no phase shift, maximum $\beta$, but that is where the [P4] APF
-$\vert\tilde\Lambda\vert$ is largest (ISF/APF quadrature, [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2)): each pulse **kicks the
+maximum slope. So at zero detuning the pulse lands exactly on the peak — no phase shift, maximum $\beta$, but that is where the [P4] amplitude ISF
+$\vert\tilde\Lambda\vert$ (APF $\Delta=\tau_0\tilde\Lambda$) is largest (ISF/APF quadrature, [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2)): each pulse **kicks the
 amplitude**, which then relaxes with $\tau_0=2Q/\omega_0$. The phase-only model cannot see this; for $q_{inj}\ll q_{max}$ it is second order, for
 strong injection go back to the [P4] correction. Conversely, at the edge of the lock range the pulse lands on the zero crossing ($\vert\Gamma\vert=1$,
 $\tilde\Lambda\approx0$) — which is exactly how [P3] Fig. 3 is drawn: **Fig. 3 depicts the edge of the lock range, not its centre**.

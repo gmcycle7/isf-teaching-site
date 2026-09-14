@@ -33,7 +33,7 @@ $$
 - **The second term, $\mu(1-r^2)z$**: a **Van der Pol-style amplitude restoration**. For $r>1$ (pushed outside the circle) it pulls inward; for $r<1$ (pushed inside) it pushes outward — dragging the trajectory **back to the $r=1$ limit cycle**. It models the AGC / device nonlinearity every real oscillator must have (without it, the amplitude would diverge or decay).
 - **Dimension check**: the equations are normalized — $x,y,r$ are all dimensionless, $\omega_0,\mu$ carry rad/s, and both sides are "dimensionless ÷ seconds" ✓.
 
-**How a perturbation enters**: a current impulse injected into the capacitor node deposits charge $\Delta q=\int i\,dt$, producing an instantaneous voltage step $\Delta V=\Delta q/C_{node}$ ([P1] Eq.(9), p.182):
+**How a perturbation enters**: a current impulse injected into the capacitor node deposits charge $\Delta q=\int i\,dt$, producing an instantaneous voltage step $\Delta V=\Delta q/C_{node}$ ([P1] Eq.(9), p.181):
 
 $$
 \Delta V=\frac{\Delta q}{C_{node}}.
@@ -155,7 +155,7 @@ or standalone: `python simulations/lab_01_sinusoidal_oscillator.py`.
 
 - **Conceptual source**: [P1] Fig. 4, p.182 — Hajimiri–Lee use the state-space limit cycles of LC and ring oscillators to demonstrate "impulse at the peak (amplitude change) vs at the zero crossing (phase change)". The two figures in this lab are **redrawn conceptual toy figures**
   (redrawn conceptual — not transistor-level, not point-by-point copies of the paper's figures).
-- **Charge → voltage step**: [P1] Eq.(9), p.182, $\Delta V=\Delta q/C_{node}$.
+- **Charge → voltage step**: [P1] Eq.(9), p.181, $\Delta V=\Delta q/C_{node}$.
 - **ISF and impulse response** (used in the next step): [P1] Eq.(10), p.182:
 
   
@@ -184,4 +184,4 @@ $$
 - Phase has **no restoring force** — the physical root of phase noise accumulating without bound (random walk).
 - Same-size impulse: at the **peak** → amplitude change ($\Gamma\approx0$); at the **zero crossing** → phase change ($|\Gamma|$ maximal).
 - "The effect depends on the injection phase" = the essence of LTV, and the reason the ISF exists.
-- Source: [P1] Fig. 4 and Eq.(9),(10), p.182.
+- Source: [P1] Fig. 4 and Eq.(9), p.181, and Eq.(10), p.182.

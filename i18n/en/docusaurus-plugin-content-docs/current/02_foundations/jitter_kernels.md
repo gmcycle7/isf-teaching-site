@@ -63,7 +63,7 @@ see the derivation in [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_j
 
 ## Step 1: edge timing error = a sample of the phase (time-domain starting point)
 
-The total phase of the oscillator output is $\Phi(t)=\omega_0 t+\phi(t)$ (the phase term of [P1] Eq.(1), p.181;
+The total phase of the oscillator output is $\Phi(t)=\omega_0 t+\phi(t)$ (the phase term of [P1] Eq.(1), p.180;
 $\phi$ is the excess phase, rad). The $k$-th rising zero crossing $t_k$ is defined by "the total phase has completed $k$ full turns":
 
 $$

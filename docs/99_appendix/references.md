@@ -32,7 +32,7 @@ IEEE J. Solid-State Circuits, vol. 33, no. 2, pp. 179–194, Feb. 1998.
   [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf)、
   [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)、
   [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)。
-- **關鍵式**：Eqs.(1),(9),(10),(11),(12),(13),(15)–(24)，pp.181–185（見 [equation_index](/01_paper_map/equation_index)）。
+- **關鍵式**：Eqs.(1),(9),(10),(11),(12),(13),(15)–(24)，pp.180–185（見 [equation_index](/01_paper_map/equation_index)）。
 
 ### [P2] — ring oscillator 的延伸
 
@@ -77,10 +77,10 @@ pp. 2122–2139, Aug. 2019.
   對應物（單位 1/A），處理 LC 振盪器在注入下的振幅調變、暫態鎖定與注入鎖定除頻。
 - **本站用到**：[paper_004_injection_locking_part2](/05_paper_deep_dives/paper_004_injection_locking_part2)、
   [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)（用其 ISF/APF 正交圖說明振幅擾動為何衰減）。
-- **關鍵式（已核實）**：APF 分解 $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$（Eq.18）、APF 定義
+- **關鍵式（已核實）**：振幅擾動分解 $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$（Eq.18；$\tilde\Lambda$＝振幅 ISF，1/C；註 6：$\Lambda\equiv q_{max}\tilde\Lambda$）、APF 定義
   $\Delta(\phi):=\int_0^\infty D\,d\tau$（單位 1/A，Eq.19）、振幅變化（Eq.20）、augmented pulling equation
   （Eq.21，正弦形式 Eq.22）皆在 Fig.5, p.2126；ideal-LC quadrature（ISF 基波 $\angle90°$、APF 基波 $\angle0°$）
-  $\tilde\Gamma_1=\frac{1}{q_{max}}\angle90°$、$\tilde\Lambda_1=\frac{\tau_0}{q_{max}}\angle0°$（Eq.26），p.2128；
+  $\tilde\Gamma_1=\frac{1}{q_{max}}\angle90°$、$\Delta_1=\frac{\tau_0}{q_{max}}\angle0°$（Eq.26；APF 基波不帶 tilde，$\Delta=\tau_0\tilde\Lambda$ 為 Eq.25），p.2128；
   amplitude decay $d(t,\phi)=e^{-t/\tau_0}$、$\tau_0=2Q/\omega_{osc}$ 在同一 ideal-LC 段 p.2127–2128。
 
 ### [P5] — 與 ISF 無關（誠實註記）

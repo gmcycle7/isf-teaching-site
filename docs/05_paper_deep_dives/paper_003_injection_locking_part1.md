@@ -76,11 +76,82 @@ $$
 **Meaning**：注入鎖定的相位差 $\theta$（或 $\phi$）滿足一條一階非線性 ODE。$\omega_L$ 是
 （半）lock range。**鎖定**＝存在穩態解 $d\theta/dt=0$，要求 $|\Delta\omega_{inj}|\le\omega_L$。
 
-**Step-by-step（[P3] 對 LC 的簡化推導摘要）**：把注入電流寫成 phasor
-$i_{inj}=I_{inj}e^{j\omega_{inj}t}$，對 LC tank 寫 KCL（注入電流要供應 tank 偏離共振時的
-無功電流），在弱注入（$I_{inj}\ll I_{osc}$）與慢相位（$|d\theta/dt|\ll\omega_{inj}$）近似下取
-實部，即得上式。穩態解給出 lock characteristic 與**對稱** lock range
-$\omega_L=\dfrac{\omega_0}{2Q}\dfrac{I_{inj}}{I_{osc}}$。
+**Step-by-step（[P3] Sec. III 對 LC 的簡化推導，Fig. 2, p.2111）**：[P3] Fig. 2 是一個並聯 LC
+（$C$、$L$、損耗 $R_P$、補償損耗的非線性 $-G_m$）再並上一個注入電流源。本站把 [P3] 在 Eq.(14) 與
+Eq.(15) 之間那條**未編號的複數域方程**補寫出來，並明講兩個近似各丟掉哪一項——這是「為什麼 Adler
+是一階方程」的答案。
+
+1. **Phasor 設定（[P3] Eq.(12)–(13)）**：注入寫成 $i_{inj}=I_{inj}e^{j\omega_{inj}t}$（footnote 4：
+   物理電流可以是實部與虛部的任意線性組合）。弱注入 $I_{inj}\ll I_{osc}$ 時它對 $i_R$ 的影響可略、
+   振幅不變，只有相位 $\theta$ 待定：$v_{osc}=V_{osc}e^{j(\omega_{inj}t+\theta)}$，$V_{osc}=I_{osc}R_P$。
+2. **KCL（[P3] Eq.(14)）**：弱注入下 $i_R$ 與 $-G_m$ 電流近似互相抵銷（footnote 5），剩下
+   $i_{inj}=i_C+i_L$；對時間微分一次，把 $i_L=\tfrac1L\int v_{osc}\,dt$ 的積分消掉：
+
+$$
+\frac{di_{inj}}{dt}=C\frac{d^2v_{osc}}{dt^2}+\frac{v_{osc}}{L}
+$$
+
+   物理：tank 偏離共振時多出來的無功電流，得由注入電流供應。
+3. **代入並乘以 $e^{-j(\omega_{inj}t+\theta)}$**：用
+   $\frac{d^2}{dt^2}e^{j(\omega_{inj}t+\theta)}=\big[j\theta''-(\omega_{inj}+\theta')^2\big]e^{j(\omega_{inj}t+\theta)}$
+   （$\theta'\equiv d\theta/dt$），得 [P3] p.2111 的中間式：
+
+$$
+j\omega_{inj}I_{inj}e^{-j\theta}=\Big\{C\big[j\theta''-(\omega_{inj}+\theta')^2\big]+\frac{1}{L}\Big\}I_{osc}R_P
+$$
+
+   Dimension check：左邊 (rad/s)·A ＝ A/s；右邊 F·(rad/s)²·V ＝ (C/V)(1/s²)V ＝ A/s，
+   而 $V/L$ ＝ V/H ＝ A/s（因 $v=L\,di/dt$）✓。
+4. **兩個近似、各丟哪一項**：先用 $1/L=C\omega_0^2$（Eq.(11)）改寫，再分實部／虛部。
+   左邊 $j\omega_{inj}I_{inj}(\cos\theta-j\sin\theta)$ 的實部是 $\omega_{inj}I_{inj}\sin\theta$、虛部是
+   $\omega_{inj}I_{inj}\cos\theta$；右邊實部是
+   $CI_{osc}R_P\big[\omega_0^2-\omega_{inj}^2-2\omega_{inj}\theta'-\theta'^2\big]$、虛部是 $CI_{osc}R_P\,\theta''$。
+   - **慢相位** $|\theta'|\ll\omega_{inj}$：丟掉 $\theta'^2$——相對於保留的 $2\omega_{inj}\theta'$，它是
+     $\theta'/(2\omega_{inj})$ 階的小量。
+   - **近共振** $|\Delta\omega|\ll\omega_0$：$\omega_0^2-\omega_{inj}^2=(\omega_0+\omega_{inj})(\omega_0-\omega_{inj})
+     \approx2\omega_{inj}(\omega_0-\omega_{inj})$——丟掉的是 $\Delta\omega/(2\omega_{inj})$ 階的修正。
+   - **取實部**：$j\theta''$ 只出現在虛部。虛部其實是振幅平衡方程（弱注入假設已把它交給 footnote 5
+     的 $i_R$／$-G_m$ 抵銷去吸收），所以取實部＝把 $\theta''$ 連同振幅動態一起丟掉。**Adler 之所以是
+     一階 ODE，就是這一步。**
+5. **收尾成 Eq.(15)**：實部方程為 $\omega_{inj}I_{inj}\sin\theta=2\omega_{inj}CI_{osc}R_P\big[(\omega_0-\omega_{inj})-\theta'\big]$；
+   兩邊除以 $2\omega_{inj}CI_{osc}R_P$，用 $Q=R_P\omega_0C$（[P3] Eq.(16)）把 $CR_P$ 換成 $Q/\omega_0$，即得上式。
+   穩態 $\theta'=0$ 給出 lock characteristic $\Omega(\theta)=-\dfrac{\omega_0}{2Q}\dfrac{I_{inj}}{I_{osc}}\sin\theta$
+   （[P3] Eq.(17)）與**對稱** lock range $\omega_L=\omega_L^+=-\omega_L^-=\dfrac{\omega_0}{2Q}\dfrac{I_{inj}}{I_{osc}}$（Eq.(18)）。
+
+用下方數值例（$f_0=5$ GHz、$Q=10$、$I_{inj}/I_{osc}=0.1$、detuning 5 MHz）量一下兩個近似有多好：
+慢相位丟掉的相對量最大為 $\omega_L/(2\omega_{inj})=2.5\times10^{-3}$，近共振的
+$(\omega_0+\omega_{inj})/(2\omega_{inj})=0.9995$——都在千分之幾以內，Adler 在這個例子裡是安全的。
+下面用 sympy 把第 3–5 步逐字重做一次（三個 `0` 分別是：左邊、右邊與 [P3] 中間式的差，以及近似後解出的
+$\theta'$ 與 Eq.(15) 的差）：
+
+```python
+import sympy as sp
+
+t = sp.symbols('t', real=True)
+w0, winj, Iinj, Iosc, RP, C, L, Q = sp.symbols('omega_0 omega_inj I_inj I_osc R_P C L Q', positive=True)
+theta = sp.Function('theta', real=True)(t)
+v_osc = Iosc*RP*sp.exp(sp.I*(winj*t + theta))       # [P3] Eq.(12)-(13)
+i_inj = Iinj*sp.exp(sp.I*winj*t)
+mult = sp.exp(-sp.I*(winj*t + theta))
+lhs = sp.simplify(sp.diff(i_inj, t)*mult)             # [P3] Eq.(14) left  x e^{-j(w t+theta)}
+rhs = sp.expand(sp.simplify((C*sp.diff(v_osc, t, 2) + v_osc/L)*mult))   # Eq.(14) right
+paper = (C*(sp.I*sp.diff(theta, t, 2) - (winj + sp.diff(theta, t))**2) + 1/L)*Iosc*RP  # [P3] p.2111, unnumbered
+print(sp.simplify(lhs - sp.I*winj*Iinj*sp.exp(-sp.I*theta)))   # -> 0
+print(sp.simplify(rhs - paper))                                 # -> 0
+th, th1, th2 = sp.symbols('theta theta1 theta2', real=True)   # theta, theta', theta''
+expr = paper.subs(sp.diff(theta, t, 2), th2).subs(sp.diff(theta, t), th1).subs(L, 1/(C*w0**2))
+lhs_re = sp.re(sp.I*winj*Iinj*sp.exp(-sp.I*th))                 # = I_inj*omega_inj*sin(theta)
+approx = C*Iosc*RP*(2*winj*(w0 - winj) - 2*winj*th1)   # Re(expr) with theta1^2 dropped and w0^2-winj^2 -> 2*winj*(w0-winj)
+sol = sp.solve(sp.Eq(lhs_re, approx), th1)[0]
+adler = w0 - winj - (w0/(2*Q))*(Iinj/Iosc)*sp.sin(th)          # [P3] Eq.(15)
+print(sp.simplify(sol.subs(RP, Q/(w0*C)) - adler))              # -> 0
+import math
+f0, Qn, ratio, df = 5e9, 10.0, 0.1, 5e6
+w0n = 2*math.pi*f0; wLn = w0n/(2*Qn)*ratio; winjn = w0n + 2*math.pi*df
+print(wLn)                                                      # -> 157079632.67948967
+print(wLn/(2*winjn))                                            # -> 0.002497502497502498
+print((w0n + winjn)/(2*winjn))                                  # -> 0.9995004995004996
+```
 
 **Numerical example**：$f_0=5$ GHz、$Q=10$、$I_{inj}/I_{osc}=0.1$。半 lock range
 
@@ -339,6 +410,10 @@ $$
 $$
 
 其中 $\Omega(\theta)$ 稱為 **lock characteristic**（[P3] Eq.(33), p.2114）：注入造成的平均頻率偏移隨相位差 $\theta$ 的函數。注意平均項前為 **加號**（與 [P3] Eq.(30) 同號慣例）。
+**它不是 Sec. V 才發明的**：[P3] 早在 Sec. II-B（p.2110）就用「鎖定 ⇔ $d\theta/dt=0$」（Eq.(8)）正式定義
+$\Omega(\theta):=\Delta\omega\big|_{d\theta/dt=0}$、$\Delta\omega:=\omega_{inj}-\omega_0$（Eq.(9)），並把上／下 lock range 定義為
+$\omega_L^+=\max_\theta\Omega(\theta)$、$\omega_L^-=\min_\theta\Omega(\theta)$（Eq.(10)）；Sec. V 做的事是用時間同步平均把這個抽象定義
+**重推成 ISF 與注入波形的顯式積分**（Eq.(33)）。所以「lock range ＝ $\Omega$ 的值域寬度」是定義，「$\Omega$ ＝ ISF×注入的週期平均」才是本篇的物理內容。
 
 **Meaning**：一條一階 ODE，由**有單位 ISF $\tilde\Gamma=\Gamma/q_{max}$** 與**注入波形 $i_{inj}$** 組成，
 預測任意振盪器、任意注入波形下的行為（claim C10）。**鎖定**＝存在 $\theta^\*$ 使
@@ -392,10 +467,82 @@ $\Omega$ 曲線的值域（兩條水平虛線之間）。把注入波形諧波�
 |---|---|---|---|
 | Fig. 6 | 2113 | block diagram：注入電流的諧波被 ISF 的諧波**濾波**，形成 lock characteristic | 說明 $\Omega(\theta)$ 為何只留下對齊的諧波 |
 | Fig. 7 | 2114 | lock characteristic 的**時域**圖：上/下邊緣與 free-running 三種情形的 ISF×injection 面積 | 直覺看 lock range = 每週期淨面積的極值 |
+| Fig. 12 | 2117 | 6 級差動 ring（$f_0\approx1$ GHz）：schematic、波形、模擬 ISF、三種 $I_{inj}$ 的正弦 lock characteristic（$I_{max}=3.0$ mA） | 理論 Eq.(34) vs. transient 模擬；強注入偏差變大但仍追蹤 |
+| Fig. 13 | 2117 | ideal Bose 弛張振盪器：閉式 ISF Eq.(41)、Eq.(42) 與模擬 ISF 三線重合；三種 $I_{inj}$ 的 lock characteristic（$I_{max}=29$ mA） | 非 LC、非 ring 的振盪器也適用同一條方程 |
+| Fig. 14–15 | 2118 | 65-nm CMOS 實測 lock range vs. $I_{inj}$：6 級差動 ring、3／17 級單端 ring、Bose、astable multivibrator | 矽驗證：Eq.(35) 的線性預測到 $I_{inj}\sim I_{max}$ 仍準 |
+| Fig. 16 | 2118 | die photo（1×1 mm²） | 這套理論有真的晶片背書 |
 
 > 本站**刻意不重畫** [P3] 的 Fig. 6／Fig. 7 這兩張進階圖（無對應 transistor-level toy 模擬）；
 > 以上頁碼/內容已對照 [P3] 原文。上方 Key equations 內的 $\Omega(\theta)$ 圖是**獨立的 toy 示意**
 > （只示範「lock range ＝ $\Omega(\theta)$ 值域」這個概念），**不是** Fig. 6／Fig. 7 的重畫。
+
+### 驗證：模擬與量測（[P3] Sec. V-H／V-I, p.2116–2118）
+
+廣義 Adler 方程不是只在紙上漂亮——[P3] 用兩層證據收尾，本站據原文轉述（**非本站 transistor-level 模擬；
+所有數字皆為論文已發表數字的轉錄**，頁碼已對照渲染頁核實）：
+
+**（1）Transient 模擬 vs. 理論（Sec. V-H, p.2116–2117）**。兩顆自由振盪約 $f_0=1$ GHz 的振盪器：
+Fig. 12 的 **6 級差動 ring**（每級為差動對＋電阻負載，$I_{max}=3.0$ mA）與 Fig. 13 的 **Bose 弛張振盪器**
+（Schmitt trigger＋RC，$V_{max}^\pm=\pm1$ V、$V_T^\pm=\pm0.5$ V、$R=50\ \Omega$、$C=9.1$ pF、$I_{max}=29$ mA）。
+ISF 由 impulse response 直接模擬取得（[P1] 的方法）；lock characteristic 的模擬版是「先掃出 lock range（1 MHz 解析度）、
+再在範圍內掃 $f_{inj}$、逐點讀 $\theta$」，與 Eq.(34) 的理論曲線疊圖（不穩定支用虛線）。論文的誠實註記：
+**注入越強、模擬與理論的偏差越明顯，但直到 $I_{inj}$ 與 $I_{max}$ 同量級仍「reasonably closely」追蹤**——
+這正是 Eq.(36)–(37) 弱注入線性假設（$I_{inj}\ll I_{max}=\omega_0q_{max}$）在實務上的可用邊界。
+
+Bose 振盪器特別有教學價值：因為它只是 RC 充放電，footnote 20 給出**閉式** ISF（[P3] Eq.(41)），並證明 ISF 與波形
+斜率的關係 $\tilde\Gamma(\varphi)=1/\big(C\,v_0'(\varphi)\big)$（Eq.(42)）——與本站
+[isf_definition](/03_isf_core_theory/isf_definition) 「電荷 kick ÷ 波形斜率 ＝ 相位 kick」的直覺是同一句話。
+下面用 Eq.(41)–(42) 與 Eq.(35) 把 Fig. 13 的幾個數自己算一遍（這是本站的**推導驗證**，不是重做論文模擬）：
+
+- 週期：Schmitt trigger 輸出 $\pm V_{max}$ 對 $C$ 經 $R$ 充放電、在 $\pm V_T$ 翻轉，每半週期
+  $RC\ln\frac{V_{max}+V_T}{V_{max}-V_T}=RC\ln3$，故 $T_0=2RC\ln3=999.7$ ps、$f_0=1.000$ GHz ✓（Fig. 13(b) 一格 1 ns）。
+- $q_{max}=CV_{max}/2=4.55$ pC（footnote 20），$I_{max}=\omega_0q_{max}=28.6$ mA ✓（caption 寫 29 mA）。
+- Eq.(41) 的峰值 $\tfrac{1}{q_{max}}\tfrac{\pi}{\ln3}=6.28\times10^{11}$ rad/C ✓（Fig. 13(c) 縱軸 $\pm6\times10^{11}$）；
+  Eq.(41) 與 Eq.(42)（數值微分波形）相對差 $\approx5\times10^{-6}$ ✓。
+- Eq.(35) 半 lock range $f_L=\tfrac{1}{2\pi}\cdot\tfrac12I_{inj}\lvert\tilde\Gamma_1\rvert$：$I_{inj}=5$、7.5、10 mA 分別給
+  $\pm200.4$、$\pm300.5$、$\pm400.7$ MHz——正是 Fig. 13(d) 三張圖理論曲線的縱向極值（0.8–1.2、0.7–1.3、0.6–1.4 GHz）✓。
+
+```python
+import numpy as np
+
+R, C, Vmax, VT = 50.0, 9.1e-12, 1.0, 0.5             # [P3] Fig.13 caption
+T0 = 2*R*C*np.log((Vmax+VT)/(Vmax-VT))               # two RC half-periods, each RC*ln3
+print(T0*1e12, 1/T0/1e9)                             # -> 999.7 1.0003
+q_max = C*Vmax/2                                     # footnote 20
+w0 = 2*np.pi/T0
+print(q_max*1e12, w0*q_max*1e3)                      # -> 4.55 28.6
+phi = np.linspace(0, 2*np.pi, 200001)[1:-1]
+a = (1/q_max)*(np.pi/np.log(3))
+isf41 = np.where(phi < np.pi, a*3**((phi-np.pi)/np.pi), -a*3**((phi-2*np.pi)/np.pi))      # [P3] Eq.(41)
+v0 = np.where(phi <= np.pi, (Vmax/2)*(2-3**(-(phi-np.pi)/np.pi)),
+              -(Vmax/2)*(2-3**(-(phi-2*np.pi)/np.pi)))                                      # footnote 20 waveform
+isf42 = 1/(C*np.gradient(v0, phi))                                                          # [P3] Eq.(42)
+mask = np.abs(phi-np.pi) > 1e-3                      # exclude the switching discontinuity
+print(np.max(isf41)/1e11)                            # -> 6.28
+print(np.max(np.abs(isf41[mask]-isf42[mask]))/np.max(np.abs(isf41)))   # -> 5.5e-06
+G1 = np.abs(np.trapezoid(isf41*np.exp(-1j*phi), phi)/np.pi)            # |Gamma~_1|, rad/C
+print([round(float(0.5*I*G1/(2*np.pi)/1e6), 1) for I in (5e-3, 7.5e-3, 10e-3)])   # -> [200.4, 300.5, 400.7]
+```
+
+**（2）65-nm CMOS 實測（Sec. V-I, p.2117–2118）**。四類共五顆振盪器在 65-nm bulk CMOS 上流片（Fig. 16 die photo，
+1×1 mm²），ISF 由**layout 後萃取**的電路模擬取得，對各種正弦注入振幅量 lock range、與 Eq.(35) 對照
+（每點量三次、黑色 error bar 為全距，footnote 23）：
+
+| 振盪器 | 實測 $f_0$ | 圖 | 備註 |
+|---|---|---|---|
+| 6 級差動 ring | 1.32 GHz | Fig. 14 | 與 Fig. 12 同拓樸 |
+| 3 級單端 inverter ring | 1.09 GHz | Fig. 14 | 每級輸出加電容負載、注入打在其中一個輸出 |
+| 17 級單端 inverter ring | 1.09 GHz | Fig. 14 | 同上；長 ring 的 lock range 明顯較窄（分數 lock range 只有百分之幾） |
+| Bose 弛張振盪器 | 11.9 MHz | Fig. 15 | 與 Fig. 13 同拓樸（實測顆是低頻版） |
+| 差動 NMOS astable multivibrator | 874 MHz | Fig. 15 | 交叉耦合 RC 弛張振盪器 |
+
+論文的結論與誠實註記（p.2118）：**Eq.(35) 的線性預測在很寬的實用注入強度下都準，連 $I_{inj}$ 與 $I_{max}$ 同量級的點
+也還在線上**；而大注入時實測偏離預測的「方式」，在模擬裡也能重現（[48]）——換句話說，偏差是模型的弱注入近似造成，
+不是量測誤差。這一段是 [P3] 全篇「ISF 拓樸無關」主張的實證：**ring、弛張、multivibrator 用的是同一條 Eq.(30)／(35)。**
+
+> **本站定位**：以上為論文 Sec. V-H／V-I 的轉述與本站對 Fig. 13 閉式的獨立重算；本站沒有這幾顆電路的 transistor-level
+> 模型，也不重畫 Fig. 12–16。要看 [P3] 說的「lock range 隨注入強度線性成長」在本站 toy 上的樣子，見
+> [injection_locking_noise](/06_design_insights/injection_locking_noise) 的弱注入線性表格。
 
 ## Design insights
 
@@ -415,6 +562,11 @@ $\Omega$ 曲線的值域（兩條水平虛線之間）。把注入波形諧波�
 
 - **Part I 只談相位**；振幅調變留到 Part II（APF，[P4]）。
 - 依賴**準確萃取的 ISF**——ISF 不準，預測就不準。
+- **「Injection Locked ⇔ $d\theta/dt=0$」只是特例**（[P3] Eq.(8), p.2110）：一般定義是 $\theta(t)=\theta(t+T_{inj})$
+  （Eq.(6)）、等價於 $\frac{1}{T_{inj}}\int_{T_{inj}}\frac{d\theta}{dt}dt=0$（Eq.(7)）——只要求 $\theta$ **每週期淨變化為零**，
+  允許週期內起伏（Fig. 1(c)）。Eq.(8) 把週期內變化整個丟掉，換來一階 ODE 的簡潔（靠 time-averaging 正當化）。
+  [P3] footnote 3（p.2110）明講：這些 intra-period 變化「可能對高階鎖定性質有顯著影響」，列為**開放問題**。
+  本頁與 [injection_locking_noise](/06_design_insights/injection_locking_noise) 的全部結果都建立在 Eq.(8) 之上。
 - 本站把它當**進階 deep-dive，非核心教學章節**；核心廣義 Adler 公式已對照 [P3] 原文核實。
 
 ## Relationship to other papers
@@ -437,6 +589,8 @@ $\Omega$ 曲線的值域（兩條水平虛線之間）。把注入波形諧波�
 - **雜訊整形（v5 新增）**：鎖定後振盪器＝一階 PLL——自身雜訊被高通抑制、reference 雜訊低通進入，corner=ω_L cosθ_ss；完整推導與模擬見 [injection_locking_noise](/06_design_insights/injection_locking_noise)。
 - **鎖定** = 存在穩態解 / $|\omega_0-\omega_{inj}|\le\omega_L$；**lock range** = lock characteristic $\Omega(\theta)$ 的值域寬度；正弦注入時 $\omega_L=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert$（[P3] Eq.(35), p.2114）。
 - 比 Adler 強在：拓樸無關、任意波形、不對稱 lock range、可設計波形放大 lock range。
+- **有矽背書**：[P3] Sec. V-H／V-I（p.2116–2118）以 6 級差動 ring 與 Bose 弛張振盪器的 transient 模擬、以及 65-nm CMOS
+  五顆振盪器（1.32 GHz／1.09 GHz ring、11.9 MHz Bose、874 MHz astable）的實測 lock range 驗證 Eq.(35)，到 $I_{inj}\sim I_{max}$ 仍準。
 - 本頁屬**進階**；核心公式（Eq.19–23、26、28–30、33、35）已對照 [P3] p.2112–2114 原始 PDF 核實。
 
 ## 延伸閱讀

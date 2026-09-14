@@ -218,6 +218,158 @@ PYTHONPATH=. python simulations/lab_37_ilfd_lock.py
 
 ---
 
+## [P4] Sec. VII-A：ISF shaping——用波形不對稱把 $c_2$「做」出來（Fig. 15–16、Table IV，p.2132–2134）
+
+上一節說「單端拓樸天生有非零 $c_2$」；[P4] Sec. VII-A（p.2132–2134）把這句話升級成**可以主動設計的旋鈕**：
+單端 inverter-chain ring 的上升沿與下降沿可以分別由 PMOS／NMOS 寬度獨立設定，故意做成**不對稱**，就能把 ISF 的
+偶次諧波（尤其 $c_2$）放大，讓 ÷2 的 lock range 大幅擴張。本節分三步：先把「半波對稱為何精確互消」在**時域**
+證一次（footnote 14 ⟹ Fig. 15(a)），再給出上緣 lock range 的正式定義（footnote 15 ⟹ Fig. 15(b)），最後把
+Table IV 的三個 17 級 ring 設計拿來當 worked example。
+
+### 第 1 步：半波對稱 ⟹ 相鄰兩個注入週期的相位踢精確互消（[P4] footnote 14，Fig. 15(a)）
+
+[P4] footnote 14, p.2132 把「波形上升／下降對稱」的數學定義寫成 $\tilde\Gamma(x)=-\tilde\Gamma(x+\pi)$（對所有 $x$）。
+取 $N=2$ 的正弦注入 $i_{inj}(t)=I_{inj}\cos(\omega_{inj}t)$，注入週期 $T_{inj}=T_{osc}/2$。看 Eq.(29) 的被積函數
+$p(t)\equiv\tilde\Gamma\big(\tfrac{\omega_{inj}}{2}t+\theta\big)\,i_{inj}(t)$ 在時間平移一個注入週期後的行為：
+
+$$
+\begin{aligned}
+i_{inj}(t+T_{inj})&=i_{inj}(t)\qquad(\text{注入本身以 }T_{inj}\text{ 為週期})\\
+\tilde\Gamma\!\Big(\tfrac{\omega_{inj}}{2}(t+T_{inj})+\theta\Big)&=\tilde\Gamma\!\Big(\tfrac{\omega_{inj}}{2}t+\theta+\pi\Big)=-\tilde\Gamma\!\Big(\tfrac{\omega_{inj}}{2}t+\theta\Big)\\
+\Rightarrow\qquad p(t+T_{inj})&=-p(t)
+\end{aligned}
+$$
+
+（用了 $\tfrac{\omega_{inj}}{2}T_{inj}=\pi$。）所以**相鄰兩個注入週期＝相鄰兩個振盪半週期**給的相位踢**大小相等、符號相反**，
+在 $NT_{inj}=T_{osc}$ 窗上平均精確為 0——而且對**任何** $\theta$ 都成立（$\theta$ 只是平移，不改變 $p(t+T_{inj})=-p(t)$
+這個關係）。這就是 Fig. 15(a) 底圖的畫面：紅色正瓣與藍色負瓣**面積相等**、綠色平均線壓在 0 上。它是上面 payoff 一節
+「$c_2=0$」的**時域孿生版**：頻域說「偶次諧波為零」，時域說「半週期互消」，是同一件事。
+
+推廣：任何偶數 $N$ 都一樣——把時間平移半個振盪週期 $T_{osc}/2=(N/2)\,T_{inj}$，$i_{inj}$（週期 $T_{inj}$）不變、
+ISF 引數前進 $\pi$ 而變號，所以 ÷2、÷4、÷6…的 lock range 在半波對稱下一階全為零；奇數 $N$ 不受此限
+（$T_{osc}/2$ 不是 $T_{inj}$ 的整數倍，平移後 $i_{inj}$ 也變號、乘積不變號）。
+
+### 第 2 步：破壞對稱後淨相位累積——上緣 lock range 的正式定義（[P4] footnote 15，Fig. 15(b)）
+
+[P4] footnote 15, p.2133 把 lock range 的**上緣**定義成 Eq.(29) 平均項對 $\theta$ 的最大值：
+
+$$
+\omega_L^{+}:=\max_{\theta}\Big\langle\tilde\Gamma\!\Big(\frac{\omega_{inj}}{N}t+\theta\Big)\,i_{inj}(t)\Big\rangle_{NT_{inj}}
+\equiv\Big\langle\tilde\Gamma\!\Big(\frac{\omega_{inj}}{N}t+\theta_u\Big)\,i_{inj}(t)\Big\rangle_{NT_{inj}}
+$$
+
+$\theta_u$ 是達到最大值的相對相位；$\langle\cdot\rangle_{NT_{inj}}$ 是 $NT_{inj}$ 窗上的時間平均。這個定義**不假設正弦注入、
+也不假設線性區**——它就是「把 Eq.(29) 的注入項在 $\theta$ 上取最大」。對正弦注入、線性區，它退化成本頁上面的 Eq.(30)
+結果 $\omega_L^{+}=\tfrac12 I_{inj}\vert\tilde\Gamma_N\vert$（dimension check：rad/C × A = rad/s ✓）。
+
+Fig. 15(b) 的畫面：波形不對稱後，一個振盪週期裡兩個注入週期給的相位踢**大小不等**（紅瓣大於藍瓣），淨相位累積不再為零、
+綠線離開 0——這就是 $\omega_L^{+}$。[P4] p.2133 進一步指出：在**固定 ISF 幅度**下（footnote 16：ISF 幅度大致與注入節點的
+電荷擺幅成反比），不對稱越明顯、同一注入在同一 $\theta$ 造成的頻率偏移越大、lock range 越寬；此邏輯可直接推廣到更高偶次諧波。
+
+**本站 toy 重現（pedagogical toy，非 transistor-level）**：`simulations/fig_isf_shaping_division.py` 用「每週期兩個高斯脈衝」
+的單端 inverter 級 ISF 漫畫版（下降沿一個負脈衝、上升沿一個正脈衝，脈衝高度與寬度都取正比於該邊沿的轉換時間——ISF 峰值
+∝ 1/斜率、寬度 ∝ 轉換時間，即 [P2] Sec. IV 的 ring 圖像），把 Table IV 的 rise/fall 時間代進去：
+
+```bash
+PYTHONPATH=. python simulations/fig_isf_shaping_division.py
+# -> 0.0000（(a) t_F=t_R 精確半波對稱：|c2|/Γrms、|c0|/Γrms、|c4|/Γrms 全為 0；footnote 15 的 ω_L⁺ 暴力搜尋 ≈ 1.7e-7 rad/s ≈ 0）
+# -> 0.4305 / 0.5062（(b) PFET-dominant t_F/t_R=1.92、(c) NFET-dominant t_F/t_R=0.30 的 toy |c2|/Γrms；[P4] Table IV 為 0.301 / 0.371——趨勢對、toy 高估約 4 成）
+# -> 1.0000 / 1.0000（footnote 15 的 max_θ 暴力平均 ÷ Eq.(30) 閉式 ½I_inj|Γ̃₂|，(b)/(c)：兩個定義在正弦注入下一致）
+# -> 43.87 / 84.34（toy 在 1.5 mA 注入的線性區 2f_L，MHz；(a) 為 0.00）
+# -> 0.2284（用 Table IV「fairly symmetric」t_F/t_R=0.74 算的 toy |c2|/Γrms；[P4] 為 0.0927——兩脈衝 toy 把輕微不對稱放大了，只能看趨勢）
+```
+
+![[P4] Fig. 15–16 邏輯的 toy 重現：上排為 i_inj × Γ̃ 乘積與其 NT_inj 平均（θ_u），(a) 精確半波對稱時正負瓣面積相等、平均 0，(b) PFET-dominant、(c) NFET-dominant 時淨相位累積；下排為 ISF 前五個傅立葉係數的歸一化幅度，不對稱使 c0、c2、c4 同時長出](/figures/isf_shaping_division.png)
+
+**如何解讀**：上排＝Fig. 15 的邏輯（$i_{inj}\cdot\tilde\Gamma$ 乘積與其平均，取 $\theta_u$）；下排＝Fig. 16 底圖的邏輯
+（ISF 前五個傅立葉係數 $\vert c_n\vert/\Gamma_{rms}$）。(a) 精確對稱：正負瓣面積相等、平均 0、偶次諧波全為 0；(b)(c)：瓣面積
+不等、綠線離開 0；PFET-dominant（下降沿慢、負脈衝大）與 NFET-dominant（上升沿慢、正脈衝大）的 $c_0,c_2,c_4$ **同時**長出來
+——注意 $c_0$ 也跟著長，這就是 [P1] Sec. IV 對稱法則（flicker 上轉）的反面，第 3 步末尾會回頭談。
+
+### 第 3 步：Worked 設計例——[P4] Table IV 的三顆 1-GHz 17 級單端 ring（p.2134，已對照渲染頁核實）
+
+[P4] Fig. 16 / Table IV 用同一顆 17 級 inverter-chain ring、只改 PMOS/NMOS 寬度比，模擬出三個版本（$f_0$ 固定在 1 GHz 附近）：
+
+| | (a) Fairly symmetric | (b) PFET-dominant | (c) NFET-dominant |
+|---|---|---|---|
+| $W_P/W_N$ [µm/µm] | $17.76/12.96\approx1.37$ | $12/1.44\approx8.33$ | $2.1/12=0.175$ |
+| $t_F/t_R$ [ps/ps] | $37.93/50.92\approx0.74$ | $60.83/31.73\approx1.92$ | $26.35/87.44\approx0.30$ |
+| 自由跑 $f_0$ | 1.001 GHz | 1.010 GHz | 1.001 GHz |
+| $\tilde\Gamma_{rms}$ [rad/pC] | 0.282 | 1.33 | 1.64 |
+| $\vert\tilde\Gamma_2\vert/\tilde\Gamma_{rms}$ | 0.0927 | 0.301 | 0.371 |
+| 二次諧波 compliance $\eta_2$ | $2.98\times10^{-3}$ | 0.0104 | 0.0130 |
+| 模擬 1.5 mA 正弦二次諧波 lock range $2f_L$ | 16 MHz | 560 MHz | 710 MHz |
+
+（$\eta_N:=\dfrac{2\omega_L/\omega_0}{I_{inj}/I_{max}}$ 是 [P4] Sec. VI Eq.(35), p.2132 定義的「正弦注入 compliance」——雙邊分數
+lock range 除以歸一化注入強度，$I_{max}:=\omega_0 q_{max,0}$；線性區化簡為 Eq.(36) $\eta_N=q_{max,0}\vert\tilde\Gamma_N\vert$，
+無因次。Fig. 16 caption 另註：因電子遷移率高，把 NMOS 做強（NFET-dominant）比把 PMOS 做強更有效率。Table III, p.2133 對
+實作的 17 級 ring **量測**到 $\eta_2=3.08\times10^{-3}$，與 Table IV (a) 的模擬值 $2.98\times10^{-3}$ 差 3.4%。）
+
+逐步讀這張表（全部可用本頁 Eq.(30) 重算，Python 在下方）：
+
+1. **$\vert\tilde\Gamma_2\vert$ 本身**：$0.0927\times0.282=0.0261$、$0.301\times1.33=0.400$、$0.371\times1.64=0.608$ rad/pC。
+   不對稱把 $\vert\tilde\Gamma_2\vert$ 放大 **15.3×／23.3×**，而且可以拆成兩個因子：諧波**比例** $\vert\tilde\Gamma_2\vert/\tilde\Gamma_{rms}$
+   升 3.25×／4.0×，ISF **整體大小** $\tilde\Gamma_{rms}$ 升 4.72×／5.82×——[P4] p.2134 特別點出後者是「附帶好處」：同樣的
+   振盪頻率下，不對稱 inverter 的 ISF 整體變大（footnote 16：ISF 幅度 ∝ 1/注入節點電荷擺幅），也一起擴大 lock range。
+2. **線性區預測 vs 模擬**：$2f_L=2\omega_L/2\pi=I_{inj}\vert\tilde\Gamma_2\vert/2\pi$，代 1.5 mA 得 **6.2／95.6／145.3 MHz**；
+   Table IV 模擬值 16／560／710 MHz 大 **2.6×／5.9×／4.9×**。這不是公式錯，是 [P4] footnote 17, p.2134 明說的：1.5 mA 對
+   這些 ring 已是**強注入**，非線性使模擬 lock range 遠大於 $I_{inj}\vert\tilde\Gamma_2\vert/2$。要多強？用 Eq.(36) 反推
+   $q_{max,0}=\eta_2/\vert\tilde\Gamma_2\vert$（**本站推論，論文未表列 $q_{max,0}$**）：0.114／0.026／0.021 pC ⟹
+   $I_{max}=\omega_0q_{max,0}=0.72/0.17/0.13$ mA ⟹ $I_{inj}/I_{max}\approx2/9/11$——遠超本頁「弱注入」條件
+   $I_{inj}\ll I_{max}$，所以線性公式只能給**下界**與**趨勢**（模擬增益 560/16 = 35×、710/16 = 44×，比線性的 15×／23× 還大）。
+3. **無因次 $\Gamma_{rms}$ 的交叉檢查**：同一組反推的 $q_{max,0}$ 乘回 $\tilde\Gamma_{rms}$，得無因次
+   $\Gamma_{rms}=\tilde\Gamma_{rms}\,q_{max,0}=0.032/0.035/0.035$——三個設計幾乎相同，正是 footnote 16「ISF 幅度 ∝ 1/電荷擺幅」
+   的數值體現；與 [P2] Eq.(16), p.794 對 $N=17$、$\eta=0.75$ 的估計 $\Gamma_{rms}\approx4/17^{1.5}=0.056$ 同一數量級
+   （[P2] 是對稱 ring 的解析近似，差 1.7× 在預期之內）。
+4. **設計旋鈕就是 $W_P/W_N$**：從 1.37 推到 0.175（NFET-dominant），$t_F/t_R$ 從 0.74 變 0.30，$\eta_2$ 升 4.4×、模擬 lock
+   range 升 44×（16 → 710 MHz，佔 $f_0$ 的 71%）。代價在下一點。
+5. **代價與為何可接受**：不對稱 inverter 同時把 $c_0$ 做大（本頁 toy 圖 (b)(c) 的 $n=0$ 柱），依 [P1] Eq.(24) 這會惡化自由跑的
+   $1/f^3$；[P2] 也證明不對稱 ring 的 $1/f$ 上轉較差（[P4] p.2134 引其 [27]）。但 [P4] p.2134 指出：**注入鎖定振盪器的 close-in
+   相位雜訊由注入源主導、不由自由跑振盪器決定**——正是本頁最後一節的高通整形：偏移頻率低於 $\omega_c=N\sqrt{\omega_L^2-\Delta\omega^2}$
+   時輸出繼承注入源；lock range 越寬、$\omega_c$ 越高，自由跑的 $1/f^3$ 被壓得越乾淨。所以「為 ÷2 犧牲對稱性」在 ILFD 裡是划算的
+   ——**同一個旋鈕**，在自由跑 VCO（[P1] Sec. IV、[flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)）
+   要往對稱推，在 ILFD 要往不對稱推。
+
+```python
+import numpy as np
+# [P4] Table IV, p.2134（已對照渲染頁）：(a) fairly symmetric / (b) PFET-dominant / (c) NFET-dominant
+G_rms = np.array([0.282, 1.33, 1.64])          # Γ̃_rms [rad/pC]
+r2    = np.array([0.0927, 0.301, 0.371])       # |Γ̃_2|/Γ̃_rms
+eta2  = np.array([2.98e-3, 0.0104, 0.0130])    # 二次諧波 compliance（Eq.(35)/(36)）
+f0    = np.array([1.001e9, 1.010e9, 1.001e9])  # Hz
+twofL_sim = np.array([16e6, 560e6, 710e6])     # 模擬 1.5 mA 的 2f_L [Hz]
+I_inj = 1.5e-3                                  # A
+G2 = r2 * G_rms                                 # |Γ̃_2| [rad/pC]
+twofL_lin = I_inj * G2 * 1e12 / (2*np.pi)       # 線性區 2f_L = I_inj|Γ̃_2|/(2π) [Hz]
+qmax0 = eta2 / G2                               # Eq.(36) 反推 q_max,0 [pC]（本站推論）
+Imax  = 2*np.pi*f0 * qmax0 * 1e-12              # A
+print("|G2| rad/pC     :", np.round(G2, 4))
+print("2fL linear MHz  :", np.round(twofL_lin/1e6, 1))
+print("sim / linear    :", np.round(twofL_sim/twofL_lin, 1))
+print("|G2| gain vs (a):", np.round(G2/G2[0], 1), "= Grms", np.round(G_rms/G_rms[0], 2), "x ratio", np.round(r2/r2[0], 2))
+print("q_max,0 pC      :", np.round(qmax0, 3))
+print("I_inj/I_max     :", np.round(I_inj/Imax, 1))
+print("Gamma_rms (dimless):", np.round(G_rms*qmax0, 3), " [P2] Eq.(16) N=17:", round(np.sqrt(2*np.pi**2/(3*0.75**3))/17**1.5, 3))
+# -> 0.0261 0.4003 0.6084（|Γ̃_2|，rad/pC）
+# -> 6.2 95.6 145.3（線性區 2f_L @1.5 mA，MHz；Table IV 模擬 16 / 560 / 710）
+# -> 2.6 5.9 4.9（模擬 ÷ 線性：footnote 17 的強注入非線性）
+# -> 15.3 23.3（|Γ̃_2| 增益 = Γ̃_rms 增益 4.72 / 5.82 × 諧波比例增益 3.25 / 4.0）
+# -> 0.114 0.026 0.021（反推 q_max,0，pC）
+# -> 2.1 9.1 11.2（I_inj/I_max：遠非弱注入）
+# -> 0.032 0.035 0.035（無因次 Γ_rms；[P2] Eq.(16) 估 0.056）
+```
+
+> **設計旋鈕摘要（ISF shaping 版）**：
+> 1. 單端 inverter ring 要做 ÷2 ILFD：**刻意不對稱** $W_P/W_N$（優先把 NMOS 做強，Fig. 16 caption），同時放大
+>    $\vert\tilde\Gamma_2\vert/\tilde\Gamma_{rms}$ 與 $\tilde\Gamma_{rms}$，兩個因子相乘。
+> 2. 差動／推挽節點做不到這件事（半波對稱在時域精確互消，與 $\theta$ 無關）——只能換 tail 注入（上一節）。
+> 3. 線性公式 $\omega_L=\tfrac12I_{inj}\vert\tilde\Gamma_2\vert$ 在 $I_{inj}\gtrsim I_{max}$ 時只是下界；真正的 lock range 要靠
+>    transistor-level 模擬（Table IV 大 2.6–5.9×）。
+> 4. 不對稱付出的 $c_0$／$1/f^3$ 代價由注入源的 close-in 主導性抵銷——但**只在鎖定內**成立；鎖外或 lock range 邊緣
+>    （$\omega_c\to0$）時，自由跑的 $1/f^3$ 會回來。
+
+---
+
 ## 對偶：除頻靠 ISF 諧波，倍頻要靠注入諧波
 
 [P4] Eq.(28) 的 $M:N$ 一般形式其實描述兩種鏡像關係，本站只完整核實、推導了 $M=1$（除頻）那一半；
@@ -290,6 +442,7 @@ Eq.(32) 已核實的 pull-in frequency $\omega_p=N\sqrt{\omega_L^2-\Delta\omega^
 | $\omega_L\ll\omega_0$ | 平均（Eq.(29)）成立 | 失諧太大或平均窗內振盪器動態太快：平均失效 |
 | $M=1$（本頁只做除頻方向） | Eq.(30) 的閉式成立 | $M\neq1$（倍頻）需注入訊號自己的第 $M$ 諧波，正弦注入沒有——[P4] footnote 10 明說不在框架內，見上方對偶表 |
 | 「$c_2=0$ 不能 ÷2」 | 一階結論 | 更高階混頻仍可能留下極小殘餘 lock range（在 lab_37 偵測底線之下） |
+| Table IV 的 1.5 mA 模擬 lock range（[P4] Sec. VII-A） | 線性 $2f_L=I_{inj}\vert\tilde\Gamma_2\vert/2\pi$ 只給下界與趨勢 | $I_{inj}/I_{max}\approx2$–$11$（本站由 Eq.(36) 反推）已是強注入，模擬值比線性大 2.6–5.9×（[P4] footnote 17, p.2134） |
 | 雜訊記帳的高通/低通部分 | 標準注入鎖定雜訊理論（[injection_locking_noise](/06_design_insights/injection_locking_noise)） | **不在 5 篇 PDF 內**（Kurokawa 1973；[P4] p.2130 指向其參考文獻 [29, Ch. 7]）；本頁把 $\omega_c$ 的一般定義套用到 M:N 版，數值上與 [P4] 已核實的 Eq.(32) 吻合 |
 
 ## 重點回顧
@@ -306,6 +459,11 @@ Eq.(32) 已核實的 pull-in frequency $\omega_p=N\sqrt{\omega_L^2-\Delta\omega^
   $c_2=0$ 時 0/61 網格點鎖定、$2\pi/N$ 簡併肉眼可見。
 - **設計上創造 $c_2$**：打破半波對稱（單端／不對稱拓樸天生非零 $c_2$）或換注入節點（差動 LC VCO
   的 tail 天生富含 $c_2$，與 tail 噪聲折回是同一個機制的兩面）。
+- **ISF shaping（[P4] Sec. VII-A, p.2132–2134）**：半波對稱在時域＝相鄰注入週期的相位踢精確互消、與 $\theta$ 無關
+  （footnote 14）；破壞對稱後淨相位累積，上緣 lock range $\omega_L^{+}=\max_\theta\langle\tilde\Gamma\,i_{inj}\rangle_{NT_{inj}}$
+  （footnote 15）；Table IV：17 級單端 ring 改 $W_P/W_N$ 把 $\vert\tilde\Gamma_2\vert$ 放大 15–23×（諧波比例 × 整體
+  $\tilde\Gamma_{rms}$ 兩個因子），1.5 mA 模擬 ÷2 lock range 16 → 560／710 MHz（強注入，比線性大 2.6–5.9×）；$c_0$ 隨之
+  變大但鎖定內 close-in 雜訊由注入源主導，代價可接受。
 - **對偶**：除頻（$M=1$）靠振盪器自己的 ISF 諧波；倍頻（$N=1$）要靠注入訊號自己的諧波——正弦
   注入沒有，需內部混頻，不在本框架內（見 [subharmonic_injection](/06_design_insights/subharmonic_injection)）。
 - **雜訊**：載波路徑的 $\phi_{out}=\phi_{in}/N$ 記帳對 ILFD 成立（呼應 clock_chain_budget 規則 2
@@ -323,3 +481,6 @@ Eq.(32) 已核實的 pull-in frequency $\omega_p=N\sqrt{\omega_L^2-\Delta\omega^
 - ÷$N$ 相位記帳 $-20\log_{10}N$ 的嚴格出處：[clock_chain_budget](/06_design_insights/clock_chain_budget) 規則 2
 - 鎖定振盪器自身雜訊的高通整形（本頁最後一節借用的框架）：[injection_locking_noise](/06_design_insights/injection_locking_noise)
 - 對偶的另一半——次諧波注入／倍頻器：[subharmonic_injection](/06_design_insights/subharmonic_injection)
+- ISF shaping 的原始出處：[P4] Sec. VII-A, Fig. 15–16, Table III–IV, p.2132–2134（compliance $\eta_N$ 的定義 Sec. VI Eq.(35)–(38), p.2132，另見
+  [paper_004_large_injection_transient](/05_paper_deep_dives/paper_004_large_injection_transient) §1.7）；對稱法則的另一面（自由跑 VCO 要對稱以壓 $1/f^3$）：
+  [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)

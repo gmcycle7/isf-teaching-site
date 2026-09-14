@@ -1,6 +1,6 @@
 ---
 title: "Final Exam: A 5 GHz LC VCO into a 25 Gb/s SerDes, End to End"
-description: "Cross-chapter final exam — one design story (a 5 GHz LC VCO into a 25 Gb/s SerDes link) threads 11 questions: impulse→Δφ, Eq.(21) white-noise L, κ² and the Lorentzian linewidth, App. B 1/f³ corner, jitter integration to 447.9 fs, the period-jitter closed form, ÷2 + buffer-floor accounting, PLL peaking 2.09 dB, aperture SNR, dual-Dirac TJ@1e-12, and a bonus question on the 1/N lock range of an injection-locked clock multiplier (ILCM). Every question comes with an instant NumericQuiz, a step-by-step solution (with units + convention flags + source pages), and a Python appendix that recomputes all answers in one run."
+description: "Cross-chapter final exam — one design story (a 5 GHz LC VCO into a 25 Gb/s SerDes link) threads two warm-ups (amplitude recovery τ₀=2Q/ω₀, two-impulse superposition) and 11 questions: impulse→Δφ, Eq.(21) white-noise L, κ² and the Lorentzian linewidth, App. B 1/f³ corner, jitter integration to 447.9 fs, the period-jitter closed form, ÷2 + buffer-floor accounting, PLL peaking 2.09 dB, aperture SNR, dual-Dirac TJ@1e-12, and a bonus question on the 1/N lock range of an injection-locked clock multiplier (ILCM). Every question comes with an instant NumericQuiz, a step-by-step solution (with units + convention flags + source pages), and a Python appendix that recomputes all answers in one run."
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -11,7 +11,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 > **Prerequisites**: [capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end) (the site-wide spine, end to end) and the three chapter exercise sets — [02 Foundations](/02_foundations/exercises), [03 Core Theory](/03_isf_core_theory/exercises), [06 Design Insights](/06_design_insights/exercises) (finish those first) | **Next**: none — this is the last page. Get all 11 right and you graduate.
 
-This is not yet another problem set. It is **an exam**: one design story, 11 checkpoints,
+This is not yet another problem set. It is **an exam**: one design story, two warm-ups (0a/0b) plus 11 checkpoints,
 from the instant a single charge impulse hits the LC tank all the way to the eye opening of a
 SerDes link at BER $=10^{-12}$. Each question asks for exactly one "clean number", but every
 number requires cross-chapter dispatch — you will need [P1]'s ISF, [P2]'s κ and the App. B
@@ -61,9 +61,179 @@ flowchart LR
 
 ---
 
-## Act 1: Oscillator core physics (Questions 1–4)
+## Act 1: Oscillator core physics (warm-ups 0a–0b, Questions 1–4)
+
+### Question 0a — Warm-up: how long does a kicked amplitude take to recover? ($\tau_0=2Q/\omega_0$ vs. phase never recovers)
+
+*Learning-path step: [Step 1 — What an oscillator's "phase" actually is](/00_overview/learning_path#step-1)*
+
+Before the exam proper, a question that comes even before the "ISF". The VCO's LC tank has
+quality factor $Q=20$ and $f_0=5$ GHz. A single current impulse kicks **both** the amplitude and
+the phase ([P4] Sec. III-B's impulse-train thought experiment): the phase deviation persists
+forever because the oscillator is autonomous (no external time reference); the amplitude
+deviation recovers exponentially according to the LTI dynamics of a damped LC,
+$d(t)=e^{-t/\tau_0}$ with $\tau_0=2Q/\omega_0$ ([P4] Sec. III-F, p.2128, the text immediately
+before Eq.(25); verified on this site in
+[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)). Find $\tau_0$ (ns).
+
+<NumericQuiz
+  prompt="Work it out first: for an LC tank with Q = 20 and f₀ = 5 GHz, the amplitude deviation caused by one impulse recovers exponentially with τ₀ = 2Q/ω₀; τ₀ = ? (answer in ns)"
+  answer={1.27}
+  tol={0.01}
+  unit="ns"
+  hint="ω₀ = 2πf₀ = 2π×5×10⁹ = 3.14×10¹⁰ rad/s; τ₀ = 2×20/ω₀."
+  solutionNote="τ₀ = 40/(3.142×10¹⁰) = 1.273×10⁻⁹ s ≈ 1.27 ns ≈ 6.4 cycles (= Q/π). The phase deviation has no time constant at all — it stays in the phase forever. See the full solution below."
+/>
+
+<details>
+<summary><strong>Question 0a full solution</strong> (amplitude has a restoring force, phase does not: the root reason the ISF is about phase only)</summary>
+
+**Step 1 (where $\tau_0$ comes from — the free decay of a parallel RLC; RLC is standard circuit
+theory, external textbook material)**. Step 2 of
+[tank_Q_and_energy_restoration](/02_foundations/tank_Q_and_energy_restoration) derived
+$Q=\omega_0R_pC$ and showed the stored-energy envelope decays as $e^{-\omega_0t/Q}$. Energy
+$\propto$ amplitude squared, so the **amplitude** envelope decays at half the energy rate:
+
+$$
+A(t)\propto e^{-\omega_0t/(2Q)}=e^{-t/\tau_0},\qquad \tau_0=\frac{2Q}{\omega_0}=2R_pC.
+$$
+
+(The natural response of a parallel RLC is $v(t)\propto e^{-t/(2R_pC)}\cos(\cdot)$; substituting
+$Q=\omega_0R_pC$ gives the same expression.) [P4]'s physical premise: the transconductor only
+replenishes up to the free-running amplitude, so any excess energy dissipates along this damped-LC
+LTI dynamics.
+
+**Step 2 (substitute step by step, with units)**:
+
+$$
+\omega_0=2\pi f_0=2\pi\times5\times10^{9}=3.142\times10^{10}\ \text{rad/s},\qquad
+\tau_0=\frac{2Q}{\omega_0}=\frac{40}{3.142\times10^{10}\ \text{rad/s}}=1.273\times10^{-9}\ \text{s}=1.273\ \text{ns}.
+$$
+
+In cycles: $\tau_0f_0=Q/\pi=6.37$ cycles — "the higher the $Q$, the slower the amplitude recovers,
+but it always does." The corresponding amplitude-noise corner is
+$f_c=1/(2\pi\tau_0)=f_0/(2Q)=125$ MHz.
+
+**Result**: $\tau_0=1.273$ ns (answer 1.27 ns).
+
+**The contrast with phase (the real point of this question)**: the same impulse leaves a
+$u(t-\tau)$ step in the phase direction ([P1] Eq.(10), p.182) — **no time constant, never
+recovers** — because the limit cycle has no restoring force along its tangent (Floquet exponent
+0), only along the radial direction (decay rate $-1/\tau_0$). This is why the phase-noise variance
+diverges with time while the amplitude-noise variance converges to a finite value, and why this
+entire exam (and ISF theory) tracks phase only
+([oscillator_phase](/02_foundations/oscillator_phase)).
+
+**Convention flag**: the 2 in $2Q/\omega_0$ comes from "amplitude-envelope decay rate $=$ half the
+energy decay rate"; mistaking the energy time constant $Q/\omega_0$ for the amplitude time constant
+halves $\tau_0$ (0.64 ns).
+
+**Applicability and failure conditions**: an LC tank with a single amplitude-decay mode, weak
+injection (linearized). Ring or multi-mode oscillators do not have a radial recovery rate of
+$2Q/\omega_0$ (the general case belongs to the Floquet framework, outside this site's 5 PDFs);
+under strong injection, nonlinear amplitude-restoring effects make [P4]'s theory deviate from
+simulation near the center of the amplitude curves of Fig. 8 on p.2128 — [P4] itself notes this.
+
+**Dimension check**: dimensionless $\div$ (rad/s) $=$ s ✓; $\Omega\cdot\text{F}=$ s ✓; s $\times$ Hz $=$ dimensionless (cycle count) ✓.
+
+```python
+import numpy as np
+f0, Q = 5e9, 20
+w0 = 2*np.pi*f0
+tau0 = 2*Q/w0
+print(round(tau0*1e9, 3), round(tau0*f0, 2), round(1/(2*np.pi*tau0)/1e6, 1))  # -> 1.273 6.37 125.0
+```
+
+</details>
+
+### Question 0b — Warm-up: two impulses in the same cycle — how do the phases add? (the discrete version of the convolution)
+
+*Learning-path step: [Step 4 — From a single impulse to arbitrary noise (convolution)](/00_overview/learning_path#step-4)*
+
+The ideal-LC ISF is $\Gamma(\theta)=-\sin\theta$ ($\theta=\omega_0\tau$), with $q_{max}=1$ pC and
+$f_0=5$ GHz. Two charge impulses land within the same oscillation cycle: $\Delta q_1=1$ fC at
+$\theta=\pi/2$ and $\Delta q_2=3$ fC at $\theta=3\pi/2$. After both have landed, what is the net
+timing error $\Delta t$ (fs)? — This is the convolution integral of [P1] Eq.(11), p.182 in its
+discrete form, when $i_n$ consists of just two $\delta$ functions.
+
+<NumericQuiz
+  prompt="Work it out first: Γ = −sinθ, q_max = 1 pC, f₀ = 5 GHz; the net Δt after superposing Δq₁ = 1 fC @ θ = π/2 and Δq₂ = 3 fC @ θ = 3π/2 = ? (answer in fs, with sign)"
+  answer={63.7}
+  tol={0.01}
+  unit="fs"
+  hint="Γ(π/2) = −1, Γ(3π/2) = +1; Δφ = Σ Γ(θ_k)·Δq_k/q_max = (−1×1 + 1×3)×10⁻³ rad, then Δt = Δφ/(2πf₀)."
+  solutionNote="Δφ = −1 mrad + 3 mrad = +2 mrad → Δt = 2×10⁻³/(2π×5×10⁹) = 63.7 fs. Note it is not '4 fC → 4 mrad': phase adds the Γ-weighted charge, not the charge itself. See the full solution below."
+/>
+
+<details>
+<summary><strong>Question 0b full solution</strong> (superposition: the convolution integral collapses to a two-term sum)</summary>
+
+**Step 1 (write the [P1] Eq.(11) integral as a discrete sum)**. Substitute the two impulses
+$i_n(\tau)=\Delta q_1\,\delta(\tau-\tau_1)+\Delta q_2\,\delta(\tau-\tau_2)$ into the LTV
+convolution ([P1] Eq.(11), p.182; derivation in
+[convolution_derivation](/03_isf_core_theory/convolution_derivation)); the sifting property of
+$\delta$ collapses the integral into a sum, for $t\gt\tau_2$:
+
+$$
+\phi(t)=\frac{1}{q_{max}}\int_{-\infty}^{t}\Gamma(\omega_0\tau)\,i_n(\tau)\,d\tau
+=\frac{\Gamma(\theta_1)\,\Delta q_1+\Gamma(\theta_2)\,\Delta q_2}{q_{max}}.
+$$
+
+The only premise of this step is **linear superposition** (small injection, $\Delta q\ll q_{max}$);
+the upper limit $t$ says each term is permanent memory — phase is the integrator of noise.
+
+**Step 2 (substitute step by step, with units)**:
+
+$$
+\Gamma(\pi/2)=-\sin\tfrac{\pi}{2}=-1,\qquad \Gamma(3\pi/2)=-\sin\tfrac{3\pi}{2}=+1,
+$$
+
+$$
+\Delta\phi_1=\frac{(-1)(1\times10^{-15}\ \text{C})}{1\times10^{-12}\ \text{C}}=-1\times10^{-3}\ \text{rad},\qquad
+\Delta\phi_2=\frac{(+1)(3\times10^{-15}\ \text{C})}{1\times10^{-12}\ \text{C}}=+3\times10^{-3}\ \text{rad},
+$$
+
+$$
+\Delta\phi=\Delta\phi_1+\Delta\phi_2=+2\times10^{-3}\ \text{rad},\qquad
+\Delta t=\frac{\Delta\phi}{2\pi f_0}=\frac{2\times10^{-3}}{3.142\times10^{10}\ \text{rad/s}}=6.366\times10^{-14}\ \text{s}=63.7\ \text{fs}.
+$$
+
+**Result**: $\Delta\phi=+2$ mrad, $\Delta t=63.7$ fs.
+
+**The point**: the total 4 fC, if all injected at $\theta=3\pi/2$, would give $+4$ mrad (127 fs);
+if both impulses land at the peak $\theta=0$, then $\Gamma=0$ and the net phase is zero. Phase adds
+the **ISF-weighted** charge — precisely the LTV-vs-LTI distinction
+([lti_vs_ltv](/02_foundations/lti_vs_ltv)), and the reason Eq.(11) keeps $\Gamma(\omega_0\tau)$
+inside the integral. The order of the two impulses does not affect the result (the integrator
+treats all of the past alike), but every term stays forever. Replace $i_n$ with continuous white
+noise and the same expression integrates into Question 2's $1/f^2$ skirt.
+
+**Convention flag**: the minus sign in $\Gamma=-\sin\theta$ takes $V=\cos\theta$ as the phase
+reference ([isf_definition](/03_isf_core_theory/isf_definition)); changing the phase reference only
+relabels $\theta$ — $\vert\Delta\phi\vert$ and $\vert\Delta t\vert$ are unchanged.
+
+**Applicability and failure conditions**: $\Delta q/q_{max}=0.1\%$ and $0.3\%$, so linearization
+holds; if $\Delta q$ were comparable to $q_{max}$, the ISF itself would change with the injection
+(large-signal nonlinearity, see [lab_15_nonlinear_isf](/04_simulation_labs/lab_15_nonlinear_isf))
+and superposition would fail.
+
+**Dimension check**: dimensionless $\times$ C/C $=$ rad ✓; rad ÷ (rad/s) $=$ s ✓.
+
+```python
+import numpy as np
+from simulations.common.isf_utils import impulse_to_phase_step, gamma_lc_ideal
+from simulations.common.noise_utils import phase_to_time_error
+qmax, f0 = 1e-12, 5e9
+dphi = sum(impulse_to_phase_step(dq, gamma_lc_ideal(th), qmax=qmax)
+           for dq, th in [(1e-15, np.pi/2), (3e-15, 3*np.pi/2)])
+print(round(dphi*1e3, 3), round(phase_to_time_error(dphi, f0)*1e15, 1))  # -> 2.0 63.7
+```
+
+</details>
 
 ### Question 1 — One impulse into the tank (impulse → Δφ)
+
+*Learning-path step: [Step 3 — The operational definition of the ISF (impulse → phase)](/00_overview/learning_path#step-3)*
 
 The story opens: the VCO is still at schematic stage. You ask the most primitive question —
 a charge impulse of $\Delta q=1$ fC sneaks in from the supply, the ISF value at the injection
@@ -114,6 +284,8 @@ print(dphi, round(phase_to_time_error(dphi, 5e9)*1e15, 1))  # -> 0.0005 15.9
 
 ### Question 2 — White noise paints a whole skirt (Eq.(21) → $\mathcal{L}$)
 
+*Learning-path step: [Step 5 — White noise → 1/f², flicker → 1/f³](/00_overview/learning_path#step-5)*
+
 A single white-noise source $S_i=\overline{i_n^2}/\Delta f=10^{-24}\ \text{A}^2/\text{Hz}$
 now hits the same VCO continuously ($\Gamma_{rms}=0.5$, $q_{max}=1$ pC). Use
 [P1] Eq.(21), p.185 to find $\mathcal{L}(1\,\text{MHz})$.
@@ -161,6 +333,8 @@ print(round(10*np.log10((0.5**2/1e-24)*(1e-24/(4*dw**2))), 1))  # -> -148.0
 </details>
 
 ### Question 3 — Put on the first of the five outfits ($\mathcal{L}\to\kappa^2\to$ linewidth)
+
+*Learning-path step: [Step 10 — Advanced theory — from κ to lineshape](/00_overview/learning_path#step-10)*
 
 Same ideal single-source VCO. A systems colleague asks: "what is the free-running carrier
 **linewidth**?" Use the reverse dictionary lookup of
@@ -236,6 +410,8 @@ print(round(kappa2, 3), round(kappa2/(2*np.pi)*1e3, 1))  # -> 0.125 19.9
 
 ### Question 4 — Plan B: what if we used a ring? (App. B closed form → 1/f³ corner)
 
+*Learning-path step: [Step 10 — Advanced theory — from κ to lineshape](/00_overview/learning_path#step-10)*
+
 At the design review someone proposes: "the LC costs area — how about a 5-stage single-ended
 ring?" You answer the flicker-upconversion price on the spot with the [P2] Appendix B closed
 forms ([asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form)):
@@ -300,6 +476,8 @@ print(round(f1f*3/(2*eta*N)*(1-A)**2/(1-A+A**2)/1e3, 2))  # -> 42.86
 
 ### Question 5 — Integrate the real clock's RJ ($\mathcal{L}\to\sigma_t$)
 
+*Learning-path step: [Step 9 — Connect to SerDes clocking (jitter, eye, PLL/CDR)](/00_overview/learning_path#step-9)*
+
 Silicon is back. The integrated VCO measures $\mathcal{L}(1\,\text{MHz})=-100$ dBc/Hz with a
 $1/f^2$ slope (**measured track** — 48 dB above Question 2's ideal single-source limit: the
 reality of multiple sources, cyclostationarity, flicker, and the buffer chain).
@@ -353,6 +531,8 @@ print(round(sp*1e3, 2), round(st*1e15, 1))   # -> 14.07 447.9
 </details>
 
 ### Question 6 — The same clock's period jitter (jitter-kernel closed form)
+
+*Learning-path step: [Step 10 — Advanced theory — from κ to lineshape](/00_overview/learning_path#step-10)*
 
 Your digital colleague only cares about adjacent edges: "what is the single-period period
 jitter?" Use the white-FM closed form of [jitter_kernels](/02_foundations/jitter_kernels):
@@ -423,23 +603,68 @@ print(round(kappa2, 1), round(np.sqrt(kappa2/5e9)/(2*np.pi*5e9)*1e15, 2))
 
 ### Question 7 — ÷2 to 2.5 GHz, through a buffer: when does the floor take over?
 
+*Learning-path step: [Step 12 — System integration and measurement](/00_overview/learning_path#step-12)*
+
 The clock tree: 5 GHz through an ideal ÷2 to 2.5 GHz, then one output buffer with a flat
-$-155$ dBc/Hz floor. Look at **10 MHz offset** (PLL out-of-band, where the free-running VCO
-skirt rules). Use the **ideal single-source-limit track**: extrapolate the VCO skirt from
-Question 2's $-148$ dBc/Hz @ 1 MHz anchor at $1/f^2$. Find the buffer output's
-$\mathcal{L}(10\,\text{MHz})$.
+$-155$ dBc/Hz floor. Look at **1 MHz offset** (the same offset as Question 2's anchor —
+no extrapolation needed). Use the **ideal single-source-limit track**: the VCO skirt is
+just Question 2's $-148$ dBc/Hz @ 1 MHz ([P1] Eq.(21)). Find the buffer output's
+$\mathcal{L}(1\,\text{MHz})$.
 
 <NumericQuiz
-  prompt="Work it out first: VCO skirt −148 dBc/Hz@1 MHz (1/f²) extrapolated to 10 MHz, ideal ÷2, then power-summed with the −155 dBc/Hz buffer floor — L(10 MHz) = ? (answer in dBc/Hz, mind the sign)"
-  answer={-154.95}
-  tol={0.001}
+  prompt="Work it out first: VCO skirt −148 dBc/Hz@1 MHz (Question 2's anchor, no extrapolation needed), ideal ÷2, then power-summed with the −155 dBc/Hz buffer floor — L(1 MHz) = ? (answer in dBc/Hz, mind the sign)"
+  answer={-151.47}
+  tol={0.01}
   unit="dBc/Hz"
-  hint="Three steps: −148 − 20log₁₀(10) = −168; ÷2 is another −6.02 → −174.02; then 10log₁₀(10^(−174.02/10)+10^(−155/10)) with the −155 floor."
-  solutionNote="The signal sits 19 dB below the floor → the floor takes over: output ≈ −154.95 dBc/Hz, clamped at the buffer floor. See the full solution below."
+  hint="Two steps: ÷2 is −20log₁₀2=−6.02 dB → −148−6.02=−154.02; then power-sum with the floor: 10log₁₀(10^(−154.02/10)+10^(−155/10)). Note: it is NOT the floor value −155 — the two are only 0.98 dB apart, so the power sum lands below both."
+  solutionNote="The signal (−154.02) and the floor (−155) are only 0.98 dB apart — both matter, so the power sum comes out ≈ −151.47 dBc/Hz, about 3 dB below either alone (close to the equal-power 3 dB penalty). See the full solution below; the floor-dominated 10 MHz case is worked as part (b)."
 />
 
 <details>
 <summary><strong>Question 7 — full solution</strong> (clock_chain rules 2 + 4: ÷N and the additive floor)</summary>
+
+**(a) 1 MHz offset (this question's primary answer)**
+
+**Step 1 (rule 2: an ideal ÷2 is edge-picking, $\phi_{out}=\phi_{in}/2$ — use Question 2's
+$-148$ dBc/Hz anchor directly, no extrapolation needed)**:
+
+$$
+\mathcal{L}(1\,\text{MHz})\big|_{2.5\,\text{GHz}}=-148.00-20\log_{10}2=-154.02\ \text{dBc/Hz}.
+$$
+
+**Step 2 (rule 4: the buffer floor is uncorrelated with the input — powers add)**:
+
+$$
+\mathcal{L}_{out}(1\,\text{MHz})=10\log_{10}\!\big(10^{-154.02/10}+10^{-155/10}\big)=-151.47\ \text{dBc/Hz}.
+$$
+
+**Result**: $-151.47$ dBc/Hz — the signal ($-154.02$) and the floor ($-155$) are only
+$0.98$ dB apart, so **both are the same order of magnitude and both contribute** (neither
+one dominates); the power sum pushes the output about 3 dB below either. This is
+deliberately built so you cannot just retype the given floor value $-155$ and get lucky: if
+the floor genuinely dominated (see (b)) the answer would land close to the floor itself, but
+here the two terms are comparable and the only way to get it right is to actually do the
+power addition.
+
+**Convention flag**: $/2$ vs $/4$ bookkeeping only shifts input and output together, and
+$\pm20\log_{10}N$ plus power addition are ratio/additive operations — the conclusion "both
+terms matter, powers must add" is unchanged.
+
+**Dimension check**: all dB operations act on dimensionless power ratios ✓.
+
+```python
+import numpy as np
+L_div = -148.0 - 20*np.log10(2)
+print(round(L_div, 2))                                            # -> -154.02
+print(round(10*np.log10(10**(L_div/10) + 10**(-155.0/10)), 2))    # -> -151.47
+```
+
+**(b) 10 MHz offset (the floor-dominated comparison case)**
+
+Now look instead at **10 MHz offset** (PLL out-of-band, where the VCO skirt must first be
+extrapolated at $1/f^2$). Same procedure, but the signal is now far below the floor, so the
+power sum is essentially just the floor value — this is the pitfall case where the original
+version of this question could be beaten by simply typing $-155$. Kept here for contrast:
 
 **Step 1 ($1/f^2$ extrapolation)**:
 
@@ -447,7 +672,7 @@ $$
 \mathcal{L}_{vco}(10\,\text{MHz})=-148-20\log_{10}\!\frac{10\,\text{MHz}}{1\,\text{MHz}}=-168.00\ \text{dBc/Hz}.
 $$
 
-**Step 2 (rule 2: an ideal ÷2 is edge-picking, $\phi_{out}=\phi_{in}/2$)**:
+**Step 2 (rule 2: an ideal ÷2)**:
 
 $$
 \mathcal{L}(10\,\text{MHz})\big|_{2.5\,\text{GHz}}=-168.00-20\log_{10}2=-174.02\ \text{dBc/Hz}.
@@ -488,6 +713,8 @@ print(round(10*np.log10(10**(L_div/10) + 10**(-155.0/10)), 2))    # -> -154.95
 ## Act 3: Loop and link (Questions 8–11)
 
 ### Question 8 — The PLL's peaking tax (type-II peaking closed form)
+
+*Learning-path step: [Step 9 — Connect to SerDes clocking (jitter, eye, PLL/CDR)](/00_overview/learning_path#step-9)* (PLL budget page: [pll_noise_budget](/06_design_insights/pll_noise_budget))
 
 The VCO goes into a type-II second-order PLL ($\zeta=0.707$). The system spec asks: what is
 the jitter-transfer **peaking** (how far the peak exceeds 0 dB)? Use the closed form from
@@ -551,6 +778,8 @@ print(round(np.sqrt(2/(s+1)), 4), round(10*np.log10((s+1)**2/((s-1)*(s+3))), 2))
 
 ### Question 9 — Sample with this 2.5 GHz clock: how many bits is it worth? (aperture SNR)
 
+*Learning-path step: [Step 12 — System integration and measurement](/00_overview/learning_path#step-12)*
+
 The RX-side monitor ADC samples a full-scale 2.5 GHz calibration tone with the final 2.5 GHz
 clock. Clock RJ on the measured track: Question 5's $\sigma_t=447.9$ fs — an ideal ÷2 **does
 not change $\sigma_t$ in seconds** (Question 7's conserved quantity; the buffer floor adds
@@ -613,6 +842,8 @@ print(round(snr, 2), round((snr - 1.76)/6.02, 2))   # -> 43.05 6.86
 </details>
 
 ### Question 10 — Final boss: how much eye is left? (dual-Dirac TJ@$10^{-12}$)
+
+*Learning-path step: [Step 12 — System integration and measurement](/00_overview/learning_path#step-12)*
 
 Closing out the link. 25 Gb/s (UI $=40$ ps), measured decomposition gives
 $\mathrm{DJ}_{\delta\delta}=1$ ps; RJ is the measured-track clock's $\sigma_t=447.9$ fs.
@@ -678,6 +909,8 @@ print(round(qinv, 3), round(tj*1e12, 2))   # -> 7.034 7.3
 </details>
 
 ### Question 11 — Bonus: what if we skip the PLL and injection-lock a multiplier instead?
+
+*Learning-path step: [Step 11 — Injection locking and frequency conversion](/00_overview/learning_path#step-11)*
 
 One last fork before graduation. Questions 7–9 took the "PLL ×50 → ÷2 → buffer" route. A
 junior colleague asks: "what if we skip the PLL entirely and drive the same $5$ GHz LC VCO
@@ -745,6 +978,7 @@ correction for a finite $10$ ps pulse width lowers it to $1.981$ MHz (a $0.4\%$ 
 ignored here).
 
 ```python
+import numpy as np
 qinj, qmax, f0, N = 50e-15, 1e-12, 5e9, 20
 T0 = 1 / f0
 dwL = (qinj/qmax) / (N*T0)
@@ -757,7 +991,7 @@ print(round((qinj/qmax)/(2*np.pi*N), 6))    # -> 0.000398 (398 ppm, the fraction
 
 ---
 
-## Graduation check: Python appendix (recompute all 11 questions in one run)
+## Graduation check: Python appendix (recompute warm-ups 0a/0b and all 11 questions in one run)
 
 Run from the project root with `PYTHONPATH=.`; every `# ->` is actual printed output,
 matching each solution word for word.
@@ -765,12 +999,22 @@ matching each solution word for word.
 ```python
 import numpy as np
 from scipy.special import erfcinv
-from simulations.common.isf_utils import impulse_to_phase_step
+from simulations.common.isf_utils import impulse_to_phase_step, gamma_lc_ideal
 from simulations.common.noise_utils import phase_to_time_error, integrate_rms_jitter
 from simulations.common.pll_utils import H_lowpass_mag2
 
 f0, qmax, grms, Si = 5e9, 1e-12, 0.5, 1e-24
 dw = 2*np.pi*1e6                                   # 1 MHz offset [rad/s]
+
+# --- Q0a (warm-up): amplitude recovery time constant tau_0 = 2Q/omega_0 ([P4] Sec. III-F p.2128)
+Q = 20
+tau0 = 2*Q/(2*np.pi*f0)
+print(round(tau0*1e9, 3), round(tau0*f0, 2), round(1/(2*np.pi*tau0)/1e6, 1))  # -> 1.273 6.37 125.0
+
+# --- Q0b (warm-up): superposition of two impulses ([P1] Eq.(11), discrete form)
+dphi_0b = sum(impulse_to_phase_step(dq, gamma_lc_ideal(th), qmax=qmax)
+              for dq, th in [(1e-15, np.pi/2), (3e-15, 3*np.pi/2)])
+print(round(dphi_0b*1e3, 3), round(phase_to_time_error(dphi_0b, f0)*1e15, 1))  # -> 2.0 63.7
 
 # --- Q1: impulse -> Delta_phi -> Delta_t (Example A)
 dphi = impulse_to_phase_step(1e-15, 0.5, qmax=qmax)
@@ -801,7 +1045,12 @@ kappa2_m = 10**(-100/10)*dw**2                     # measured SSB = /2 conventio
 print(round(kappa2_m, 1))                          # -> 3947.8  (rad^2/s)
 print(round(np.sqrt(kappa2_m/f0)/(2*np.pi*f0)*1e15, 2))     # -> 28.28  (fs)
 
-# --- Q7: ideal skirt /2 to 2.5 GHz + buffer floor (10 MHz offset)
+# --- Q7(a): ideal skirt /2 to 2.5 GHz + buffer floor (1 MHz offset, primary answer)
+L_div_1m = -148.0 - 20*np.log10(2)
+print(round(L_div_1m, 2))                          # -> -154.02
+print(round(10*np.log10(10**(L_div_1m/10) + 10**(-155.0/10)), 2))  # -> -151.47
+
+# --- Q7(b): same chain at 10 MHz offset (floor-dominated comparison case)
 L_div = (-148.0 - 20*np.log10(10)) - 20*np.log10(2)
 print(round(L_div, 2))                             # -> -174.02
 print(round(10*np.log10(10**(L_div/10) + 10**(-155.0/10)), 2))  # -> -154.95
@@ -834,27 +1083,31 @@ print(round(fL/1e6, 3))                             # -> 1.989
 print(round((qinj/qmax_ilcm)/(2*np.pi*N_ilcm), 6))  # -> 0.000398
 ```
 
-## Key takeaways (11 numbers to carry with you)
+## Key takeaways (13 numbers to carry with you)
 
 | Q | Tested skill | Answer | Convention flag |
 |---|---|---|---|
+| 0a (warm-up) | amplitude recovery $\tau_0=2Q/\omega_0$ vs. phase never recovers | 1.273 ns ($Q/\pi=6.37$ cycles, $f_c=125$ MHz) | amplitude-envelope decay rate is half the energy rate (the 2 in $2Q$); phase has no time constant |
+| 0b (warm-up) | two-impulse superposition ([P1] Eq.(11), discrete form) | $+2$ mrad, 63.7 fs | adds the $\Gamma$-weighted charge, not the charge itself |
 | 1 | impulse→$\Delta\phi$→$\Delta t$ | $5\times10^{-4}$ rad, 15.9 fs | — |
 | 2 | [P1] Eq.(21) white-noise $\mathcal{L}$ | $-148.0$ dBc/Hz | SSB $/4$ ($/2$ gives $-145.0$) |
 | 3 | $\mathcal{L}\to\kappa^2\to$ linewidth | $\kappa^2=0.125$ rad²/s, 19.9 mHz | lookup takes $/2$; $\Delta f_{3\mathrm{dB}}=\kappa^2/2\pi$ (v5) |
 | 4 | App. B 1/f³ corner | 42.86 kHz | [P2] Eq.(57); [P1] Eq.(24) $=2\times=85.71$ kHz |
 | 5 | jitter integration 1–100 MHz | 14.07 mrad, 447.9 fs | measured SSB uses $\mathcal{L}=\tfrac12S_\phi$ |
 | 6 | period-jitter closed form | 28.3 fs | single-sided $S_\phi$ kernel prefactor $1/\omega_0^2$ |
-| 7 | ÷2 + buffer floor | $-154.95$ dBc/Hz | rules are ratio operations, conventions cancel; floor takes over |
+| 7 | ÷2 + buffer floor @1 MHz | $-151.47$ dBc/Hz | rules are ratio operations, conventions cancel; signal and floor comparable, powers must add (10 MHz floor-dominated comparison in (b): $-154.95$) |
 | 8 | type-II peaking | 2.09 dB @ $0.786f_n$ | $10\log_{10}$ of power, no SSB business |
 | 9 | aperture SNR @ 2.5 GHz | 43.05 dB (6.86 bit) | formula convention-free; $\sigma_t$ conserved through ÷2 |
 | 10 | dual-Dirac TJ@$10^{-12}$ | 7.30 ps (eye 0.82 UI) | per-Gaussian $Q^{-1}=7.034$ |
 | 11 (bonus) | ILCM's $1/N$ lock range | $f_L=1.989$ MHz (398 ppm) | $\delta$-pulse idealization; 1.981 MHz with the finite-pulse sinc correction |
 
-All 11 correct — congratulations, you graduate. You can now account for a single charge
+Warm-ups 0a/0b plus all 11 correct — congratulations, you graduate. You can now account for a single charge
 impulse all the way to a SerDes link's eye margin.
 
 ## Further reading (the deep-dive page for each question)
 
+- Q0a: [oscillator_phase](/02_foundations/oscillator_phase), [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise), [tank_Q_and_energy_restoration](/02_foundations/tank_Q_and_energy_restoration)
+- Q0b: [convolution_derivation](/03_isf_core_theory/convolution_derivation), [lti_vs_ltv](/02_foundations/lti_vs_ltv)
 - Q1: [impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift)
 - Q2: [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
 - Q3: [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary), [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)

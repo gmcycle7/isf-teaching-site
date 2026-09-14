@@ -84,12 +84,83 @@ $$
 $\omega_L$ is the (half) lock range. **Locking** = existence of a steady-state solution $d\theta/dt=0$,
 which requires $|\Delta\omega_{inj}|\le\omega_L$.
 
-**Step-by-step (summary of the simplified LC derivation in [P3])**: write the injection current as the phasor
-$i_{inj}=I_{inj}e^{j\omega_{inj}t}$, write KCL for the LC tank (the injection current must supply the
-reactive current when the tank is detuned from resonance), take the real part under the weak-injection
-($I_{inj}\ll I_{osc}$) and slow-phase ($|d\theta/dt|\ll\omega_{inj}$) approximations, and the equation above
-follows. The steady-state solution gives the lock characteristic and the **symmetric** lock range
-$\omega_L=\dfrac{\omega_0}{2Q}\dfrac{I_{inj}}{I_{osc}}$.
+**Step-by-step ([P3] Sec. III simplified LC derivation, Fig. 2, p.2111)**: [P3] Fig. 2 is a parallel LC
+($C$, $L$, loss $R_P$, and the nonlinear $-G_m$ that replenishes the loss) with an injection current source in parallel.
+This site writes out the **unnumbered complex-domain equation** that [P3] places between Eq.(14) and Eq.(15), and states
+explicitly which term each approximation discards — this is the answer to "why is Adler a first-order equation."
+
+1. **Phasor setup ([P3] Eq.(12)–(13))**: write the injection as $i_{inj}=I_{inj}e^{j\omega_{inj}t}$ (footnote 4:
+   the physical current can be any linear combination of the real and imaginary parts). For weak injection $I_{inj}\ll I_{osc}$
+   its effect on $i_R$ is negligible and the amplitude is unchanged; only the phase $\theta$ is unknown:
+   $v_{osc}=V_{osc}e^{j(\omega_{inj}t+\theta)}$, $V_{osc}=I_{osc}R_P$.
+2. **KCL ([P3] Eq.(14))**: under weak injection the $i_R$ and $-G_m$ currents roughly cancel (footnote 5), leaving
+   $i_{inj}=i_C+i_L$; differentiate once in time to remove the integral in $i_L=\tfrac1L\int v_{osc}\,dt$:
+
+$$
+\frac{di_{inj}}{dt}=C\frac{d^2v_{osc}}{dt^2}+\frac{v_{osc}}{L}
+$$
+
+   Physics: the extra reactive current the tank draws when off resonance must be supplied by the injection.
+3. **Substitute and multiply by $e^{-j(\omega_{inj}t+\theta)}$**: using
+   $\frac{d^2}{dt^2}e^{j(\omega_{inj}t+\theta)}=\big[j\theta''-(\omega_{inj}+\theta')^2\big]e^{j(\omega_{inj}t+\theta)}$
+   ($\theta'\equiv d\theta/dt$) gives the intermediate equation of [P3] p.2111:
+
+$$
+j\omega_{inj}I_{inj}e^{-j\theta}=\Big\{C\big[j\theta''-(\omega_{inj}+\theta')^2\big]+\frac{1}{L}\Big\}I_{osc}R_P
+$$
+
+   Dimension check: left side (rad/s)·A = A/s; right side F·(rad/s)²·V = (C/V)(1/s²)V = A/s,
+   and $V/L$ = V/H = A/s (since $v=L\,di/dt$) ✓.
+4. **Two approximations — which term each one drops**: first rewrite with $1/L=C\omega_0^2$ (Eq.(11)), then split into real and imaginary parts.
+   On the left, $j\omega_{inj}I_{inj}(\cos\theta-j\sin\theta)$ has real part $\omega_{inj}I_{inj}\sin\theta$ and imaginary part
+   $\omega_{inj}I_{inj}\cos\theta$; on the right the real part is
+   $CI_{osc}R_P\big[\omega_0^2-\omega_{inj}^2-2\omega_{inj}\theta'-\theta'^2\big]$ and the imaginary part is $CI_{osc}R_P\,\theta''$.
+   - **Slow phase** $|\theta'|\ll\omega_{inj}$: drop $\theta'^2$ — relative to the retained $2\omega_{inj}\theta'$ it is
+     of order $\theta'/(2\omega_{inj})$.
+   - **Near resonance** $|\Delta\omega|\ll\omega_0$: $\omega_0^2-\omega_{inj}^2=(\omega_0+\omega_{inj})(\omega_0-\omega_{inj})
+     \approx2\omega_{inj}(\omega_0-\omega_{inj})$ — the discarded correction is of order $\Delta\omega/(2\omega_{inj})$.
+   - **Take the real part**: $j\theta''$ lives only in the imaginary part. That imaginary part is really the amplitude-balance
+     equation (which the weak-injection assumption has already handed to the $i_R$ / $-G_m$ cancellation of footnote 5), so taking
+     the real part discards $\theta''$ together with the amplitude dynamics. **This is the step that makes Adler a first-order ODE.**
+5. **Close out to Eq.(15)**: the real-part equation is $\omega_{inj}I_{inj}\sin\theta=2\omega_{inj}CI_{osc}R_P\big[(\omega_0-\omega_{inj})-\theta'\big]$;
+   divide by $2\omega_{inj}CI_{osc}R_P$ and use $Q=R_P\omega_0C$ ([P3] Eq.(16)) to replace $CR_P$ by $Q/\omega_0$ — the equation above follows.
+   Steady state $\theta'=0$ gives the lock characteristic $\Omega(\theta)=-\dfrac{\omega_0}{2Q}\dfrac{I_{inj}}{I_{osc}}\sin\theta$
+   ([P3] Eq.(17)) and the **symmetric** lock range $\omega_L=\omega_L^+=-\omega_L^-=\dfrac{\omega_0}{2Q}\dfrac{I_{inj}}{I_{osc}}$ (Eq.(18)).
+
+How good are the two approximations for the numerical example below ($f_0=5$ GHz, $Q=10$, $I_{inj}/I_{osc}=0.1$, 5 MHz detuning)?
+The largest relative term dropped by the slow-phase step is $\omega_L/(2\omega_{inj})=2.5\times10^{-3}$, and the near-resonance factor is
+$(\omega_0+\omega_{inj})/(2\omega_{inj})=0.9995$ — both within a few parts per thousand, so Adler is safe for this example.
+The sympy block below redoes steps 3–5 verbatim (the three `0`s are: left side, right side vs. the [P3] intermediate equation, and the
+approximated solution for $\theta'$ vs. Eq.(15)):
+
+```python
+import sympy as sp
+
+t = sp.symbols('t', real=True)
+w0, winj, Iinj, Iosc, RP, C, L, Q = sp.symbols('omega_0 omega_inj I_inj I_osc R_P C L Q', positive=True)
+theta = sp.Function('theta', real=True)(t)
+v_osc = Iosc*RP*sp.exp(sp.I*(winj*t + theta))       # [P3] Eq.(12)-(13)
+i_inj = Iinj*sp.exp(sp.I*winj*t)
+mult = sp.exp(-sp.I*(winj*t + theta))
+lhs = sp.simplify(sp.diff(i_inj, t)*mult)             # [P3] Eq.(14) left  x e^{-j(w t+theta)}
+rhs = sp.expand(sp.simplify((C*sp.diff(v_osc, t, 2) + v_osc/L)*mult))   # Eq.(14) right
+paper = (C*(sp.I*sp.diff(theta, t, 2) - (winj + sp.diff(theta, t))**2) + 1/L)*Iosc*RP  # [P3] p.2111, unnumbered
+print(sp.simplify(lhs - sp.I*winj*Iinj*sp.exp(-sp.I*theta)))   # -> 0
+print(sp.simplify(rhs - paper))                                 # -> 0
+th, th1, th2 = sp.symbols('theta theta1 theta2', real=True)   # theta, theta', theta''
+expr = paper.subs(sp.diff(theta, t, 2), th2).subs(sp.diff(theta, t), th1).subs(L, 1/(C*w0**2))
+lhs_re = sp.re(sp.I*winj*Iinj*sp.exp(-sp.I*th))                 # = I_inj*omega_inj*sin(theta)
+approx = C*Iosc*RP*(2*winj*(w0 - winj) - 2*winj*th1)   # Re(expr) with theta1^2 dropped and w0^2-winj^2 -> 2*winj*(w0-winj)
+sol = sp.solve(sp.Eq(lhs_re, approx), th1)[0]
+adler = w0 - winj - (w0/(2*Q))*(Iinj/Iosc)*sp.sin(th)          # [P3] Eq.(15)
+print(sp.simplify(sol.subs(RP, Q/(w0*C)) - adler))              # -> 0
+import math
+f0, Qn, ratio, df = 5e9, 10.0, 0.1, 5e6
+w0n = 2*math.pi*f0; wLn = w0n/(2*Qn)*ratio; winjn = w0n + 2*math.pi*df
+print(wLn)                                                      # -> 157079632.67948967
+print(wLn/(2*winjn))                                            # -> 0.002497502497502498
+print((w0n + winjn)/(2*winjn))                                  # -> 0.9995004995004996
+```
 
 **Numerical example**: $f_0=5$ GHz, $Q=10$, $I_{inj}/I_{osc}=0.1$. Half lock range
 
@@ -368,6 +439,11 @@ $$
 $$
 
 where $\Omega(\theta)$ is called the **lock characteristic** ([P3] Eq.(33), p.2114): the injection-induced average frequency shift as a function of the phase difference $\theta$. Note the **plus sign** in front of the averaged term (same sign convention as [P3] Eq.(30)).
+**It is not invented in Sec. V**: as early as Sec. II-B (p.2110), [P3] uses "locked ⇔ $d\theta/dt=0$" (Eq.(8)) to formally define
+$\Omega(\theta):=\Delta\omega\big|_{d\theta/dt=0}$ with $\Delta\omega:=\omega_{inj}-\omega_0$ (Eq.(9)), and defines the upper/lower lock ranges as
+$\omega_L^+=\max_\theta\Omega(\theta)$, $\omega_L^-=\min_\theta\Omega(\theta)$ (Eq.(10)); what Sec. V does is use time-synchronous averaging to
+**re-derive this abstract definition as an explicit integral of the ISF and the injection waveform** (Eq.(33)). So "lock range = width of the range of $\Omega$"
+is a definition, while "$\Omega$ = the period-average of ISF × injection" is the physical content of this paper.
 
 **Meaning**: a single first-order ODE built from the **unit-bearing ISF $\tilde\Gamma=\Gamma/q_{max}$** and the **injection waveform $i_{inj}$**,
 predicting the behavior of any oscillator under any injection waveform (claim C10). **Locking** = existence of a $\theta^\*$ with
@@ -423,10 +499,90 @@ the range of the $\Omega$ curve (between the two horizontal dashed lines). Align
 |---|---|---|---|
 | Fig. 6 | 2113 | Block diagram: the harmonics of the injection current are **filtered** by the harmonics of the ISF to form the lock characteristic | Explains why $\Omega(\theta)$ keeps only the aligned harmonics |
 | Fig. 7 | 2114 | **Time-domain** view of the lock characteristic: the ISF×injection area for the upper/lower edges and the free-running case | Intuition: lock range = extrema of the net area per cycle |
+| Fig. 12 | 2117 | 6-stage differential ring ($f_0\approx1$ GHz): schematic, waveform, simulated ISF, sinusoidal lock characteristics for three $I_{inj}$ ($I_{max}=3.0$ mA) | Theory Eq.(34) vs. transient simulation; deviation grows with injection strength but still tracks |
+| Fig. 13 | 2117 | Ideal Bose relaxation oscillator: closed-form ISF Eq.(41), Eq.(42), and simulated ISF coincide; lock characteristics for three $I_{inj}$ ($I_{max}=29$ mA) | The same equation applies to an oscillator that is neither LC nor ring |
+| Fig. 14–15 | 2118 | Measured 65-nm CMOS lock range vs. $I_{inj}$: 6-stage differential ring, 3-/17-stage single-ended rings, Bose, astable multivibrator | Silicon verification: the linear prediction of Eq.(35) holds up to $I_{inj}\sim I_{max}$ |
+| Fig. 16 | 2118 | Die photo (1×1 mm²) | The theory is backed by a real chip |
 
 > This site **deliberately does not redraw** Fig. 6 / Fig. 7 of [P3] (no matching transistor-level toy simulation);
 > the page numbers/content above have been checked against the [P3] original. The $\Omega(\theta)$ figure in Key equations above is an **independent toy illustration**
 > (it only demonstrates the concept "lock range = range of $\Omega(\theta)$"), **not** a redraw of Fig. 6 / Fig. 7.
+
+### Verification: simulation and measurement ([P3] Sec. V-H / V-I, p.2116–2118)
+
+The generalized Adler equation is not just pretty on paper — [P3] closes with two layers of evidence, paraphrased here from the original
+(**not a transistor-level simulation by this site; every number is a transcription of the paper's published figures**, with page numbers
+checked against the rendered pages):
+
+**(1) Transient simulation vs. theory (Sec. V-H, p.2116–2117)**. Two oscillators free-running at roughly $f_0=1$ GHz: the
+**6-stage differential ring** of Fig. 12 (each stage a differential pair with resistive load, $I_{max}=3.0$ mA) and the **Bose relaxation
+oscillator** of Fig. 13 (Schmitt trigger + RC, $V_{max}^\pm=\pm1$ V, $V_T^\pm=\pm0.5$ V, $R=50\ \Omega$, $C=9.1$ pF, $I_{max}=29$ mA).
+The ISFs were obtained by direct impulse-response simulation (the method of [P1]); the simulated lock characteristic was obtained by
+"first find the lock range by inspection (1 MHz resolution), then sweep $f_{inj}$ across it and read $\theta$ at each point," overlaid on the
+theoretical curve of Eq.(34) (unstable branch dashed). The paper's honest remark: **the deviation between simulation and theory grows with
+injection strength, yet they still track "reasonably closely" up to $I_{inj}$ comparable to $I_{max}$** — this is the practical edge of the
+weak-injection linearity assumption of Eq.(36)–(37) ($I_{inj}\ll I_{max}=\omega_0q_{max}$).
+
+The Bose oscillator is especially instructive: because it is nothing but RC charge/discharge, footnote 20 gives a **closed-form** ISF
+([P3] Eq.(41)) and shows the relation between the ISF and the waveform slope, $\tilde\Gamma(\varphi)=1/\big(C\,v_0'(\varphi)\big)$
+(Eq.(42)) — the same statement as the "charge kick ÷ waveform slope = phase kick" intuition on
+[isf_definition](/03_isf_core_theory/isf_definition). Below we recompute several numbers of Fig. 13 from Eq.(41)–(42) and Eq.(35)
+(this is a **derivation check** by this site, not a redo of the paper's simulations):
+
+- Period: the Schmitt-trigger output $\pm V_{max}$ charges/discharges $C$ through $R$ and flips at $\pm V_T$; each half-period is
+  $RC\ln\frac{V_{max}+V_T}{V_{max}-V_T}=RC\ln3$, so $T_0=2RC\ln3=999.7$ ps, $f_0=1.000$ GHz ✓ (one 1-ns division in Fig. 13(b)).
+- $q_{max}=CV_{max}/2=4.55$ pC (footnote 20), $I_{max}=\omega_0q_{max}=28.6$ mA ✓ (the caption says 29 mA).
+- Peak of Eq.(41), $\tfrac{1}{q_{max}}\tfrac{\pi}{\ln3}=6.28\times10^{11}$ rad/C ✓ (the Fig. 13(c) axis spans $\pm6\times10^{11}$);
+  Eq.(41) vs. Eq.(42) (numerically differentiated waveform) differ by $\approx5\times10^{-6}$ relative ✓.
+- Eq.(35) half lock range $f_L=\tfrac{1}{2\pi}\cdot\tfrac12I_{inj}\lvert\tilde\Gamma_1\rvert$: $I_{inj}=5$, 7.5, 10 mA give
+  $\pm200.4$, $\pm300.5$, $\pm400.7$ MHz — exactly the vertical extremes of the theoretical curves in the three panels of Fig. 13(d)
+  (0.8–1.2, 0.7–1.3, 0.6–1.4 GHz) ✓.
+
+```python
+import numpy as np
+
+R, C, Vmax, VT = 50.0, 9.1e-12, 1.0, 0.5             # [P3] Fig.13 caption
+T0 = 2*R*C*np.log((Vmax+VT)/(Vmax-VT))               # two RC half-periods, each RC*ln3
+print(T0*1e12, 1/T0/1e9)                             # -> 999.7 1.0003
+q_max = C*Vmax/2                                     # footnote 20
+w0 = 2*np.pi/T0
+print(q_max*1e12, w0*q_max*1e3)                      # -> 4.55 28.6
+phi = np.linspace(0, 2*np.pi, 200001)[1:-1]
+a = (1/q_max)*(np.pi/np.log(3))
+isf41 = np.where(phi < np.pi, a*3**((phi-np.pi)/np.pi), -a*3**((phi-2*np.pi)/np.pi))      # [P3] Eq.(41)
+v0 = np.where(phi <= np.pi, (Vmax/2)*(2-3**(-(phi-np.pi)/np.pi)),
+              -(Vmax/2)*(2-3**(-(phi-2*np.pi)/np.pi)))                                      # footnote 20 waveform
+isf42 = 1/(C*np.gradient(v0, phi))                                                          # [P3] Eq.(42)
+mask = np.abs(phi-np.pi) > 1e-3                      # exclude the switching discontinuity
+print(np.max(isf41)/1e11)                            # -> 6.28
+print(np.max(np.abs(isf41[mask]-isf42[mask]))/np.max(np.abs(isf41)))   # -> 5.5e-06
+G1 = np.abs(np.trapezoid(isf41*np.exp(-1j*phi), phi)/np.pi)            # |Gamma~_1|, rad/C
+print([round(float(0.5*I*G1/(2*np.pi)/1e6), 1) for I in (5e-3, 7.5e-3, 10e-3)])   # -> [200.4, 300.5, 400.7]
+```
+
+**(2) 65-nm CMOS measurements (Sec. V-I, p.2117–2118)**. Five oscillators of four kinds were fabricated in a 65-nm bulk CMOS process
+(Fig. 16 die photo, 1×1 mm²); the ISFs came from simulation of the **post-layout extracted** circuits, the lock range was measured at
+various sinusoidal injection amplitudes and compared with Eq.(35) (each point measured three times, black error bars span the full range,
+footnote 23):
+
+| Oscillator | Measured $f_0$ | Figure | Note |
+|---|---|---|---|
+| 6-stage differential ring | 1.32 GHz | Fig. 14 | Same topology as Fig. 12 |
+| 3-stage single-ended inverter ring | 1.09 GHz | Fig. 14 | Each inverter output capacitively loaded; injection applied at one output |
+| 17-stage single-ended inverter ring | 1.09 GHz | Fig. 14 | Same; the long ring has a markedly narrower lock range (fractional lock range of only a few percent) |
+| Bose relaxation oscillator | 11.9 MHz | Fig. 15 | Same topology as Fig. 13 (the fabricated one is a low-frequency version) |
+| Differential NMOS astable multivibrator | 874 MHz | Fig. 15 | Cross-coupled RC relaxation oscillator |
+
+The paper's conclusion and honest remark (p.2118): **the linear prediction of Eq.(35) holds over a broad range of practical injection
+strengths, with even the points where $I_{inj}$ is comparable to $I_{max}$ still on the line**; and the *way* the measured lock range departs
+from the prediction at large injection is reproducible in simulation ([48]) — in other words, the deviation comes from the model's
+weak-injection approximation, not from measurement error. This section is the empirical backing of the paper's "ISF is topology-independent"
+claim: **ring, relaxation, and multivibrator all obey the same Eq.(30) / (35).**
+
+> **Scope note**: the above is a paraphrase of the paper's Sec. V-H / V-I plus this site's independent recomputation of the Fig. 13 closed forms;
+> this site has no transistor-level models of these circuits and does not redraw Fig. 12–16. To see the "lock range grows linearly with
+> injection strength" statement of [P3] on this site's toy models, see the weak-injection linearity table in
+> [injection_locking_noise](/06_design_insights/injection_locking_noise).
 
 ## Design insights
 
@@ -446,6 +602,12 @@ Per paper_metadata (paper_003.limitations):
 
 - **Part I covers phase only**; amplitude modulation is deferred to Part II (APF, [P4]).
 - Relies on an **accurately extracted ISF** — if the ISF is off, the predictions are off.
+- **"Injection Locked ⇔ $d\theta/dt=0$" is only a special case** ([P3] Eq.(8), p.2110): the general definition is $\theta(t)=\theta(t+T_{inj})$
+  (Eq.(6)), equivalently $\frac{1}{T_{inj}}\int_{T_{inj}}\frac{d\theta}{dt}dt=0$ (Eq.(7)) — it only requires **zero net change of $\theta$ per period**
+  and allows intra-period variation (Fig. 1(c)). Eq.(8) throws the intra-period variation away in exchange for the simplicity of a first-order
+  ODE (justified by time-averaging). [P3] footnote 3 (p.2110) states plainly that these intra-period variations could have a significant impact
+  on higher-order locking properties, and lists it as an **open question**. Every result on this page and on
+  [injection_locking_noise](/06_design_insights/injection_locking_noise) rests on Eq.(8).
 - This site treats it as an **advanced deep-dive, not a core teaching chapter**; the core generalized-Adler equations have been verified against the [P3] original.
 
 ## Relationship to other papers
@@ -468,6 +630,8 @@ Per paper_metadata (paper_003.limitations):
 - **Noise shaping (new in v5)**: once locked, the oscillator = a first-order PLL — its own noise is high-pass suppressed while reference noise enters low-pass, with corner=ω_L cosθ_ss; full derivation and simulation in [injection_locking_noise](/06_design_insights/injection_locking_noise).
 - **Locking** = existence of a steady-state solution / $|\omega_0-\omega_{inj}|\le\omega_L$; **lock range** = the width of the range of the lock characteristic $\Omega(\theta)$; for sinusoidal injection $\omega_L=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert$ ([P3] Eq.(35), p.2114).
 - Stronger than Adler in: topology independence, arbitrary waveforms, asymmetric lock range, and designable waveforms that enlarge the lock range.
+- **Backed by silicon**: [P3] Sec. V-H / V-I (p.2116–2118) verify Eq.(35) with transient simulations of a 6-stage differential ring and a Bose
+  relaxation oscillator, and with measured lock ranges of five 65-nm CMOS oscillators (1.32 GHz / 1.09 GHz rings, 11.9 MHz Bose, 874 MHz astable) — accurate up to $I_{inj}\sim I_{max}$.
 - This page is **advanced**; the core equations (Eq.19–23, 26, 28–30, 33, 35) have been verified against the original [P3] PDF, p.2112–2114.
 
 ## Further reading

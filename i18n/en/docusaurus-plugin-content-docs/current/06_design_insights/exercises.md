@@ -32,6 +32,8 @@ Authoritative formulas involved (verified verbatim from the spec, with citations
 
 ### Exercise 1 (design back-calculation) — $q_{max}$, $\Gamma_{rms}$ target combinations
 
+*Learning-path step: [Step 8 — Design takeaways (symmetry, swing, slope)](/00_overview/learning_path#step-8)*
+
 A 5 GHz LC oscillator currently has $\mathcal{L}(1\,\text{MHz})=-140$ dBc/Hz (using Eq.(21), with $\Gamma_{rms}=0.7$,
 $q_{max}=1$ pC, $S_i=3.2\times10^{-24}\ \text{A}^2/\text{Hz}$, which self-consistently gives $-140$ when substituted into Eq.(21)). The target is to push it down another 9 dB, to $-149$ dBc/Hz.
 List two ways to hit the target: (a) change only $q_{max}$; (b) change only $\Gamma_{rms}$. How much change is needed in each case?
@@ -45,6 +47,8 @@ List two ways to hit the target: (a) change only $q_{max}$; (b) change only $\Ga
 />
 
 ### Exercise 2 (design back-calculation) — using symmetry to suppress the $1/f^3$ corner
+
+*Learning-path step: [Step 8 — Design takeaways (symmetry, swing, slope)](/00_overview/learning_path#step-8)*
 
 A ring oscillator has $\Gamma_{rms}=0.9$, $c_0=0.3$, device $f_{1/f}=2$ MHz.
 (a) Use [P1] Eq.(24) (the exact form $\Delta\omega_{1/f^3}=\omega_{1/f}c_0^2/(2\Gamma_{rms}^2)$) to find the $1/f^3$ corner $\Delta f_{1/f^3}$.
@@ -61,6 +65,8 @@ A ring oscillator has $\Gamma_{rms}=0.9$, $c_0=0.3$, device $f_{1/f}=2$ MHz.
 
 ### Exercise 3 (comparison) — $\Gamma_{rms}$ scaling for ring vs LC
 
+*Learning-path step: [Step 8 — Design takeaways (symmetry, swing, slope)](/00_overview/learning_path#step-8)*
+
 (a) Using the [P2] Eq.(16) scaling $\Gamma_{rms}\propto N^{-3/2}$, if the ring stage count is increased from $N=5$ to $N=15$,
 by what factor does $\Gamma_{rms}$ drop? How much does phase noise ($\propto\Gamma_{rms}^2$) improve, in dB?
 (b) In one sentence, explain why LC is usually still cleaner than ring (in terms of the two knobs $\Gamma_{rms}$ and $q_{max}$).
@@ -76,6 +82,8 @@ by what factor does $\Gamma_{rms}$ drop? How much does phase noise ($\propto\Gam
 
 ### Exercise 4 (design) — PLL optimal loop BW (intuition + numerical)
 
+*Learning-path step: [Step 9 — Connect to SerDes clocking (jitter, eye, PLL/CDR)](/00_overview/learning_path#step-9)*
+
 A ring VCO has poor intrinsic $1/f^2$ phase noise ($S_{vco}=K_v/f^2$, $K_v=10^{2}\ \text{rad}^2\text{Hz}$),
 while the reference is very clean and white ($S_{ref}=K_r=10^{-14}\ \text{rad}^2/\text{Hz}$, divide ratio $N=1$).
 Using the type-II 2nd-order transfer functions from spec Section 10.2, sweep the loop natural frequency $f_n$ to find the $f_n$
@@ -83,10 +91,14 @@ that minimizes the integrated output jitter ($\int S_{out}df$, integrated from 1
 
 ### Exercise 5 (numerical) — $\sigma_t\to$ BER bathtub
 
+*Learning-path step: [Step 9 — Connect to SerDes clocking (jitter, eye, PLL/CDR)](/00_overview/learning_path#step-9)*
+
 A 25 Gb/s SerDes has UI $=1/25\text{G}=40$ ps, and the sampling clock has RJ $\sigma_t=1.2$ ps (Gaussian).
 Find (a) the BER when sampling at the eye center ($t=0$); (b) the timing margin (how far the sampling point may deviate from center) to achieve $\text{BER}=10^{-12}$.
 
 ### Exercise 6 (design back-calculation) — back-calculating the allowed $\sigma_t$ from a BER budget
+
+*Learning-path step: [Step 9 — Connect to SerDes clocking (jitter, eye, PLL/CDR)](/00_overview/learning_path#step-9)*
 
 Same SerDes as above (UI $=40$ ps); the spec requires $\text{BER}\le10^{-15}$ when sampling at center. Find the maximum allowed RJ $\sigma_t$ (ps).
 (Hint: $\text{BER}\approx Q(\tfrac{UI/2}{\sigma_t})$, and $Q^{-1}(10^{-15})\approx7.94$.)
@@ -101,12 +113,16 @@ Same SerDes as above (UI $=40$ ps); the spec requires $\text{BER}\le10^{-15}$ wh
 
 ### Exercise 7 (countermeasures) — tail-noise countermeasures (cross-coupled LC VCO)
 
+*Learning-path step: [Step 8 — Design takeaways (symmetry, swing, slope)](/00_overview/learning_path#step-8)*
+
 In a cross-coupled LC VCO, tail current-source noise is upconverted by $2\times$ (landing near $2\omega_0$), then
 folded back close-in via the ISF's $c_2$ component and its DC component $c_0$. Using the viewpoint that "the effective ISF's $c_0,c_2$
 are what make tail noise a problem," list three design measures for reducing the tail-noise contribution, and for each, explain why it works using one ISF quantity ($c_0$, $c_2$,
 $\Gamma_{eff,rms}$, $q_{max}$). This problem is explicitly marked as illustrative.
 
 ### Exercise 8 (design back-calculation) — allocating a jitter budget across PLL bands
+
+*Learning-path step: [Step 9 — Connect to SerDes clocking (jitter, eye, PLL/CDR)](/00_overview/learning_path#step-9)*
 
 A clock has a total rms jitter budget of $\sigma_{t,\text{tot}}=300$ fs ($f_0=10$ GHz). The near-carrier (ref/in-band)
 contribution is known to be $\sigma_{t,\text{ref}}=180$ fs. RJ sources are uncorrelated (variances add). What is the maximum

@@ -32,6 +32,8 @@ Authoritative formulas involved (verbatim from spec Section 3, with citations):
 
 ### Exercise 1 (numerical) — impulse → phase step
 
+*Learning-path step: [Step 3 — The operational definition of the ISF (impulse → phase)](/00_overview/learning_path#step-3)*
+
 Ideal LC ($\Gamma(\theta)=-\sin\theta$), $q_{max}=1$ pC, $f_0=5$ GHz. A single charge impulse of $\Delta q=1$ fC
 is injected. Find:
 (a) the phase step $\Delta\phi$ (rad) and the timing error $\Delta t$ (fs) for injection at $\theta=3\pi/2$ (where $\Gamma$ takes its maximum $+1$).
@@ -47,11 +49,15 @@ is injected. Find:
 
 ### Exercise 2 (derivation + numerical) — $\Gamma_{rms}$ from the ISF
 
+*Learning-path step: [Step 6 — The Fourier view of the ISF (c₀, cₙ, upconversion)](/00_overview/learning_path#step-6)*
+
 A toy ISF is the two-harmonic waveform $\Gamma(\theta)=\cos\theta+\tfrac12\cos(2\theta)$.
 (a) Write down the Fourier coefficients $c_0,c_1,c_2$ directly.
 (b) Use Parseval to find $\sum c_n^2$ and $\Gamma_{rms}$.
 
 ### Exercise 3 (numerical) — white noise → $\mathcal{L}$ (applying Eq.(21))
+
+*Learning-path step: [Step 5 — White noise → 1/f², flicker → 1/f³](/00_overview/learning_path#step-5)*
 
 $f_0=5$ GHz, $\Delta f=1$ MHz, $q_{max}=1$ pC, $\Gamma_{rms}=0.5$, $S_i=\overline{i_n^2}/\Delta f=10^{-24}\ \text{A}^2/\text{Hz}$.
 Use [P1] Eq.(21) to find $\mathcal{L}(1\,\text{MHz})$ (dBc/Hz).
@@ -67,6 +73,8 @@ Use [P1] Eq.(21) to find $\mathcal{L}(1\,\text{MHz})$ (dBc/Hz).
 
 ### Exercise 4 (design back-calculation) — solving for the required $q_{max}$
 
+*Learning-path step: [Step 8 — Design takeaways (symmetry, swing, slope)](/00_overview/learning_path#step-8)*
+
 Keep the numbers from Exercise 3, but the target spec is now $\mathcal{L}(1\,\text{MHz})=-160$ dBc/Hz (cleaner than Exercise 3).
 With all other parameters unchanged ($\Gamma_{rms}=0.5$, $S_i=10^{-24}$, $\Delta f=1$ MHz), by how much must $q_{max}$
 be scaled up?
@@ -80,6 +88,8 @@ be scaled up?
 />
 
 ### Exercise 5 (derivation + numerical) — $c_0\to1/f^3$ corner
+
+*Learning-path step: [Step 5 — White noise → 1/f², flicker → 1/f³](/00_overview/learning_path#step-5)*
 
 An oscillator's measured ISF has $c_0=0.2$, $c_1=1.0$ (i.e., an appreciable DC offset — the waveform is up/down asymmetric),
 and the device 1/f corner is $f_{1/f}=1$ MHz (i.e., $\omega_{1/f}=2\pi\times10^6$ rad/s).
@@ -97,12 +107,16 @@ If the circuit is made symmetric ($c_0\to0.02$), what does the corner become?
 
 ### Exercise 6 (derivation) — the frequency-translation meaning of the Fourier coefficients
 
+*Learning-path step: [Step 6 — The Fourier view of the ISF (c₀, cₙ, upconversion)](/00_overview/learning_path#step-6)*
+
 For a single tone injected near $n\omega_0$, $i(\tau)=I_0\cos((n\omega_0+\Delta\omega)\tau)$, use the product-to-sum identity
 to prove by hand that after weighting by the $n$-th ISF harmonic $c_n\cos(n\omega_0\tau+\theta_n)$ and integrating, the surviving
 slow term gives $\phi_n(t)\approx\dfrac{I_0 c_n}{2q_{max}}\cdot\dfrac{\sin(\Delta\omega t-\theta_n)}{\Delta\omega}$,
 and explain why this is exactly "the oscillator acting as a mixer, downconverting noise near $n\omega_0$ to $\Delta\omega$".
 
 ### Exercise 7 (numerical) — effective ISF (cyclostationary)
+
+*Learning-path step: [Step 11 — Injection locking and frequency conversion](/00_overview/learning_path#step-11)* (prerequisite: [effective_isf](/03_isf_core_theory/effective_isf))
 
 A certain noise source conducts only during one half-cycle of the waveform. Approximate its noise modulating function (NMF) $\alpha(\theta)$
 as square-wave gating: $\alpha(\theta)=1$ for $\theta\in[0,\pi)$, $\alpha(\theta)=0$ for $\theta\in[\pi,2\pi)$.
@@ -118,6 +132,8 @@ and compare with the always-conducting case $\Gamma_{rms}=1/\sqrt2$.
 />
 
 ### Exercise 8 (design back-calculation) — $\Gamma_{rms}/q_{max}$ from $\mathcal{L}$
+
+*Learning-path step: [Step 5 — White noise → 1/f², flicker → 1/f³](/00_overview/learning_path#step-5)*
 
 A 5 GHz LC oscillator measures $\mathcal{L}(1\,\text{MHz})=-130$ dBc/Hz, and its white-noise source is known to be
 $S_i=2\times10^{-23}\ \text{A}^2/\text{Hz}$ (multi-source equivalent). Assuming the $1/f^2$ region is white-noise dominated, apply Eq.(21)

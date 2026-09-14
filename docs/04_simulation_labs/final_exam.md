@@ -1,6 +1,6 @@
 ---
 title: 期末總測驗：5 GHz LC VCO 到 25 Gb/s SerDes 一條龍
-description: 跨章期末測驗——同一個設計故事（5 GHz LC VCO 進 25 Gb/s SerDes link）串起 11 題：impulse→Δφ、Eq.(21) 白噪 L、κ² 與 Lorentzian 線寬、App.B 1/f³ corner、jitter 積分 447.9 fs、period jitter 閉式、÷2＋buffer 床記帳、PLL peaking 2.09 dB、aperture SNR、dual-Dirac TJ@1e-12、加碼題：注入鎖定倍頻（ILCM）的 1/N lock range。每題附 NumericQuiz 即時作答、逐步解答（帶單位＋慣例旗標＋來源頁）、文末 Python 附錄一鍵重算全部答案。
+description: 跨章期末測驗——同一個設計故事（5 GHz LC VCO 進 25 Gb/s SerDes link）串起兩題熱身（振幅恢復 τ₀=2Q/ω₀、雙脈衝疊加）與 11 題：impulse→Δφ、Eq.(21) 白噪 L、κ² 與 Lorentzian 線寬、App.B 1/f³ corner、jitter 積分 447.9 fs、period jitter 閉式、÷2＋buffer 床記帳、PLL peaking 2.09 dB、aperture SNR、dual-Dirac TJ@1e-12、加碼題：注入鎖定倍頻（ILCM）的 1/N lock range。每題附 NumericQuiz 即時作答、逐步解答（帶單位＋慣例旗標＋來源頁）、文末 Python 附錄一鍵重算全部答案。
 ---
 
 import NumericQuiz from "@site/src/components/NumericQuiz";
@@ -9,7 +9,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 > **先備**：[capstone_lc_end_to_end](/03_isf_core_theory/capstone_lc_end_to_end)（全站主脊一條龍）與三章成套習題——[02 基礎章](/02_foundations/exercises)、[03 核心理論章](/03_isf_core_theory/exercises)、[06 設計章](/06_design_insights/exercises)（先做完再來）｜**接下來**：無——這是最後一頁。11 題全對，你畢業了。
 
-這不是又一份習題集。這是**一場考試**：一個設計故事、11 個關卡，從單一電荷脈衝打進
+這不是又一份習題集。這是**一場考試**：一個設計故事、兩題熱身（0a/0b）加 11 個關卡，從單一電荷脈衝打進
 LC tank 的那一瞬間，一路走到 SerDes 鏈路在 BER $=10^{-12}$ 的 eye 開度。每一題都只考
 一個「乾淨的數字」，但每個數字都得跨章調度——你需要 [P1] 的 ISF、[P2] 的 κ 與 App. B
 閉式、擴散字典的換裝、時脈鏈的四條記帳規則、PLL 閉環代數、與 dual-Dirac 外插。
@@ -53,9 +53,162 @@ flowchart LR
 
 ---
 
-## 第 1 幕：振盪器核心物理（題 1–4）
+## 第 1 幕：振盪器核心物理（熱身 0a–0b、題 1–4）
+
+### 題 0a — 熱身：被踢歪的振幅多久恢復？（$\tau_0=2Q/\omega_0$ vs 相位永不恢復）
+
+*對應學習路徑：[第 1 步 — 振盪器的「相位」到底是什麼](/00_overview/learning_path#step-1)*
+
+開考前先問一個比「ISF」更早的問題。VCO 的 LC tank 品質因數 $Q=20$、$f_0=5$ GHz。
+一顆電流脈衝同時把**振幅**與**相位**踢歪（[P4] Sec. III-B 的 impulse-train 思想實驗）：
+相位偏差因振盪器是自主系統（autonomous，沒有外部時間基準）而永久留下；振幅偏差則依阻尼 LC 的
+LTI 動態指數恢復，$d(t)=e^{-t/\tau_0}$、$\tau_0=2Q/\omega_0$（[P4] Sec. III-F, p.2128，緊接 Eq.(25)
+之前的正文；本站 [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) 已核實）。
+求 $\tau_0$（ns）。
+
+<NumericQuiz
+  prompt="先自己算：Q = 20、f₀ = 5 GHz 的 LC tank，一顆脈衝造成的振幅偏差以 τ₀ = 2Q/ω₀ 指數恢復；τ₀ = ？（以 ns 作答）"
+  answer={1.27}
+  tol={0.01}
+  unit="ns"
+  hint="ω₀ = 2πf₀ = 2π×5×10⁹ = 3.14×10¹⁰ rad/s；τ₀ = 2×20/ω₀。"
+  solutionNote="τ₀ = 40/(3.142×10¹⁰) = 1.273×10⁻⁹ s ≈ 1.27 ns ≈ 6.4 個週期（= Q/π）。相位偏差沒有任何時間常數——它永遠留在相位裡。詳見下方解答。"
+/>
+
+<details>
+<summary><strong>題 0a 完整解答</strong>（振幅有恢復力、相位沒有：ISF 只談相位的根本理由）</summary>
+
+**第 1 步（$\tau_0$ 從哪裡來——並聯 RLC 的自由衰減；RLC 為標準電路學，外部教科書內容）**。
+[tank_Q_and_energy_restoration](/02_foundations/tank_Q_and_energy_restoration) 第 2 步已推出
+$Q=\omega_0R_pC$，且儲能包絡以 $e^{-\omega_0t/Q}$ 衰減。能量 $\propto$ 振幅平方，所以**振幅**包絡的
+衰減率只有能量的一半：
+
+$$
+A(t)\propto e^{-\omega_0t/(2Q)}=e^{-t/\tau_0},\qquad \tau_0=\frac{2Q}{\omega_0}=2R_pC.
+$$
+
+（並聯 RLC 的自然響應 $v(t)\propto e^{-t/(2R_pC)}\cos(\cdot)$，代 $Q=\omega_0R_pC$ 即得同式。）
+[P4] 的物理前提：transconductor 只補到自由跑振幅為止，多出來的能量就照這條阻尼 LC 的 LTI 動態耗掉。
+
+**第 2 步（逐步代入，帶單位）**：
+
+$$
+\omega_0=2\pi f_0=2\pi\times5\times10^{9}=3.142\times10^{10}\ \text{rad/s},\qquad
+\tau_0=\frac{2Q}{\omega_0}=\frac{40}{3.142\times10^{10}\ \text{rad/s}}=1.273\times10^{-9}\ \text{s}=1.273\ \text{ns}.
+$$
+
+換成週期數：$\tau_0f_0=Q/\pi=6.37$ 個週期——「$Q$ 越高、振幅恢復越慢，但終究恢復」。
+對應的振幅雜訊轉角 $f_c=1/(2\pi\tau_0)=f_0/(2Q)=125$ MHz。
+
+**結果**：$\tau_0=1.273$ ns（作答 1.27 ns）。
+
+**與相位的對比（本題真正的考點）**：同一顆脈衝在相位方向留下的是 $u(t-\tau)$ 階梯
+（[P1] Eq.(10), p.182），**沒有時間常數、永不恢復**——limit cycle 沿切向沒有恢復力
+（Floquet 指數為 0），沿徑向才有（衰減率 $-1/\tau_0$）。這就是為什麼 phase noise 的方差隨時間
+發散、amplitude noise 的方差收斂到有限值，也是為什麼整份考卷（與 ISF 理論）只追蹤相位
+（[oscillator_phase](/02_foundations/oscillator_phase)）。
+
+**慣例旗標**：$2Q/\omega_0$ 的 2 來自「振幅包絡衰減率 $=$ 能量衰減率的一半」；若把能量時間常數
+$Q/\omega_0$ 誤當振幅時間常數，$\tau_0$ 會少一半（0.64 ns）。
+
+**適用與失效條件**：單一振幅衰減模態的 LC tank、弱注入（線性化）。ring 或多模態振盪器的徑向恢復率
+不是 $2Q/\omega_0$（一般情形屬 Floquet 框架，非本站 5 篇 PDF）；強注入下非線性振幅恢復效應會讓
+[P4] 理論與模擬在 p.2128 Fig. 8 振幅曲線中央出現偏差，[P4] 自己也如此註記。
+
+**Dimension check**：無因次 $\div$ (rad/s) $=$ s ✓；$\Omega\cdot\text{F}=$ s ✓；s $\times$ Hz $=$ 無因次（週期數）✓。
+
+```python
+import numpy as np
+f0, Q = 5e9, 20
+w0 = 2*np.pi*f0
+tau0 = 2*Q/w0
+print(round(tau0*1e9, 3), round(tau0*f0, 2), round(1/(2*np.pi*tau0)/1e6, 1))  # -> 1.273 6.37 125.0
+```
+
+</details>
+
+### 題 0b — 熱身：同一週期兩顆脈衝，相位怎麼加？（卷積的離散版）
+
+*對應學習路徑：[第 4 步 — 從單一 impulse 到任意 noise（卷積）](/00_overview/learning_path#step-4)*
+
+理想 LC 的 ISF 是 $\Gamma(\theta)=-\sin\theta$（$\theta=\omega_0\tau$），$q_{max}=1$ pC、$f_0=5$ GHz。
+同一個振盪週期內打進兩顆電荷脈衝：$\Delta q_1=1$ fC 在 $\theta=\pi/2$、$\Delta q_2=3$ fC 在
+$\theta=3\pi/2$。兩顆都打完之後，淨 timing error $\Delta t$ 是多少（fs）？——這是 [P1] Eq.(11), p.182
+的卷積積分在 $i_n$ 只有兩根 $\delta$ 時的離散版。
+
+<NumericQuiz
+  prompt="先自己算：Γ = −sinθ、q_max = 1 pC、f₀ = 5 GHz；Δq₁ = 1 fC @ θ = π/2 與 Δq₂ = 3 fC @ θ = 3π/2 兩顆脈衝疊加後的淨 Δt = ？（以 fs 作答，含正負號）"
+  answer={63.7}
+  tol={0.01}
+  unit="fs"
+  hint="Γ(π/2) = −1、Γ(3π/2) = +1；Δφ = Σ Γ(θ_k)·Δq_k/q_max = (−1×1 + 1×3)×10⁻³ rad，再 Δt = Δφ/(2πf₀)。"
+  solutionNote="Δφ = −1 mrad + 3 mrad = +2 mrad → Δt = 2×10⁻³/(2π×5×10⁹) = 63.7 fs。注意不是「4 fC → 4 mrad」：相位加的是 Γ 加權後的電荷，不是電荷本身。詳見下方解答。"
+/>
+
+<details>
+<summary><strong>題 0b 完整解答</strong>（疊加原理：卷積積分收縮成兩項求和）</summary>
+
+**第 1 步（把 [P1] Eq.(11) 的積分寫成離散和）**。兩顆脈衝
+$i_n(\tau)=\Delta q_1\,\delta(\tau-\tau_1)+\Delta q_2\,\delta(\tau-\tau_2)$ 代入 LTV 卷積式
+（[P1] Eq.(11), p.182；推導見 [convolution_derivation](/03_isf_core_theory/convolution_derivation)），
+$\delta$ 的篩選性質把積分收成求和，對 $t\gt\tau_2$：
+
+$$
+\phi(t)=\frac{1}{q_{max}}\int_{-\infty}^{t}\Gamma(\omega_0\tau)\,i_n(\tau)\,d\tau
+=\frac{\Gamma(\theta_1)\,\Delta q_1+\Gamma(\theta_2)\,\Delta q_2}{q_{max}}.
+$$
+
+這一步成立的唯一前提是**線性疊加**（小注入，$\Delta q\ll q_{max}$）；積分上限 $t$ 說明每一項都是
+永久記憶——相位是 noise 的積分器。
+
+**第 2 步（逐步代入，帶單位）**：
+
+$$
+\Gamma(\pi/2)=-\sin\tfrac{\pi}{2}=-1,\qquad \Gamma(3\pi/2)=-\sin\tfrac{3\pi}{2}=+1,
+$$
+
+$$
+\Delta\phi_1=\frac{(-1)(1\times10^{-15}\ \text{C})}{1\times10^{-12}\ \text{C}}=-1\times10^{-3}\ \text{rad},\qquad
+\Delta\phi_2=\frac{(+1)(3\times10^{-15}\ \text{C})}{1\times10^{-12}\ \text{C}}=+3\times10^{-3}\ \text{rad},
+$$
+
+$$
+\Delta\phi=\Delta\phi_1+\Delta\phi_2=+2\times10^{-3}\ \text{rad},\qquad
+\Delta t=\frac{\Delta\phi}{2\pi f_0}=\frac{2\times10^{-3}}{3.142\times10^{10}\ \text{rad/s}}=6.366\times10^{-14}\ \text{s}=63.7\ \text{fs}.
+$$
+
+**結果**：$\Delta\phi=+2$ mrad、$\Delta t=63.7$ fs。
+
+**考點**：總電荷 4 fC 若全在 $\theta=3\pi/2$ 注入會給 $+4$ mrad（127 fs）；若兩顆都在波峰
+$\theta=0$ 注入則 $\Gamma=0$、淨相位為零。相位加的是 **ISF 加權後**的電荷——這正是 LTV 與 LTI
+的分野（[lti_vs_ltv](/02_foundations/lti_vs_ltv)），也是 Eq.(11) 之所以要把 $\Gamma(\omega_0\tau)$
+留在積分號內的理由。兩顆脈衝的先後順序不影響結果（積分器對過去一視同仁），但每一項都永久留下。
+換成連續白噪 $i_n$，同一條式子積出來就是題 2 的 $1/f^2$ 裙邊。
+
+**慣例旗標**：$\Gamma=-\sin\theta$ 的負號取 $V=\cos\theta$ 的相位基準（[isf_definition](/03_isf_core_theory/isf_definition)）；
+換相位基準只改 $\theta$ 的標籤，$\vert\Delta\phi\vert$ 與 $\vert\Delta t\vert$ 不變。
+
+**適用與失效條件**：$\Delta q/q_{max}=0.1\%$ 與 $0.3\%$，線性化成立；若 $\Delta q$ 與 $q_{max}$ 同量級，
+ISF 本身隨注入改變（大訊號非線性，見 [lab_15_nonlinear_isf](/04_simulation_labs/lab_15_nonlinear_isf)），
+疊加失效。
+
+**Dimension check**：無因次 $\times$ C/C $=$ rad ✓；rad ÷ (rad/s) $=$ s ✓。
+
+```python
+import numpy as np
+from simulations.common.isf_utils import impulse_to_phase_step, gamma_lc_ideal
+from simulations.common.noise_utils import phase_to_time_error
+qmax, f0 = 1e-12, 5e9
+dphi = sum(impulse_to_phase_step(dq, gamma_lc_ideal(th), qmax=qmax)
+           for dq, th in [(1e-15, np.pi/2), (3e-15, 3*np.pi/2)])
+print(round(dphi*1e3, 3), round(phase_to_time_error(dphi, f0)*1e15, 1))  # -> 2.0 63.7
+```
+
+</details>
 
 ### 題 1 — 一顆脈衝打進 tank（impulse → Δφ）
+
+*對應學習路徑：[第 3 步 — ISF 的操作型定義（impulse → phase）](/00_overview/learning_path#step-3)*
 
 故事開場：VCO 還在 schematic 階段。你先問最原始的問題——supply 上竄進一顆
 $\Delta q=1$ fC 的電荷脈衝，注入時刻的 ISF 值 $\Gamma(\omega_0\tau)=0.5$（例 A 的代表值），
@@ -104,6 +257,8 @@ print(dphi, round(phase_to_time_error(dphi, 5e9)*1e15, 1))  # -> 0.0005 15.9
 
 ### 題 2 — 白噪打滿一整條裙邊（Eq.(21) → $\mathcal{L}$）
 
+*對應學習路徑：[第 5 步 — 白噪 → 1/f²，flicker → 1/f³](/00_overview/learning_path#step-5)*
+
 單一白噪源 $S_i=\overline{i_n^2}/\Delta f=10^{-24}\ \text{A}^2/\text{Hz}$ 連續打進同一顆 VCO
 （$\Gamma_{rms}=0.5$、$q_{max}=1$ pC）。用 [P1] Eq.(21), p.185 求 $\mathcal{L}(1\,\text{MHz})$。
 
@@ -149,6 +304,8 @@ print(round(10*np.log10((0.5**2/1e-24)*(1e-24/(4*dw**2))), 1))  # -> -148.0
 </details>
 
 ### 題 3 — 換上五件衣服的第一件（$\mathcal{L}\to\kappa^2\to$ 線寬）
+
+*對應學習路徑：[第 10 步 — 進階理論——從 κ 到線形](/00_overview/learning_path#step-10)*
 
 同一顆理想單源 VCO。系統同事問你：「這顆自由跑的載波**線寬**多少？」用
 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary) 的反向查字典：
@@ -217,6 +374,8 @@ print(round(kappa2, 3), round(kappa2/(2*np.pi)*1e3, 1))  # -> 0.125 19.9
 
 ### 題 4 — Plan B：如果改用 ring（App. B 閉式 → 1/f³ corner）
 
+*對應學習路徑：[第 10 步 — 進階理論——從 κ 到線形](/00_overview/learning_path#step-10)*
+
 專案審查會上有人提議：「LC 佔面積，改 5 級單端 ring 如何？」你用
 [P2] Appendix B 的閉式（[asymmetric_isf_closed_form](/03_isf_core_theory/asymmetric_isf_closed_form)）
 當場回答 flicker 上轉的代價：$N=5$、$\eta=1$、波形不對稱比 $A=f'_{rise}/f'_{fall}=1.5$、
@@ -277,6 +436,8 @@ print(round(f1f*3/(2*eta*N)*(1-A)**2/(1-A+A**2)/1e3, 2))  # -> 42.86
 
 ### 題 5 — 積分出真實時脈的 RJ（$\mathcal{L}\to\sigma_t$）
 
+*對應學習路徑：[第 9 步 — 接到 SerDes clocking（jitter、eye、PLL/CDR）](/00_overview/learning_path#step-9)*
+
 矽回來了。實測整合後的 VCO：$\mathcal{L}(1\,\text{MHz})=-100$ dBc/Hz、$1/f^2$ 斜率
 （**實測軌**——比題 2 的理想單源下限高 48 dB，多源、cyclostationary、flicker 與
 buffer chain 的現實）。積分頻帶 1–100 MHz。求 rms jitter $\sigma_t$。
@@ -326,6 +487,8 @@ print(round(sp*1e3, 2), round(st*1e15, 1))   # -> 14.07 447.9
 </details>
 
 ### 題 6 — 同一顆時脈的 period jitter（jitter 核閉式）
+
+*對應學習路徑：[第 10 步 — 進階理論——從 κ 到線形](/00_overview/learning_path#step-10)*
 
 數位同事只在乎相鄰 edge：「單週期的 period jitter 多少？」用
 [jitter_kernels](/02_foundations/jitter_kernels) 的白噪 FM 閉式：先由實測裙邊反查
@@ -388,22 +551,61 @@ print(round(kappa2, 1), round(np.sqrt(kappa2/5e9)/(2*np.pi*5e9)*1e15, 2))
 
 ### 題 7 — ÷2 到 2.5 GHz、過 buffer：床什麼時候當家？
 
+*對應學習路徑：[第 12 步 — 系統整合與量測](/00_overview/learning_path#step-12)*
+
 時脈樹：5 GHz 經理想 ÷2 到 2.5 GHz，再過一級床 $-155$ dBc/Hz（平坦）的輸出 buffer。
-看 **10 MHz offset**（PLL out-of-band，VCO 自由跑裙邊當家）。用**理想單源下限軌**：
-VCO 裙邊由題 2 的 $-148$ dBc/Hz @ 1 MHz 錨點以 $1/f^2$ 外推。求 buffer 輸出的
-$\mathcal{L}(10\,\text{MHz})$。
+看 **1 MHz offset**（就是題 2 錨點本身的 offset，不必外推）。用**理想單源下限軌**：
+VCO 裙邊就是題 2 算出的 $-148$ dBc/Hz @ 1 MHz（[P1] Eq.(21)）。求 buffer 輸出的
+$\mathcal{L}(1\,\text{MHz})$。
 
 <NumericQuiz
-  prompt="先自己算：VCO 裙邊 −148 dBc/Hz@1 MHz（1/f²）外推到 10 MHz、理想 ÷2、再與 −155 dBc/Hz buffer 床功率相加後，L(10 MHz) = ？（以 dBc/Hz 作答，記得負號）"
-  answer={-154.95}
-  tol={0.001}
+  prompt="先自己算：VCO 裙邊 −148 dBc/Hz@1 MHz（題 2 的錨點，不必外推）、理想 ÷2、再與 −155 dBc/Hz buffer 床功率相加後，L(1 MHz) = ？（以 dBc/Hz 作答，記得負號）"
+  answer={-151.47}
+  tol={0.01}
   unit="dBc/Hz"
-  hint="三步：−148 − 20log₁₀(10) = −168；÷2 再 −6.02 → −174.02；與 −155 床做 10log₁₀(10^(−174.02/10)+10^(−155/10))。"
-  solutionNote="訊號比床低 19 dB → 床當家：輸出 ≈ −154.95 dBc/Hz，被鉗在 buffer 床上。詳見下方解答。"
+  hint="兩步：÷2 是 −20log₁₀2=−6.02 dB → −148−6.02=−154.02；再與 −155 床做 10log₁₀(10^(−154.02/10)+10^(−155/10))。注意：不是床值 −155，兩者只差 0.98 dB，功率相加後會比任一項都低。"
+  solutionNote="訊號（−154.02）與床（−155）只差 0.98 dB，兩者同一量級、都有貢獻：功率相加後輸出 ≈ −151.47 dBc/Hz——比兩者都低約 3 dB（近乎等功率相加的 3 dB 懲罰）。詳見下方解答；10 MHz 的床完全主導情形見解答 (b)。"
 />
 
 <details>
 <summary><strong>題 7 完整解答</strong>（clock_chain 規則 2＋4：÷N 與加成床）</summary>
+
+**(a) 1 MHz offset（本題主答案）**
+
+**第 1 步（規則 2：理想 ÷2 是 edge-picking，$\phi_{out}=\phi_{in}/2$，直接用題 2 的 $-148$ dBc/Hz 錨點，不必外推）**：
+
+$$
+\mathcal{L}(1\,\text{MHz})\big|_{2.5\,\text{GHz}}=-148.00-20\log_{10}2=-154.02\ \text{dBc/Hz}.
+$$
+
+**第 2 步（規則 4：buffer 床與輸入不相關，功率相加）**：
+
+$$
+\mathcal{L}_{out}(1\,\text{MHz})=10\log_{10}\!\big(10^{-154.02/10}+10^{-155/10}\big)=-151.47\ \text{dBc/Hz}.
+$$
+
+**結果**：$-151.47$ dBc/Hz——訊號（$-154.02$）與床（$-155$）只差 $0.98$ dB，
+**兩者同量級、都有貢獻**（不是單邊主導），功率相加把輸出壓到比兩者都低約 3 dB。
+這正是刻意設計成「不能直接抄床值 $-155$ 就矇對」的題目：若床明顯主導（見 (b)）
+答案會逼近床值本身，但這裡兩項相當，唯一算得出來的方法是老實做功率相加。
+
+**慣例旗標**：$/2$ vs $/4$ 記帳只把輸入/輸出同步偏移，$\pm20\log_{10}N$ 與功率相加
+都是比值/加法運算——結論「兩者同量級、需功率相加」不變。
+
+**Dimension check**：dB 運算全作用在無因次功率比上 ✓。
+
+```python
+import numpy as np
+L_div = -148.0 - 20*np.log10(2)
+print(round(L_div, 2))                                            # -> -154.02
+print(round(10*np.log10(10**(L_div/10) + 10**(-155.0/10)), 2))    # -> -151.47
+```
+
+**(b) 10 MHz offset（床完全當家的對照情形）**
+
+若改看 **10 MHz offset**（PLL out-of-band，VCO 裙邊需先以 $1/f^2$ 外推），流程相同但
+訊號已遠低於床，此時功率相加幾乎等於直接讀床值——這是初版題目容易被「直接打
+$-155$」矇對的陷阱案例，供對照：
 
 **第 1 步（$1/f^2$ 外推）**：
 
@@ -411,7 +613,7 @@ $$
 \mathcal{L}_{vco}(10\,\text{MHz})=-148-20\log_{10}\!\frac{10\,\text{MHz}}{1\,\text{MHz}}=-168.00\ \text{dBc/Hz}.
 $$
 
-**第 2 步（規則 2：理想 ÷2 是 edge-picking，$\phi_{out}=\phi_{in}/2$）**：
+**第 2 步（規則 2：理想 ÷2）**：
 
 $$
 \mathcal{L}(10\,\text{MHz})\big|_{2.5\,\text{GHz}}=-168.00-20\log_{10}2=-174.02\ \text{dBc/Hz}.
@@ -449,6 +651,8 @@ print(round(10*np.log10(10**(L_div/10) + 10**(-155.0/10)), 2))    # -> -154.95
 ## 第 3 幕：迴路與鏈路（題 8–11）
 
 ### 題 8 — PLL 的鼓包稅（type-II peaking 閉式）
+
+*對應學習路徑：[第 9 步 — 接到 SerDes clocking（jitter、eye、PLL/CDR）](/00_overview/learning_path#step-9)*（PLL 預算頁：[pll_noise_budget](/06_design_insights/pll_noise_budget)）
 
 VCO 進 type-II 二階 PLL（$\zeta=0.707$）。系統規格書問：jitter transfer 的 **peaking**
 （峰值超出 0 dB 多少）是多少？用
@@ -509,6 +713,8 @@ print(round(np.sqrt(2/(s+1)), 4), round(10*np.log10((s+1)**2/((s-1)*(s+3))), 2))
 
 ### 題 9 — 這顆 2.5 GHz 時脈拿去取樣，值幾個 bit？（aperture SNR）
 
+*對應學習路徑：[第 12 步 — 系統整合與量測](/00_overview/learning_path#step-12)*
+
 RX 端的監測 ADC 用最終的 2.5 GHz 時脈取樣一個滿刻度 2.5 GHz 校正單音。時脈 RJ 用
 實測軌：題 5 的 $\sigma_t=447.9$ fs——理想 ÷2 **不改變以秒計的 $\sigma_t$**（題 7 的
 守恆量；buffer 床在同頻帶另加約 16 fs，RSS 後 $+0.06\%$，可忽略）。求 jitter 限制的 SNR。
@@ -563,6 +769,8 @@ print(round(snr, 2), round((snr - 1.76)/6.02, 2))   # -> 43.05 6.86
 </details>
 
 ### 題 10 — 期末魔王：eye 還剩多少？（dual-Dirac TJ@$10^{-12}$）
+
+*對應學習路徑：[第 12 步 — 系統整合與量測](/00_overview/learning_path#step-12)*
 
 鏈路收尾。25 Gb/s（UI $=40$ ps）、量測分解得 $\mathrm{DJ}_{\delta\delta}=1$ ps；
 RJ 用實測軌時脈的 $\sigma_t=447.9$ fs。用 dual-Dirac 外插
@@ -624,6 +832,8 @@ print(round(qinv, 3), round(tj*1e12, 2))   # -> 7.034 7.3
 
 ### 題 11 — 加碼題：如果不走 PLL，直接注入鎖定倍頻呢？
 
+*對應學習路徑：[第 11 步 — 注入鎖定與頻率轉換](/00_overview/learning_path#step-11)*
+
 畢業前的最後一個岔路。題 7–9 選的是「PLL ×50 → ÷2 → buffer」這條路。有學弟問：
 「如果乾脆不用 PLL，直接把 $f_{ref}=250$ MHz 的參考脈衝（$q_{inj}=50$ fC）打進同一顆
 $5$ GHz LC VCO（$q_{max}=1$ pC）做 $N=20$ 倍頻的 injection-locked clock multiplier
@@ -682,6 +892,7 @@ $N^2S_{ref}\vert H_{lp}\vert^2$ 系出同門但機制不同——兩條路殊途
 若計入 $10$ ps 有限脈寬的 sinc 修正則降為 $1.981$ MHz（差 $0.4\%$，本題不計）。
 
 ```python
+import numpy as np
 qinj, qmax, f0, N = 50e-15, 1e-12, 5e9, 20
 T0 = 1 / f0
 dwL = (qinj/qmax) / (N*T0)
@@ -694,19 +905,29 @@ print(round((qinj/qmax)/(2*np.pi*N), 6))    # -> 0.000398 (398 ppm，分數 lock
 
 ---
 
-## 畢業檢定：Python 附錄（一次重算全部 11 題）
+## 畢業檢定：Python 附錄（一次重算熱身 0a/0b 與全部 11 題）
 
 在專案根目錄以 `PYTHONPATH=.` 執行；每個 `# ->` 都是實跑輸出，與各題解答逐字一致。
 
 ```python
 import numpy as np
 from scipy.special import erfcinv
-from simulations.common.isf_utils import impulse_to_phase_step
+from simulations.common.isf_utils import impulse_to_phase_step, gamma_lc_ideal
 from simulations.common.noise_utils import phase_to_time_error, integrate_rms_jitter
 from simulations.common.pll_utils import H_lowpass_mag2
 
 f0, qmax, grms, Si = 5e9, 1e-12, 0.5, 1e-24
 dw = 2*np.pi*1e6                                   # 1 MHz offset [rad/s]
+
+# --- 題 0a（熱身）: 振幅恢復時間常數 tau_0 = 2Q/omega_0（[P4] Sec. III-F p.2128）
+Q = 20
+tau0 = 2*Q/(2*np.pi*f0)
+print(round(tau0*1e9, 3), round(tau0*f0, 2), round(1/(2*np.pi*tau0)/1e6, 1))  # -> 1.273 6.37 125.0
+
+# --- 題 0b（熱身）: 兩顆脈衝的疊加（[P1] Eq.(11) 離散版）
+dphi_0b = sum(impulse_to_phase_step(dq, gamma_lc_ideal(th), qmax=qmax)
+              for dq, th in [(1e-15, np.pi/2), (3e-15, 3*np.pi/2)])
+print(round(dphi_0b*1e3, 3), round(phase_to_time_error(dphi_0b, f0)*1e15, 1))  # -> 2.0 63.7
 
 # --- 題 1: impulse -> Delta_phi -> Delta_t（例 A）
 dphi = impulse_to_phase_step(1e-15, 0.5, qmax=qmax)
@@ -737,7 +958,12 @@ kappa2_m = 10**(-100/10)*dw**2                     # 量測 SSB = /2 慣例
 print(round(kappa2_m, 1))                          # -> 3947.8  （rad^2/s）
 print(round(np.sqrt(kappa2_m/f0)/(2*np.pi*f0)*1e15, 2))     # -> 28.28  （fs）
 
-# --- 題 7: 理想裙邊 ÷2 到 2.5 GHz + buffer 床（10 MHz offset）
+# --- 題 7(a): 理想裙邊 ÷2 到 2.5 GHz + buffer 床（1 MHz offset，本題主答案）
+L_div_1m = -148.0 - 20*np.log10(2)
+print(round(L_div_1m, 2))                          # -> -154.02
+print(round(10*np.log10(10**(L_div_1m/10) + 10**(-155.0/10)), 2))  # -> -151.47
+
+# --- 題 7(b): 同一條鏈路看 10 MHz offset（床完全當家的對照情形）
 L_div = (-148.0 - 20*np.log10(10)) - 20*np.log10(2)
 print(round(L_div, 2))                             # -> -174.02
 print(round(10*np.log10(10**(L_div/10) + 10**(-155.0/10)), 2))  # -> -154.95
@@ -770,26 +996,30 @@ print(round(fL/1e6, 3))                             # -> 1.989
 print(round((qinj/qmax_ilcm)/(2*np.pi*N_ilcm), 6))  # -> 0.000398
 ```
 
-## 重點回顧（帶著走的 11 個數字）
+## 重點回顧（帶著走的 13 個數字）
 
 | 題 | 考點 | 答案 | 慣例旗標 |
 |---|---|---|---|
+| 0a（熱身） | 振幅恢復 $\tau_0=2Q/\omega_0$ vs 相位永不恢復 | 1.273 ns（$Q/\pi=6.37$ 週期、$f_c=125$ MHz） | 振幅包絡衰減率是能量的一半（$2Q$ 的 2）；相位無時間常數 |
+| 0b（熱身） | 兩顆脈衝疊加（[P1] Eq.(11) 離散版） | $+2$ mrad、63.7 fs | 加的是 $\Gamma$ 加權電荷，非電荷本身 |
 | 1 | impulse→$\Delta\phi$→$\Delta t$ | $5\times10^{-4}$ rad、15.9 fs | — |
 | 2 | [P1] Eq.(21) 白噪 $\mathcal{L}$ | $-148.0$ dBc/Hz | SSB $/4$（$/2$ 為 $-145.0$） |
 | 3 | $\mathcal{L}\to\kappa^2\to$ 線寬 | $\kappa^2=0.125$ rad²/s、19.9 mHz | 反查吃 $/2$；$\Delta f_{3\mathrm{dB}}=\kappa^2/2\pi$（v5） |
 | 4 | App. B 1/f³ corner | 42.86 kHz | [P2] Eq.(57)；[P1] Eq.(24) $=2\times=85.71$ kHz |
 | 5 | jitter 積分 1–100 MHz | 14.07 mrad、447.9 fs | 量測 SSB 用 $\mathcal{L}=\tfrac12S_\phi$ |
 | 6 | period jitter 閉式 | 28.3 fs | 單邊 $S_\phi$ 核前置 $1/\omega_0^2$ |
-| 7 | ÷2＋buffer 床 | $-154.95$ dBc/Hz | 規則是比值運算，慣例對消；床當家 |
+| 7 | ÷2＋buffer 床 @1 MHz | $-151.47$ dBc/Hz | 規則是比值運算，慣例對消；訊號與床同量級需功率相加（10 MHz 床當家對照見 (b)：$-154.95$） |
 | 8 | type-II peaking | 2.09 dB @ $0.786f_n$ | $10\log_{10}$ 功率，無 SSB 之事 |
 | 9 | aperture SNR @ 2.5 GHz | 43.05 dB（6.86 bit） | 公式 convention-free；$\sigma_t$ 守恆過 ÷2 |
 | 10 | dual-Dirac TJ@$10^{-12}$ | 7.30 ps（eye 0.82 UI） | per-Gaussian $Q^{-1}=7.034$ |
 | 11（加碼） | ILCM 的 $1/N$ lock range | $f_L=1.989$ MHz（398 ppm） | $\delta$-pulse idealization；含脈寬 sinc 修正為 1.981 MHz |
 
-11 題全對——恭喜畢業。你已經能從一顆電荷脈衝，一路記帳到 SerDes link 的 eye margin。
+熱身 0a/0b 加 11 題全對——恭喜畢業。你已經能從一顆電荷脈衝，一路記帳到 SerDes link 的 eye margin。
 
 ## 延伸閱讀（每題的深入版）
 
+- 題 0a：[oscillator_phase](/02_foundations/oscillator_phase)、[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)、[tank_Q_and_energy_restoration](/02_foundations/tank_Q_and_energy_restoration)
+- 題 0b：[convolution_derivation](/03_isf_core_theory/convolution_derivation)、[lti_vs_ltv](/02_foundations/lti_vs_ltv)
 - 題 1：[impulse_to_phase_shift](/03_isf_core_theory/impulse_to_phase_shift)
 - 題 2：[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
 - 題 3：[diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)、[lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)

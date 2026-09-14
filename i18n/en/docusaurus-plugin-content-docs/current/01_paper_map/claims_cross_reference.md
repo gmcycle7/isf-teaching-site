@@ -61,8 +61,8 @@ this site retains a `TODO:` marker:
   confirmed by triple evidence — the text's $4/N^{1.5}$@$\eta=0.75$ and App.B Eq.(55). v3 had misread it as $N^{-3/4}$).
   The closed form is $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}$ (at $\eta=0.75$, $\approx 4/N^{1.5}$, the solid line in [P2] Fig.8).
 - **C10**: the generalized Adler equation is verified against [P3]: the time-averaged form $d\theta/dt=\omega_0-\omega_{inj}+\frac{1}{T_{inj}}\int\tilde\Gamma(\omega_{inj}t+\theta)\,i_{inj}\,dt$ = Eq.(30), p.2113 (the original uses a **plus** sign), lock range $\omega_L=\tfrac12 I_{inj}\vert\tilde\Gamma_1\vert$ = Eq.(35), p.2114.
-  (If some pages on this site write a **minus** sign in front of the averaged term, that is because this site's $\Gamma$ uses the opposite sign convention to [P3]; numerically equivalent.)
-- **C11**: the APF is verified against [P4]: decomposition $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$ = Eq.(18), definition $\Delta(\phi):=\int_0^\infty D\,d\tau$ (units $\mathrm{A^{-1}}$) = Eq.(19), both on p.2126; ISF/APF orthogonality in an ideal LC = Eq.(26), p.2128.
+  (This site's $\Gamma=-\sin\theta$ has the **same sign** as [P3]'s $\tilde\Gamma=\Gamma/q_{max}$ — [P4] Eq.(24), p.2128 gives $\tilde\Gamma(\varphi)=-\sin\varphi/q_{max,0}$ — so every page on this site writes a **plus** sign in front of the averaged term; v11 removed the earlier "opposite sign convention, hence a minus sign" statement.)
+- **C11**: the APF is verified against [P4]: decomposition $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$ = Eq.(18) ($\tilde\Lambda$ = amplitude ISF, units $\mathrm{C^{-1}}$), APF definition $\Delta(\phi):=\int_0^\infty D\,d\tau$ (units $\mathrm{A^{-1}}$, no tilde) = Eq.(19), both on p.2126; ISF/APF orthogonality in an ideal LC = Eq.(26), p.2128.
 - **C13**: this is the **sourcing statement** itself — the point is to honestly flag PPV/adjoint/Floquet as **external literature**,
   **not among the 5 source PDFs**; the citation volume/issue/page/DOI have been checked online (see references [E2]–[E4]).
 

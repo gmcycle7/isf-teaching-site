@@ -62,3 +62,42 @@ def shape_output_phase_noise(f, S_ref, S_vco, fn_hz, zeta=0.707):
     sref = np.asarray(S_ref) * lp
     svco = np.asarray(S_vco) * hp
     return sref + svco, sref, svco
+
+
+def design_type2(fn, zeta, N, Kvco, Icp):
+    """
+    Charge-pump type-II 2nd-order loop: (R, C) of the series R-C loop filter
+    that realizes a given natural frequency and damping.
+
+    Small-signal chain (phase domain, locked):
+        PFD+CP   : i_cp = (Icp/2pi) * (phi_ref - phi_out/N)      [A]
+        filter   : Z(s) = R + 1/(sC)                              [ohm]
+        VCO      : phi_out = (K_vco/s) * V_ctrl,  K_vco in rad/s/V
+        divider  : phi_div = phi_out / N
+    Open loop  G(s) = (Icp/2pi)(R + 1/sC)(K_vco/s)(1/N)
+                    = w_n^2 (1 + sRC) / s^2,
+        w_n^2 = Icp*K_vco/(2 pi N C),   zeta = (R/2) sqrt(Icp*K_vco*C/(2 pi N)),
+    so that G/(1+G) is exactly the H_lp(s) used by H_lowpass_mag2 above.
+
+    Parameters
+    ----------
+    fn   : loop natural frequency f_n [Hz]  (w_n = 2 pi fn)
+    zeta : damping ratio [-]
+    N    : divide ratio [-]
+    Kvco : VCO gain in **Hz/V** (site convention, e.g. 50e6 for 50 MHz/V);
+           converted internally to rad/s/V by 2*pi.
+    Icp  : charge-pump current [A]
+
+    Returns
+    -------
+    (R, C) : loop-filter resistor [ohm] and capacitor [F].
+
+    Inverting the two definitions:
+        C = Icp*K_vco / (2 pi N w_n^2),    R = 2 zeta / (w_n C).
+    Pedagogical ideal-CP model (no 3rd pole, no CP mismatch/leakage).
+    """
+    wn = loop_natural_freq(fn)
+    kvco_rad = 2 * np.pi * Kvco          # Hz/V -> rad/s/V
+    C = Icp * kvco_rad / (2 * np.pi * N * wn ** 2)
+    R = 2 * zeta / (wn * C)
+    return R, C

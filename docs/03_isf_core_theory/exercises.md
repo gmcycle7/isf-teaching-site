@@ -30,6 +30,8 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 ### 習題 1（數值題）— impulse → phase step
 
+*對應學習路徑：[第 3 步 — ISF 的操作型定義（impulse → phase）](/00_overview/learning_path#step-3)*
+
 理想 LC（$\Gamma(\theta)=-\sin\theta$），$q_{max}=1$ pC，$f_0=5$ GHz。一顆 $\Delta q=1$ fC
 的電荷脈衝注入。求：
 (a) 在 $\theta=3\pi/2$（$\Gamma$ 取最大值 $+1$）注入的相位步階 $\Delta\phi$（rad）與 timing error $\Delta t$（fs）。
@@ -45,11 +47,15 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 
 ### 習題 2（推導題 + 數值）— 由 ISF 算 $\Gamma_{rms}$
 
+*對應學習路徑：[第 6 步 — ISF 的傅立葉觀點（c₀、cₙ、upconversion）](/00_overview/learning_path#step-6)*
+
 某 toy ISF 是雙諧波 $\Gamma(\theta)=\cos\theta+\tfrac12\cos(2\theta)$。
 (a) 直接寫出傅立葉係數 $c_0,c_1,c_2$。
 (b) 用 Parseval 求 $\sum c_n^2$ 與 $\Gamma_{rms}$。
 
 ### 習題 3（數值題）— 白噪 → $\mathcal{L}$（套 Eq.(21)）
+
+*對應學習路徑：[第 5 步 — 白噪 → 1/f²，flicker → 1/f³](/00_overview/learning_path#step-5)*
 
 $f_0=5$ GHz、$\Delta f=1$ MHz、$q_{max}=1$ pC、$\Gamma_{rms}=0.5$、$S_i=\overline{i_n^2}/\Delta f=10^{-24}\ \text{A}^2/\text{Hz}$。
 用 [P1] Eq.(21) 求 $\mathcal{L}(1\,\text{MHz})$（dBc/Hz）。
@@ -65,6 +71,8 @@ $f_0=5$ GHz、$\Delta f=1$ MHz、$q_{max}=1$ pC、$\Gamma_{rms}=0.5$、$S_i=\ove
 
 ### 習題 4（設計反推題）— 反推所需 $q_{max}$
 
+*對應學習路徑：[第 8 步 — 設計 takeaways（symmetry、swing、slope）](/00_overview/learning_path#step-8)*
+
 延續習題 3 的數字，但目標規格是 $\mathcal{L}(1\,\text{MHz})=-160$ dBc/Hz（比習題 3 更乾淨）。
 其餘參數（$\Gamma_{rms}=0.5$、$S_i=10^{-24}$、$\Delta f=1$ MHz）不變，問需要把 $q_{max}$
 放大到多少？
@@ -78,6 +86,8 @@ $f_0=5$ GHz、$\Delta f=1$ MHz、$q_{max}=1$ pC、$\Gamma_{rms}=0.5$、$S_i=\ove
 />
 
 ### 習題 5（推導題 + 數值）— $c_0\to1/f^3$ corner
+
+*對應學習路徑：[第 5 步 — 白噪 → 1/f²，flicker → 1/f³](/00_overview/learning_path#step-5)*
 
 某振盪器 ISF 量到 $c_0=0.2$、$c_1=1.0$（即有可觀的 DC 偏移、波形上下不對稱），
 device 的 1/f corner $f_{1/f}=1$ MHz（即 $\omega_{1/f}=2\pi\times10^6$ rad/s）。
@@ -95,12 +105,16 @@ device 的 1/f corner $f_{1/f}=1$ MHz（即 $\omega_{1/f}=2\pi\times10^6$ rad/s�
 
 ### 習題 6（推導題）— Fourier 係數的頻率搬移意義
 
+*對應學習路徑：[第 6 步 — ISF 的傅立葉觀點（c₀、cₙ、upconversion）](/00_overview/learning_path#step-6)*
+
 對近 $n\omega_0$ 注入的單音 $i(\tau)=I_0\cos((n\omega_0+\Delta\omega)\tau)$，用積化和差
 親手證明：經 ISF 第 $n$ 諧波 $c_n\cos(n\omega_0\tau+\theta_n)$ 加權再積分後，存活下來的
 慢項給出 $\phi_n(t)\approx\dfrac{I_0 c_n}{2q_{max}}\cdot\dfrac{\sin(\Delta\omega t-\theta_n)}{\Delta\omega}$，
 並說明這就是「振盪器當 mixer，把 $n\omega_0$ 附近 noise 下變頻到 $\Delta\omega$」。
 
 ### 習題 7（數值題）— effective ISF（cyclostationary）
+
+*對應學習路徑：[第 11 步 — 注入鎖定與頻率轉換](/00_overview/learning_path#step-11)*（先備：[effective_isf](/03_isf_core_theory/effective_isf)）
 
 某 noise 源只在波形某半週導通，用 noise modulating function（NMF）$\alpha(\theta)$
 近似為「方波閘控」：$\alpha(\theta)=1$ 當 $\theta\in[0,\pi)$、$\alpha(\theta)=0$ 當 $\theta\in[\pi,2\pi)$。
@@ -116,6 +130,8 @@ $\Gamma_{eff,rms}$，並與全程導通的 $\Gamma_{rms}=1/\sqrt2$ 比較。
 />
 
 ### 習題 8（設計反推題）— 由 $\mathcal{L}$ 反推 $\Gamma_{rms}/q_{max}$
+
+*對應學習路徑：[第 5 步 — 白噪 → 1/f²，flicker → 1/f³](/00_overview/learning_path#step-5)*
 
 某 5 GHz LC 振盪器量到 $\mathcal{L}(1\,\text{MHz})=-130$ dBc/Hz，已知白噪源
 $S_i=2\times10^{-23}\ \text{A}^2/\text{Hz}$（多源等效）。假設 $1/f^2$ 區由白噪主導、套 Eq.(21)，

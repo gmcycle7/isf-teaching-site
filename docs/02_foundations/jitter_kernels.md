@@ -59,7 +59,7 @@ $S_\phi^{DS}=S_\phi/2$ 是雙邊譜、$\mathcal{L}_{\text{lin}}=\tfrac12 S_\phi$
 
 ## 第 1 步：edge 時間誤差 = 相位的取樣（時域起點）
 
-振盪輸出的總相位是 $\Phi(t)=\omega_0 t+\phi(t)$（[P1] Eq.(1), p.181 的相位項；
+振盪輸出的總相位是 $\Phi(t)=\omega_0 t+\phi(t)$（[P1] Eq.(1), p.180 的相位項；
 $\phi$ 為 excess phase，rad）。第 $k$ 個上升過零點 $t_k$ 由「總相位走滿 $k$ 圈」定義：
 
 $$

@@ -230,29 +230,36 @@ Compare the $\Gamma_{rms}^{eff}$ of $\Gamma_{eff}=\Gamma\cdot\alpha$ with the or
 
 - Original $\Gamma(x)=-\sin x$: $\Gamma_{rms}^2=\frac{1}{2\pi}\int_0^{2\pi}\sin^2x\,dx=\tfrac12
   \Rightarrow\Gamma_{rms}=0.707$.
-- With the narrow $\alpha$ (duty about $10\%$, peak at the **most sensitive** phase $|\Gamma|\approx1$): $\Gamma_{eff}$ is nonzero only in that narrow window;
-  its energy $\Gamma_{rms}^{eff}{}^2=\frac{1}{2\pi}\int \Gamma^2\alpha^2\,dx$ is roughly the duty times the original $\to$
-  $\Gamma_{rms}^{eff}\approx0.707\times\sqrt{0.1}\approx0.22$.
+- With the narrow $\alpha$ (square-wave approximation, duty about $10\%$, window centered at the
+  **most sensitive** phase $|\Gamma|\approx1$): $\Gamma_{eff}=\Gamma\cdot\alpha$ is nonzero only inside the
+  window, and its energy is the **local $\langle\Gamma^2\rangle$ inside the window** times the duty —
+  **not** the ungated $\Gamma_{rms}$ times $\sqrt{\text{duty}}$ (these two quantities are different;
+  conflating them is exactly where this kind of error comes from). Inside the window $\sin^2x$
+  averages to about $0.97$ (half-width $0.1\pi$, same method as Example 1 below), so
+  $\Gamma_{rms}^{eff}\approx\sqrt{0.97\times0.1}\approx0.31$.
 
 Substituting into [P1] Eq.(21) (with $\Gamma_{rms}^{eff}$ replacing $\Gamma_{rms}$), everything else as in Example B
 ($f_0=5$ GHz, $\Delta f=1$ MHz, $q_{max}=1$ pC, $S_i=10^{-24}$):
 
 $$
-\mathcal{L}=10\log_{10}\!\left(\frac{(0.22)^2}{(10^{-12})^2}\cdot\frac{10^{-24}}{4(2\pi\times10^6)^2}\right)
-=10\log_{10}\!\left(\frac{0.0484}{10^{-24}}\cdot6.332\times10^{-39}\right).
+\mathcal{L}=10\log_{10}\!\left(\frac{(0.31)^2}{(10^{-12})^2}\cdot\frac{10^{-24}}{4(2\pi\times10^6)^2}\right)
+=10\log_{10}\!\left(\frac{0.0961}{10^{-24}}\cdot6.332\times10^{-39}\right).
 $$
 
 $$
-=10\log_{10}(3.065\times10^{-16})=-155.1\ \text{dBc/Hz}.
+=10\log_{10}(6.085\times10^{-16})=-152.2\ \text{dBc/Hz}.
 $$
 
-- **Intuition**: this 0.22 was gated down from the **ungated $-\sin$ LC** ($\Gamma_{rms}=0.707$, $\mathcal{L}\approx-145.0$ dBc/Hz),
-  so compare against **the same origin**: accounting for cyclostationary gating improves things by about **10 dB**
-  ($\Gamma_{rms}^{eff}$ drops from 0.707 to 0.22, $20\log_{10}(0.707/0.22)\approx10.1$ dB). Even with the
+- **Intuition**: this 0.31 was gated down from the **ungated $-\sin$ LC** ($\Gamma_{rms}=0.707$, $\mathcal{L}\approx-145.0$ dBc/Hz),
+  so compare against **the same origin**: accounting for cyclostationary gating improves things by about **7.2 dB**
+  ($\Gamma_{rms}^{eff}$ drops from 0.707 to 0.31, $20\log_{10}(0.707/0.31)\approx7.2$ dB). Even with the
   **window at the most sensitive phase** (bad alignment), merely leaking noise over a small slice of phase
-  saves about 10 dB — **ignoring $\alpha$ badly overestimates the noise**.
-  (Another comparison: relative to the convention's Example B $\Gamma_{rms}=0.5$ / $-148.0$ dBc/Hz it is about $20\log_{10}(0.5/0.22)\approx7.1$ dB;
-  but 0.22 was not gated down from 0.5, so 0.707 is the self-consistent baseline.)
+  saves about 7 dB — **ignoring $\alpha$ still overestimates the noise, just not by as much as the
+  "ungated $\Gamma_{rms}$ times $\sqrt{\text{duty}}$" shortcut wrongly suggested**. This 0.31 is the
+  **same toy scenario** as Example 1 and Example 2(a) below (duty $10\%$, window centered at the most
+  sensitive phase), so the numbers should agree.
+  (Another comparison: relative to the convention's Example B $\Gamma_{rms}=0.5$ / $-148.0$ dBc/Hz it is about $20\log_{10}(0.5/0.31)\approx4.2$ dB;
+  but 0.31 was not gated down from 0.5, so 0.707 is the self-consistent baseline.)
 - **Required caveat**: the duty and phase of $\alpha$ here are **illustrative toy numbers**, not values
   extracted from a real Colpitts; the real $\alpha$ must come from device operating points/simulation.
   **TODO: extract $\alpha(x)$ and $\Gamma_{eff}$ from an actual Colpitts simulation to replace this toy estimate.**

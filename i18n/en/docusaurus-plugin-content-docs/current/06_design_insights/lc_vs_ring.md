@@ -196,7 +196,7 @@ $$
 
 - Two contributions: the **differential transistor** (subscript $N$, the NMOS differential device)
   plus the **load resistor** $R_L$. $V_{char}$: $(V_{GS}-V_T)/\gamma$ for a balanced stage in the
-  long-channel limit, $E_cL/\gamma$ in the short-channel regime ([P2] p.796, verbatim).
+  long-channel limit, $E_cL/\gamma$ in the short-channel regime ([P2] p.796, verbatim); for where the short-channel $E_cL/\gamma$ comes from (Eq.(27)–(30)) and the Sec. VIII measured comparison see the [paper_002 Eq.(27)–(30) section](/05_paper_deep_dives/paper_002_jitter_phase_noise_ring).
 - **Unit check**: $4kT I_{tail}/V_{char}=[\text{J}][\text{A}]/[\text{V}]$; with $[\text{J}]=[\text{V·A·s}]$
   this is $[\text{V·A·s·A/V}]=[\text{A}^2\text{·s}]=[\text{A}^2/\text{Hz}]$ ✓.
 - **$2N$ nodes**: each differential stage has **two** output nodes, so the whole ring has $2N$

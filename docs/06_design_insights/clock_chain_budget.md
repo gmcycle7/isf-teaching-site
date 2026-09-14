@@ -43,7 +43,7 @@ worked chain 的 VCO 錨點 $-148$ dBc/Hz @ 1 MHz 是站內 canonical 例 B，�
 
 ## 規則 1：理想 ×N 倍頻 —— 為什麼是 $+20\log_{10}N$
 
-**第 1 步（把訊號寫成相位的函數）。** 用 [P1] Eq.(1), p.181 的分解，取正弦波形：
+**第 1 步（把訊號寫成相位的函數）。** 用 [P1] Eq.(1), p.180 的分解，取正弦波形：
 
 $$
 V_{in}(t)=\cos\big(\Phi_{in}(t)\big),\qquad \Phi_{in}(t)=\omega_{ref}\,t+\phi_{in}(t)

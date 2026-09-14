@@ -8,8 +8,8 @@ description: Hong–Hajimiri 2019 Part II 精讀：APF（振幅版 ISF，單位 
 > **先備知識（建議先讀）**：[paper_001](/05_paper_deep_dives/paper_001_general_theory_phase_noise)（ISF $\Gamma$ 是切向投影）→ [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)（為何振幅被拉回、相位累積）→ [paper_003](/05_paper_deep_dives/paper_003_injection_locking_part1)（phase-only 廣義 Adler）。本頁屬**進階**，APF 是 ISF 在徑向的對偶。
 
 [P3] 只談相位；本篇（Part II，**進階**）補上**振幅**這一維。它引入 **APF（Amplitude
-Perturbation Function，振幅擾動函數）** $\Lambda(\phi)$——這是「振幅版的 ISF」，單位 $1/\text{A}$
-——並用它解釋 LC 振盪器在注入下的 amplitude modulation（振幅調變）、transient（暫態）鎖定行為，
+Perturbation Function，振幅擾動函數）** $\Delta(\phi)$——「振幅版的 ISF」$\tilde\Lambda(\phi)$（振幅 ISF，單位 $1/\text{C}$）
+再乘上振幅記憶時間，單位 $1/\text{A}$——並用它解釋 LC 振盪器在注入下的 amplitude modulation（振幅調變）、transient（暫態）鎖定行為，
 以及 **injection-locked frequency division（注入鎖定頻率除法，ILFD）**。對 ideal LC，ISF 與 APF
 **互相正交（quadrature）**。
 
@@ -27,7 +27,7 @@ Perturbation Function，振幅擾動函數）** $\Lambda(\phi)$——這是「�
 
 ## One-sentence contribution
 
-定義振幅版的 ISF——APF $\Lambda(\phi)$（單位 $1/\text{A}$）——把 [P3] 的相位框架補成
+定義振幅版的 ISF——振幅 ISF $\tilde\Lambda(\phi)$（單位 $1/\text{C}$）與 APF $\Delta(\phi)$（單位 $1/\text{A}$）——把 [P3] 的相位框架補成
 phase + amplitude 完整模型，解釋注入下的振幅調變、暫態鎖定與 ILFD 頻率除法；對 ideal LC，ISF
 與 APF 互成 quadrature（claim C11）。
 
@@ -37,8 +37,8 @@ phase + amplitude 完整模型，解釋注入下的振幅調變、暫態鎖定�
 **強注入、暫態、或頻率除法**時就不夠了——這時振幅會被明顯調變，相位與振幅互相耦合。Part II 補上
 這一維：
 
-- **APF 是振幅的 ISF**：ISF $\Gamma$ 把注入電荷投影到 limit cycle 的**切向**（相位）；APF
-  $\Lambda$ 把它投影到**徑向**（振幅）。兩者合起來才是擾動的完整投影。
+- **APF 是振幅的 ISF**：ISF $\Gamma$ 把注入電荷投影到 limit cycle 的**切向**（相位）；振幅 ISF
+  $\tilde\Lambda$ 把它投影到**徑向**（振幅），APF $\Delta$ 再把徑向投影乘上它的衰減時間。兩者合起來才是擾動的完整投影。
 - **ISF 與 APF 在 ideal LC 互成 quadrature**（差 90°）：相位最敏感的時刻（zero-crossing），
   振幅最不敏感；振幅最敏感的時刻（波峰），相位最不敏感。這正是
   [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) 講「為何振幅噪聲會衰減」
@@ -56,17 +56,22 @@ phase + amplitude 完整模型，解釋注入下的振幅調變、暫態鎖定�
 3. amplitude-modulation 結果聚焦在 **LC 振盪器**。
 
 > **物理直覺（2-D 投影）**：一顆注入電荷 $\Delta q$ 把狀態點推一下。把這推力分解到 limit
-> cycle 的兩個正交方向——切向（相位，永久留）用 $\Gamma$ 量、徑向（振幅，會被拉回）用 $\Lambda$
+> cycle 的兩個正交方向——切向（相位，永久留）用 $\Gamma$ 量、徑向（振幅，會被拉回）用振幅 ISF $\tilde\Lambda$
 > 量。phase noise 只關心切向；injection 的完整動態兩者都要。
 
 ## Key equations
 
 ### APF 定義與 amplitude decay function（已對照原始 PDF 核實 ✓）
 
-APF $\tilde\Lambda$ 是 Part I 有單位 ISF $\tilde\Gamma=\Gamma/q_{max}$ 的**振幅類比**：一顆注入電流脈衝
-投影到 limit cycle **徑向（振幅）方向**的權重。[P4] 把振幅擾動分解成 APF 與衰減的乘積
+**振幅 ISF** $\tilde\Lambda(\phi):=D(0,\phi)$（單位 $1/\text{C}$）是 Part I 有單位 ISF $\tilde\Gamma=\Gamma/q_{max}$（單位 rad/C）的**振幅類比**：一顆注入電流脈衝
+投影到 limit cycle **徑向（振幅）方向**的權重。[P4] 把振幅擾動分解成振幅 ISF 與衰減的乘積
 $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$（[P4] Eq.(18), p.2126），並定義 **APF**
-$\Delta(\phi):=\int_0^\infty D(\tau,\phi)\,d\tau$（[P4] Eq.(19), p.2126，單位 $1/\text{A}$）。和相位不同，振幅擾動會衰減——
+$\Delta(\phi):=\int_0^\infty D(\tau,\phi)\,d\tau$（[P4] Eq.(19), p.2126，單位 $1/\text{A}$；dimension check：$[1/\text{C}]\times[\text{s}]=1/\text{A}$ ✓）。
+
+> **本站慣例（符號，對照 [P4] 註 6, p.2126）**：tilde 表「電荷歸一」——$\tilde\Gamma=\Gamma/q_{max}$、$\tilde\Lambda=\Lambda/q_{max}$
+> （[P4] 註 6 寫作 $\Lambda\equiv q_{max}\cdot\tilde\Lambda$，其中 $\Lambda$ 是其引文 [28] 的無因次振幅 ISF）；**APF $\Delta$ 本身不帶 tilde**，
+> 因為它已是 $\tilde\Lambda$ 乘上衰減函數的時間積分（單位 $1/\text{A}$），基波寫 $\Delta_1$（[P4] Eq.(26)）。本站一律寫 $\tilde\Lambda$（振幅 ISF）
+> 與 $\Delta(\phi)$（APF），不再用 $\Lambda$ 或 $\tilde\Lambda$ 指稱 APF。和相位不同，振幅擾動會衰減——
 ideal-LC 的 **amplitude decay function（振幅衰減函數）**（在 ideal-LC 一節 [P4] p.2127–2128）為：
 
 $$
@@ -82,10 +87,11 @@ $\Delta(\phi)=\tau_0\,\tilde\Lambda(\phi)$。
 
 | 量 | 投影方向 | 符號 | 擾動命運 |
 |---|---|---|---|
-| ISF | 切向（phase） | $\tilde\Gamma=\Gamma/q_{max}$ | 永久累積（脈衝響應 = unit step） |
-| APF | 徑向（amplitude） | $\tilde\Lambda$ | 以 $e^{-t/\tau_0}$、$\tau_0=2Q/\omega_{osc}$ 衰減回 limit cycle |
+| ISF | 切向（phase） | $\tilde\Gamma=\Gamma/q_{max}$（rad/C） | 永久累積（脈衝響應 = unit step） |
+| 振幅 ISF | 徑向（amplitude，初始踢量） | $\tilde\Lambda=D(0,\phi)$（1/C） | 以 $e^{-t/\tau_0}$、$\tau_0=2Q/\omega_{osc}$ 衰減回 limit cycle |
+| APF | 徑向（amplitude，踢量×衰減時間） | $\Delta=\int_0^\infty D\,d\tau$，ideal LC $=\tau_0\tilde\Lambda$（1/A） | 衡量「改多少振幅」與「衰減多久」的乘積 |
 
-> **已核實**：APF 分解 $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$（[P4] Eq.(18), p.2126）、APF 定義
+> **已核實**：振幅擾動分解 $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$（[P4] Eq.(18), p.2126；$\tilde\Lambda$ 為振幅 ISF）、APF 定義
 > $\Delta(\phi)=\int_0^\infty D\,d\tau$（[P4] Eq.(19), p.2126，單位 $1/\text{A}$），以及 ideal-LC 的 decay function
 > $e^{-t/\tau_0}$、$\tau_0=2Q/\omega_{osc}$（[P4] ideal-LC 一節 p.2127–2128），皆對照原始 PDF 渲染逐字確認。
 
@@ -95,8 +101,10 @@ ideal LC 的 ISF 與 APF **基波**（[P4] Eq.(26), p.2128）：
 
 $$
 \tilde\Gamma_1=\frac{1}{q_{max}}\,\angle 90^\circ,\qquad
-\tilde\Lambda_1=\frac{\tau_0}{q_{max}}\,\angle 0^\circ
+\Delta_1=\frac{\tau_0}{q_{max}}\,\angle 0^\circ
 $$
+
+（ideal LC 的 sin/cos 形式 [P4] Eq.(24)：$\tilde\Gamma(\varphi)=-\sin\varphi/q_{max}$、$\tilde\Lambda(\varphi)=\cos\varphi/q_{max}$；APF 由 Eq.(25) $\Delta=\tau_0\tilde\Lambda$ 得到，所以 $\Delta_1$ 比 $\tilde\Lambda_1=\frac{1}{q_{max}}\angle0^\circ$ 多一個 $\tau_0$。）
 
 兩者相位差正好 **$90^\circ$（quadrature）**（claim C11）。物理意義：在 zero-crossing 注入幾乎純改相位
 （$\tilde\Gamma$ 大、$\tilde\Lambda$ 小）；在波峰注入幾乎純改振幅（$\tilde\Lambda$ 大、$\tilde\Gamma$ 小）。
@@ -104,7 +112,7 @@ $$
 這也是為何 LC 注入鎖定常伴隨可觀的 amplitude modulation。
 
 **amplitude-corrected Adler（augmented pulling，ideal-LC 特例 [P4] Eq.(27), p.2128）**：把 ISF 與 APF
-一起代入。一般正弦注入的形式是 [P4] Eq.(22), p.2126（帶 $+$ 號與 $\cos(\theta+\angle\tilde\Gamma_1)/\cos(\theta+\angle\tilde\Lambda_1)$ 的相位偏移項）；
+一起代入。一般正弦注入的形式是 [P4] Eq.(22), p.2126（帶 $+$ 號與 $\cos(\theta+\angle\tilde\Gamma_1)/\cos(\theta+\angle\Delta_1)$ 的相位偏移項）；
 再把 ideal-LC 的 quadrature 角 $\angle 90^\circ/\angle 0$（Eq.(26)）代入 Eq.(22)，正弦注入下的相位方程化簡成
 
 $$
@@ -113,7 +121,7 @@ $$
 
 分母那一項就是 APF 帶來的 **amplitude modulation 修正**；Part I 的純相位 Adler 是分母 $=1$ 的特例。
 
-> **已核實**：$\tilde\Gamma_1,\tilde\Lambda_1$ 的 quadrature（[P4] Eq.(26), p.2128；sin/cos 形式見 Eq.(24)）
+> **已核實**：$\tilde\Gamma_1,\Delta_1$ 的 quadrature（[P4] Eq.(26), p.2128；sin/cos 形式見 Eq.(24)）
 > 與上方顯示的 amplitude-corrected Adler——即 **ideal-LC 特例 [P4] Eq.(27), p.2128**（由 Eq.(26) 的 $\angle 90^\circ/\angle 0$ 代入一般式 Eq.(22), p.2126 得到，帶 $-$ 號、$\sin\theta$ 分子與 $\tau_0$ 因子）——皆對照原始 PDF 渲染逐字確認。
 
 ### amplitude modulation（APF 的傅立葉觀點）
@@ -289,6 +297,33 @@ PYTHONPATH=. python simulations/lab_37_ilfd_lock.py
 **限制**：一階 phase-only toy（無 APF/振幅動態、無雜訊）；ISF 諧波只到 $n=3$；
 lock 邊緣判定受 600 ns 積分窗與網格解析度限制（~1–3%）。
 
+### Sec. VII-A：ISF shaping for frequency division（Fig. 15–16、Table III–IV，p.2132–2134，已核實 ✓）
+
+[P4] 在設計章節把「半波對稱不能 ÷2」反過來用：**故意讓波形不對稱，把偶次諧波做出來**。要點如下（完整教學版——時域證明、
+本站 toy 重現圖 `/figures/isf_shaping_division.png`、Table IV worked example 與 Python 重算——見
+[injection_locked_division](/06_design_insights/injection_locked_division) 的「[P4] Sec. VII-A：ISF shaping」一節）：
+
+- **footnote 14, p.2132**：半波對稱的數學定義 $\tilde\Gamma(x)=-\tilde\Gamma(x+\pi)$。Fig. 15(a), p.2133 用時域畫出：二次諧波
+  注入在相鄰兩個注入週期（＝相鄰兩個振盪半週期）給的相位踢**精確互消**、與相對相位 $\theta$ 無關——這是 Eq.(30) 中
+  $\vert\tilde\Gamma_2\vert=0$ 的時域版本。
+- **footnote 15, p.2133**：上緣 lock range 的一般定義
+  $\omega_L^{+}:=\max_\theta\big\langle\tilde\Gamma(\tfrac{\omega_{inj}}{N}t+\theta)\,i_{inj}(t)\big\rangle_{NT_{inj}}$
+  （即 Eq.(29) 注入項對 $\theta$ 的最大值；正弦注入、線性區退化為 Eq.(30) 的 $\tfrac12I_{inj}\vert\tilde\Gamma_N\vert$）；
+  Fig. 15(b) 為不對稱波形下相鄰注入週期的相位踢大小不等、淨相位累積。footnote 16：ISF 幅度大致 ∝ 1/注入節點電荷擺幅。
+- **Fig. 16 / Table IV, p.2134**：1-GHz 17 級單端 inverter-chain ring 只改 $W_P/W_N$（$1.37$ fairly symmetric → $8.33$
+  PFET-dominant → $0.175$ NFET-dominant；$t_F/t_R$ 0.74 → 1.92 → 0.30）：$\vert\tilde\Gamma_2\vert/\tilde\Gamma_{rms}$
+  0.0927 → 0.301 → 0.371、$\tilde\Gamma_{rms}$ 0.282 → 1.33 → 1.64 rad/pC（整體 ISF 也變大，「added benefit」）、
+  二次諧波 compliance $\eta_2$（Sec. VI Eq.(35)–(36), p.2132）$2.98\times10^{-3}$ → 0.0104 → 0.0130、1.5 mA 正弦注入
+  的模擬 ÷2 lock range $2f_L$ 16 → 560 → 710 MHz。footnote 17：此注入強度已明顯非線性，模擬 lock range 遠大於
+  $I_{inj}\vert\tilde\Gamma_2\vert/2$（本站重算線性值 $2f_L=I_{inj}\vert\tilde\Gamma_2\vert/2\pi=6.2／95.6／145.3$ MHz，
+  模擬值大 2.6／5.9／4.9×）。Fig. 16 caption：因電子遷移率較高，把 NMOS 做強比把 PMOS 做強更有效率。
+- **為何不怕 $1/f$ 變差**（p.2134）：不對稱 inverter 的 $1/f$ 上轉較差（[P2] 的對稱法則，[P4] 引其 [27]），但注入鎖定
+  振盪器的 close-in 相位雜訊由注入源主導、不由自由跑振盪器決定（[P4] 引其 [29]）。
+- **Table III, p.2133**（Sec. VI 的 compliance 匯總，本文與 [P3] 量測的各種振盪器）：17 級 ring 量測 $\eta_1=0.0192$、
+  $\eta_2=3.08\times10^{-3}$、$\eta_3=0.0175$、$\eta_5=0.0148$；LC 的 $\eta_{LC}$（Eq.(38)）見
+  [paper_004_large_injection_transient](/05_paper_deep_dives/paper_004_large_injection_transient) §1.7。趨勢（p.2132）：
+  更有效把偏壓電流轉成擺幅的 LC 較不 compliant、ring 越長越不 compliant、relaxation 最 compliant、高次諧波的 compliance 通常較低。
+
 ## Key figures
 
 | 論文圖 | 頁 | 內容 | 教學用途 |
@@ -296,6 +331,8 @@ lock 邊緣判定受 600 ns 積分窗與網格解析度限制（~1–3%）。
 | Fig. 5 | 2126 | characterizing 注入電荷瞬間對振盪器的影響：ISF／excess phase、amplitude decay function、及 ISF 與 APF 的 quadrature 關係（已核實） | 連結相位（ISF）與振幅（APF）敏感度的最佳單圖 |
 | Fig. 11 | 2130 | superharmonic 正弦鎖定特性模擬：1 mA 與 2 mA 的二次諧波注入 differential LC 的 **tail**（$I_{tail}=1$ mA）、5 mA 三次諧波注入 ideal Bose oscillator（caption 已核實） | ÷2/÷3 的 lock characteristic 對照 Eq.(30)；÷2 打 tail＝繞過差動節點的 $c_2\approx0$ |
 | Fig. 12 | 2131 | superharmonic lock range 量測：Bose relaxation（$N=2..5$）、17 級 ring（$N=2,5$）、多種振盪器（$N=3$）、differential LC tail（$N=2$）（caption 已核實） | $\omega_L=I_{inj}\vert\tilde\Gamma_N\vert/2$ 的實驗驗證：對 $I_{inj}$ 線性 |
+| Fig. 15 | 2133 | 時域觀點：$N=2$ 正弦注入下 (a) 半波對稱 ISF 相鄰注入週期的相位踢互消、(b) 不對稱波形淨相位累積（caption 已核實） | footnote 14/15 的圖像版；本站 toy 重現於 [injection_locked_division](/06_design_insights/injection_locked_division) |
+| Fig. 16 | 2134 | 1-GHz 17 級單端 ring 在 (a) fairly symmetric、(b) PFET-dominant、(c) NFET-dominant 下的模擬自由跑波形與 ISF，及前五個傅立葉係數的歸一化幅度（caption 已核實） | 不對稱 ⟹ $c_0,c_2,c_4$ 一起長出來；Table IV 的圖 |
 
 這張圖是「為何振幅噪聲會衰減、相位噪聲不會」的最佳視覺：APF 對應的擾動會被 amplitude decay
 function 拉回，ISF 對應的相位擾動則永久留下。本站在
@@ -348,7 +385,7 @@ function 拉回，ISF 對應的相位擾動則永久留下。本站在
 | 本頁的哪一塊 | 對應教學頁 | 那頁多給你什麼 |
 |---|---|---|
 | ÷$N$ lock range 騎在 $c_N$ 上、半波對稱 ⟹ $c_2=0$ 不能 ÷2 | [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf) | ISF 傅立葉展開、第 7 步的對稱性表（奇函數 ⟹ $c_0=0$；半波對稱 ⟹ 偶次諧波歸零） |
-| 注入相位決定 $\Gamma$／$\Lambda$ 的有效權重（cyclostationary 觀念） | [effective_isf](/03_isf_core_theory/effective_isf) | $\Gamma_{eff}=\Gamma\cdot\alpha$、bias-dependent 熱雜訊 NMF、switching-pair worked example |
+| 注入相位決定 $\tilde\Gamma$／$\tilde\Lambda$ 的有效權重（cyclostationary 觀念） | [effective_isf](/03_isf_core_theory/effective_isf) | $\Gamma_{eff}=\Gamma\cdot\alpha$、bias-dependent 熱雜訊 NMF、switching-pair worked example |
 | 注入相位如何改變有效 ISF（數值手感） | [lab_14_cyclostationary_isf](/04_simulation_labs/lab_14_cyclostationary_isf) | 可跑的 toy：noise 注入相位 $\to$ $\Gamma_{eff,rms}$（**pedagogical toy，非 transistor-level**） |
 | ISF／APF 的 quadrature、injection locking 的耦合振盪器 | [quadrature_and_coupled_oscillators](/06_design_insights/quadrature_and_coupled_oscillators) | quadrature 注入、coupled-oscillator 的相位關係與設計 |
 
@@ -356,7 +393,7 @@ function 拉回，ISF 對應的相位擾動則永久留下。本站在
 
 ## What to remember
 
-- **APF = 振幅版 ISF**，單位 $1/\text{A}$；ISF 投影到切向（相位），APF 投影到徑向（振幅）。
+- **振幅 ISF $\tilde\Lambda$（1/C）＝振幅版 ISF；APF $\Delta=\int\tilde\Lambda\,d\,d\tau$（1/A，不帶 tilde）**；ISF 投影到切向（相位），振幅 ISF／APF 投影到徑向（振幅）。
 - **ideal LC：ISF 與 APF 互成 quadrature（差 $90°$）**——相位最敏感時振幅最不敏感，反之亦然
   （claim C11）。
 - **相位永久累積、振幅被 decay function 拉回**——這就是「只追相位」在 phase noise 成立的根據。
@@ -366,5 +403,8 @@ function 拉回，ISF 對應的相位擾動則永久留下。本站在
   不可分辨鎖定相位。
 - **半波對稱 ISF（$c_2=0$）一階內不能 ÷2**——phase noise 的好對稱是 ILFD 的壞消息；
   [P4] 的 ÷2 實驗把 $2f_0$ 打進 differential LC 的 tail 來繞過它。
+- **ISF shaping（Sec. VII-A, p.2132–2134）**：單端 inverter ring 刻意做不對稱（$W_P/W_N$）可把 $\vert\tilde\Gamma_2\vert$ 放大
+  15–23×（Table IV），1.5 mA 模擬 ÷2 lock range 16 → 560／710 MHz；半波對稱在時域＝相鄰注入週期相位踢精確互消（footnote 14）；
+  上緣 lock range $\omega_L^{+}=\max_\theta\langle\tilde\Gamma\,i_{inj}\rangle_{NT_{inj}}$（footnote 15）。
 - 本頁屬**進階**；APF 確切式（[P4] Eq.(18)–(22), p.2126；quadrature Eq.(26), p.2128）與
   M:N 鎖定（Eq.(28)–(30), p.2129；$\omega_L$, p.2130）已對照原文核實。

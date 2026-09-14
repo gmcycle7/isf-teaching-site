@@ -25,7 +25,7 @@ slug: /
 
 ## 從你的目標開始（Start from your goal）
 
-完整的 9 步循序路徑見 [循序學習路徑 Learning Path](/00_overview/learning_path)；
+完整的 12 步循序路徑（9 步主幹＋3 步進階）見 [循序學習路徑 Learning Path](/00_overview/learning_path)；
 但如果你心裡已經有一個具體目標，直接從下面三張「入口卡」挑一張切進去比較快。
 
 ### 我要從零學懂 ISF
@@ -34,7 +34,7 @@ slug: /
 弄清楚。先建立「振盪器的相位到底是什麼」的物理直覺，再沿著規劃好的路徑往下走。
 
 - [Oscillator phase 是什麼？](/02_foundations/oscillator_phase) — 從 limit cycle 看相位 vs 振幅
-- [循序學習路徑 Learning Path](/00_overview/learning_path) — 9 步、由淺入深的完整路線
+- [循序學習路徑 Learning Path](/00_overview/learning_path) — 12 步、由淺入深的完整路線（9 步主幹＋3 步進階）
 
 ### 我手上有 phase-noise 圖、要算 jitter
 

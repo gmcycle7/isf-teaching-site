@@ -254,6 +254,195 @@ needs to change**. Two routes:
 
 ---
 
+## [P4] Sec. VII-A: ISF shaping — "manufacturing" $c_2$ with waveform asymmetry (Fig. 15–16, Table IV, p.2132–2134)
+
+The previous section said "single-ended topologies naturally have nonzero $c_2$"; [P4] Sec. VII-A (p.2132–2134)
+upgrades that remark into a **knob you can design on purpose**: in a single-ended inverter-chain ring the rising
+and falling edges can be set independently through the PMOS/NMOS widths, so deliberately making them
+**asymmetric** enlarges the ISF's even harmonics (above all $c_2$) and widens the ÷2 lock range dramatically.
+Three steps: first prove "why half-wave symmetry cancels exactly" once more, in the **time domain** (footnote 14
+⟹ Fig. 15(a)); then state the formal definition of the upper lock-range edge (footnote 15 ⟹ Fig. 15(b)); finally
+use the three 17-stage ring designs of Table IV as a worked example.
+
+### Step 1: half-wave symmetry ⟹ the phase kicks of consecutive injection cycles cancel exactly ([P4] footnote 14, Fig. 15(a))
+
+[P4] footnote 14, p.2132 writes the mathematical definition of "rise/fall symmetry of the waveform" as
+$\tilde\Gamma(x)=-\tilde\Gamma(x+\pi)$ (for all $x$). Take an $N=2$ sinusoidal injection
+$i_{inj}(t)=I_{inj}\cos(\omega_{inj}t)$ with injection period $T_{inj}=T_{osc}/2$, and look at how the integrand
+of Eq.(29), $p(t)\equiv\tilde\Gamma\big(\tfrac{\omega_{inj}}{2}t+\theta\big)\,i_{inj}(t)$, behaves under a time
+shift by one injection period:
+
+$$
+\begin{aligned}
+i_{inj}(t+T_{inj})&=i_{inj}(t)\qquad(\text{the injection itself is }T_{inj}\text{-periodic})\\
+\tilde\Gamma\!\Big(\tfrac{\omega_{inj}}{2}(t+T_{inj})+\theta\Big)&=\tilde\Gamma\!\Big(\tfrac{\omega_{inj}}{2}t+\theta+\pi\Big)=-\tilde\Gamma\!\Big(\tfrac{\omega_{inj}}{2}t+\theta\Big)\\
+\Rightarrow\qquad p(t+T_{inj})&=-p(t)
+\end{aligned}
+$$
+
+(using $\tfrac{\omega_{inj}}{2}T_{inj}=\pi$). So **two consecutive injection cycles = two consecutive oscillation
+half-cycles** deliver phase kicks of **equal size and opposite sign**, and the average over the $NT_{inj}=T_{osc}$
+window is exactly 0 — for **every** $\theta$ ($\theta$ is only a shift and does not alter the relation
+$p(t+T_{inj})=-p(t)$). This is the bottom panel of Fig. 15(a): the red positive lobe and the blue negative lobe
+have **equal area** and the green average line sits on 0. It is the **time-domain twin** of the "$c_2=0$"
+payoff section above: the frequency domain says "the even harmonics vanish," the time domain says "the
+half-cycles cancel" — one and the same statement.
+
+Generalization: every even $N$ behaves the same way — shift time by half an oscillation period
+$T_{osc}/2=(N/2)\,T_{inj}$: $i_{inj}$ (period $T_{inj}$) is unchanged while the ISF argument advances by $\pi$ and
+flips sign, so to first order the ÷2, ÷4, ÷6, … lock ranges all vanish under half-wave symmetry; odd $N$ is not
+constrained ($T_{osc}/2$ is not an integer multiple of $T_{inj}$, so $i_{inj}$ also flips sign under the shift and
+the product does not).
+
+### Step 2: net phase accrues once symmetry is broken — the formal definition of the upper lock-range edge ([P4] footnote 15, Fig. 15(b))
+
+[P4] footnote 15, p.2133 defines the **upper edge** of the lock range as the maximum over $\theta$ of the averaged
+term of Eq.(29):
+
+$$
+\omega_L^{+}:=\max_{\theta}\Big\langle\tilde\Gamma\!\Big(\frac{\omega_{inj}}{N}t+\theta\Big)\,i_{inj}(t)\Big\rangle_{NT_{inj}}
+\equiv\Big\langle\tilde\Gamma\!\Big(\frac{\omega_{inj}}{N}t+\theta_u\Big)\,i_{inj}(t)\Big\rangle_{NT_{inj}}
+$$
+
+$\theta_u$ is the relative phase that attains the maximum; $\langle\cdot\rangle_{NT_{inj}}$ is the time average
+over an $NT_{inj}$ window. This definition assumes **neither a sinusoidal injection nor the linear regime** — it
+is simply "take the injection term of Eq.(29) and maximize over $\theta$." For a sinusoidal injection in the
+linear regime it reduces to this page's Eq.(30) result $\omega_L^{+}=\tfrac12 I_{inj}\vert\tilde\Gamma_N\vert$
+(dimension check: rad/C × A = rad/s ✓).
+
+The picture in Fig. 15(b): once the waveform is asymmetric, the two injection cycles inside one oscillation
+period deliver kicks of **unequal size** (red lobe larger than blue lobe), the net phase no longer cancels and
+the green line leaves 0 — that offset is $\omega_L^{+}$. [P4] p.2133 adds: for a **fixed ISF amplitude**
+(footnote 16: the ISF amplitude scales roughly inversely with the injection node's charge swing), the more
+pronounced the asymmetry, the larger the frequency deviation a given injection produces at a given $\theta$,
+and hence the wider the lock range; the logic extends directly to higher even harmonics.
+
+**This site's toy reproduction (pedagogical toy, not transistor-level)**: `simulations/fig_isf_shaping_division.py`
+caricatures a single-ended inverter-stage ISF as "two Gaussian pulses per period" (a negative pulse at the falling
+edge, a positive pulse at the rising edge; pulse height and width are both taken proportional to that edge's
+transition time — ISF peak ∝ 1/slope, width ∝ transition time, i.e. the ring picture of [P2] Sec. IV) and plugs
+in the rise/fall times of Table IV:
+
+```bash
+PYTHONPATH=. python simulations/fig_isf_shaping_division.py
+# -> 0.0000 ((a) t_F=t_R, exactly half-wave symmetric: |c2|/Γrms, |c0|/Γrms, |c4|/Γrms all 0; brute-force ω_L⁺ of footnote 15 ≈ 1.7e-7 rad/s ≈ 0)
+# -> 0.4305 / 0.5062 (toy |c2|/Γrms for (b) PFET-dominant t_F/t_R=1.92 and (c) NFET-dominant t_F/t_R=0.30; [P4] Table IV: 0.301 / 0.371 — right trend, toy overestimates by ~40%)
+# -> 1.0000 / 1.0000 (footnote-15 brute-force max_θ average ÷ Eq.(30) closed form ½I_inj|Γ̃₂|, (b)/(c): the two definitions agree for sinusoidal injection)
+# -> 43.87 / 84.34 (toy linear-regime 2f_L at 1.5 mA injection, MHz; (a) gives 0.00)
+# -> 0.2284 (toy |c2|/Γrms using Table IV's "fairly symmetric" t_F/t_R=0.74; [P4]: 0.0927 — the two-pulse toy exaggerates mild asymmetry, trend only)
+```
+
+![Toy reproduction of the [P4] Fig. 15–16 logic: top row, the product i_inj × Γ̃ and its NT_inj average at θ_u — (a) exactly half-wave symmetric: equal positive/negative lobe areas, average 0; (b) PFET-dominant and (c) NFET-dominant: net phase accrues; bottom row, normalized magnitudes of the first five ISF Fourier coefficients — asymmetry grows c0, c2 and c4 together](/figures/isf_shaping_division.png)
+
+**How to read it**: top row = the logic of Fig. 15 (the product $i_{inj}\cdot\tilde\Gamma$ and its average, at
+$\theta_u$); bottom row = the logic of the bottom plots of Fig. 16 (the first five ISF Fourier coefficients
+$\vert c_n\vert/\Gamma_{rms}$). (a) exact symmetry: equal lobe areas, zero average, all even harmonics zero;
+(b)(c): unequal lobes, the green line leaves 0; for PFET-dominant (slow falling edge, large negative pulse) and
+NFET-dominant (slow rising edge, large positive pulse) the $c_0,c_2,c_4$ grow **together** — note that $c_0$
+grows too, which is the flip side of the [P1] Sec. IV symmetry rule (flicker up-conversion); the end of Step 3
+returns to this.
+
+### Step 3: worked design example — the three 1-GHz 17-stage single-ended rings of [P4] Table IV (p.2134, verified on the rendered page)
+
+[P4] Fig. 16 / Table IV take one 17-stage inverter-chain ring and change only the PMOS/NMOS width ratio,
+simulating three versions ($f_0$ held near 1 GHz):
+
+| | (a) Fairly symmetric | (b) PFET-dominant | (c) NFET-dominant |
+|---|---|---|---|
+| $W_P/W_N$ [µm/µm] | $17.76/12.96\approx1.37$ | $12/1.44\approx8.33$ | $2.1/12=0.175$ |
+| $t_F/t_R$ [ps/ps] | $37.93/50.92\approx0.74$ | $60.83/31.73\approx1.92$ | $26.35/87.44\approx0.30$ |
+| Free-running $f_0$ | 1.001 GHz | 1.010 GHz | 1.001 GHz |
+| $\tilde\Gamma_{rms}$ [rad/pC] | 0.282 | 1.33 | 1.64 |
+| $\vert\tilde\Gamma_2\vert/\tilde\Gamma_{rms}$ | 0.0927 | 0.301 | 0.371 |
+| Second-harmonic compliance $\eta_2$ | $2.98\times10^{-3}$ | 0.0104 | 0.0130 |
+| Simulated 1.5 mA sinusoidal second-harmonic lock range $2f_L$ | 16 MHz | 560 MHz | 710 MHz |
+
+($\eta_N:=\dfrac{2\omega_L/\omega_0}{I_{inj}/I_{max}}$ is the "sinusoidal injection compliance" defined in
+[P4] Sec. VI Eq.(35), p.2132 — the fractional two-sided lock range divided by the normalized injection strength,
+with $I_{max}:=\omega_0 q_{max,0}$; in the linear regime it simplifies to Eq.(36) $\eta_N=q_{max,0}\vert\tilde\Gamma_N\vert$,
+dimensionless. The Fig. 16 caption also notes that, because of the electron's higher mobility, strengthening the
+NMOS (NFET-dominant) is more efficient than strengthening the PMOS. Table III, p.2133 reports a **measured**
+$\eta_2=3.08\times10^{-3}$ for the fabricated 17-stage ring, 3.4% away from the simulated Table IV (a) value
+$2.98\times10^{-3}$.)
+
+Reading the table step by step (everything can be recomputed with this page's Eq.(30); Python below):
+
+1. **$\vert\tilde\Gamma_2\vert$ itself**: $0.0927\times0.282=0.0261$, $0.301\times1.33=0.400$,
+   $0.371\times1.64=0.608$ rad/pC. Asymmetry enlarges $\vert\tilde\Gamma_2\vert$ by **15.3× / 23.3×**, and the
+   gain factorizes: the harmonic **fraction** $\vert\tilde\Gamma_2\vert/\tilde\Gamma_{rms}$ rises 3.25× / 4.0×, and
+   the **overall size** of the ISF, $\tilde\Gamma_{rms}$, rises 4.72× / 5.82× — [P4] p.2134 singles out the latter
+   as an "added benefit": at the same oscillation frequency, asymmetric inverters enlarge the ISF as a whole
+   (footnote 16: ISF amplitude ∝ 1/charge swing of the injection node), which widens the lock range as well.
+2. **Linear-regime prediction vs simulation**: $2f_L=2\omega_L/2\pi=I_{inj}\vert\tilde\Gamma_2\vert/2\pi$ at
+   1.5 mA gives **6.2 / 95.6 / 145.3 MHz**; the simulated Table IV values 16 / 560 / 710 MHz are
+   **2.6× / 5.9× / 4.9×** larger. The formula is not wrong — [P4] footnote 17, p.2134 says so explicitly: 1.5 mA is
+   already **strong injection** for these rings, and nonlinearity makes the simulated lock range far wider than
+   $I_{inj}\vert\tilde\Gamma_2\vert/2$. How strong? Back out $q_{max,0}=\eta_2/\vert\tilde\Gamma_2\vert$ from
+   Eq.(36) (**this site's inference; the paper does not tabulate $q_{max,0}$**): 0.114 / 0.026 / 0.021 pC ⟹
+   $I_{max}=\omega_0q_{max,0}=0.72/0.17/0.13$ mA ⟹ $I_{inj}/I_{max}\approx2/9/11$ — far beyond this page's
+   weak-injection condition $I_{inj}\ll I_{max}$, so the linear formula only provides a **lower bound** and the
+   **trend** (the simulated gains 560/16 = 35× and 710/16 = 44× exceed the linear 15× / 23×).
+3. **Cross-check via the dimensionless $\Gamma_{rms}$**: multiply the same inferred $q_{max,0}$ back into
+   $\tilde\Gamma_{rms}$ to get the dimensionless $\Gamma_{rms}=\tilde\Gamma_{rms}\,q_{max,0}=0.032/0.035/0.035$ —
+   nearly identical for the three designs, which is exactly the numerical expression of footnote 16 ("ISF amplitude
+   ∝ 1/charge swing"); it is the same order of magnitude as the [P2] Eq.(16), p.794 estimate for $N=17$,
+   $\eta=0.75$, $\Gamma_{rms}\approx4/17^{1.5}=0.056$ ([P2] is an analytic approximation for a symmetric ring; a
+   1.7× gap is within expectation).
+4. **The design knob is $W_P/W_N$**: pushing it from 1.37 to 0.175 (NFET-dominant) moves $t_F/t_R$ from 0.74 to
+   0.30, raises $\eta_2$ 4.4× and the simulated lock range 44× (16 → 710 MHz, 71% of $f_0$). The price is in the
+   next item.
+5. **The price, and why it is acceptable**: asymmetric inverters also enlarge $c_0$ (the $n=0$ bar in panels (b)(c)
+   of this page's toy figure), which by [P1] Eq.(24) worsens the free-running $1/f^3$; [P2] also showed that
+   asymmetric rings up-convert $1/f$ noise more ([P4] p.2134 cites its [27]). But [P4] p.2134 points out that **the
+   close-in phase noise of an injection-locked oscillator is dominated by the injection, not by the free-running
+   oscillator** — precisely the high-pass shaping of this page's last section: below the offset
+   $\omega_c=N\sqrt{\omega_L^2-\Delta\omega^2}$ the output inherits the injection source; the wider the lock range,
+   the higher $\omega_c$, the more thoroughly the free-running $1/f^3$ is suppressed. So "sacrificing symmetry for
+   ÷2" pays off in an ILFD — **the same knob** is pushed toward symmetry in a free-running VCO ([P1] Sec. IV,
+   [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)) and toward asymmetry in an ILFD.
+
+```python
+import numpy as np
+# [P4] Table IV, p.2134 (verified on the rendered page): (a) fairly symmetric / (b) PFET-dominant / (c) NFET-dominant
+G_rms = np.array([0.282, 1.33, 1.64])          # Γ̃_rms [rad/pC]
+r2    = np.array([0.0927, 0.301, 0.371])       # |Γ̃_2|/Γ̃_rms
+eta2  = np.array([2.98e-3, 0.0104, 0.0130])    # second-harmonic compliance (Eq.(35)/(36))
+f0    = np.array([1.001e9, 1.010e9, 1.001e9])  # Hz
+twofL_sim = np.array([16e6, 560e6, 710e6])     # simulated 2f_L at 1.5 mA [Hz]
+I_inj = 1.5e-3                                  # A
+G2 = r2 * G_rms                                 # |Γ̃_2| [rad/pC]
+twofL_lin = I_inj * G2 * 1e12 / (2*np.pi)       # linear-regime 2f_L = I_inj|Γ̃_2|/(2π) [Hz]
+qmax0 = eta2 / G2                               # q_max,0 backed out of Eq.(36) [pC] (site inference)
+Imax  = 2*np.pi*f0 * qmax0 * 1e-12              # A
+print("|G2| rad/pC     :", np.round(G2, 4))
+print("2fL linear MHz  :", np.round(twofL_lin/1e6, 1))
+print("sim / linear    :", np.round(twofL_sim/twofL_lin, 1))
+print("|G2| gain vs (a):", np.round(G2/G2[0], 1), "= Grms", np.round(G_rms/G_rms[0], 2), "x ratio", np.round(r2/r2[0], 2))
+print("q_max,0 pC      :", np.round(qmax0, 3))
+print("I_inj/I_max     :", np.round(I_inj/Imax, 1))
+print("Gamma_rms (dimless):", np.round(G_rms*qmax0, 3), " [P2] Eq.(16) N=17:", round(np.sqrt(2*np.pi**2/(3*0.75**3))/17**1.5, 3))
+# -> 0.0261 0.4003 0.6084 (|Γ̃_2|, rad/pC)
+# -> 6.2 95.6 145.3 (linear-regime 2f_L at 1.5 mA, MHz; Table IV simulation 16 / 560 / 710)
+# -> 2.6 5.9 4.9 (simulated ÷ linear: the strong-injection nonlinearity of footnote 17)
+# -> 15.3 23.3 (|Γ̃_2| gain = Γ̃_rms gain 4.72 / 5.82 × harmonic-fraction gain 3.25 / 4.0)
+# -> 0.114 0.026 0.021 (inferred q_max,0, pC)
+# -> 2.1 9.1 11.2 (I_inj/I_max: far from weak injection)
+# -> 0.032 0.035 0.035 (dimensionless Γ_rms; [P2] Eq.(16) estimate 0.056)
+```
+
+> **Design-knob summary (ISF-shaping edition)**:
+> 1. For a ÷2 ILFD built from a single-ended inverter ring, make $W_P/W_N$ **deliberately asymmetric** (preferably
+>    by strengthening the NMOS, Fig. 16 caption); this enlarges both $\vert\tilde\Gamma_2\vert/\tilde\Gamma_{rms}$ and
+>    $\tilde\Gamma_{rms}$, and the two factors multiply.
+> 2. A differential / push-pull node cannot do this (half-wave symmetry cancels exactly in the time domain,
+>    independent of $\theta$) — the only route there is tail injection (previous section).
+> 3. The linear formula $\omega_L=\tfrac12I_{inj}\vert\tilde\Gamma_2\vert$ is only a lower bound once
+>    $I_{inj}\gtrsim I_{max}$; the real lock range needs transistor-level simulation (Table IV: 2.6–5.9× larger).
+> 4. The $c_0$ / $1/f^3$ price of asymmetry is offset by the injection's dominance of the close-in noise — but
+>    **only inside lock**; out of lock or at the lock-range edge ($\omega_c\to0$) the free-running $1/f^3$ returns.
+
+---
+
 ## Duality: division spends ISF harmonics, multiplication needs injection harmonics
 
 [P4] Eq.(28)'s general $M:N$ form actually describes a pair of mirror-image relationships; this site has
@@ -337,6 +526,7 @@ reproduces the paper's own already-verified transient time constant.
 | $\omega_L\ll\omega_0$ | The averaging (Eq.(29)) holds | Detuning too large, or the oscillator dynamics too fast within the averaging window: the averaging breaks down |
 | $M=1$ (this page covers only the division direction) | Eq.(30)'s closed form holds | $M\neq1$ (multiplication) needs the $M$-th harmonic of the injection signal, which a sinusoidal injection lacks — [P4] footnote 10 explicitly says this is outside the framework; see the duality table above |
 | "$c_2=0$ cannot divide by 2" | A first-order conclusion | Higher-order mixing may still leave a tiny residual lock range (below lab_37's detection floor) |
+| The 1.5 mA simulated lock ranges of Table IV ([P4] Sec. VII-A) | The linear $2f_L=I_{inj}\vert\tilde\Gamma_2\vert/2\pi$ gives only a lower bound and the trend | $I_{inj}/I_{max}\approx2$–$11$ (backed out of Eq.(36) by this site) is already strong injection; simulated values exceed the linear ones by 2.6–5.9× ([P4] footnote 17, p.2134) |
 | The high-pass/low-pass part of the noise accounting | Standard injection-locking noise theory ([injection_locking_noise](/06_design_insights/injection_locking_noise)) | **Not covered by the 5 site PDFs** (Kurokawa 1973; [P4] p.2130 points to its reference [29, Ch. 7]); this page applies the general definition of $\omega_c$ to the $M:N$ case, and the resulting value numerically matches [P4]'s already-verified Eq.(32) |
 
 ## What to remember
@@ -359,6 +549,13 @@ reproduces the paper's own already-verified transient time constant.
 - **Creating $c_2$ by design**: break half-wave symmetry (single-ended/asymmetric topologies naturally
   have nonzero $c_2$) or move the injection node (a differential LC VCO's tail is naturally rich in $c_2$
   — the same mechanism as tail-noise fold-back, seen from the other side).
+- **ISF shaping ([P4] Sec. VII-A, p.2132–2134)**: in the time domain, half-wave symmetry = the phase kicks of
+  consecutive injection cycles cancel exactly, independent of $\theta$ (footnote 14); once symmetry is broken a net
+  phase accrues, with upper lock-range edge $\omega_L^{+}=\max_\theta\langle\tilde\Gamma\,i_{inj}\rangle_{NT_{inj}}$
+  (footnote 15); Table IV: changing $W_P/W_N$ of a 17-stage single-ended ring enlarges $\vert\tilde\Gamma_2\vert$ by
+  15–23× (two factors: harmonic fraction × overall $\tilde\Gamma_{rms}$), and the simulated 1.5 mA ÷2 lock range goes
+  16 → 560 / 710 MHz (strong injection, 2.6–5.9× above linear); $c_0$ grows too, but inside lock the close-in noise
+  is dominated by the injection, so the price is acceptable.
 - **Duality**: division ($M=1$) spends the oscillator's own ISF harmonics; multiplication ($N=1$) needs the
   injection signal's own harmonics — a sinusoidal injection has none, so internal mixing is required, which
   is outside this framework (see [subharmonic_injection](/06_design_insights/subharmonic_injection)).
@@ -377,3 +574,6 @@ reproduces the paper's own already-verified transient time constant.
 - The rigorous origin of the ÷$N$ phase accounting $-20\log_{10}N$: [clock_chain_budget](/06_design_insights/clock_chain_budget) Rule 2
 - High-pass shaping of a locked oscillator's own noise (the framework this page's last section borrows): [injection_locking_noise](/06_design_insights/injection_locking_noise)
 - The other half of the duality — sub-harmonic injection / multipliers: [subharmonic_injection](/06_design_insights/subharmonic_injection)
+- Original source of ISF shaping: [P4] Sec. VII-A, Fig. 15–16, Table III–IV, p.2132–2134 (the compliance $\eta_N$ is defined in Sec. VI Eq.(35)–(38), p.2132; see also
+  [paper_004_large_injection_transient](/05_paper_deep_dives/paper_004_large_injection_transient) §1.7); the other face of the symmetry rule (a free-running VCO wants symmetry to suppress $1/f^3$):
+  [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)

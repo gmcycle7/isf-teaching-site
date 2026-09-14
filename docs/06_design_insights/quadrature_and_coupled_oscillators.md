@@ -3,6 +3,8 @@ title: Quadrature 產生與 coupled-oscillator phase noise
 description: 三種 quadrature（I/Q 正交）產生法（parallel/series coupled QVCO、divide-by-2 ILFD、RC-CR polyphase）的 phase-noise 代價；coupled QVCO 的 coupling-strength vs I/Q phase-error vs phase-noise 三角權衡；coupled pair 的 common-mode / differential-mode 雜訊相關性與 ~3 dB；最後把耦合注入接回 [P3] 的 ISF／廣義 Adler 機制。進階頁。
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 # Quadrature 產生與 coupled-oscillator phase noise
 
 > **本頁定位（先講清楚）**：這是一頁**進階（advanced）**設計頁。它把「怎麼生出一對相位差
@@ -298,6 +300,117 @@ $\Delta\phi_{IQ}\propto Q/m$ 的微分方程版本。
 [P1] 的 ISF，所以「鎖定（quadrature）」與「額外 phase noise」其實是**同一個 $\tilde\Gamma$ 的兩面**
 ——和 [P3] 講「同一個 ISF 既算 phase noise、也算 injection locking」完全一致。
 
+### 數值驗證：把互注入 Adler 對真的積分一次（lab_42）
+
+上面三步都是「把 [P3] 的式子擺好」。這一小節**真的把它跑起來**：用 `simulations/lab_42_coupled_qvco.py`
+數值積分互注入的 Adler 對，看 (a) 反相互注入是否真的自己鎖到 $90^\circ$、(b) 第 2 節那個
+「$\Delta\phi_{IQ}\approx(Q/m)(\Delta\omega_0/\omega_0)\approx1.9^\circ$」的 worked 數字對不對、差多少。
+
+**模型（toy，phase-only）**：兩顆 ideal LC（$\tilde\Gamma(x)=-\sin x/q_{max}$，[P3] Eq.(26)），在共同參考
+頻率 $\omega_{ref}$ 下的相位 $\theta_A,\theta_B$；耦合電流帶一個**耦合路徑相移** $\phi_c$：
+
+$$
+i_{c,A\to B}(t)=+I_c\cos(\omega_{ref}t+\theta_A+\phi_c),\qquad
+i_{c,B\to A}(t)=-I_c\cos(\omega_{ref}t+\theta_B+\phi_c)
+$$
+
+（負號＝「B 反相注入 A」，即第 3 步的 QVCO 接法。）對每顆套 [P3] Eq.(34)（正弦注入的 lock characteristic，
+$\Omega(\theta)=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert\cos(\theta+\angle\tilde\Gamma_1)$，此處
+$\lvert\tilde\Gamma_1\rvert=1/q_{max}$、$\angle\tilde\Gamma_1=+90^\circ$），令 $\psi\equiv\theta_A-\theta_B$（I/Q 相位差）、
+$\omega_L=\tfrac12 I_c\lvert\tilde\Gamma_1\rvert=I_c/(2q_{max})$（[P3] Eq.(35)），兩條方程相減：
+
+$$
+\frac{d\psi}{dt}=(\omega_{0,A}-\omega_{0,B})-2\,\omega_L\sin\phi_c\,\cos\psi
+$$
+
+穩態 $d\psi/dt=0$ 給 $\cos\psi^\*=\Delta\omega_0/(2\omega_L\sin\phi_c)$。三個立即的結論：
+
+1. **失諧為零時 $\cos\psi^\*=0\Rightarrow\psi^\*=\pm90^\circ$**——這就是第 3 步的「$90^\circ$ 是穩態約束」，
+   而且穩定的那一個由 $\sin\phi_c$ 的正負決定（$\sin\phi_c>0$ 時 $-90^\circ$ 穩定、$+90^\circ$ 不穩定）。
+2. **前面那個 2 是「互注入」因子**：A 拉 B、B 也拉 A，恢復力是單向注入的兩倍。取 $\phi_c=90^\circ$
+   （耦合電流與 ISF 基波對齊，$\sin\phi_c=1$），$\psi^\*=-90^\circ+\delta$、
+   $\sin\delta=\Delta\omega_0/(2\omega_L)$。再代第 2 節的 $\omega_L=m\omega_0/(2Q)$：
+   $$
+   \Delta\phi_{IQ}=\delta=\arcsin\!\Big(\frac{Q}{m}\frac{\Delta\omega_0}{\omega_0}\Big)\ \approx\ \frac{Q}{m}\frac{\Delta\omega_0}{\omega_0}
+   $$
+   ——第 2 節的量級式**正是**這個 $\arcsin$ 的線性化，而且它對應的是 $\Delta\omega_0/(2\omega_L)$，**不是** $\Delta\omega_0/\omega_L$
+   （後者是單向注入才有的形式，會大 2 倍——這是本頁要標記的一個 factor-2 慣例）。
+3. **誠實的失效點**：若 $\phi_c=0$（最陽春的 parallel QVCO：耦合電流與對方輸出同相），$\sin\phi_c=0$，
+   恢復項**消失**——純 phase-only 的 Adler 對**分不出** $\psi$ 該是多少（退化）。實體 QVCO 此時靠的是
+   **振幅通道**（兩顆振幅要相等 $\Rightarrow\cos\psi=0$，屬 [P4] 的 AM 動態）或耦合路徑刻意加的相移
+   （[E-Romano-QVCO] 的 phase-shift QVCO；[E-Mirzaei-QVCO]）。所以第 3 步的「Adler 穩態約束給 $90^\circ$」
+   嚴格說要加一句：**前提是耦合相位與 ISF 基波不正交（$\sin\phi_c\ne0$）**。
+
+![lab_42：耦合 QVCO 當成兩條互注入的 [P3] Adler 方程。(a) 未平均的相位對從四個不同初始相位差出發，都在約 5 ns（25 週期）內鎖到 −90°+1.91°；黑虛線為 φc=0 的陽春 parallel QVCO，phase-only 模型下不鎖、以 Δω0 線性漂移。(b) I/Q 相位誤差 vs tank 失諧，m=0.1/0.3/1.0（Q=10）：實線 arcsin 精確解、虛線線性近似 (Q/m)(Δω0/ω0)、圈為數值穩態，點線為失鎖界 m/Q；紅星為 worked 例 0.1% → 1.91°。(c) 誤差 vs 耦合係數 m（log-log，斜率 −1），三個失諧值；灰點線 0.5° 規格對應 m ≥ 1.15。toy model。](/figures/coupled_qvco.png)
+
+**怎麼讀圖**：
+
+- **(a)** 積分的是**未平均**的 [P3] Eq.(29) 形式（$\tilde\Gamma(\omega_{ref}t+\theta)\,i_c(t)$ 逐點相乘，不預設任何平均），
+  四條不同起點全部收斂到紅點線（平均後 Adler 的預測 $-90^\circ+1.91^\circ$）——這是對 [P3] 時間平均
+  （Eq.(30)）的一次真實檢驗，不是「套公式得公式」。鎖定時間常數 $1/(2\omega_L)=1.06$ ns（5.3 週期）。
+  黑虛線（$\phi_c=0$）不收斂，印證上面第 3 點的退化。
+- **(b)** 圈（數值）落在實線（$\arcsin$）上；虛線（線性）在小失諧時重合、接近失鎖界 $m/Q$ 時分開
+  （$\arcsin$ 在 $90^\circ$ 垂直起飛）。$m=0.3$ 的失鎖界是 $\Delta\omega_0/\omega_0=3\%$（150 MHz @ 5 GHz）。
+- **(c)** log-log 斜率 $-1$：$\Delta\phi_{IQ}\propto1/m$，這就是「高 $Q$ 更吃耦合強度」的圖形版；要 $0.5^\circ$ 得 $m\gtrsim1.15$，
+  與第 2 節的估計一致。
+
+```python
+import numpy as np
+from simulations.lab_42_coupled_qvco import omega_lock, steady_state_iq_error
+f0, Q, m, det = 5e9, 10.0, 0.3, 1e-3          # 頁面 worked：Q=10、m=0.3、Δω0/ω0=0.1%
+w0 = 2*np.pi*f0
+wL = omega_lock(m, Q, w0)                     # ω_L = mω0/(2Q)（[P3] Eq.(35) 化成 m、Q）
+print(f"{wL:.4e}")                            # -> 4.7124e8（rad/s；f_L = 75.0 MHz）
+print(f"{2*1e-12*wL*1e3:.3f}")                # -> 0.942（mA；I_c = 2 q_max ω_L，q_max = 1 pC）
+print(f"{det*w0/(2*wL):.6f}")                 # -> 0.033333（= Δω0/(2ω_L) = (Q/m)(Δω0/ω0)，無因次）
+d_num, d_ex, d_lin = steady_state_iq_error(m, det, Q=Q, omega0=w0)
+print(f"{np.degrees(d_lin):.4f}")             # -> 1.9099（deg；線性近似 (Q/m)(Δω0/ω0)）
+print(f"{np.degrees(d_ex):.4f}")              # -> 1.9102（deg；精確 arcsin[Δω0/(2ω_L)]）
+print(f"{np.degrees(d_num):.4f}")             # -> 1.9102（deg；Adler 對數值積分穩態）
+print(f"{100*(d_lin-d_ex)/d_ex:.4f}")         # -> -0.0185（%；線性近似相對精確解的誤差）
+print(f"{1e9/(2*wL):.3f}")                    # -> 1.061（ns；鎖定時間常數 1/(2ω_L) ≈ 5.3 週期）
+print(f"{100*m/Q:.1f}")                       # -> 3.0（%；失鎖界 Δω0/ω0 = m/Q）
+print(f"{Q*det/np.sin(np.radians(0.5)):.3f}") # -> 1.146（要 0.5° 以內所需的 m）
+# 未平均的 [P3] Eq.(29) 形式（Γ̃(ω_ref t+θ)·i_c(t) 逐點相乘，RK4 積 60 週期），取末 10 週期
+from simulations.lab_42_coupled_qvco import integrate_unaveraged
+t, thA, thB, psi = integrate_unaveraged(m, det, Q=Q)
+tail = psi[-10*200:]                          # 每週期 200 步 → 末 10 週期
+print(f"{np.degrees(tail.mean()+np.pi/2):.4f}")          # -> 1.9128（deg；未平均相位對的週期平均）
+print(f"{np.degrees(0.5*(tail.max()-tail.min())):.2f}")  # -> 0.86（deg；疊在其上的 2ω 漣波幅度 ±）
+print(f"{100*(tail.mean()+np.pi/2-d_num)/d_num:.2f}")    # -> 0.13（%；未平均週期平均 vs 平均後 Adler）
+```
+
+**實際 vs 近似（誠實報告）**：
+
+| 量 | 值 | 來源 |
+|---|---|---|
+| 線性近似 $(Q/m)(\Delta\omega_0/\omega_0)$ | $0.033333$ rad $=1.9099^\circ$ | 第 2 節量級式 |
+| 精確 $\arcsin[\Delta\omega_0/(2\omega_L)]$ | $0.033340$ rad $=1.9102^\circ$ | 平均後 Adler 對的穩態 |
+| 平均後 Adler 對，RK4 積到穩態 | $1.9102^\circ$ | lab_42 `steady_state_iq_error` |
+| **未平均**相位對（Eq.(29) 形式），末 10 週期平均 | $1.9128^\circ$，疊 $2\omega$ 漣波 $\pm0.86^\circ$ | lab_42 `integrate_unaveraged` |
+
+線性近似相對精確解只差 $-0.0185\%$（在 $1.9^\circ$ 這種小角度，$\arcsin x\approx x$ 的三階項 $x^3/6$ 才 $6\times10^{-6}$ rad）；
+未平均積分的**週期平均**與 Adler 差 $0.13\%$（來自時間平均丟掉的高階項），其上疊的 $\pm0.86^\circ$
+$2\omega$ 漣波正是 [P3] Eq.(30) 時間平均所濾掉的快項——它是 phase-only 模型逐點相乘的產物，實體 tank 會把它平均掉，
+**不是**真正的 I/Q 誤差。**單位檢查**：$\Delta\omega_0/(2\omega_L)=$ (rad/s)/(rad/s) $=$ 無因次 $=$ rad ✓；
+$1/(2\omega_L)=$ 1/(rad/s) $=$ s ✓。
+
+> **這個 lab 沒做、留給讀者／v12 的**：(1) 耦合 device 自身雜訊經 $\tilde\Gamma$ 的 phase-noise 貢獻（第 2 節 (ii)）；
+> (2) 頻率拉移降 $Q$——本模型只算得出拉移量：陽春 parallel QVCO（$\phi_c=0$）在 $\psi=\pm90^\circ$ 時每顆被拉離 tank peak
+> $\omega_L=m\omega_0/(2Q)$，即 $m=0.3$、$Q=10$ 時 $1.5\%=75$ MHz；對齊耦合（$\phi_c=90^\circ$）則兩顆只各移 $\mp\Delta\omega_0/2=\mp2.5$ MHz
+> 到共同的平均頻率，幾乎不離 peak——這正是 [E-Romano-QVCO] 「phase-shift 耦合 PN 較佳」的 phase-only 版本。
+> $Q$ 降多少、PN 抬多少，要 [P4] 的振幅通道，本頁不做。(3) $m\sim0.2$–$0.5$ 甜蜜點的全掃描與互動 widget。
+> 三角權衡本身的量化依據仍是 [E-Andreani-QVCO]／[E-Romano-QVCO]（外部文獻，非本站 5 篇 PDF）。
+
+<NumericQuiz
+  prompt="先自己算：coupled QVCO 取 m = 0.3、Q = 10、tank 失諧 Δω₀/ω₀ = 0.1%，phase-only 互注入 Adler 對給的 I/Q 相位誤差 Δφ_IQ ≈ ？（以度作答）"
+  answer={1.91}
+  tol={0.02}
+  unit="deg"
+  hint="Δφ_IQ ≈ (Q/m)(Δω₀/ω₀) = (10/0.3)×0.001 rad；1 rad = 57.30°。"
+  solutionNote="(10/0.3)×0.001 = 0.03333 rad = 1.910°；精確 arcsin(0.03333) = 1.9102°，線性近似誤差只有 −0.019%。lab_42 的數值積分給 1.9102°（平均後）／1.9128°（未平均、週期平均）。"
+/>
+
 ---
 
 ## 適用與失效條件
@@ -345,6 +458,10 @@ $\Delta\phi_{IQ}\propto Q/m$ 的微分方程版本。
 - **[E-Romano-QVCO]** L. Romanò, S. Levantino, C. Samori, A. L. Lacaita, *"Multiphase LC Oscillators,"*
   IEEE Trans. Circuits Syst. I, vol. 53, no. 7, pp. 1579–1588, Jul. 2006（及相關 parallel-vs-series
   QVCO 文獻）。（parallel vs series coupling 的 phase-noise 比較依據。卷期/頁碼已查證。）
+- **[E-Mirzaei-QVCO]** A. Mirzaei, M. E. Heidari, R. Bagheri, S. Chehrazi, A. A. Abidi, *"The Quadrature LC
+  Oscillator: A Complete Portrait Based on Injection Locking,"* IEEE J. Solid-State Circuits, 2007.
+  （把 QVCO 嚴格當成互注入鎖定來分析、陽春 parallel 耦合的 in-phase／quadrature 模式退化與耦合相移的角色；
+  第 4 節「數值驗證」第 3 點的依據。卷期/頁碼待查證。）
 - **[E-Behbahani-PPF]** F. Behbahani, Y. Kishigami, J. Leete, A. A. Abidi, *"CMOS Mixers and Polyphase
   Filters for Large Image Rejection,"* IEEE JSSC, vol. 36, no. 6, pp. 873–887, Jun. 2001.
   （RC-CR polyphase filter 的設計與插損／頻寬權衡依據。卷期/頁碼已查證。）

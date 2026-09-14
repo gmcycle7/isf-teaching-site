@@ -276,7 +276,7 @@ $$
 > $0.95\,\Delta\omega_L$ 時只剩 $0.0156$——鎖著但快沒有恢復力了。$\beta/T_{inj}=0.05/4\ \text{ns}=1.25\times10^{7}$ rad/s ＝ $\Delta\omega_L$ ✓。
 
 **鎖定點在波形的哪裡？（APF 的提醒）** LC 的 $\Gamma=-\sin\theta$ 在 $\theta=0$（電壓**波峰**）為零、斜率最大。所以零失諧時脈衝
-恰好打在波峰——相位不動、$\beta$ 最大，但那裡正是 [P4] APF $\vert\tilde\Lambda\vert$ 最大的地方（ISF/APF quadrature，
+恰好打在波峰——相位不動、$\beta$ 最大，但那裡正是 [P4] 振幅 ISF $\vert\tilde\Lambda\vert$（APF $\Delta=\tau_0\tilde\Lambda$）最大的地方（ISF/APF quadrature，
 [paper_004](/05_paper_deep_dives/paper_004_injection_locking_part2)）：每根脈衝會**踢振幅**，再以 $\tau_0=2Q/\omega_0$ 鬆弛回去。
 phase-only 模型看不見這件事；$q_{inj}\ll q_{max}$ 時它是二階小量，強注入時要回 [P4] 修正。反過來，lock range 邊緣的
 脈衝打在零交越（$\vert\Gamma\vert=1$、$\tilde\Lambda\approx0$）——這正是 [P3] Fig. 3 的畫法：**Fig. 3 畫的是 lock range 的邊緣，不是中心**。

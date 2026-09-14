@@ -34,7 +34,7 @@ IEEE J. Solid-State Circuits, vol. 33, no. 2, pp. 179–194, Feb. 1998.
   [fourier_series_of_isf](/03_isf_core_theory/fourier_series_of_isf),
   [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise),
   [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion).
-- **Key equations**: Eqs.(1),(9),(10),(11),(12),(13),(15)–(24), pp.181–185 (see [equation_index](/01_paper_map/equation_index)).
+- **Key equations**: Eqs.(1),(9),(10),(11),(12),(13),(15)–(24), pp.180–185 (see [equation_index](/01_paper_map/equation_index)).
 
 ### [P2] — extension to the ring oscillator
 
@@ -79,10 +79,10 @@ pp. 2122–2139, Aug. 2019.
   counterpart of the ISF (units 1/A), covering amplitude modulation under injection, transient locking, and injection-locked frequency division in LC oscillators.
 - **Used on this site in**: [paper_004_injection_locking_part2](/05_paper_deep_dives/paper_004_injection_locking_part2),
   [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) (uses its ISF/APF quadrature diagram to explain why amplitude perturbations decay).
-- **Key equations (verified)**: APF decomposition $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$ (Eq.18); APF definition
+- **Key equations (verified)**: amplitude-perturbation decomposition $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$ (Eq.18; $\tilde\Lambda$ = amplitude ISF, 1/C; footnote 6: $\Lambda\equiv q_{max}\tilde\Lambda$); APF definition
   $\Delta(\phi):=\int_0^\infty D\,d\tau$ (units 1/A, Eq.19); amplitude change (Eq.20); augmented pulling equation
   (Eq.21, sinusoidal form Eq.22), all in Fig.5, p.2126; ideal-LC quadrature (ISF fundamental $\angle90°$, APF fundamental $\angle0°$)
-  $\tilde\Gamma_1=\frac{1}{q_{max}}\angle90°$, $\tilde\Lambda_1=\frac{\tau_0}{q_{max}}\angle0°$ (Eq.26), p.2128;
+  $\tilde\Gamma_1=\frac{1}{q_{max}}\angle90°$, $\Delta_1=\frac{\tau_0}{q_{max}}\angle0°$ (Eq.26; the APF fundamental carries no tilde, $\Delta=\tau_0\tilde\Lambda$ is Eq.25), p.2128;
   amplitude decay $d(t,\phi)=e^{-t/\tau_0}$, $\tau_0=2Q/\omega_{osc}$ in the same ideal-LC section, p.2127–2128.
 
 ### [P5] — unrelated to the ISF (honesty note)

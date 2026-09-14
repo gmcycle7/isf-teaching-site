@@ -161,6 +161,13 @@ flowchart LR
 > closed-loop clocking 的橋。TODO: manual verification needed，若要精確的 loop transfer function（含 charge-pump、
 > loop filter 階數）請查 PLL 標準文獻。
 
+- **真正的 CDR 長什麼樣**：本段把 CDR 畫成線性 PLL 黑盒子。實際 SerDes 接收端幾乎都是 **bang-bang**
+  （Alexander PD 只輸出 $\text{sign}(\Delta t)$）＋相位內插器的數位迴路——它的迴路增益是 jitter 的倒數
+  $K_{bb}=\sqrt{2/\pi}/\sigma_j$（本站 $\sigma_t=447.9$ fs → $71.3$/UI）、jitter tolerance mask
+  $\text{JTOL}(f)=(\text{UI}-\text{TJ}_{eye})/\lvert1-H(f)\rvert$ 的 $-40/-20$ dB/dec 段、以及 SSC
+  展頻（521 UI 峰峰相位）為什麼非 type-II 不可，見
+  [cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol)。
+
 ## 第 7 步：TX PLL / RX PLL / LC-VCO / ring-VCO 實務直覺
 
 | 場景 | 直覺 | 選 LC 還是 ring？ |
@@ -301,4 +308,5 @@ for f1 in (1e4, 1e6):
 - 口算練習：[numerical_feeling](/04_simulation_labs/numerical_feeling)
 - LC vs ring 與累積 jitter：[lc_vs_ring](/06_design_insights/lc_vs_ring)
 - 各 design 旋鈕：[symmetry](/06_design_insights/symmetry)、[waveform_slope](/06_design_insights/waveform_slope)、[tank_swing](/06_design_insights/tank_swing)、[device_noise_mapping](/06_design_insights/device_noise_mapping)
+- bang-bang CDR、JTOL mask、SSC 追蹤：[cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol)
 - 符號與單位：[notation](/00_overview/notation)

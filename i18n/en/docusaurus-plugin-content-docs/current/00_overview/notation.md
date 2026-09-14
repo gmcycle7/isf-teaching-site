@@ -26,6 +26,8 @@ If you encounter a different convention in one of the papers, come back here to 
 | $\Delta\phi$ | phase step / phase error | rad | all | the jump caused by one impulse |
 | $A(t)$ | instantaneous amplitude | V or normalized | [P1][P4] | perturbations get pulled back (see [P4] APF) |
 | $\Gamma(\omega_0\tau)$ | **ISF**, the oscillator's "phase sensitivity" to noise; dimensionless, $2\pi$-periodic | — | [P1] | not the noise itself, but a weighting function |
+| $\tilde\Lambda(\phi)$ | **amplitude ISF** (charge-normalized): the **initial** fractional amplitude change $D(0,\phi)$ caused by a unit impulse of charge injected at phase $\phi$ | 1/C | [P4] | [P4] Eq.(18),(24); the tilde denotes charge normalization (as in $\tilde\Gamma=\Gamma/q_{max}$); ideal LC $\tilde\Lambda=\cos\phi/q_{max}$; the $\Lambda\equiv q_{max}\tilde\Lambda$ of [P4] footnote 6 is the dimensionless version of its ref. [28], not used on this site |
+| $\Delta(\phi)$ | **APF** (amplitude perturbation function) $=\int_0^\infty D\,d\tau=\tilde\Lambda\int_0^\infty d\,d\tau$; ideal LC $=\tau_0\tilde\Lambda$ | 1/A | [P4] | [P4] Eq.(19),(25); the APF itself carries **no tilde**; fundamental $\Delta_1=\frac{\tau_0}{q_{max}}\angle0°$ (Eq.(26)); a function $\Delta(\cdot)$ with an argument — not to be confused with the difference prefix in $\Delta q$, $\Delta\omega$ |
 | $q_{max}$ | maximum node charge swing $=C\cdot V_{max}$ | C | [P1] | used for normalization; the larger it is, the lower the phase noise |
 | $\Delta q$ | injected charge $=\int i\,dt$ | C | [P1] | e.g. 1 fC |
 | $i_n(t)$ | noise current | A | [P1][P2] | the noise source injected into the node |
@@ -68,7 +70,7 @@ See [psd_phase_noise_jitter](/02_foundations/psd_phase_noise_jitter) and
 | ISF | $\Gamma(\omega_0\tau)$ | [P1][P2] use $\Gamma$; some later literature uses $h$ or "ISF" |
 | maximum charge | $q_{max}$ | [P1] $q_{max}=C_{node}V_{max}$; in rings it corresponds to the per-stage node charge |
 | offset frequency | $\Delta\omega$ or $\Delta f$ | [P1] mostly uses $\Delta\omega$; datasheets use $\Delta f$ (Hz) |
-| amplitude counterpart of phase sensitivity | (see [P4]) APF $\tilde\Lambda$ | [P4] amplitude perturbation function; ideal LC fundamental $\tilde\Lambda_1=\frac{\tau_0}{q_{max}}\angle0°$, in quadrature with the ISF; $\tau_0=2Q/\omega_0$ |
+| amplitude counterpart of phase sensitivity | amplitude ISF $\tilde\Lambda$ (1/C) / APF $\Delta=\tau_0\tilde\Lambda$ (1/A, ideal LC) | [P4] Eq.(18),(24): $\tilde\Lambda(\phi)=D(0,\phi)$, the tilde denotes charge normalization; Eq.(19),(25): APF $\Delta(\phi)=\int_0^\infty D\,d\tau$, **no tilde** ([P4] footnote 6, p.2126: $\Lambda\equiv q_{max}\tilde\Lambda$ is the dimensionless amplitude ISF of [28]); ideal-LC fundamentals $\tilde\Gamma_1=\frac{1}{q_{max}}\angle90°$, $\Delta_1=\frac{\tau_0}{q_{max}}\angle0°$ (Eq.(26), p.2128), in quadrature; $\tau_0=2Q/\omega_0$ |
 | dimensioned ISF | $\tilde\Gamma=\Gamma/q_{max}$ | [P3] Eq.(26): Hong uses the dimensioned version (rad/C); this site's core uses the dimensionless $\Gamma$ |
 | phase equation (injection) | generalized Adler | [P3] Eq.(30),(33): $\frac{d\theta}{dt}=(\omega_0-\omega_{inj})+\Omega(\theta)$, $\Omega=\langle\tilde\Gamma\,i_{inj}\rangle$ |
 | PPV / adjoint / Floquet | — | **not in these 5 PDFs**; external literature (Demir et al.), see [effective_isf](/03_isf_core_theory/effective_isf) |

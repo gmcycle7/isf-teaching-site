@@ -63,7 +63,7 @@ phase noise，並得到 $\mathcal{L}\propto\Gamma_{rms}^2/q_{max}^2$ 的設計�
 
 ### Eq.(1)：輸出分解（phase noise 住在哪裡）
 
-**Original formula**（[P1] Eq.(1), p.181）：
+**Original formula**（[P1] Eq.(1), p.180）：
 
 $$
 V_{out}(t)=A(t)\,f\!\big(\omega_0 t+\phi(t)\big)
@@ -79,7 +79,7 @@ $\phi(t)$。因為振幅有恢復力（假設 2），$A(t)\to A_0$，所以分�
 
 ### Eq.(9)：charge → voltage step（noise 的物理入口）
 
-**Original formula**（[P1] Eq.(9), p.182）：
+**Original formula**（[P1] Eq.(9), p.181）：
 
 $$
 \Delta V=\frac{\Delta q}{C_{node}}

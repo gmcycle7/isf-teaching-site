@@ -59,8 +59,8 @@ description: C1–C13 教學主張的來源論文、信心、是否需人工確�
   App.B Eq.(55) 三重驗證。v3 曾誤讀為 $N^{-3/4}$）。閉式為
   $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}$（$\eta=0.75$ 時 $\approx 4/N^{1.5}$，即 [P2] Fig.8 的實線）。
 - **C10**：廣義 Adler 方程已對照 [P3] 核實：時間平均式 $d\theta/dt=\omega_0-\omega_{inj}+\frac{1}{T_{inj}}\int\tilde\Gamma(\omega_{inj}t+\theta)\,i_{inj}\,dt$ = Eq.(30), p.2113（原文為 **加號**），鎖定範圍 $\omega_L=\tfrac12 I_{inj}\vert\tilde\Gamma_1\vert$ = Eq.(35), p.2114。
-  （若站內某些頁面平均項前寫 **減號**，係本站 $\Gamma$ 取與 [P3] 相反的符號慣例，數值等價。）
-- **C11**：APF 已對照 [P4] 核實：分解 $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$ = Eq.(18)、定義 $\Delta(\phi):=\int_0^\infty D\,d\tau$（單位 $\mathrm{A^{-1}}$）= Eq.(19)，皆於 p.2126；ISF／APF 正交於理想 LC = Eq.(26), p.2128。
+  （本站 $\Gamma=-\sin\theta$ 與 [P3] 的 $\tilde\Gamma=\Gamma/q_{max}$ **同號**——[P4] Eq.(24), p.2128 給 $\tilde\Gamma(\varphi)=-\sin\varphi/q_{max,0}$——故全站平均項前一律為 **加號**；v11 已清除舊版「本站取相反符號慣例、故寫減號」的說法。）
+- **C11**：APF 已對照 [P4] 核實：分解 $D(\tau,\phi)=\tilde\Lambda(\phi)\,d(\tau,\phi)$ = Eq.(18)（$\tilde\Lambda$＝振幅 ISF，單位 $\mathrm{C^{-1}}$）、APF 定義 $\Delta(\phi):=\int_0^\infty D\,d\tau$（單位 $\mathrm{A^{-1}}$，不帶 tilde）= Eq.(19)，皆於 p.2126；ISF／APF 正交於理想 LC = Eq.(26), p.2128。
 - **C13**：這是 **sourcing 聲明**本身——重點是誠實標明 PPV/adjoint/Floquet 屬**外部文獻**，
   **不在 5 篇 PDF 內**；citation 卷期/頁碼/DOI 已用網路查證（見 references [E2]–[E4]）。
 

@@ -193,6 +193,14 @@ flowchart LR
 > manual verification needed — for an exact loop transfer function (including charge-pump and loop-filter
 > order), consult standard PLL literature.
 
+- **What a real CDR looks like**: this section draws the CDR as a linear-PLL black box. Practical SerDes
+  receivers are almost always **bang-bang** digital loops (an Alexander PD that outputs only
+  $\text{sign}(\Delta t)$) plus a phase interpolator — their loop gain is the reciprocal of the jitter,
+  $K_{bb}=\sqrt{2/\pi}/\sigma_j$ (this site's $\sigma_t=447.9$ fs → $71.3$/UI); the $-40/-20$ dB/dec
+  segments of the jitter-tolerance mask $\text{JTOL}(f)=(\text{UI}-\text{TJ}_{eye})/\lvert1-H(f)\rvert$;
+  and why tracking SSC spread-spectrum clocking (521 UI peak-to-peak phase) requires a type-II loop. See
+  [cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol).
+
 ## Step 7: practical intuition for TX PLL / RX PLL / LC-VCO / ring-VCO
 
 | Scenario | Intuition | LC or ring? |
@@ -344,4 +352,5 @@ for f1 in (1e4, 1e6):
 - Mental-math exercises: [numerical_feeling](/04_simulation_labs/numerical_feeling)
 - LC vs. ring and accumulated jitter: [lc_vs_ring](/06_design_insights/lc_vs_ring)
 - Design knobs: [symmetry](/06_design_insights/symmetry), [waveform_slope](/06_design_insights/waveform_slope), [tank_swing](/06_design_insights/tank_swing), [device_noise_mapping](/06_design_insights/device_noise_mapping)
+- Bang-bang CDR, JTOL mask, SSC tracking: [cdr_bang_bang_jtol](/06_design_insights/cdr_bang_bang_jtol)
 - Notation and units: [notation](/00_overview/notation)

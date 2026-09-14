@@ -50,7 +50,7 @@ $$
   兩邊都是「無因次 ÷ 秒」✓。
 
 **擾動如何進來**：一個注入到電容節點的 current impulse，沉積電荷
-$\Delta q=\int i\,dt$，造成瞬間電壓步階 $\Delta V=\Delta q/C_{node}$（[P1] Eq.(9), p.182）：
+$\Delta q=\int i\,dt$，造成瞬間電壓步階 $\Delta V=\Delta q/C_{node}$（[P1] Eq.(9), p.181）：
 
 $$
 \Delta V=\frac{\Delta q}{C_{node}}.
@@ -184,7 +184,7 @@ def fig_impulse_markers():
 - **概念來源**：[P1] Fig. 4, p.182——Hajimiri–Lee 用 LC 與 ring 的 state-space limit cycle
   示範「impulse 注在波峰（改振幅）vs 過零（改相位）」。本 lab 兩張圖是**重畫的 toy 概念圖**
   （redrawn conceptual，非 transistor-level、非從論文圖逐點複製）。
-- **電荷→電壓步階**：[P1] Eq.(9), p.182，$\Delta V=\Delta q/C_{node}$。
+- **電荷→電壓步階**：[P1] Eq.(9), p.181，$\Delta V=\Delta q/C_{node}$。
 - **ISF 與脈衝響應**（下一步會用到）：[P1] Eq.(10), p.182：
 
   
@@ -218,4 +218,4 @@ $$
 - 相位**沒有恢復力**——這是相位雜訊得以無限累積（隨機漫步）的物理根源。
 - 同樣大小的 impulse：注**波峰** → 改振幅（$\Gamma\approx0$）；注**過零** → 改相位（$|\Gamma|$ 最大）。
 - 「效果依賴注入相位」= LTV 的本質，也是 ISF 存在的理由。
-- 來源：[P1] Fig. 4 與 Eq.(9),(10)，p.182。
+- 來源：[P1] Fig. 4 與 Eq.(9), p.181、Eq.(10), p.182。

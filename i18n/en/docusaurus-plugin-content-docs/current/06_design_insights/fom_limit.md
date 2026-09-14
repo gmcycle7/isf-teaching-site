@@ -44,6 +44,11 @@ $$
   Writing out this $B_{ref}=1$ Hz explicitly is what makes FOM's log argument strictly dimensionless; FOM's full reference basis is
   "**1 Hz bandwidth, 1 mW power**." The next step shows this isn't pedantry — it's exactly what lets $kT$ appear cleanly.
 - **Dimension check**: all three terms are $10\log_{10}$ of dimensionless ratios ($\mathcal{L}_{lin}B_{ref}$, $(f_0/\Delta f)^2$, $P/P_{ref}$) → dB ✓.
+- **Do not confuse it with the PLL jitter–power FOM**: for a whole PLL the common metric is
+  $\mathrm{FOM}_{jitter}=20\log_{10}(\sigma_t/1\ \text{s})+10\log_{10}(P/1\ \text{mW})$ (**always negative, more negative is better**;
+  $\sigma_t^2P$ is the invariant — halving the jitter gives $-6$ dB, halving the power $-3$ dB; e.g. $\sigma_t=259$ fs, $P=10$ mW → $-241.7$ dB).
+  It normalizes integrated jitter and power, **not $f_0/\Delta f$**, so it is a different quantity from this page's oscillator FOM — never swap or add the two;
+  definition and worked example in the section "The PLL jitter–power FOM" of [pll_noise_budget](/06_design_insights/pll_noise_budget).
 
 ## Step 1: the reference constant — 173.8 dB is $1\cdot kT$, not $2kT$
 

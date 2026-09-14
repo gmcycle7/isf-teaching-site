@@ -36,6 +36,8 @@ Core formulas involved (all from the spec and this chapter's pages, using the sa
 
 ### Exercise 1 (numerical) — phase ↔ time conversion
 
+*Learning-path step: [Step 3 — The operational definition of the ISF (impulse → phase)](/00_overview/learning_path#step-3)*
+
 An oscillator at $f_0=5$ GHz has an instantaneous excess-phase offset $\Delta\phi=5\times10^{-4}$ rad.
 Find the corresponding timing error $\Delta t$ (fs), and convert $\Delta\phi$ to degrees.
 
@@ -49,10 +51,14 @@ Find the corresponding timing error $\Delta t$ (fs), and convert $\Delta\phi$ to
 
 ### Exercise 2 (numerical) — rms jitter from phase variance
 
+*Learning-path step: [Step 9 — Connect to SerDes clocking (jitter, eye, PLL/CDR)](/00_overview/learning_path#step-9)*
+
 A clock has rms phase $\sigma_\phi=14.07$ mrad (over the 1→100 MHz integration band), with $f_0=5$ GHz.
 Find the rms timing jitter $\sigma_t$ (fs).
 
 ### Exercise 3 (derivation + numerical) — Parseval: $\Gamma_{rms}$ and $\sum c_n^2$ from the ISF
+
+*Learning-path step: [Step 6 — The Fourier view of the ISF (c₀, cₙ, upconversion)](/00_overview/learning_path#step-6)*
 
 The ISF of an ideal LC oscillator is $\Gamma(\theta)=-\sin\theta$.
 
@@ -60,6 +66,8 @@ The ISF of an ideal LC oscillator is $\Gamma(\theta)=-\sin\theta$.
 (b) Using Parseval (spec Eq. 11), find $\sum_{n=0}^{\infty}c_n^2$, and state which $c_n$ is the only nonzero one.
 
 ### Exercise 4 (numerical) — phase variance from PSD integration
+
+*Learning-path step: [Step 9 — Connect to SerDes clocking (jitter, eye, PLL/CDR)](/00_overview/learning_path#step-9)*
 
 An oscillator's one-sided phase PSD at offset $f$, in the $1/f^2$ region, can be written $S_\phi(f)=\dfrac{K}{f^2}$,
 with $K=10^{-4}\ \text{rad}^2\cdot\text{Hz}$ (i.e., $S_\phi(1\,\text{Hz})=10^{-4}$). Find the phase variance
@@ -75,6 +83,8 @@ $\sigma_\phi^2$ and $\sigma_\phi$ (mrad) over the integration band $f_1=10^3$ Hz
 />
 
 ### Exercise 5 (concept + derivation) — LTI vs LTV: same impulse, different phase
+
+*Learning-path step: [Step 2 — Noise is a small perturbation; the oscillator responds as LTV, not LTI](/00_overview/learning_path#step-2)*
 
 The ideal-LC ISF is $\Gamma(\theta)=-\sin\theta$. The same charge impulse $\Delta q$ is injected
 (a) at the waveform **zero-crossing** ($\theta=\pi/2$, where the $\cos$ waveform has its maximum slope and $-\sin$ is at its extremum)
@@ -93,6 +103,8 @@ Take $\Delta q=1$ fC, $q_{max}=1$ pC.
 
 ### Exercise 6 (reverse design) — phase diffusion from the Lorentzian linewidth
 
+*Learning-path step: [Step 10 — Advanced theory — from κ to lineshape](/00_overview/learning_path#step-10)*
+
 A free-running oscillator's measured carrier 3-dB linewidth (FWHM) is $\Delta f_{3\mathrm{dB}}=1$ kHz.
 
 (a) Back-solve the phase-diffusion coefficient $D$ (rad²/s).
@@ -109,11 +121,15 @@ A free-running oscillator's measured carrier 3-dB linewidth (FWHM) is $\Delta f_
 
 ### Exercise 7 (concept + slope reading) — Allan deviation slopes
 
+*Learning-path step: [Step 10 — Advanced theory — from κ to lineshape](/00_overview/learning_path#step-10)*
+
 On a log–log Allan-deviation plot $\sigma_y(\tau)$ you measure three segments with different slopes:
 $-1/2$, $0$, $+1/2$. Which FM noise type does each correspond to? Also explain why "flicker FM" forms a
 **flat plateau (floor)** in the ADEV.
 
 ### Exercise 8 (numerical) — from a single $\mathcal{L}(\Delta f)$ point to $S_\phi$ to jitter
+
+*Learning-path step: [Step 9 — Connect to SerDes clocking (jitter, eye, PLL/CDR)](/00_overview/learning_path#step-9)*
 
 A spur-free oscillator measures $\mathcal{L}(1\,\text{MHz})=-120$ dBc/Hz at $\Delta f=1$ MHz.
 (a) Find $S_\phi$ at that offset (rad²/Hz).

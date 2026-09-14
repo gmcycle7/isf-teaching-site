@@ -3,6 +3,8 @@ title: Quadrature generation and coupled-oscillator phase noise
 description: Phase-noise cost of the three quadrature (I/Q) generation methods (parallel/series coupled QVCO, divide-by-2 ILFD, RC-CR polyphase); the coupling-strength vs I/Q phase-error vs phase-noise triangular trade-off in the coupled QVCO; common-mode / differential-mode noise correlation of the coupled pair and the ~3 dB; finally wiring the coupling injection back into the ISF / generalized-Adler machinery of [P3]. Advanced page.
 ---
 
+import NumericQuiz from "@site/src/components/NumericQuiz";
+
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
 # Quadrature generation and coupled-oscillator phase noise
@@ -311,6 +313,117 @@ $\Delta\phi_{IQ}\propto Q/m$.
 the ISF of [P1], so "locking (quadrature)" and "extra phase noise" are **two faces of the same $\tilde\Gamma$**
 — fully consistent with [P3]'s point that "the same ISF accounts for both phase noise and injection locking".
 
+### Numerical verification: actually integrating the mutually injecting Adler pair (lab_42)
+
+The three steps above only "set up the [P3] equations". This subsection **actually runs them**: `simulations/lab_42_coupled_qvco.py`
+integrates the mutually injecting Adler pair numerically, to see (a) whether anti-phase mutual injection really locks itself to $90^\circ$, and (b) whether the Section 2
+worked number "$\Delta\phi_{IQ}\approx(Q/m)(\Delta\omega_0/\omega_0)\approx1.9^\circ$" is right, and by how much it is off.
+
+**Model (toy, phase-only)**: two ideal LC oscillators ($\tilde\Gamma(x)=-\sin x/q_{max}$, [P3] Eq.(26)), with phases $\theta_A,\theta_B$ relative to a common reference
+frequency $\omega_{ref}$; the coupling currents carry a **coupling-path phase shift** $\phi_c$:
+
+$$
+i_{c,A\to B}(t)=+I_c\cos(\omega_{ref}t+\theta_A+\phi_c),\qquad
+i_{c,B\to A}(t)=-I_c\cos(\omega_{ref}t+\theta_B+\phi_c)
+$$
+
+(The minus sign is "B injects into A inverted", i.e. the QVCO hookup of Step 3.) Apply [P3] Eq.(34) to each oscillator (the lock characteristic for sinusoidal injection,
+$\Omega(\theta)=\tfrac12 I_{inj}\lvert\tilde\Gamma_1\rvert\cos(\theta+\angle\tilde\Gamma_1)$, here with
+$\lvert\tilde\Gamma_1\rvert=1/q_{max}$, $\angle\tilde\Gamma_1=+90^\circ$), let $\psi\equiv\theta_A-\theta_B$ (the I/Q phase difference) and
+$\omega_L=\tfrac12 I_c\lvert\tilde\Gamma_1\rvert=I_c/(2q_{max})$ ([P3] Eq.(35)), and subtract the two equations:
+
+$$
+\frac{d\psi}{dt}=(\omega_{0,A}-\omega_{0,B})-2\,\omega_L\sin\phi_c\,\cos\psi
+$$
+
+Steady state $d\psi/dt=0$ gives $\cos\psi^\*=\Delta\omega_0/(2\omega_L\sin\phi_c)$. Three immediate conclusions:
+
+1. **At zero detuning $\cos\psi^\*=0\Rightarrow\psi^\*=\pm90^\circ$** — this is Step 3's "$90^\circ$ is the steady-state constraint",
+   and which one is stable is decided by the sign of $\sin\phi_c$ (for $\sin\phi_c>0$, $-90^\circ$ is stable and $+90^\circ$ unstable).
+2. **The leading 2 is the "mutual injection" factor**: A pulls B and B pulls A, so the restoring force is twice that of one-way injection. Take $\phi_c=90^\circ$
+   (coupling current aligned with the ISF fundamental, $\sin\phi_c=1$); then $\psi^\*=-90^\circ+\delta$,
+   $\sin\delta=\Delta\omega_0/(2\omega_L)$. Substituting Section 2's $\omega_L=m\omega_0/(2Q)$:
+   $$
+   \Delta\phi_{IQ}=\delta=\arcsin\!\Big(\frac{Q}{m}\frac{\Delta\omega_0}{\omega_0}\Big)\ \approx\ \frac{Q}{m}\frac{\Delta\omega_0}{\omega_0}
+   $$
+   — the Section 2 order-of-magnitude formula **is exactly** the linearization of this $\arcsin$, and it corresponds to $\Delta\omega_0/(2\omega_L)$, **not** $\Delta\omega_0/\omega_L$
+   (the latter is the one-way-injection form and would be 2× larger — a factor-of-2 convention this page flags deliberately).
+3. **Honest failure point**: if $\phi_c=0$ (the plainest parallel QVCO: coupling current in phase with the other oscillator's output), $\sin\phi_c=0$ and the
+   restoring term **vanishes** — the pure phase-only Adler pair **cannot tell** what $\psi$ should be (degenerate). A physical QVCO then relies on the
+   **amplitude channel** (the two amplitudes must be equal $\Rightarrow\cos\psi=0$, the AM dynamics of [P4]) or on a phase shift deliberately added to the coupling path
+   (the phase-shift QVCO of [E-Romano-QVCO]; [E-Mirzaei-QVCO]). So Step 3's "the Adler steady-state constraint gives $90^\circ$"
+   strictly needs one more clause: **provided the coupling phase is not orthogonal to the ISF fundamental ($\sin\phi_c\ne0$)**.
+
+![lab_42: the coupled QVCO as two mutually injecting [P3] Adler equations. (a) The unaveraged phase pair, started from four different initial phase differences, all lock within about 5 ns (25 cycles) to −90°+1.91°; the black dashed line is the plain parallel QVCO with φc=0, which does not lock in the phase-only model and drifts linearly at Δω0. (b) I/Q phase error vs tank detuning for m=0.1/0.3/1.0 (Q=10): solid = exact arcsin, dashed = linear approximation (Q/m)(Δω0/ω0), circles = numerical steady state, dotted = unlock boundary m/Q; red star = the worked example 0.1% → 1.91°. (c) Error vs coupling factor m (log-log, slope −1) for three detunings; the gray dotted 0.5° spec line corresponds to m ≥ 1.15. Toy model.](/figures/coupled_qvco.png)
+
+**How to read the figure**:
+
+- **(a)** What is integrated is the **unaveraged** [P3] Eq.(29) form ($\tilde\Gamma(\omega_{ref}t+\theta)\,i_c(t)$ multiplied point by point, with no averaging assumed);
+  all four starting points converge to the red dotted line (the averaged-Adler prediction $-90^\circ+1.91^\circ$) — a genuine test of the [P3] time averaging
+  (Eq.(30)), not "plug a formula in, get the formula out". The lock time constant is $1/(2\omega_L)=1.06$ ns (5.3 cycles).
+  The black dashed line ($\phi_c=0$) does not converge, confirming the degeneracy of point 3 above.
+- **(b)** The circles (numerical) sit on the solid lines ($\arcsin$); the dashed lines (linear) coincide at small detuning and separate near the unlock boundary $m/Q$
+  (the $\arcsin$ shoots up vertically at $90^\circ$). For $m=0.3$ the unlock boundary is $\Delta\omega_0/\omega_0=3\%$ (150 MHz at 5 GHz).
+- **(c)** Log-log slope $-1$: $\Delta\phi_{IQ}\propto1/m$, the graphical version of "high $Q$ is hungrier for coupling strength"; to reach $0.5^\circ$ you need $m\gtrsim1.15$,
+  consistent with the Section 2 estimate.
+
+```python
+import numpy as np
+from simulations.lab_42_coupled_qvco import omega_lock, steady_state_iq_error
+f0, Q, m, det = 5e9, 10.0, 0.3, 1e-3          # page worked example: Q=10, m=0.3, Δω0/ω0=0.1%
+w0 = 2*np.pi*f0
+wL = omega_lock(m, Q, w0)                     # ω_L = mω0/(2Q) ([P3] Eq.(35) rewritten in m, Q)
+print(f"{wL:.4e}")                            # -> 4.7124e8 (rad/s; f_L = 75.0 MHz)
+print(f"{2*1e-12*wL*1e3:.3f}")                # -> 0.942 (mA; I_c = 2 q_max ω_L, q_max = 1 pC)
+print(f"{det*w0/(2*wL):.6f}")                 # -> 0.033333 (= Δω0/(2ω_L) = (Q/m)(Δω0/ω0), dimensionless)
+d_num, d_ex, d_lin = steady_state_iq_error(m, det, Q=Q, omega0=w0)
+print(f"{np.degrees(d_lin):.4f}")             # -> 1.9099 (deg; linear approximation (Q/m)(Δω0/ω0))
+print(f"{np.degrees(d_ex):.4f}")              # -> 1.9102 (deg; exact arcsin[Δω0/(2ω_L)])
+print(f"{np.degrees(d_num):.4f}")             # -> 1.9102 (deg; numerically integrated steady state of the Adler pair)
+print(f"{100*(d_lin-d_ex)/d_ex:.4f}")         # -> -0.0185 (%; error of the linear approximation relative to the exact value)
+print(f"{1e9/(2*wL):.3f}")                    # -> 1.061 (ns; lock time constant 1/(2ω_L) ≈ 5.3 cycles)
+print(f"{100*m/Q:.1f}")                       # -> 3.0 (%; unlock boundary Δω0/ω0 = m/Q)
+print(f"{Q*det/np.sin(np.radians(0.5)):.3f}") # -> 1.146 (m needed to stay within 0.5°)
+# unaveraged [P3] Eq.(29) form (Γ̃(ω_ref t+θ)·i_c(t) point by point, RK4 over 60 cycles), last 10 cycles
+from simulations.lab_42_coupled_qvco import integrate_unaveraged
+t, thA, thB, psi = integrate_unaveraged(m, det, Q=Q)
+tail = psi[-10*200:]                          # 200 steps per cycle -> last 10 cycles
+print(f"{np.degrees(tail.mean()+np.pi/2):.4f}")          # -> 1.9128 (deg; cycle average of the unaveraged phase pair)
+print(f"{np.degrees(0.5*(tail.max()-tail.min())):.2f}")  # -> 0.86 (deg; amplitude ± of the 2ω ripple riding on it)
+print(f"{100*(tail.mean()+np.pi/2-d_num)/d_num:.2f}")    # -> 0.13 (%; unaveraged cycle average vs averaged Adler)
+```
+
+**Actual vs approximate (honest report)**:
+
+| Quantity | Value | Source |
+|---|---|---|
+| Linear approximation $(Q/m)(\Delta\omega_0/\omega_0)$ | $0.033333$ rad $=1.9099^\circ$ | Section 2 order-of-magnitude formula |
+| Exact $\arcsin[\Delta\omega_0/(2\omega_L)]$ | $0.033340$ rad $=1.9102^\circ$ | steady state of the averaged Adler pair |
+| Averaged Adler pair, RK4 to steady state | $1.9102^\circ$ | lab_42 `steady_state_iq_error` |
+| **Unaveraged** phase pair (Eq.(29) form), mean of last 10 cycles | $1.9128^\circ$, with $2\omega$ ripple $\pm0.86^\circ$ | lab_42 `integrate_unaveraged` |
+
+The linear approximation differs from the exact value by only $-0.0185\%$ (at a small angle like $1.9^\circ$, the third-order term $x^3/6$ of $\arcsin x\approx x$ is just $6\times10^{-6}$ rad);
+the **cycle average** of the unaveraged integration differs from Adler by $0.13\%$ (from the higher-order terms the time averaging drops), and the $\pm0.86^\circ$
+$2\omega$ ripple riding on it is precisely the fast term filtered out by the [P3] Eq.(30) time average — it is an artifact of the point-by-point product in the phase-only model, which a physical tank averages away;
+it is **not** a real I/Q error. **Unit check**: $\Delta\omega_0/(2\omega_L)=$ (rad/s)/(rad/s) $=$ dimensionless $=$ rad ✓;
+$1/(2\omega_L)=$ 1/(rad/s) $=$ s ✓.
+
+> **What this lab does not do (left to the reader / v12)**: (1) the phase-noise contribution of the coupling device's own noise through $\tilde\Gamma$ (Section 2 (ii));
+> (2) the $Q$ drop from frequency pulling — this model only yields the pull itself: the plain parallel QVCO ($\phi_c=0$) at $\psi=\pm90^\circ$ has each oscillator pulled off the tank peak by
+> $\omega_L=m\omega_0/(2Q)$, i.e. $1.5\%=75$ MHz for $m=0.3$, $Q=10$; with aligned coupling ($\phi_c=90^\circ$) the two only move by $\mp\Delta\omega_0/2=\mp2.5$ MHz
+> to the common mean frequency, barely leaving the peak — this is the phase-only version of [E-Romano-QVCO]'s "phase-shift coupling has better PN".
+> How much $Q$ drops and how much PN rises needs the amplitude channel of [P4], which this page does not do. (3) The full sweep of the $m\sim0.2$–$0.5$ sweet spot and an interactive widget.
+> The quantitative basis of the triangular trade-off itself remains [E-Andreani-QVCO] / [E-Romano-QVCO] (external literature, not among the five source PDFs).
+
+<NumericQuiz
+  prompt="Work it out first: a coupled QVCO with m = 0.3, Q = 10 and tank detuning Δω₀/ω₀ = 0.1%; what I/Q phase error Δφ_IQ does the phase-only mutually injecting Adler pair give? (answer in degrees)"
+  answer={1.91}
+  tol={0.02}
+  unit="deg"
+  hint="Δφ_IQ ≈ (Q/m)(Δω₀/ω₀) = (10/0.3)×0.001 rad; 1 rad = 57.30°."
+  solutionNote="(10/0.3)×0.001 = 0.03333 rad = 1.910°; exact arcsin(0.03333) = 1.9102°, the linear approximation is off by only −0.019%. The lab_42 numerical integration gives 1.9102° (averaged) / 1.9128° (unaveraged, cycle-averaged)."
+/>
+
 ---
 
 ## Validity and failure conditions
@@ -358,6 +471,10 @@ the ISF of [P1], so "locking (quadrature)" and "extra phase noise" are **two fac
 - **[E-Romano-QVCO]** L. Romanò, S. Levantino, C. Samori, A. L. Lacaita, *"Multiphase LC Oscillators,"*
   IEEE Trans. Circuits Syst. I, vol. 53, no. 7, pp. 1579–1588, Jul. 2006 (and the related parallel-vs-series
   QVCO literature). (Basis of the parallel vs series coupling phase-noise comparison. Volume/issue/pages verified.)
+- **[E-Mirzaei-QVCO]** A. Mirzaei, M. E. Heidari, R. Bagheri, S. Chehrazi, A. A. Abidi, *"The Quadrature LC
+  Oscillator: A Complete Portrait Based on Injection Locking,"* IEEE J. Solid-State Circuits, 2007.
+  (Treats the QVCO rigorously as mutual injection locking: the in-phase/quadrature mode degeneracy of plain parallel coupling and the role of the coupling phase shift;
+  basis of point 3 of the Section 4 "Numerical verification". Volume/issue/pages to be verified.)
 - **[E-Behbahani-PPF]** F. Behbahani, Y. Kishigami, J. Leete, A. A. Abidi, *"CMOS Mixers and Polyphase
   Filters for Large Image Rejection,"* IEEE JSSC, vol. 36, no. 6, pp. 873–887, Jun. 2001.
   (Basis of the RC-CR polyphase filter design and insertion-loss/bandwidth trade-off. Volume/issue/pages verified.)

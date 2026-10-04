@@ -3,7 +3,7 @@
 # Usage: python3 scripts/check_en_parity.py   (prints a report; exit code 1 if any mismatch)
 import re, os, glob, json, sys
 
-ROOT = "/Users/matthuang/claude_code/ISF/isf-teaching-site"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ZH_ROOT = os.path.join(ROOT, "docs")
 EN_ROOT = os.path.join(ROOT, "i18n/en/docusaurus-plugin-content-docs/current")
 
@@ -95,3 +95,6 @@ print("only_zh", only_zh)
 print("only_en", only_en)
 for k,v in mismatches.items():
     print(k, len(v))
+
+_bad = len(only_zh) + len(only_en) + sum(len(v) for v in mismatches.values())
+sys.exit(1 if _bad else 0)

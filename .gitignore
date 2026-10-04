@@ -27,5 +27,6 @@ venv/
 # The papers themselves are copyrighted and live outside this folder; never commit any PDFs.
 *.pdf
 
-# CI workflow file needs the gh "workflow" token scope to push; deploy via gh-pages branch for now.
-.github/workflows/
+# Deployment stays on scripts/deploy.sh (gh-pages branch). The Actions deploy workflow is kept local only;
+# .github/workflows/ci.yml (checks only) IS tracked.
+.github/workflows/deploy.yml

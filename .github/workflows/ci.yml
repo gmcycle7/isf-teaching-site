@@ -1,0 +1,85 @@
+name: CI checks
+
+# Checks only. Deployment is still done by scripts/deploy.sh (build -> gh-pages branch).
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Content checks (MDX, front matter, zh/EN parity, sidebar)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: MDX compile check (every page, both locales)
+        run: node scripts/validate_mdx.mjs $(find docs i18n/en/docusaurus-plugin-content-docs/current -name '*.md' -o -name '*.mdx') | grep -v '^OK' ; test ${PIPESTATUS[0]} -eq 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Front-matter YAML
+        run: python3 scripts/check_front_matter.py
+
+      - name: zh / EN structural parity
+        run: python3 scripts/check_en_parity.py
+
+      - name: Sidebar covers every page
+        run: node scripts/check_sidebar.js
+
+  examples:
+    name: Worked examples reproduce their "# ->" numbers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      # Figures are committed, so the simulations themselves are not re-run here;
+      # this executes the python blocks embedded in the pages and compares the markers.
+      - name: Verify examples
+        run: PYTHONPATH=. python3 scripts/verify_examples.py
+
+  build:
+    name: Build site (zh-Hant + en)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build

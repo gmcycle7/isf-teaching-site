@@ -19,9 +19,9 @@ jobs:
     name: Content checks (MDX, front matter, zh/EN parity, sidebar)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -30,9 +30,9 @@ jobs:
         run: npm ci
 
       - name: MDX compile check (every page, both locales)
-        run: node scripts/validate_mdx.mjs $(find docs i18n/en/docusaurus-plugin-content-docs/current -name '*.md' -o -name '*.mdx') | grep -v '^OK' ; test ${PIPESTATUS[0]} -eq 0
+        run: node scripts/validate_mdx.mjs --quiet $(find docs i18n/en/docusaurus-plugin-content-docs/current -name '*.md' -o -name '*.mdx')
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -52,9 +52,9 @@ jobs:
     name: Worked examples reproduce their "# ->" numbers
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
           cache: pip
@@ -71,9 +71,9 @@ jobs:
     name: Build site (zh-Hant + en)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm

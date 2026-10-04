@@ -120,7 +120,7 @@
 17. **phase→time**：`$$\Delta t=\frac{\Delta\phi}{2\pi f_0}$$`
 18. **phase variance**：`$$\sigma_\phi^2=\int_{f_1}^{f_2}S_\phi(f)\,df$$`
 19. **rms jitter**：`$$\sigma_t=\frac{1}{2\pi f_0}\sqrt{\int_{f_1}^{f_2}S_\phi(f)\,df}$$`
-20. **ring 累積 jitter** [P2] Eq.(8), p.792（κ 由 Eq.(12), p.793）：`$$\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$$` ✓已核實
+20. **ring 累積 jitter** [P2] Eq.(8), p.792（κ 由 Eq.(12), p.793——時間版 κ_t，分母含 ω0，單位 √s；相位版 κ_φ=ω0·κ_t 為 Eq.(11) 開根號）：`$$\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$$` ✓已核實
 21. **ring 頻率** [P2] Eq.(15), p.794：`$$f_0=\frac{1}{2N\tau_D}$$`（Eq.(14) 定義正規化級延遲 $\hat t_D=\eta/f'_{max}$；週期關係 $2\pi=2N\hat t_D$ 推得本式為 Eq.(15)）
 22. **ring Γrms** [P2] Eq.(16), p.794（v7 已重核：根號只蓋常數，Γrms ∝ N^{-3/2}；正文 4/N^{1.5}@η=0.75 與 App.B Eq.(55) 三重驗證。v3 曾誤讀為 N^{-3/4}）：`$$\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}\Rightarrow\Gamma_{rms}\propto N^{-3/2}\ (\Gamma_{rms}^2\propto N^{-3})$$`
     （η=0.75 時 ≈ 4/N^{1.5}，即 [P2] Fig.8 的實線；根號只含常數）

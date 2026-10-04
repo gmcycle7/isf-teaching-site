@@ -329,20 +329,26 @@ lock 邊緣判定受 600 ns 積分窗與網格解析度限制（~1–3%）。
 
 | 論文圖 | 頁 | 內容 | 教學用途 |
 |---|---|---|---|
-| Fig. 5 | 2126 | characterizing 注入電荷瞬間對振盪器的影響：ISF／excess phase、amplitude decay function、及 ISF 與 APF 的 quadrature 關係（已核實） | 連結相位（ISF）與振幅（APF）敏感度的最佳單圖 |
+| Fig. 5 | 2126 | 單顆電荷注入後的**振幅偏差**：(a) 電荷波形過量振幅衰減 $q_0(t)[1+q_{inj}D]$、(b) 過量能量衰減（躍升 $[q_{inj}\tilde\Lambda(\omega_0\tau)]^2E_0(\tau)$）、(c) 衝激響應 $h_A(t,\tau)=D\cdot u(t-\tau)$，其面積＝APF $\Delta(\omega_0\tau)$（caption 已核實） | 說明「APF＝振幅擾動衰減曲線下的面積」與振幅擾動為何會衰減；圖中沒有相位 ISF、excess phase 或 quadrature 示意 |
+| Fig. 6 | 2127 | bipolar Colpitts（$L=6$ nH、$C=8$ pF、$Q=15$、$f_0\approx1$ GHz、$I_{bias}=10$ mA）：(d) 振幅 ISF $\tilde\Lambda$、(e) 20 個 $\varphi$ 的 decay function $d(t,\varphi)$、(f) APF $\Delta$（caption 已核實） | 論文中唯一把振幅 ISF、decay function 與 APF 並排畫出的圖；它不是 ideal LC，ideal LC 的 quadrature 只有解析式 Eq.(24)–(26), p.2128 |
 | Fig. 11 | 2130 | superharmonic 正弦鎖定特性模擬：1 mA 與 2 mA 的二次諧波注入 differential LC 的 **tail**（$I_{tail}=1$ mA）、5 mA 三次諧波注入 ideal Bose oscillator（caption 已核實） | ÷2/÷3 的 lock characteristic 對照 Eq.(30)；÷2 打 tail＝繞過差動節點的 $c_2\approx0$ |
 | Fig. 12 | 2131 | superharmonic lock range 量測：Bose relaxation（$N=2..5$）、17 級 ring（$N=2,5$）、多種振盪器（$N=3$）、differential LC tail（$N=2$）（caption 已核實） | $\omega_L=I_{inj}\vert\tilde\Gamma_N\vert/2$ 的實驗驗證：對 $I_{inj}$ 線性 |
 | Fig. 15 | 2133 | 時域觀點：$N=2$ 正弦注入下 (a) 半波對稱 ISF 相鄰注入週期的相位踢互消、(b) 不對稱波形淨相位累積（caption 已核實） | footnote 14/15 的圖像版；本站 toy 重現於 [injection_locked_division](/06_design_insights/injection_locked_division) |
 | Fig. 16 | 2134 | 1-GHz 17 級單端 ring 在 (a) fairly symmetric、(b) PFET-dominant、(c) NFET-dominant 下的模擬自由跑波形與 ISF，及前五個傅立葉係數的歸一化幅度（caption 已核實） | 不對稱 ⟹ $c_0,c_2,c_4$ 一起長出來；Table IV 的圖 |
 
-這張圖是「為何振幅噪聲會衰減、相位噪聲不會」的最佳視覺：APF 對應的擾動會被 amplitude decay
-function 拉回，ISF 對應的相位擾動則永久留下。本站在
-[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) 用這個概念（toy 對照圖
-`limit_cycle_phase_amplitude.png`，**非 transistor-level**）。
+Fig. 5 只畫「為何振幅噪聲會衰減」這一半：注入造成的過量振幅與過量能量依 decay function 衰減回去
+（(a)(b)），其總效果由衝激響應下的面積＝APF 給出（(c)）。「相位擾動不會衰減、永久留下」的另一半**不在 Fig. 5 裡**；
+相位側的對應是 [P3] Fig. 4, p.2113 的 excess phase 衝激響應 $h_\phi(t,\tau)=\tilde\Gamma(\omega_0\tau)\,u(t-\tau)$，
+是一個不會回零的**階躍**。本站在 [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise)
+用下面這張 toy 對照圖 `limit_cycle_phase_amplitude.png`（本站自製示意，**非論文圖、非 transistor-level**）把兩半放在一起：
+徑向（振幅）被拉回，切向（相位）永久留下。
 
-> **已核實**：此圖為 [P4] Fig. 5, p.2126，標題「Characterizing the effect that an instantaneous injection of
-> charge has on an oscillator」，已對照原始 PDF 渲染確認。（Fig. 3 p.2124 是 impulse-train↔sinusoid 等價、Fig. 6
-> p.2127 是 bipolar Colpitts 範例，皆非此圖。）
+> **已核實**：上文所指的圖為 [P4] Fig. 5, p.2126，標題「Characterizing the effect that an instantaneous injection of
+> charge has on an oscillator's amplitude deviations」，已對照原始 PDF 渲染確認。圖中只有 (a) 電荷波形過量振幅衰減、
+> (b) 過量能量衰減與躍升 $[q_{inj}\tilde\Lambda(\omega_0\tau)]^2E_0(\tau)$、(c) $h_A(t,\tau)=D(t-\tau,\omega_0\tau)\,u(t-\tau)$ 及其面積
+> $\Delta(\omega_0\tau)$；**沒有**相位 ISF、excess phase，也沒有 ISF／APF 的 quadrature 圖。論文中畫出振幅 ISF、decay function
+> 與 APF 的只有 Fig. 6(d)–(f), p.2127（bipolar Colpitts，不是 ideal LC）；ideal LC 的 quadrature 只以解析式給出：
+> Eq.(24)–(26), p.2128。（Fig. 3 p.2124 是 impulse-train↔sinusoid 等價。）
 
 ![limit cycle：切向=相位（持續）、徑向=振幅（被拉回）（toy）](/figures/limit_cycle_phase_amplitude.png)
 

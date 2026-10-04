@@ -1,6 +1,6 @@
 ---
 title: Lab 03 — Ring 振盪器 toy model：累積 jitter 隨機漫步與 ISF 比較
-description: 用 edge-time 隨機漫步模型看 ring 振盪器的累積 jitter σ ∝ √Δt（[P2] Eq.10），並對比 LC 的平滑 −sinθ ISF 與 ring 集中在 transition、隨級數 N 變小的 toy ISF。
+description: 用 edge-time 隨機漫步模型看 ring 振盪器的累積 jitter σ ∝ √Δt（[P2] Eq.(8), p.792），並對比 LC 的平滑 −sinθ ISF 與 ring 集中在 transition、隨級數 N 變小的 toy ISF。
 ---
 
 # Lab 03 — Ring 振盪器 toy model：累積 jitter 隨機漫步與 ISF 比較
@@ -57,7 +57,7 @@ $$
 
 - **dimension check**：$[\kappa]=[\text{s}]/[\text{s}]^{1/2}=[\text{s}]^{1/2}=\sqrt{\text{s}}$，
   與 notation 表一致；$\kappa\sqrt{\Delta t}=\sqrt{\text{s}}\cdot\sqrt{\text{s}}=\text{s}$ ✓。
-- **關鍵假設**：各拍擾動**互相獨立（uncorrelated）**。論文（[P2] Sec. III, p.793）明確區分：
+- **關鍵假設**：各拍擾動**互相獨立（uncorrelated）**。論文（[P2] Sec. III, p.792）明確區分：
   thermal noise 這類**不相關**源 → 變異數相加 → $\sigma\propto\sqrt{\Delta t}$（本 lab）；而
   substrate/supply/$1/f$ 這類**完全相關（correlated）**源 → **標準差**相加 →
   $\sigma\propto\Delta t$（本 toy model **不模擬**這支，見第 11 節）。
@@ -83,7 +83,7 @@ flowchart LR
   A["per-edge timing noise δ_k ~ N(0, σ_edge²)  (獨立)"] --> B["edge 時刻累加 t_k = t_{k-1} + T + δ_k"]
   B --> C["無絕對參考 → 誤差永久傳遞"]
   C --> D["random walk: Var(Σδ) = m·σ_edge²"]
-  D --> E["σ_Δt = σ_edge·√m = κ·√Δt   ([P2] Eq.10)"]
+  D --> E["σ_Δt = σ_edge·√m = κ·√Δt   ([P2] Eq.(8))"]
   F["ring 能量集中在 transition"] --> G["toy 三角 ISF, 峰高 ~ 1/√N"]
   G --> H["Γ_rms 隨 N 增加而下降 (~N^-3/2 趨勢)"]
 ```
@@ -198,7 +198,7 @@ $$
 \sigma_{\Delta t}=\kappa\sqrt{\Delta t}.
 $$
 
-  論文 [P2] Sec. III（p.793）的敘述明確說明：因為「任何較早 transition 的不確定性會影響其後
+  論文 [P2] Sec. III（p.792）的敘述明確說明：因為「任何較早 transition 的不確定性會影響其後
   所有 transition，且其效應 persists indefinitely」，故 uncorrelated 源下變異數相加、
   $\sigma\propto\sqrt{\Delta t}$；本 lab 圖一直接重現此式（對照 [P2] Fig. 3、Fig. 4 的
   「rms jitter vs 量測時間 log–log」概念）。
@@ -242,4 +242,4 @@ $$
 - correlated noise 則 $\sigma\propto\Delta t$（本 toy 不含）。
 - ring ISF 集中在 transition、峰高 $\sim1/\sqrt N$；$\Gamma_{rms}$（LC 0.707 → ring N=5 0.258
   → N=15 0.149）隨 $N$ 下降，呼應 $\Gamma_{rms}\propto N^{-3/2}$。
-- 來源：[P2] Eq.(8),(14),(16)、Sec. III、Fig. 3,4,8；連結 [P1] Eq.(21)。
+- 來源：[P2] Eq.(8),(15),(16)、Sec. III、Fig. 3,4,8；連結 [P1] Eq.(21)。

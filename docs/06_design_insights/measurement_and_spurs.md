@@ -341,7 +341,7 @@ $$
 
 前三段（$1$–$10$–$100$ kHz）斜率 $m=-3.00$（$1/f^3$）、中間兩段（$100$ kHz–$10$ MHz）$m=-2.00$（$1/f^2$，和例 2 的 corner 自洽）、最後一段 $m=-1.96$——不是乾淨的 $-2$，因為 $100$ MHz 處 $\mathcal{L}$ 已經是 $1/f^2$（$-140$ dBc/Hz）與 $-150$ dBc/Hz floor 的**線性功率和**（$10^{-14}+10^{-15}=1.1\times10^{-14}\to-139.6$ dBc/Hz），表格用真實混合值,不是理想單一冪次——這也是為什麼要**逐段**算 $m$、不能通篇假設 $m=-2$。
 
-**積 SONET/OC-192 常用的 $12$ kHz–$20$ MHz**（第一段跨越 $12$ kHz–$100$ kHz、$100$ kHz–$1$ MHz、$1$–$10$ MHz、$10$–$20$ MHz 四個子段）：
+**積 OC-48／時脈晶片 datasheet 常用的 $12$ kHz–$20$ MHz**（這個頻寬的出處見本節最後一張表；第一段跨越 $12$ kHz–$100$ kHz、$100$ kHz–$1$ MHz、$1$–$10$ MHz、$10$–$20$ MHz 四個子段）：
 
 ```python
 import numpy as np
@@ -383,9 +383,22 @@ print(f"integral = {total:.4e}")        # -> 3.5217e-02
 print(f"sigma_phi = {sigma_phi*1e3:.1f} mrad")  # -> 265.4
 print(f"sigma_t = {sigma_t*1e12:.2f} ps")       # -> 8.45
 print(f"frac from 12k-100k 1/f^3 segment = {seg[0][3]/total*100:.1f}%")  # -> 97.2
+
+# independent cross-check: np.trapezoid on a dense log-spaced grid
+# (linear-in-dB interpolation vs log f = the same piecewise power law)
+logf = np.log10([p[0] for p in table]); Ls = [p[1] for p in table]
+fgrid = np.logspace(np.log10(12e3), np.log10(20e6), 400_000)
+Lgrid = np.interp(np.log10(fgrid), logf, Ls)
+I_trap = np.trapezoid(10**(Lgrid/10), fgrid)
+sigma_t_trap = np.sqrt(2*I_trap) / (2*np.pi*f0)
+print(f"integral (trapezoid) = {I_trap:.4e}")           # -> 3.5217e-02
+print(f"sigma_t (trapezoid) = {sigma_t_trap*1e12:.2f} ps")  # -> 8.45
+print(f"relative difference = {abs(I_trap/total-1)*100:.1e} %")  # -> 3.4e-08
 ```
 
 **結果**：$12$ kHz–$20$ MHz 積出 $\sigma_\phi=265.4$ mrad、$\sigma_t=8.45$ ps，其中 **$97.2\%$ 的方差來自最靠載波的 $12$ kHz–$100$ kHz 那一段 $1/f^3$**（斜率愈陡、離載波愈近，貢獻愈大——這正是 3.2 checklist 講的「close-in 主導」的量化版）。
+
+**獨立數值核對**：上面的 $8.45$ ps 是用分段 log–log **閉式**算的。核對用的是完全不同的算法——在 $12$ kHz–$20$ MHz 上取 $400{,}000$ 個對數等距點，把表格以 log $f$ 對 dB 線性內插（這等價於同一條分段冪次律）後直接用 `np.trapezoid` 做數值積分。結果與閉式的積分值 $3.5217\times10^{-2}$ 一致到相對差 $3.4\times10^{-8}\%$（遠小於 $0.1\%$），$\sigma_t$ 同為 $8.45$ ps。兩種算法互相驗證了閉式的分段斜率與端點處理沒有算錯（注意：兩者吃同一張表與同一個「表點之間為直線」的假設，驗證的是積分算術，不是表格本身的物理）。
 
 **同一張表換積分頻寬 $1$–$100$ MHz**（例 C 的頻寬）：
 
@@ -437,9 +450,12 @@ print(f"sigma_t (trapezoid) = {sigma_t_trap*1e15:.1f} fs")  # -> 448.5
 
 | 應用 | 常見積分頻寬 | 備註 |
 |---|---|---|
-| SONET/SDH OC-192（電信參考時脈）| $12$ kHz–$20$ MHz | 業界慣用下限；**具體條文出處待查證**（Telcordia GR-253-CORE 系列，本站未逐條核對，見 [pll_noise_budget](/06_design_insights/pll_noise_budget) 的同款誠實聲明）|
+| SONET/SDH OC-48（電信參考時脈）／時脈晶片 datasheet | $12$ kHz–$20$ MHz | 本站 worked example 用的頻寬。OC-48 的 Telcordia GR-253 jitter generation 規格在 $12$ kHz 高通、$20$ MHz 低通下量測（Schmitt & Grant 的 Lightwave 文章，見本節末的引用，**外部文獻，非本站 5 篇 PDF**）；許多時脈晶片 datasheet 也沿用同一頻寬報 RMS jitter。**GR-253-CORE 原文本站未取得，條文編號未逐條核對**（同款聲明見 [pll_noise_budget](/06_design_insights/pll_noise_budget)）|
+| SONET/SDH OC-192／STM-64 | $20$ kHz–$80$ MHz（亦見 $4$–$80$ MHz）| OC-192 的頻寬上限是 $80$ MHz，**不是** $20$ MHz；依 trade 文獻對 GR-253／ITU-T O.172 的轉述（外部文獻，非本站 5 篇 PDF）。本站 worked example 的表只畫到 $100$ MHz，且沒有在這個頻寬上算 $\sigma_t$，所以 $8.45$ ps **不適用於** OC-192 的量法。條文編號同樣待查證 |
 | PCIe / OIF-CEI 系列 SerDes | 不是固定頻寬，而是先過 CDR 的 jitter-transfer 濾波再積分 | 「積分」變成「濾波＋積分」——見 [dj_dual_dirac](/06_design_insights/dj_dual_dirac) 的 dual-Dirac／CDR 濾波 jitter 討論 |
 | ADC/DAC 取樣時脈 | 下限 $\sim10$–$100$ Hz（量測系統本身限制），上限 $f_s/2$（Nyquist）| 見 [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter) 的 aperture jitter 與取樣率討論；確切下限依 datasheet |
+
+> **來源（外部文獻，非本站 5 篇 PDF）**：N. Schmitt and D. Grant (Agilent Technologies), "SONET/SDH jitter measurements of high-speed OC-48 optical transceivers," *Lightwave*, 14 Jun 2002——該文述及 OC-48 的 Telcordia GR-253 jitter generation 規格是在 $12$ kHz 高通與 $20$ MHz 低通濾波下量測。OC-192 的 $20$ kHz–$80$ MHz／$4$–$80$ MHz 來自廠商（Viavi、Anritsu）白皮書／研討資料對 GR-253 與 ITU-T O.172 的轉述，本站只讀到這些二手說明，**未讀 GR-253 或 O.172 本文**，頻帶與條文編號請以現行標準為準。
 
 > **互動練習**：本站互動計算器頁面（[interactive_calculator](/04_simulation_labs/interactive_calculator)）內嵌的 `PhaseNoiseCalculator` 元件提供「datasheet 分段表」模式，可直接編輯 6 個 $(f,\mathcal{L})$ 點與積分頻寬 $[f_1,f_2]$，即時看 $\sigma_\phi,\sigma_t$ 怎麼變——預設值就是上面這張 worked-example 表。
 
@@ -473,7 +489,7 @@ import numpy as np
 L_dbc, gamma_rms, qmax = -148.0, 0.5, 1e-12
 dw = 2*np.pi*1e6
 Si = 10**(L_dbc/10) * (4*dw**2*qmax**2) / gamma_rms**2
-print(f"{Si:.3e} A^2/Hz")   # -> 1.000e-24 A^2/Hz
+print(f"{Si:.3e} A^2/Hz")   # -> 1.001e-24 A^2/Hz
 ```
 
 > **例 2（由 $1/f^3$ corner 反推 ISF 對稱性 $c_0/c_1$）**：圖上量到 device flicker corner $f_{1/f}=1\,\text{MHz}$（$\omega_{1/f}=2\pi\times10^6$），而 PN 圖上 $1/f^3$ 與 $1/f^2$ 的交會 corner 出現在 $\Delta f_{1/f^3}=100\,\text{kHz}$。反推 ISF 的 $c_0/c_1$ 比，評估波形對稱性。

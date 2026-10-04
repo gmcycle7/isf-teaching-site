@@ -39,7 +39,7 @@ converted from $S_\phi$ via the small-angle approximation $\mathcal{L}=\tfrac12 
 The worked chain's VCO anchor of $-148$ dBc/Hz @ 1 MHz is the site's canonical example B, using the
 **"/4" SSB accounting** of [P1] Eq.(21), p.185; the clean time-domain derivation's "/2" version gives $-145$ (the famous 3 dB convention dispute, see
 [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)). The four rules on this page
-($\pm20\log_{10}N$, power addition) are themselves **ratio operations**: as long as input and output use the same convention, /2 or /4 cancels,
+($\pm20\log_{10}N$, power addition) are themselves **ratio operations**: as long as input and output use the same convention, /2 or /4 cancels (provided **every** term is converted to the same convention; a measured floor such as a buffer's $-155$ dBc/Hz does not shift with the bookkeeping, so an output that includes the floor does not shift as a whole — see [final exam Q7](/04_simulation_labs/final_exam)),
 and the rules' numbers are convention-independent — which is why the accounting rules can safely be used as a lookup table.
 
 ## Rule 1: ideal ×N multiplication — why it is $+20\log_{10}N$
@@ -289,6 +289,8 @@ print(round(10*np.log10(1 + 10**(0/10)), 2))    # -> 3.01
 ```
 
 ## Rule 5: DLL — no oscillator, no random walk
+
+> **Reading note**: on this page a "Rule N" is a reusable law (one per component type), while a "Step N" is the order of derivation or calculation inside a rule or in the worked chain later on. The two numberings are independent; for example, the "Step 5" inside this section is PI quantisation and is unrelated to the later "Step 5: conserved quantity".
 
 **The question**: Rules 1–4 cover "multiplication / division / PLL / buffer", but there is another component
 common in clock chains that this page has not yet accounted for — the **DLL (delay-locked loop)**, and,
@@ -726,7 +728,7 @@ in this chain, "who free-runs and who is locked" determines which noise accumula
 - Honest comparison: the pure type-II second-order loop's ref tail runs **parallel** to the VCO skirt (a constant $+25$ dB here),
   shaped $\sigma_t=44.0$ fs (59% above the lookup); adding a 3rd pole (3 MHz) → 38.6 fs;
   this chain's jitter-optimal loop BW is actually $f_n^\*\approx53$ kHz ($\sigma_t\approx19.6$ fs).
-- Convention discipline: the rules are all ratio/addition operations, /2-vs-/4 cancels; the only convention-sensitive item is the VCO anchor
+- Convention discipline: the rules are all ratio/addition operations, /2-vs-/4 cancels; the convention-sensitive item is the formula-derived VCO anchor (a measured floor does not shift with the bookkeeping)
   ($-148$ = [P1] Eq.(21)'s /4 SSB; the time-domain /2 gives $-145$).
 
 ## Further reading

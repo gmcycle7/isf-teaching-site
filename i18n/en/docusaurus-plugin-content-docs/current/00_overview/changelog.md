@@ -17,6 +17,20 @@ Newest version first.
 
 ---
 
+## v12 (round 1): P0/P1 fixes, checks-only CI, deferred items
+
+**Rollback points**: `v11-stable` (`f1c343d`, before v12) / branch `backup/v11-stable` / v11 live gh-pages `b1dd49875` / local `backups/isf-teaching-site_v11-stable_2026-10-05.tgz`. Full plan: `extracted/_REVIEW_v12_PLAN.md` — every paper-attributed formula of the four papers re-verified against rendered pages, a first-time-reader review of the new pages, external-citation checks and cross-page consistency of the v11 numbers: 68 adversarially verified findings. This round covers P0 + P1 (15 items) and the items deferred from v11; the remaining 53 P2 items are still open.
+
+- **Finishing the κ attribution (missed in v11)**: v11 corrected "the printed [P2] Eq.(12) carries $\omega_0$", but proved "no page still says otherwise" by grepping for specific wordings and missed differently worded places. This time the sweep was by **formula**: 23 places fixed (in each language): [dj_dual_dirac](/06_design_insights/dj_dual_dirac) (still said "Eq.(8) is phase jitter and contains no $\omega_0$"), cheat_sheet, equation_index rows 15/23 and their source JSON, common_mistakes, diffusion_dictionary, jitter_kernels, lab_03 ("Eq.10" → Eq.(8); Sec. III is on p.792), lab_36, build_report, final_exam. No number changed ($\kappa_\phi^2=0.125$ rad²/s, $\kappa_t=1.125\times10^{-11}\ \sqrt{\text{s}}$).
+- **The ghost 3 dB**: the ring numbers (164.80 / 168.32 dB, $-91.0$ dBc/Hz) belong to the /2 family of [P2], the LC numbers (197.63 dB, $-148.0$ dBc/Hz) to the /4 family of [P1] Eq.(21), yet they were subtracted directly. Comparisons now stay within one family: the "ring behind LC" table on [fom_limit](/06_design_insights/fom_limit) goes from 32.83 to **29.82 dB** (rows re-derived: 100 / 3 / 8/3 / 6/5, total 960); "57 dB better" on [lc_vs_ring](/06_design_insights/lc_vs_ring) becomes **54 dB**; design_recipe and cheat_sheet gain family flags and the /4-bookkeeping equivalents (ring ceiling 171.33 dB, example 167.81 dB, $-94.0$ dBc/Hz). No conclusion flips.
+- **Final exam Q7**: a power sum is **higher** than both terms ($-151.47$ is 2.55 dB above $-154.02$ and 3.53 dB above $-155$); the page said "lower". The convention flag now says a measured floor does not shift with the /2-vs-/4 bookkeeping; the same wording on clock_chain_budget is fixed too.
+- **Bang-bang CDR page**: the Alexander PD early/late decision was reversed; fixed, with a truth table and a loop-polarity note. Steps 3–5 now describe one loop — the proportional path's slew line is only 259 UI at 30 kHz, below the 521 UI SSC requirement, and the integral path replaces the velocity limit by an acceleration limit. New lab_45 (Monte-Carlo: PD slope vs $K_{bb}$, hunting, JTOL, SSC tracking) and the interactive BbCdrExplorer.
+- **ADPLL page**: Example 3 redone — the ΔΣ-shaped noise is set by the **frequency step of the physical unit capacitor** (40 aF → 100 kHz, 1 fF → 2.5 MHz), not by the effective resolution after dithering; a 1 fF cell with first-order dither is still 17.3 dB above the LC thermal noise at 1 MHz. New lab_44 (time-domain simulation of TDC/DCO quantization noise). The Staszewski citation is corrected to IEEE JSSC vol. 40, no. 12, pp. 2469–2482, Dec. 2005.
+- **Other P1 items**: a $+6.99$ in a design_recipe line is now $-6.99$, with a reconciliation against example B; example B's $\Gamma_{rms}$ label corrected from $1/\sqrt2$ to 0.5 (the value that gives $-148.0$ dBc/Hz); the white-noise autocorrelation in the Wiener–Khinchin appendix and stochastic_noise_basics is now $(S_i/2)\,\delta(\tau)$ ($S_i$ single-sided); the argument of the [P3] ISF is $\omega_{inj}t+\theta$ ($\theta$ = phase relative to the injection, Eq.(4)); the description of [P4] Fig. 5 is corrected (amplitude-deviation decay and the APF as an area; no ISF and no quadrature — the ideal-LC quadrature exists only as Eq.(24)–(26)); 12 kHz–20 MHz is the OC-48 integration band (OC-192 uses 20 kHz–80 MHz).
+- **Deferred from v11**: the interactive CoupledQvcoExplorer; loop-filter resistor noise quantified (at $I_{cp}=100\,\mu$A the optimum $\sigma_t$ goes from 259.5 to 274.9 fs; $I_{cp}\ge0.61$ mA keeps the penalty under 1 %); an `np.trapezoid` cross-check on the measurement page's main example; paper_003 Fig. 14 read-off values, a leaked quiz answer on jitter_kernels, a rules-vs-steps note on clock_chain.
+- **Checks-only CI**: GitHub Actions runs the MDX compile check, front matter, zh/EN structural parity, sidebar coverage, worked-example verification and the bilingual build on every push and PR; deployment still uses `scripts/deploy.sh`. New: `requirements.txt`, `scripts/check_front_matter.py`, `scripts/check_sidebar.js`.
+- Scale: **102 pages × 2 locales, 63 figures, 55 simulations, 23 interactive components, 219 verifiable examples (0 wrong)**.
+
 ## v11: 46 review-driven improvements (P0 fixes, untaught paper sections, system-level pages, flow and EN finishing)
 
 **Rollback points**: `v10-stable` (`3f28eb5`, before v11) / branch `backup/v10-stable` / v10 live gh-pages `37daa1ad1` / local `backups/isf-teaching-site_v10-stable_2026-09-12.tgz`; intermediate `v11-w2` (`f379e16`, after waves 1+2). Full plan: `extracted/_REVIEW_v11_PLAN.md` (15 review lenses → 68 findings each adversarially verified → 43 items + 3 added during the work).
@@ -141,7 +155,7 @@ harness", staged with a gate after each stage (`run_all_sims` + `verify_examples
 Key outcomes (all verified against the original PDFs):
 
 - **Ring FOM prefactor re-corrected `8/(3γ)→8/(3η)`** (v2 had mis-edited it and mislabeled it "verified verbatim"; γ enters only through
-  `V_char=ΔV/γ`); the worked example moved `−89.2→−91.0 dBc/Hz`, 57 dB from ideal LC.
+  `V_char=ΔV/γ`); the worked example moved `−89.2→−91.0 dBc/Hz`, 57 dB from ideal LC. (v12 note: $-148$ and $-91$ belong to the /4 and /2 families; the same-family gap is 54 dB.)
 - **`[P4]` ISF/APF figure `Fig.3→Fig.5, p.2126`**; APF definition Eq.(18)–(22), ideal-LC quadrature
   Eq.(26) p.2128 (not the old "Eq.25/26/27" labels).
 - Citation page/equation corrections: `Fig.17 p.800→p.802`, `Sec.VIII p.1163→p.2135`, `Fig.4 p.182→p.181`,
@@ -151,7 +165,7 @@ Key outcomes (all verified against the original PDFs):
 - Code bugs: lab_05 Parseval DC double-counted (`c₀²→c₀²/2`, giving `2Γ²rms` after the fix), `accumulated_jitter_curve`
   broken call signature; lab_06/07/15 gained numerical-consistency metrics; lab_10/20 figure fixes; `verify_examples` regex tightened.
 - **Honestly blocked one false fix**: the audit claimed "κ Eq.(12) is missing ω₀"; zooming into the original PDF p.793 confirmed Eq.(12) never
-  had ω₀ — κ√Δt is the **phase** jitter `σ_Δφ` (Eq.11), and only the **time** jitter is `÷ω₀` (Eq.10). No blind edit was made.
+  had ω₀ — κ√Δt is the **phase** jitter `σ_Δφ` (Eq.11), and only the **time** jitter is `÷ω₀` (Eq.10). No blind edit was made. (**Overturned in v11**: the rendered p.793 shows that the printed Eq.(12) does carry ω₀ in the denominator and that Eq.(8) is timing jitter; see the v11 and v12 entries above.)
 - External literature now carries CrossRef-verified DOIs: Leeson 1966 (10.1109/PROC.1966.4682), Demir PPV 2000
   (10.1109/81.847872), Kärtner 1990 (10.1002/cta.4490180505), Adler 1946 (10.1109/JRPROC.1946.229930).
 

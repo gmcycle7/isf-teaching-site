@@ -320,7 +320,7 @@ $$
 $$
 \boxed{\ \sigma_{\Delta\phi}=\kappa\sqrt{\Delta t},\qquad
 \kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\frac12\cdot\frac{\overline{i_n^2}}{\Delta f}}\ }
-\qquad(\text{[P2] Eq.(8), p.792; square root of Eq.(11), p.793; the printed Eq.(12) is the time version }\kappa/\omega_0\text{, verified})
+\qquad(\text{square root of [P2] Eq.(11), p.793; Eq.(8), p.792 and the printed Eq.(12) are the time version }\kappa/\omega_0\text{, verified})
 $$
 
 - **Units (important — a frequent source of confusion)**: this $\kappa$ is the **phase version**,
@@ -358,8 +358,8 @@ $$
 (The second step uses 4.1's $\int_0^\infty\sin^2(ax)/x^2\,dx=\pi a/2$ with $a=\pi NT$.)
 
 **Not a single coefficient off**: the frequency-domain kernel integral yields an N-period phase jitter **exactly equal** to
-the random walk $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ of [P2] Eq.(8) (with $\Delta t=NT$),
-and $\kappa$ is the very one of Eq.(11)/(12). This closes the loop between the "kernel picture" and [P2]'s time-domain picture —
+the phase random walk $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ of [P2] Eq.(11), p.793 (with $\Delta t=NT$; dividing by $\omega_0$ gives the time version of Eq.(8), p.792),
+and $\kappa$ is the square root of the Eq.(11) rate (the printed Eq.(12) is its time version $\kappa_t=\kappa/\omega_0$). This closes the loop between the "kernel picture" and [P2]'s time-domain picture —
 had the prefactor been $2/\omega_0^2$ (treating the one-sided spectrum as two-sided), an extra $\sqrt2$ would appear here
 and disagree with [P2]; the Monte Carlo also sides with $\kappa^2NT$ (Section 8, ratios 0.999–1.001).
 
@@ -384,8 +384,7 @@ $$
   $f_0=5$ GHz): $\kappa=0.354$ rad/$\sqrt{\text{s}}$, $\kappa^2=0.125$ rad²/s
   (a true LC with $\Gamma_{rms}=1/\sqrt2$ exactly doubles this to $0.25$ — the difference is just the $\Gamma_{rms}^2$ packaging).
   $\sigma_{\Delta\phi}(1T)=\sqrt{0.125\times2\times10^{-10}}=5.00\ \mu\text{rad}$,
-  $\sigma_P(1)=5.00\times10^{-6}/(2\pi\times5\times10^9)=0.159$ fs (0.8 ppm of a period);
-  at $N=10^4$, $\sigma_{\Delta\phi}=0.50$ mrad, $\sigma_P=15.9$ fs — $\sqrt N$ growth.
+  $\sigma_P(1)=5.00\times10^{-6}/(2\pi\times5\times10^9)=0.159$ fs (0.8 ppm of a period).
 
 <NumericQuiz
   prompt="Try it yourself first: for the canonical oscillator (κ²=0.125 rad²/s, T=200 ps, f₀=5 GHz), at an N=100 period interval the period jitter σ_P(100) = ? (answer in fs)"
@@ -395,6 +394,8 @@ $$
   hint="First find σ_Δφ(100T)=√(κ²×100T) (rad), then divide by ω₀=2πf₀ to convert to time."
   solutionNote="σ_Δφ(100T)=√(0.125×100×2×10⁻¹⁰)=5.00×10⁻⁵ rad → σ_P(100)=5.00×10⁻⁵/(2π×5×10⁹)≈1.59 fs (= σ_P(1) times √100=10, matching √N growth)."
 />
+
+Stretching the interval to $N=10^4$ gives $\sigma_{\Delta\phi}=0.50$ mrad and $\sigma_P=15.9$ fs — still $\sqrt N$ growth (100 times larger $N$, 10 times larger $\sigma_P$).
 
 ### 4.4 The cycle-to-cycle closed form and the $\sqrt2$ relation
 
@@ -850,7 +851,7 @@ integrated only over the 1–100 MHz band. **Same set of formulas, same prefacto
 ## Corresponding papers / equations
 
 - $\phi(t)=\frac{1}{q_{max}}\int\Gamma i_n\,d\tau$: [P1] Eq.(11), p.182.
-- $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ (phase-jitter random walk): [P2] Eq.(8), p.792;
+- $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ (phase-jitter random walk): [P2] Eq.(11), p.793 (the time version $\sigma_{\Delta T}=\kappa_t\sqrt{\Delta T}$ is Eq.(8), p.792);
   $\kappa=(\Gamma_{rms}/q_{max})\sqrt{S_i/2}$ (phase version, no $\omega_0$): square root of [P2] Eq.(11), p.793; the printed Eq.(12), p.793 is the time version $\kappa_t=\kappa/\omega_0$ ($\omega_0$ in the denominator; all verified, corrected in v11);
   phase↔time jitter conversion $\sigma_{\Delta\phi}=2\pi\sigma_{\Delta t}/T$: [P2] Eq.(10), p.793.
 - Correlated (1/f) noise, $\sigma\propto\Delta t$: [P2] Eq.(9), p.792 and Fig. 4

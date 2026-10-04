@@ -39,10 +39,14 @@ RJ is the endpoint of the chain built over this site's first six chapters; a ste
 2. **Phase-noise integration → rms jitter**: $\sigma_t=\frac{1}{2\pi f_0}\sqrt{\int_{f_1}^{f_2}S_\phi(f)\,df}$
    (unit: s; canonical example C: $f_0=5$ GHz, $\mathcal{L}(1\text{MHz})=-100$ dBc/Hz, 1/f², integrate 1→100 MHz
    → $\sigma_t=447.9$ fs). See [lab_08](/04_simulation_labs/lab_08_jitter_integration).
-3. **Time-domain view — random walk**: [P2] Eq.(8), p.792 gives the accumulated **phase** jitter
-   $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$ ($\kappa$ in $1/\sqrt{\text{s}}$, from [P2]
-   Eq.(11)/(12), p.793 $\kappa=\tfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\overline{i_n^2}/\Delta f}$;
-   note the expression contains **no** $\omega_0$ — converting to the time version requires dividing by $\omega_0$ once more).
+3. **Time-domain view — random walk**: [P2] Eq.(8), p.792 gives the accumulated **timing** jitter
+   $\sigma_{\Delta t}=\kappa_t\sqrt{\Delta t}$ ($\kappa_t$ in $\sqrt{\text{s}}$; Eq.(12) as printed on p.793 is
+   $\kappa_t=\tfrac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\tfrac12\overline{i_n^2}/\Delta f}$, with $\omega_0$ **in** the denominator).
+   The **phase version** $\sigma_{\Delta\phi}=\kappa_\phi\sqrt{\Delta t}$,
+   $\kappa_\phi=\omega_0\kappa_t=\tfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\overline{i_n^2}/\Delta f}$ (units rad/$\sqrt{\text{s}}$),
+   is the square root of [P2] Eq.(11), p.793; the two differ only by the conversion $\sigma_{\Delta\phi}=\omega_0\sigma_{\Delta t}$ of Eq.(10), p.793.
+   Canonical values: $\kappa_\phi^2=0.125$ rad²/s, $\kappa_t=1.125\times10^{-11}\ \sqrt{\text{s}}$
+   (step-by-step derivation and numbers in [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)).
 4. **Why Gaussian**: every period the oscillator absorbs a large number of **mutually independent** tiny noise kicks; the total phase error is
    a sum of independent increments → central limit theorem → Gaussian. [lab_11](/04_simulation_labs/lab_11_monte_carlo_jitter)
    verified directly by Monte Carlo that the histogram is Gaussian and $\sigma\propto\sqrt{\Delta N}$.

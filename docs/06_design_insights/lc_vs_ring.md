@@ -371,7 +371,8 @@ $$
 $$
 
 - **結果**：$\mathcal{L}|_{1/f^2}\approx-91.0$ dBc/Hz @ 1 MHz——對 **N=3、N=5、N=15 完全相同**，
-  因為固定 $f_0$/$P$ 下各 $N$ 因子相消（claim C7）。這比例 B 的 LC 理想值（$-148$ dBc/Hz）差了 $\sim57$ dB，
+  因為固定 $f_0$/$P$ 下各 $N$ 因子相消（claim C7）。這比例 B 的 LC 理想值差了 $\sim54$ dB
+  （同族比較：$-91.0$ 是 /2 族，例 B 在 /2 族是 $-145$ dBc/Hz；例 B 常引用的 $-148$ 是 [P1] Eq.(21) 的 /4 族，見下面例 2），
   量級上合理：ring 沒有高 $Q$ 儲能、$q_{max}$ 小、device 多。
 - **Dimension check**：$\dfrac{[\text{J}]}{[\text{W}]}\cdot(\text{無因次})^2=\dfrac{[\text{J}]}{[\text{J/s}]}=[\text{s}]$，
   per-Hz 的功率比（$1/\Delta\omega^2$ 已吸進 $(\omega_0/\Delta\omega)^2$）→ $10\log_{10}$ 得 dBc/Hz ✓。
@@ -403,7 +404,11 @@ $$
 \end{aligned}
 $$
 
-- **比較**：理想單源下 LC $-148$ vs ring $-91$ → LC 約**好 57 dB**。（兩數來自兩篇論文各自的自然參數化：
+- **比較（先對齊慣例）**：ring 的 $-91.0$ dBc/Hz 來自 [P2] Eq.(23)，由 [P2] Eq.(6), p.792（分母 $8\pi^2f_{off}^2=2\Delta\omega^2$）收成，
+  是 **/2 族**；上面的 $-148.0$ 是 [P1] Eq.(21) 的 **/4 族**，兩者不能直接相減。把 LC 換到 /2 族：
+  $-148.0+10\log_{10}2=-145.0$ dBc/Hz，所以理想單源下 LC $-145$ vs ring $-91$ → LC 約**好 54 dB**
+  （或兩邊都用 /4 記帳：$-148$ vs $-94$，同樣 54 dB；直接拿 $-148$ 減 $-91$ 得到的 57 dB 多了 3 dB 的慣例差）。
+  結論不變——都是「五十幾 dB」的量級。（兩數來自兩篇論文各自的自然參數化：
   LC 用 $q_{max},\Gamma_{rms},S_i$、ring 用 $P,\gamma,V_{DD}/V_{char}$，故這是「量級對照」而非同一組參數。
   真實差距常為 10～30 dB，因 ring 有多個 noise 源、cyclostationary、flicker。）這量化了「LC 用高 $Q$ 儲能買低 phase noise」。
 - **Dimension check**：同 [P1] Eq.(21)（見 [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)），括號無因次 ✓。
@@ -415,6 +420,8 @@ def L_lc(Grms, qmax, Si, f0, df):                 # [P1] Eq.(21)
     dw = 2*np.pi*df
     return 10*np.log10(Grms**2/qmax**2 * Si/(4*dw**2))
 print(round(L_lc(0.5, 1e-12, 1e-24, 5e9, 1e6), 1))   # -> -148.0
+L_lc_2 = L_lc(0.5, 1e-12, 1e-24, 5e9, 1e6) + 10*np.log10(2)   # 同一顆 LC 換到 /2 族（[P2] Eq.(6) 的記帳）
+print(round(L_lc_2, 1), round(L_lc_2 - (-91.0), 1))  # -> -145.0 -54.0 （/2 族 LC；對 ring -91.0 的同族差距，dB）
 ```
 
 > 以上 [P2] 常數（前置係數 $8/(3\eta)$、$\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot N^{-1.5}$、Eq.(23) FOM）皆已對照原始 PDF 核實；唯一穩固且設計可直接用的是

@@ -104,7 +104,10 @@ $$
 
 - **Units**: $\text{A}^2$ (the expectation of a product of two currents).
 - **Wiener–Khinchin theorem**: autocorrelation and PSD are a Fourier pair. White noise has a flat PSD,
-  corresponding to a delta-function autocorrelation: $R_i(\tau)=\dfrac{\overline{i_n^2}}{\Delta f}\,\delta(\tau)$.
+  corresponding to a delta-function autocorrelation: $R_i(\tau)=\dfrac12\,\dfrac{\overline{i_n^2}}{\Delta f}\,\delta(\tau)$.
+  The $\tfrac12$ is there because this site's $\overline{i_n^2}/\Delta f$ is the **single-sided** PSD ($f\gt0$ only), whereas the Wiener–Khinchin Fourier pair
+  uses the **two-sided** spectrum ($-\infty\lt f\lt\infty$): the same power is spread over both halves, so the level halves ([P2] Appendix A, p.802 prints the same $\tfrac12$;
+  step-by-step derivation in Step A of [derivation_autocorrelation_wiener_khinchin](/99_appendix/derivation_autocorrelation_wiener_khinchin)).
 - **Intuition**: white noise's "value now" is **completely uncorrelated** with its "value the next instant" (zero memory). This is exactly why,
   in the phase integral of [P1] Eq.(11), noise contributions at different instants can be superposed independently — it turns
   the phase-variance calculation into "square and add term by term" with no cross-correlation terms to handle.

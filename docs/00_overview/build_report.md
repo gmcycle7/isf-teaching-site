@@ -46,7 +46,7 @@ flicker 1/f³ corner、Parseval 三類項）與兩個推導附錄（Floquet/PPV�
 
 - Eq.(16)：$\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot\dfrac{1}{N^{1.5}}$ ⇒ $\Gamma_{rms}\propto N^{-3/2}$（$\Gamma_{rms}^2\propto N^{-3}$；根號只蓋常數 $2\pi^2/(3\eta^3)$，$N^{-1.5}$ 在根號外）。[P2] Eq.(16), p.794。
 - Eq.(23) FOM：$\mathcal{L}\approx\frac{8}{3\eta}\frac{kT}{P}\frac{V_{DD}}{V_{char}}(f_0/\Delta f)^2$。前置係數是 $8/(3\eta)$（$\eta$ 為級延遲比例常數 Eq.(14)，$\approx 1$）；$\gamma$ 僅透過 $V_{char}=\Delta V/\gamma$ 進入；$V_T=0$ 下限 Eq.(25) $\frac{16\gamma}{3\eta}$。
-- Eq.(8)/(11)/(12)：$\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$（Eq.8）、$\kappa=(\Gamma_{rms}/q_{max})\sqrt{(\overline{i_n^2}/\Delta f)/2}$（Eq.12）。
+- Eq.(8)/(11)/(12)：$\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$（Eq.8）、$\kappa=\dfrac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{(\overline{i_n^2}/\Delta f)/2}$（Eq.12，p.793 印刷式：時間版、分母含 $\omega_0$、單位 $\sqrt{\text{s}}$；相位版 $\kappa_\phi=\omega_0\kappa$ 為 Eq.11 開根號，單位 rad/$\sqrt{\text{s}}$）。
 - Eq.(17)/(18) 每級雜訊 $4kT\gamma\mu C_{ox}(W/L)\Delta V$、Eq.(21) 功率 $P=2\eta N V_{DD}q_{max}f_0$。
 - **[P3]** Eq.(26) $\tilde\Gamma=\Gamma/q_{max}$；廣義 Adler Eq.(30),(33)；lock range Eq.(35) $\omega_L=\frac12 I_{inj}|\tilde\Gamma_1|$。
 - **[P4]** amplitude decay $\tau_0=2Q/\omega_{osc}$；Eq.(26) ideal-LC 基波 quadrature；Eq.(27) amplitude-corrected Adler。
@@ -108,17 +108,17 @@ Leeson↔ISF 疊圖、設計掃描、PLL transfer、BER bathtub）為公式計�
 
 ## 11. `python scripts/run_all_sims.py` 是否成功？
 
-**成功**：**52 個模擬腳本全數通過**（42 支 `lab_*` + 10 支 `fig_*`），產生 60 張圖到
+**成功**：**55 個模擬腳本全數通過**（44 支 `lab_*` + 11 支 `fig_*`），產生 63 張圖到
 `static/figures/`。關鍵驗證：Lorentzian 模擬頻譜吻合理論、近載波轉平；Allan deviation 三種
 FM 斜率精準落在 −1/2、0、+1/2；PLL 最佳 loop BW≈6.9 MHz、σ_t≈259 fs；數值法萃取 ISF 與理論
 −sinθ 最大誤差 ~0.001；白噪 S_φ 與 1/f² 線吻合約 3 個十倍頻；jitter 積分數值=解析（447.9 fs）。
 
 ## 12. 現在的站點規模與例題 QA
 
-**站點規模：102 頁 × 2 語系、60 圖、52 個模擬、21 個互動元件。**
+**站點規模：102 頁 × 2 語系、63 圖、55 個模擬、23 個互動元件。**
 
 `scripts/verify_examples.py` 把 docs 內每個有「標準答案」(`# ->`) 的 Python 例題實際跑一遍對數值：
-**211 個可驗證 block 中 199 個自動通過、0 個不符、0 個錯誤**；其餘為驗證器對註解裡的公式常數
+**219 個可驗證 block 中 206 個自動通過、0 個不符、0 個錯誤**；其餘為驗證器對註解裡的公式常數
 （如 $2\Gamma_{rms}^2$ 的「2」）或對照用數字的誤判，經人工確認正確。`check_site_quality.py`
 掃描：pages / figures present / required figs missing / content issues / soft warnings / open
 TODOs 的最新數字見終端輸出。

@@ -12,7 +12,7 @@ SerDes clocking 設計直覺。**繁體中文**，保留必要英文專業詞。
 
 ![social card](static/img/social-card.png)
 
-**規模**：102 頁教學、60 張重現圖、52 個可重跑模擬、21 個互動工具、211 個可自動驗證的數值例題
+**規模**：102 頁教學、63 張重現圖、55 個可重跑模擬、23 個互動工具、219 個可自動驗證的數值例題
 （`scripts/verify_examples.py` 全綠）。
 
 技術棧：**Docusaurus 3 + MDX + KaTeX**（數學）＋ **Mermaid**（方塊圖）＋ Python (NumPy/SciPy/Matplotlib) 模擬。
@@ -45,7 +45,7 @@ npm run start          # 開發伺服器，預設 http://localhost:3000
 python scripts/run_all_sims.py
 ```
 
-會執行 `simulations/lab_*.py` + `fig_*.py`（52 支），把所有圖輸出到 `static/figures/`（60 張）。
+會執行 `simulations/lab_*.py` + `fig_*.py`（55 支），把所有圖輸出到 `static/figures/`（63 張）。
 
 ## Build（產生靜態網站）
 
@@ -86,7 +86,7 @@ isf-teaching-site/
 │   └── _AUTHORING_SPEC.md      # 撰寫規範（不會被 build）
 ├── simulations/
 │   ├── common/                # signal/noise/oscillator/isf/pll/serdes/plot 工具庫
-│   └── lab_01..lab_43.py（42 個，非連續編號，缺 lab_09）+ fig_*.py（10 個）= 52 個腳本
+│   └── lab_01..lab_45.py（44 個，非連續編號，缺 lab_09）+ fig_*.py（11 個）= 55 個腳本
 ├── static/figures/            # 由模擬產生的 PNG（網站以 /figures/x.png 引用）
 └── scripts/
     ├── extract_papers.py       # 掃描 PDF、dump 純文字、產生 auto metadata

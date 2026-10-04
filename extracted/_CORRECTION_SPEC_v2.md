@@ -5,6 +5,8 @@ over any conflicting wording in extracted/_ROUND2_FINDINGS.md. Also read your fi
 _ROUND2_FINDINGS.md and apply those page-specific fixes. Math fences: every $$ on its own line; no
 &gt;/&lt; in math; table-cell math uses \vert. NEVER fabricate.
 
+> **SUPERSEDED — D0 below is WRONG and must not be followed.** A later re-render of [P2] p.793 shows the printed Eq.(12) is κ = Γrms/(q_max·ω0)·√(½·ī²ₙ/Δf) — ω0 IS in the denominator (time version κ_t, units √s, paired with Eq.(8) σ_ΔT = κ√ΔT on p.792, which is TIMING jitter). The ω0-free constant κ_φ = ω0·κ_t (rad/√s) is the square root of Eq.(11). Eq.(10) reads σ_Δφ = ω0·σ_ΔT. D0 is kept only as a historical record.
+
 ## D0 — κ (Eq.12) is CORRECT as printed — DO NOT add ω₀  [OVERRIDES the round-2 "κ missing ω₀" finding]
 Verified at high zoom against [P2] p.793: **Eq.(11) is σ²_Δφ = (Γ²rms·ī²ₙ/Δf)/(2 q²max)·ΔT** (PHASE jitter,
 dimensionless), and **Eq.(12) is κ = (Γrms/q_max)·√( ½·ī²ₙ/Δf )** — there is NO ω₀ in Eq.(12).

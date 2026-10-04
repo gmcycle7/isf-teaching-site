@@ -40,7 +40,7 @@ import NumericQuiz from "@site/src/components/NumericQuiz";
 worked chain 的 VCO 錨點 $-148$ dBc/Hz @ 1 MHz 是站內 canonical 例 B，用 [P1] Eq.(21), p.185 的
 **「/4」SSB 記帳**；乾淨時域推導的「/2」版本會給 $-145$（差 3 dB 的著名慣例之爭，見
 [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)）。本頁四條規則本身
-（$\pm20\log_{10}N$、功率相加）都是**比值運算**：只要輸入輸出用同一個慣例，/2 或 /4 都會對消，
+（$\pm20\log_{10}N$、功率相加）都是**比值運算**：只要輸入輸出用同一個慣例，/2 或 /4 都會對消（前提是**每一項**都換成同一個慣例；量測給定的床——例如 buffer 的 $-155$ dBc/Hz——不隨慣例平移，含床的輸出就不是整體平移，見[期末考題 7](/04_simulation_labs/final_exam)），
 規則的數字不受慣例影響——這是為什麼記帳規則可以放心查表。
 
 ## 規則 1：理想 ×N 倍頻 —— 為什麼是 $+20\log_{10}N$
@@ -289,6 +289,8 @@ print(round(10*np.log10(1 + 10**(0/10)), 2))    # -> 3.01
 ```
 
 ## 規則 5：DLL——沒有振盪器就沒有 random walk
+
+> **閱讀提示**：本頁的「規則 N」是可重複套用的定律（每條對應一種元件）；「第 N 步」是某條規則或後面 worked chain 內部的推導／計算順序。兩個編號互相獨立，例如本節裡的「第 5 步」指 PI 量化，與下方「第 5 步：守恆量」無關。
 
 **問題**：規則 1–4 涵蓋了「倍頻／除頻／PLL／buffer」，但時脈鏈裡還有一種常見元件本頁還沒
 記帳——**DLL（delay-locked loop，延遲鎖定迴路）**，以及緊接在它後面、把粗解析度再切細的
@@ -699,7 +701,7 @@ $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$）一旦進入 PLL/CDR 的 loop 就被
 - 誠實對照：純 type-II 二階 loop 的 ref 尾巴與 VCO 裙邊**平行**（本例恆 $+25$ dB），
   整形後 $\sigma_t=44.0$ fs（比查表高 59%）；加第 3 極點（3 MHz）→ 38.6 fs；
   本鏈 jitter 最佳 loop BW 其實是 $f_n^\*\approx53$ kHz（$\sigma_t\approx19.6$ fs）。
-- 慣例紀律：規則全是比值/加法運算，/2-vs-/4 對消；唯一吃慣例的是 VCO 錨點
+- 慣例紀律：規則全是比值/加法運算，/2-vs-/4 對消；吃慣例的是由公式算出的 VCO 錨點（量測給定的床不隨慣例平移）
   （$-148$＝[P1] Eq.(21) 的 /4 SSB；時域 /2 給 $-145$）。
 
 ## 延伸閱讀

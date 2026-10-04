@@ -49,7 +49,7 @@ original PDFs**; the current authoritative versions on the site are:
 
 - Eq.(16): $\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot\dfrac{1}{N^{1.5}}$ ⇒ $\Gamma_{rms}\propto N^{-3/2}$ ($\Gamma_{rms}^2\propto N^{-3}$; the radical covers only the constant $2\pi^2/(3\eta^3)$ — $N^{-1.5}$ sits outside it). [P2] Eq.(16), p.794.
 - Eq.(23) FOM: $\mathcal{L}\approx\frac{8}{3\eta}\frac{kT}{P}\frac{V_{DD}}{V_{char}}(f_0/\Delta f)^2$. The prefactor is $8/(3\eta)$ ($\eta$ is the stage-delay proportionality constant of Eq.(14), $\approx 1$); $\gamma$ enters only through $V_{char}=\Delta V/\gamma$; the $V_T=0$ lower bound Eq.(25) is $\frac{16\gamma}{3\eta}$.
-- Eq.(8)/(11)/(12): $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ (Eq.8), $\kappa=(\Gamma_{rms}/q_{max})\sqrt{(\overline{i_n^2}/\Delta f)/2}$ (Eq.12).
+- Eq.(8)/(11)/(12): $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$ (Eq.8), $\kappa=\dfrac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{(\overline{i_n^2}/\Delta f)/2}$ (Eq.12, as printed on p.793: time version, $\omega_0$ in the denominator, units $\sqrt{\text{s}}$; the phase version $\kappa_\phi=\omega_0\kappa$ is the square root of Eq.11, units rad/$\sqrt{\text{s}}$).
 - Eq.(17)/(18) per-stage noise $4kT\gamma\mu C_{ox}(W/L)\Delta V$ and Eq.(21) power $P=2\eta N V_{DD}q_{max}f_0$.
 - **[P3]** Eq.(26) $\tilde\Gamma=\Gamma/q_{max}$; generalized Adler Eq.(30),(33); lock range Eq.(35) $\omega_L=\frac12 I_{inj}|\tilde\Gamma_1|$.
 - **[P4]** amplitude decay $\tau_0=2Q/\omega_{osc}$; Eq.(26) ideal-LC fundamental quadrature; Eq.(27) amplitude-corrected Adler.
@@ -117,7 +117,7 @@ Historical fixes (the rendering-bug class) are recorded in the v2 entry of the [
 
 ## 11. Does `python scripts/run_all_sims.py` succeed?
 
-**Yes**: **all 52 simulation scripts (42 `lab_*` + 10 `fig_*`) pass**, producing 60 figures in
+**Yes**: **all 55 simulation scripts (44 `lab_*` + 11 `fig_*`) pass**, producing 63 figures in
 `static/figures/`. Key validations: the simulated Lorentzian spectrum matches theory, flattening near
 the carrier; Allan deviation slopes for the three FM types land precisely at −1/2, 0, +1/2; PLL
 optimal loop BW≈6.9 MHz, σ_t≈259 fs; numerically extracted ISF vs theoretical −sinθ max error ~0.001;
@@ -125,10 +125,10 @@ white-noise S_φ matches the 1/f² line over ~3 decades; jitter integration nume
 
 ## 12. Current site size and example QA
 
-**Site size: 102 pages × 2 locales, 60 figures, 52 simulations, 21 interactive components.**
+**Site size: 102 pages × 2 locales, 63 figures, 55 simulations, 23 interactive components.**
 
 `scripts/verify_examples.py` actually runs every Python worked example in docs that has a "reference
-answer" (`# ->`) and checks the numbers: **of 211 verifiable blocks, 199 pass automatically, 0
+answer" (`# ->`) and checks the numbers: **of 219 verifiable blocks, 206 pass automatically, 0
 mismatches, 0 errors**; the rest are verifier false positives on formula constants in comments (such
 as the "2" in $2\Gamma_{rms}^2$) or comparison numbers, manually confirmed correct. See the terminal
 output of `check_site_quality.py` for the latest numbers on pages / figures present / required figs

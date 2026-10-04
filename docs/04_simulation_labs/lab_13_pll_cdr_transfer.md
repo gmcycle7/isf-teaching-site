@@ -232,6 +232,9 @@ $\omega_{p3}=11/(RC)=11\,\omega_z$，且 $\omega_n$ 因 $C\to C+C_3$ 略降 $\sq
    ring VCO 在 $f_n$ 的 $2\times10^{-10}\times0.5=10^{-10}$ 低 27 倍，所以總 jitter 仍由 VCO 主宰。
    單獨積分 1 kHz–1 GHz（$f_0=5$ GHz）：$\sigma_{t,R}=91$ fs（對照 lab_20 最佳點 259 fs——不可忽略、
    但非主角）。
+   把這一項疊到 lab_20 預算上的圖、$\sigma_{\phi,R}^2=2\pi N\,kT\,K_{vco}/I_{cp}$（與 $f_n,\zeta$ 無關）的推導，以及
+   「最佳 loop BW 下 259.5→274.9 fs（+5.9%），$I_{cp}\ge1$ mA 才低於 1%」的結論見
+   [pll_noise_budget](/06_design_insights/pll_noise_budget)「數值驗證」一節。
 6. **設計旋鈕**：固定 $f_n,\zeta$ 時 $C\propto I_{cp}$、$R\propto1/I_{cp}$ → $S_{\phi,R}\propto R\propto1/I_{cp}$，
    而 CP 雜訊項 $(2\pi N/I_{cp})^2S_{i,cp}$ 也隨 $I_{cp}$ 下降——**加大 charge-pump 電流同時壓兩項**，
    代價是功率與 $C$ 的面積（$I_{cp}$ 100 µA → 1 mA：$R=17.8$ kΩ、$C=12.7$ pF、$S_{\phi,R}$ 降 10 dB）。

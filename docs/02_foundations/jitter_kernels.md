@@ -307,7 +307,7 @@ $$
 $$
 \boxed{\ \sigma_{\Delta\phi}=\kappa\sqrt{\Delta t},\qquad
 \kappa=\frac{\Gamma_{rms}}{q_{max}}\sqrt{\frac12\cdot\frac{\overline{i_n^2}}{\Delta f}}\ }
-\qquad(\text{[P2] Eq.(8), p.792；Eq.(11), p.793 開根號；印刷 Eq.(12) 為時間版 }\kappa/\omega_0\text{，已核實})
+\qquad(\text{[P2] Eq.(11), p.793 開根號；Eq.(8), p.792 與印刷 Eq.(12) 為時間版 }\kappa/\omega_0\text{，已核實})
 $$
 
 - **單位（重要、常被搞混）**：這裡的 $\kappa$ 是**相位版**，
@@ -344,9 +344,9 @@ $$
 
 （第二步用 4.1 的 $\int_0^\infty\sin^2(ax)/x^2\,dx=\pi a/2$，$a=\pi NT$。）
 
-**一個係數都不差**：頻域核積分給出的 N-period 相位 jitter **精確等於** [P2] Eq.(8)
-的隨機漫步 $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$（取 $\Delta t=NT$），
-$\kappa$ 就是 Eq.(11)/(12) 那顆。這就是「核圖像」與 [P2] 時域圖像的閉環——
+**一個係數都不差**：頻域核積分給出的 N-period 相位 jitter **精確等於** [P2] Eq.(11), p.793
+的相位隨機漫步 $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$（取 $\Delta t=NT$；除以 $\omega_0$ 就是 Eq.(8), p.792 的時間版），
+$\kappa$ 就是 Eq.(11) 開根號那顆（印刷 Eq.(12) 是它的時間版 $\kappa_t=\kappa/\omega_0$）。這就是「核圖像」與 [P2] 時域圖像的閉環——
 如果前置常數用了 $2/\omega_0^2$（把單邊譜當雙邊用），這裡會多出 $\sqrt2$，
 和 [P2] 對不上；Monte-Carlo 也站在 $\kappa^2NT$ 這邊（第 8 節，比值 0.999–1.001）。
 
@@ -371,8 +371,7 @@ $$
   $f_0=5$ GHz）：$\kappa=0.354$ rad/$\sqrt{\text{s}}$、$\kappa^2=0.125$ rad²/s
   （真 LC 的 $\Gamma_{rms}=1/\sqrt2$ 時剛好翻倍成 $0.25$，差別只是 $\Gamma_{rms}^2$ 的包裝）。
   $\sigma_{\Delta\phi}(1T)=\sqrt{0.125\times2\times10^{-10}}=5.00\ \mu\text{rad}$、
-  $\sigma_P(1)=5.00\times10^{-6}/(2\pi\times5\times10^9)=0.159$ fs（週期的 0.8 ppm）；
-  $N=10^4$ 時 $\sigma_{\Delta\phi}=0.50$ mrad、$\sigma_P=15.9$ fs——$\sqrt N$ 成長。
+  $\sigma_P(1)=5.00\times10^{-6}/(2\pi\times5\times10^9)=0.159$ fs（週期的 0.8 ppm）。
 
 <NumericQuiz
   prompt="先自己算：canonical 振盪器（κ²=0.125 rad²/s，T=200 ps，f₀=5 GHz）在 N=100 週期間隔的 period jitter σ_P(100) = ？（以 fs 作答）"
@@ -382,6 +381,8 @@ $$
   hint="先算 σ_Δφ(100T)=√(κ²×100T)（rad），再除以 ω₀=2πf₀ 換成時間。"
   solutionNote="σ_Δφ(100T)=√(0.125×100×2×10⁻¹⁰)=5.00×10⁻⁵ rad → σ_P(100)=5.00×10⁻⁵/(2π×5×10⁹)≈1.59 fs（＝σ_P(1) 的 √100=10 倍，符合 √N 成長）。"
 />
+
+把間隔拉長到 $N=10^4$ 時，$\sigma_{\Delta\phi}=0.50$ mrad、$\sigma_P=15.9$ fs——仍是 $\sqrt N$ 成長（$N$ 大 100 倍、$\sigma_P$ 大 10 倍）。
 
 ### 4.4 cycle-to-cycle 封閉式與 $\sqrt2$ 關係
 
@@ -787,7 +788,7 @@ $10^{10}$ Hz 以上尾巴（那裡核平均值 2、$1/f^2$ 譜仍有 ~5% 的變�
 ## 對應的 paper / 公式
 
 - $\phi(t)=\frac{1}{q_{max}}\int\Gamma i_n\,d\tau$：[P1] Eq.(11), p.182。
-- $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$（相位 jitter 隨機漫步）：[P2] Eq.(8), p.792；
+- $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$（相位 jitter 隨機漫步）：[P2] Eq.(11), p.793（時間版 $\sigma_{\Delta T}=\kappa_t\sqrt{\Delta T}$ 為 Eq.(8), p.792）；
   $\kappa=(\Gamma_{rms}/q_{max})\sqrt{S_i/2}$（相位版，無 $\omega_0$）：[P2] Eq.(11), p.793 開根號；印刷 Eq.(12), p.793 為時間版 $\kappa_t=\kappa/\omega_0$（分母含 $\omega_0$；皆已核實，v11 更正）；
   相位↔時間 jitter 換算 $\sigma_{\Delta\phi}=2\pi\sigma_{\Delta t}/T$：[P2] Eq.(10), p.793。
 - 相關（1/f）雜訊 $\sigma\propto\Delta t$：[P2] Eq.(9), p.792 與 Fig. 4

@@ -1,6 +1,6 @@
 ---
 title: Complete PLL phase-noise budget and optimal loop BW
-description: The transfer of each of five noise sources (reference, PFD/charge-pump, divider, loop filter, VCO) and their sum S_out=(S_ref N²+S_cp)|H_lp|²+S_vco|H_hp|², the in-band vs out-of-band handoff, reference spur, and minimizing the integrated jitter to find the optimal loop BW (fn≈6.9 MHz, σt≈259 fs); plus the closed-form type-II peaking (ζ=0.707→2.09 dB @0.786fn, the cascaded 0.1-dB rule) and the fractional-N ΔΣ quantization-noise third term (MASH-m, +40 dB/dec ramp), the closed-form loop-filter resistor noise, and the PLL jitter–power FOM (σt=259 fs, 10 mW → −241.7 dB).
+description: The transfer of each of five noise sources (reference, PFD/charge-pump, divider, loop filter, VCO) and their sum S_out=(S_ref N²+S_cp)|H_lp|²+S_vco|H_hp|², the in-band vs out-of-band handoff, reference spur, and minimizing the integrated jitter to find the optimal loop BW (fn≈6.9 MHz, σt≈259 fs); plus the closed-form type-II peaking (ζ=0.707→2.09 dB @0.786fn, the cascaded 0.1-dB rule) and the fractional-N ΔΣ quantization-noise third term (MASH-m, +40 dB/dec ramp), the closed-form loop-filter resistor noise with its overlay (σ²=2πN·kT·K_vco/I_cp independent of fn; 259.5→274.9 fs at I_cp=100 µA), and the PLL jitter–power FOM (σt=259 fs, 10 mW → −241.7 dB).
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -164,8 +164,11 @@ $$
   page's in-band floor of $1.5\times10^{-12}$, but 27× below the ring VCO's $10^{-10}$ at $f_n$; integrated alone
   over 1 kHz–1 GHz it gives $\sigma_{t,R}=91$ fs (compare the 259 fs optimum). At fixed $f_n,\zeta$,
   $R\propto1/I_{cp}$, so **raising the CP current** suppresses the resistor term and the CP term
-  $(2\pi N/I_{cp})^2S_{i,cp}$ together (cost: power, capacitor area). The lab_20 figure (below) does not include
-  this term (its $I_{cp}$ is unspecified; marked illustrative); a real design must.
+  $(2\pi N/I_{cp})^2S_{i,cp}$ together (cost: power, capacitor area). The lab_20 figure (below) is the "ideal loop filter"
+  budget without this term (its $I_{cp}$ is unspecified; marked illustrative); the overlay figure, the integrated closed form
+  $\sigma_{\phi,R}^2=2\pi N\,kT\,K_{vco}/I_{cp}$ (independent of $f_n$) and "how large must $I_{cp}$ be" are in this page's section
+  "Numerical check: overlaying the loop-filter resistor noise on the budget" — at the optimal loop BW, $I_{cp}=100\ \mu$A turns 259.5 fs into 274.9 fs (+5.9%),
+  and only $I_{cp}\ge1$ mA brings the penalty below 1%.
 
 ```python
 import numpy as np
@@ -487,7 +490,7 @@ $$
 ## Corresponding simulation figure (lab_20)
 
 **lab_20** (`simulations/lab_20_pll_budget.py`) uses the type-II second-order budget above. The
-left panel, at fixed $f_n=1$ MHz, plots three curves (ref$\times N^2$+CP low-pass, VCO
+left panel, at the optimal loop BW ($f_n\approx6.90$ MHz, the red dot of the right panel), plots three curves (ref$\times N^2$+CP low-pass, VCO
 high-pass, and the sum); the right panel sweeps $f_n$ and plots $\sigma_t(f_n)$ as a U-shape,
 marking its minimum.
 
@@ -638,6 +641,162 @@ for fn in [0.3e6, 6.9e6, 30e6]:
     st = np.sqrt(np.trapezoid(Sout(fn), f))/(2*np.pi*f0)
     print(f"fn={fn/1e6:5.2f} MHz -> sigma_t={st*1e15:.0f} fs")  # 867 / 259 / 396 fs
 ```
+
+## Numerical check: overlaying the loop-filter resistor noise on the budget
+
+Step 2 gave the closed form of the resistor term, while the lab_20 figure above and its 259 fs optimum are the
+"ideal loop filter" budget (no resistor term). This section puts both on one plot and answers three questions
+honestly: **how much does the resistor term actually contribute? Does it move the optimal loop BW? How large must
+$I_{cp}$ be before it is negligible?** The lab_20 figure and numbers are **left untouched**; the new script
+`simulations/fig_pll_rnoise.py` imports lab_20's own `output_psd` / `integ_jitter` as the baseline and adds the resistor term on top.
+
+### Derivation: how the resistor term scales with $I_{cp}$ at fixed $\omega_n,\zeta$
+
+Start from the two design equations of [lab_13](/04_simulation_labs/lab_13_pll_cdr_transfer) §2 (`design_type2`; $K_{vco}$ always in rad/s/V):
+
+$$
+C=\frac{I_{cp}K_{vco}}{2\pi N\,\omega_n^2}\ \propto\ I_{cp},\qquad
+R=\frac{2\zeta}{\omega_nC}=\frac{4\pi\zeta N\,\omega_n}{I_{cp}K_{vco}}\ \propto\ \frac{1}{I_{cp}} .
+$$
+
+(Units: $C$: $\text{A}\cdot(\text{rad/s/V})/(\text{rad/s})^2=\text{A·s/V}=\text{F}$ ✓; $R$: $(\text{rad/s})/(\text{A}\cdot\text{rad/s/V})=\text{V/A}=\Omega$ ✓.)
+Substitute $R$ into the Step-2 peak value $S_{\phi,R}(f_n)=4kTR\,K_{vco}^2/(2\zeta\omega_n)^2$:
+
+$$
+S_{\phi,R}(f_n)=\frac{4kT\,K_{vco}^2}{4\zeta^2\omega_n^2}\cdot\frac{4\pi\zeta N\omega_n}{I_{cp}K_{vco}}
+=\frac{4\pi kT\,N\,K_{vco}}{\zeta\,\omega_n\,I_{cp}}\quad[\text{rad}^2/\text{Hz}] .
+$$
+
+The shape of $S_{\phi,R}(f)$ is set by $\omega_n,\zeta$ alone and its height is proportional to $R$, so **at fixed
+$\omega_n,\zeta$ the whole resistor PSD falls as $1/I_{cp}$**: $I_{cp}\times10$ gives $-10$ dB, and the jitter drops by $\sqrt{10}$.
+
+Now integrate over all offsets. With $x=\omega/\omega_n$ and $\int_0^\infty\dfrac{x^2\,dx}{(1-x^2)^2+4\zeta^2x^2}=\dfrac{\pi}{4\zeta}$
+(the standard second-order band-pass integral; checked numerically to 0.9999 in the python block below):
+
+$$
+\begin{aligned}
+\sigma_{\phi,R}^2&=\int_0^\infty S_{\phi,R}\,df
+=\frac{4kTR\,K_{vco}^2}{2\pi}\int_0^\infty\frac{\omega^2\,d\omega}{(\omega_n^2-\omega^2)^2+(2\zeta\omega_n\omega)^2}
+=\frac{4kTR\,K_{vco}^2}{2\pi}\cdot\frac{\pi}{4\zeta\omega_n}\\
+&=\frac{kTR\,K_{vco}^2}{2\zeta\,\omega_n}
+=\frac{kT}{C}\Big(\frac{K_{vco}}{\omega_n}\Big)^2
+=\frac{2\pi N\,kT\,K_{vco}}{I_{cp}}\quad[\text{rad}^2] .
+\end{aligned}
+$$
+
+(The second line substitutes $R=2\zeta/(\omega_nC)$ and then $C=I_{cp}K_{vco}/(2\pi N\omega_n^2)$.)
+
+- **Physical meaning**: the middle form is "the $kT/C$ noise on $V_{ctrl}$ times the gain $(K_{vco}/\omega_n)^2$" — the resistor value itself cancels,
+  for the same reason as in every $kT/C$ result.
+- **The last form contains neither $f_n$ nor $\zeta$**: for given $N$, $K_{vco}$, $I_{cp}$ the integrated jitter of the resistor term is a **constant**
+  (widening the loop makes $R\propto\omega_n$ larger, the peak $\propto1/\omega_n$ lower and the band $\propto\omega_n$ wider; the three cancel).
+  It therefore lifts the whole U-curve **by the same variance** and **does not move the optimal $f_n$**.
+- **Dimension check**: $kT$ [J = V·A·s] $\times K_{vco}$ [rad/(s·V)] $/I_{cp}$ [A] $=\text{rad}$ (dimensionless) → $\text{rad}^2$ ✓.
+- **Convention flag (the factors 4 and 2)**: $4kTR$ is the **one-sided** voltage PSD (V²/Hz), paired with this site's **one-sided** $S_\phi$ and an integral from 0 to $\infty$;
+  with the two-sided $2kTR$ one integrates over $\pm f$ and gets the same result. Converting to dBc/Hz still uses $\mathcal{L}=\tfrac12S_\phi$. Using $K_{vco}$ in Hz/V by mistake
+  is an error of $(2\pi)^2$ in the PSD, or $2\pi$ in the closed-form variance.
+
+Plugging in the lab_13 example ($N=100$, $K_{vco}=2\pi\times50$ MHz/V, $I_{cp}=100\ \mu$A, $T=300$ K):
+$\sigma_{\phi,R}^2=2\pi\times100\times4.142\times10^{-21}\times3.1416\times10^{8}/10^{-4}=8.18\times10^{-6}\ \text{rad}^2$,
+$\sigma_{\phi,R}=2.86$ mrad, $\sigma_{t,R}=\sigma_{\phi,R}/(2\pi f_0)=91.0$ fs — in agreement with the 91 fs from the numerical integration in Step 2.
+
+### Figure and numbers
+
+![Loop-filter resistor noise overlaid on the lab_20 PLL budget: (a) the lab_13 design at f_n=1 MHz, (b) the optimal loop BW of 6.9 MHz, with three resistor-term curves for I_cp=100 µA, 1 mA and 10 mA; (c) integrated jitter versus loop BW with and without the resistor term](/figures/pll_budget_rnoise.png)
+
+> **Translator's note**: this figure is generated by a script with Chinese text baked into the image. Titles read: "(a) lab_13 的環（f_n=1 MHz）：電阻項 vs 預算" = (a) the lab_13 loop (f_n = 1 MHz): resistor term vs the budget; "(b) 最佳 loop BW（f_n≈6.90 MHz）" = (b) the optimal loop bandwidth; "(c) 積分 jitter：電阻項抬高整條 U 形、最佳 f_n 不動" = (c) integrated jitter: the resistor term lifts the whole U-curve, the optimal f_n does not move. Legend: "低通" = low-pass; "高通" = high-pass; "lab_20 總和（無電阻項）" = lab_20 total (no resistor term); "電阻項" = resistor term; "總和 + 電阻項" = total + resistor term; "最佳點" = optimum; "電阻項單獨 91 fs（100 µA，與 f_n 無關）" = resistor term alone, 91 fs (100 µA, independent of f_n).
+
+**Parameters**: baseline = the lab_20 budget (parameter table in the previous section; $f_0=5$ GHz, $N=100$, $\zeta=0.707$, integration 1 kHz–1 GHz);
+the resistor term uses $K_{vco}=50$ MHz/V, $T=300$ K, with $R$ re-designed by `design_type2` at every $f_n$. Full script:
+`simulations/fig_pll_rnoise.py`.
+
+| $f_n$ | $I_{cp}$ | $R$ | $C$ | $S_{\phi,R}(f_n)$ [rad²/Hz] | $\sigma_{t,R}$ (alone) | $\sigma_t$ without → with the resistor term |
+|---|---|---|---|---|---|---|
+| 1 MHz (lab_13 design) | 100 µA | 178 kΩ | 1.27 pF | $3.68\times10^{-12}$ | 91.0 fs | 479.6 → 488.2 fs (+1.8%) |
+| 1 MHz | 1 mA | 17.8 kΩ | 12.7 pF | $3.68\times10^{-13}$ | 28.8 fs | 479.6 → 480.5 fs (+0.2%) |
+| 1 MHz | 10 mA | 1.78 kΩ | 127 pF | $3.68\times10^{-14}$ | 9.1 fs | 479.6 → 479.7 fs |
+| 6.9 MHz (optimum) | 100 µA | 1.23 MΩ | 0.027 pF | $5.33\times10^{-13}$ | 90.7 fs | 259.5 → 274.9 fs (+5.9%) |
+| 6.9 MHz | 1 mA | 123 kΩ | 0.27 pF | $5.33\times10^{-14}$ | 28.7 fs | 259.5 → 261.0 fs (+0.6%) |
+| 6.9 MHz | 10 mA | 12.3 kΩ | 2.66 pF | $5.33\times10^{-15}$ | 9.1 fs | 259.5 → 259.6 fs |
+
+**How to read it:**
+
+- **(a) The lab_13 loop ($f_n=1$ MHz, $I_{cp}=100\ \mu$A)**: the orange curve (resistor term) peaks at $3.68\times10^{-12}$ at $f_n$, **2.5× above** the
+  in-band floor $1.5\times10^{-12}$ of the blue dotted curve — among the in-band sources it is the largest; but at the same offset the high-passed ring VCO sits at
+  $10^{-10}$, 27× higher, so the black curve (no resistor) and the grey dashed curve (with resistor) nearly coincide: **the resistor term does not dominate the total
+  jitter of this ring PLL** (479.6 → 488.2 fs, +1.8%). Stated plainly: it "exceeds the in-band floor" but "is buried under the VCO".
+- **(b) Optimal loop BW**: with $f_n$ 6.9× wider, the resistor peak is 6.9× lower ($\propto1/\omega_n$), yet its integral is still ~91 fs. The VCO has now been
+  suppressed (total 259.5 fs), so the same 91 fs becomes visible: $\sqrt{259.5^2+90.7^2}=274.9$ fs, **+5.9%**.
+- **(c) The U-curve**: each dashed curve is just the black curve lifted by a constant added in variance; the minimum stays at $f_n^\*\approx6.90$ MHz —
+  confirming the "independent of $f_n$" closed form.
+
+```python
+import numpy as np
+from simulations.common.pll_utils import design_type2, H_lowpass_mag2, H_highpass_mag2
+
+kT, f0, N, zeta, Kvco = 1.380649e-23*300, 5e9, 100, 0.707, 50e6   # J, Hz, -, -, Hz/V
+kv = 2*np.pi*Kvco                                                # rad/s/V
+f = np.logspace(3, 9, 3000)                                      # lab_20 grid, Hz
+def S_budget(fn):                                                # lab_20 budget (no resistor)
+    lp, hp = H_lowpass_mag2(f, fn, zeta), H_highpass_mag2(f, fn, zeta)
+    return ((1e-16 + 1e-18*(1e6/f))*N**2 + 5e-13)*lp + 2e-10*(1e6/f)**2*hp
+def S_R(fn, Icp):                                                # resistor term, rad^2/Hz
+    R, C = design_type2(fn, zeta, N, Kvco, Icp)
+    return 4*kT*R*kv**2/(2*np.pi*f)**2*H_highpass_mag2(f, fn, zeta), R, C
+sig = lambda S: np.sqrt(np.trapezoid(S, f))/(2*np.pi*f0)*1e15    # fs
+
+x = np.linspace(1e-4, 1e4, 20_000_001)                           # x = f/f_n
+print(round(np.trapezoid(x**2/((1 - x**2)**2 + (2*zeta*x)**2), x)*4*zeta/np.pi, 4))
+# -> 0.9999
+var = 2*np.pi*N*kT*kv/100e-6                                     # closed form, rad^2
+print(f"{var:.3e}", round(np.sqrt(var)*1e3, 2), round(np.sqrt(var)/(2*np.pi*f0)*1e15, 1))
+# -> 8.176e-06 2.86 91.0
+for fn in (1e6, 6.9e6):
+    out = [round(sig(S_budget(fn)), 1)]
+    for Icp in (100e-6, 1e-3, 10e-3):
+        SR, R, C = S_R(fn, Icp)
+        out += [round(sig(SR), 1), round(sig(S_budget(fn) + SR), 1)]
+    print(fn/1e6, *out)
+# -> 1.0 479.6 91.0 488.2 28.8 480.5 9.1 479.7
+# -> 6.9 259.5 90.7 274.9 28.7 261.0 9.1 259.6
+for Icp in (100e-6, 1e-3, 10e-3):
+    R, C = design_type2(6.9e6, zeta, N, Kvco, Icp)
+    print(round(R/1e3, 1), round(C*1e12, 3), f"{S_R(6.9e6, Icp)[0][np.argmin(abs(f - 6.9e6))]:.2e}")
+# -> 1226.1 0.027 5.33e-13
+# -> 122.6 0.266 5.33e-14
+# -> 12.3 2.66 5.33e-15
+s_opt = sig(S_budget(6.9e6))
+print(round(s_opt*np.sqrt(1.01**2 - 1), 1), round(100*(91.02/(s_opt*np.sqrt(1.01**2 - 1)))**2))
+# -> 36.8 612
+print(round(3.681e-12/1.5e-12*100), round(4*np.pi*kT*N*kv/(zeta*2*np.pi*6.9e6*1.5e-12)*1e6))
+# -> 245 36
+```
+
+### Design lessons
+
+1. **The lab_13 example at $I_{cp}=100\ \mu$A**: the resistor term (91 fs) is **not** the dominant contributor in this ring PLL, but it is **not a negligible zero** either —
+   at the optimal loop BW it takes $\sigma_t$ from 259.5 fs to 274.9 fs. The "$\sigma_t\approx259$ fs" quoted on other pages of this site should be read as the
+   **ideal-loop-filter (or sufficiently large $I_{cp}$)** value.
+2. **How large is large enough**: taking "less than 1% increase of $\sigma_t$ at the optimum" as the criterion requires $\sigma_{t,R}\lt36.8$ fs, i.e.
+   $I_{cp}\gt100\ \mu\text{A}\times(91.0/36.8)^2\approx0.61$ mA. **$I_{cp}=1$ mA is enough** (+0.6%); 10 mA (+0.06%) is already
+   over-design. With the alternative criterion "peak below the in-band floor $1.5\times10^{-12}$": $f_n=1$ MHz needs $I_{cp}\gt245\ \mu$A, while
+   $f_n=6.9$ MHz needs only $\gt36\ \mu$A (the peak scales as $1/\omega_n$) — the two criteria differ, so state which one you use.
+3. **With a quiet VCO the conclusion flips**: $\sigma_{t,R}^2\propto N K_{vco}/I_{cp}$ does not depend on the VCO. Replace the ring by an LC oscillator so that the remaining
+   terms fall to the 100 fs level, and the same 91 fs becomes the **main** contribution. A low-noise PLL therefore either raises $I_{cp}$, or **lowers $K_{vco}$**
+   (coarse/fine tuning split, see [varactor_tuning_supply_pushing](/06_design_insights/varactor_tuning_supply_pushing)), or lowers $N$.
+4. **Cost**: $C\propto I_{cp}$. At $f_n=1$ MHz, 10 mA needs 127 pF (area), plus the power of the CP itself; this is the same bookkeeping as the
+   "every term $\propto1/P$" argument behind $\mathrm{FOM}_{jitter}$.
+
+**Limitations and honest disclaimers:**
+
+- Ideal series $R$–$C$, no third pole $C_3$. In a real loop $C_3$ low-passes the resistor noise once more (above $f_{p3}$) and changes the shape of
+  $\lvert H_{hp}\rvert^2$ near $f_n$; "independent of $f_n,\zeta$" holds strictly only for the ideal second-order loop.
+- While $I_{cp}$ is swept, lab_20's $S_{cp}=5\times10^{-13}$ is **held fixed** (lab_20 does not tie $S_{cp}$ to $I_{cp}$); in a real design
+  the CP term also changes with $I_{cp}$ — here only the resistor term is isolated.
+- The row $f_n=6.9$ MHz, $I_{cp}=100\ \mu$A has $C=0.027$ pF and $R=1.23$ MΩ, smaller than typical parasitic capacitance — that row is the mechanical output of the formulas,
+  not a buildable filter; at that loop BW one would in practice have to use a larger $I_{cp}$ (or a smaller $K_{vco}$) anyway.
+- Only the resistor's thermal noise ($T=300$ K) is included — no CP leakage, switch charge injection or varactor AM-PM; over the 1 kHz–1 GHz band
+  the numerical integral is 0.999 of the closed form (out-of-band tails). Everything is illustrative, not a specific process.
 
 ## The third term for fractional-N: ΔΣ quantization noise
 
@@ -1012,7 +1171,7 @@ frequency band; the thermal-noise-dominated $\propto1/P$ assumption fails when f
 | sources uncorrelated | powers add directly (this page's sum formula) | if CP and divider are correlated, cross terms are needed |
 | linear PLL (small phase error) | type-II second-order closed loop is valid | large unlock/slew → nonlinear, transfer function no longer holds |
 | VCO is $1/f^2$ (white-noise upconversion) | $S_{vco}=k/f^2$, this page's U-shape | with flicker ($1/f^3$ close-in) present → optimal BW shifts, re-integration needed |
-| ignoring loop-filter and spur | toy budget is adequate (lab_20 figure) | $S_{lf}$ now has a closed form (Step 2; it can exceed the in-band floor for small $I_{cp}$); reference spur and fractional spurs must all be included |
+| ignoring loop-filter and spur | toy budget is adequate (lab_20 figure) | $S_{lf}$ now has a closed form (Step 2) and an overlay (the "Numerical check" section: at $I_{cp}=100\ \mu$A $\sigma_t$ goes 259.5→274.9 fs, and only $\ge1$ mA gives $\lt1\%$); reference spur and fractional spurs must all be included |
 | integer-N | reference $\times N^2$ | fractional-N: ΔΣ quantization-noise third term (now covered in this page's "The third term for fractional-N" section) |
 
 ## Key takeaways
@@ -1026,7 +1185,9 @@ frequency band; the thermal-noise-dominated $\propto1/P$ assumption fails when f
 - This ring-PLL's U-shape has a steeper left arm than right → favors a somewhat larger loop BW.
 - The loop-filter resistor term has a closed form $S_{\phi,R}=4kTR\,K_{vco}^2/(2\pi f)^2\cdot\lvert H_{hp}\rvert^2$ (band-pass, peak at $f_n$);
   lab_13's worked design ($R=178$ kΩ) gives $-117.4$ dBc/Hz @1 MHz, $\sigma_{t,R}=91$ fs — "omitted" does not always hold,
-  and raising $I_{cp}$ suppresses it together with the CP term.
+  and raising $I_{cp}$ suppresses it together with the CP term. Integrated, $\sigma_{\phi,R}^2=2\pi N\,kT\,K_{vco}/I_{cp}$ — **independent of $f_n,\zeta$**:
+  it lifts the U-curve by a constant variance without moving the optimal $f_n$; at $I_{cp}=100\ \mu$A the optimum goes 259.5→274.9 fs (+5.9%), at 1 mA 261.0 fs (+0.6%),
+  so "259 fs" is the ideal-loop-filter value.
 - A type-II with a zero **always peaks**: $f_{pk}=f_n\sqrt{2/(s+1)}$,
   $\lvert H_{lp}\rvert^2_{max}=(s+1)^2/[(s-1)(s+3)]$, $s=\sqrt{1+8\zeta^2}$;
   $\zeta=0.707\to2.09$ dB @ $0.786f_n$ (the peak is exactly the golden ratio $\varphi$). In a

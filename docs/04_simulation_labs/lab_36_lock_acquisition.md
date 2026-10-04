@@ -445,7 +445,7 @@ slip 率動 5.3%，`dt_halving = 1.053`）、與 $x=9$ 只有 56 個事件的統
 - **上游機器**：$S_n=\Gamma_{rms}^2 S_i/q_{max}^2$ 來自 [P1] Eq.(11)/(21) 的時域推導
   （[white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)）；
   $D=S_n/4$ 的慣例對帳見 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)
-  （[P2] Eq.(11)/(12) 的 $\kappa^2=2D$）。
+  （[P2] Eq.(11), p.793 的 $\kappa^2=2D$；印刷 Eq.(12) 是時間版 $\kappa_t=\kappa/\omega_0$）。
 
 ## 11. 限制與 approximation
 

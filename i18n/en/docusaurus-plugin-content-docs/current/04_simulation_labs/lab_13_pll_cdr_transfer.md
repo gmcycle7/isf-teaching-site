@@ -239,6 +239,9 @@ $\sqrt{1/1.1}$ because $C\to C+C_3$.
    $I_{cp}=100\ \mu$A; but it is 27× below the ring VCO's $2\times10^{-10}\times0.5=10^{-10}$ at $f_n$, so the
    total jitter is still VCO-dominated. Integrated alone over 1 kHz–1 GHz ($f_0=5$ GHz):
    $\sigma_{t,R}=91$ fs (compare lab_20's optimum of 259 fs — not negligible, but not the lead actor).
+   The figure overlaying this term on the lab_20 budget, the derivation of $\sigma_{\phi,R}^2=2\pi N\,kT\,K_{vco}/I_{cp}$ (independent of $f_n,\zeta$), and
+   the conclusion "at the optimal loop BW 259.5→274.9 fs (+5.9%); only $I_{cp}\ge1$ mA keeps it below 1%" are in the
+   "Numerical check" section of [pll_noise_budget](/06_design_insights/pll_noise_budget).
 6. **Design knob**: at fixed $f_n,\zeta$, $C\propto I_{cp}$ and $R\propto1/I_{cp}$ → $S_{\phi,R}\propto R\propto1/I_{cp}$,
    and the CP noise term $(2\pi N/I_{cp})^2S_{i,cp}$ also falls with $I_{cp}$ — **raising the charge-pump current
    suppresses both terms at once**, at the cost of power and capacitor area ($I_{cp}$ 100 µA → 1 mA: $R=17.8$ kΩ,

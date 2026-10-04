@@ -1,6 +1,6 @@
 ---
 title: "Lab 03 — Ring-oscillator toy model: accumulated-jitter random walk and ISF comparison"
-description: "Uses an edge-time random-walk model to show the ring oscillator's accumulated jitter σ ∝ √Δt ([P2] Eq.10), and contrasts the LC's smooth −sinθ ISF with the ring's toy ISF, concentrated at transitions and shrinking with stage count N."
+description: "Uses an edge-time random-walk model to show the ring oscillator's accumulated jitter σ ∝ √Δt ([P2] Eq.(8), p.792), and contrasts the LC's smooth −sinθ ISF with the ring's toy ISF, concentrated at transitions and shrinking with stage count N."
 ---
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
@@ -61,7 +61,7 @@ $$
 
 - **dimension check**: $[\kappa]=[\text{s}]/[\text{s}]^{1/2}=[\text{s}]^{1/2}=\sqrt{\text{s}}$,
   consistent with the notation table; $\kappa\sqrt{\Delta t}=\sqrt{\text{s}}\cdot\sqrt{\text{s}}=\text{s}$ ✓.
-- **Key assumption**: the per-beat perturbations are **mutually independent (uncorrelated)**. The paper ([P2] Sec. III, p.793) explicitly distinguishes:
+- **Key assumption**: the per-beat perturbations are **mutually independent (uncorrelated)**. The paper ([P2] Sec. III, p.792) explicitly distinguishes:
   **uncorrelated** sources such as thermal noise → variances add → $\sigma\propto\sqrt{\Delta t}$ (this lab); versus
   **fully correlated** sources such as substrate/supply/$1/f$ → **standard deviations** add →
   $\sigma\propto\Delta t$ (this toy model **does not simulate** that branch; see Section 11).
@@ -87,7 +87,7 @@ flowchart LR
   A["per-edge timing noise δ_k ~ N(0, σ_edge²)  (independent)"] --> B["edge times accumulate: t_k = t_{k-1} + T + δ_k"]
   B --> C["no absolute reference → errors propagate forever"]
   C --> D["random walk: Var(Σδ) = m·σ_edge²"]
-  D --> E["σ_Δt = σ_edge·√m = κ·√Δt   ([P2] Eq.10)"]
+  D --> E["σ_Δt = σ_edge·√m = κ·√Δt   ([P2] Eq.(8))"]
   F["ring energy concentrated at transitions"] --> G["toy triangular ISF, peak height ~ 1/√N"]
   G --> H["Γ_rms decreases as N increases (~N^-3/2 trend)"]
 ```
@@ -208,7 +208,7 @@ $$
 \sigma_{\Delta t}=\kappa\sqrt{\Delta t}.
 $$
 
-  The narrative in [P2] Sec. III (p.793) states explicitly that because "uncertainty in any earlier transition affects all
+  The narrative in [P2] Sec. III (p.792) states explicitly that because "uncertainty in any earlier transition affects all
   following transitions, and its effect persists indefinitely", variances add for uncorrelated sources and
   $\sigma\propto\sqrt{\Delta t}$; Figure 1 of this lab directly reproduces this equation (compare the
   "rms jitter vs measurement time, log–log" concept of [P2] Fig. 3 and Fig. 4).
@@ -253,4 +253,4 @@ $$
 - Correlated noise instead gives $\sigma\propto\Delta t$ (not included in this toy).
 - The ring ISF is concentrated at transitions with peak height $\sim1/\sqrt N$; $\Gamma_{rms}$ (LC 0.707 → ring N=5 0.258
   → N=15 0.149) drops with $N$, echoing $\Gamma_{rms}\propto N^{-3/2}$.
-- Sources: [P2] Eq.(8),(14),(16), Sec. III, Fig. 3,4,8; linked to [P1] Eq.(21).
+- Sources: [P2] Eq.(8),(15),(16), Sec. III, Fig. 3,4,8; linked to [P1] Eq.(21).

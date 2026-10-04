@@ -238,8 +238,10 @@ $$
 
 ## 3. 理想 LC：ISF 與 APF 為 quadrature（正交，差 90°）
 
-[P4] Fig. 5, p.2126 同時畫了理想 LC 振盪器的 **ISF、APF、amplitude decay function 與三者關係**，
-最漂亮的結論是：
+理想 LC 的 ISF 與 APF 在 [P4] 是以**解析式**給出的（Eq.(24)–(26), p.2128），論文裡**沒有**畫出這組正交關係的圖：
+APF 的定義與「APF＝振幅偏差衝激響應 $h_A(t,\tau)$ 曲線下的面積」見 [P4] Eq.(19) 與 Fig. 5(c), p.2126（Fig. 5 畫的是注入後
+過量振幅與過量能量的衰減）；振幅 ISF、decay function $d(t,\varphi)$ 與 APF 並排畫出的只有 Fig. 6(d)–(f), p.2127，
+而那是 bipolar Colpitts，不是 ideal LC。最漂亮的結論是：
 
 > **在理想 LC 振盪器，ISF 與 APF 互為 quadrature（相差 90°）。**
 
@@ -259,9 +261,14 @@ $$
   **相位（角度）關係**，不是量綱相等。差 90° 指的是兩個敏感度函數作為 $\theta$ 的週期函數，
   傅立葉上一個是 $\sin$、一個是 $\cos$。
 
-> **已核實（[P4] Eq.(26), p.2128）**：上式 $\Delta_{LC}\propto\cos\theta$
-> 的**比例常數**與 APF 的精確歸一化需從 PDF Fig. 5, p.2126 核對。本頁只主張「quadrature（正交）」
-> 這個定性關係（[P4] 明確陳述），不寫死振幅常數。
+> **已核實（[P4] Eq.(24)–(26), p.2128）**：[P4] 的相位變數 $\varphi$ 即本頁的 $\theta$。理想 LC 的振幅 ISF 為
+> $\tilde\Lambda(\varphi)=\cos\varphi/q_{max,0}$（Eq.(24)），decay function 為 $d(t,\varphi)=e^{-t/\tau_0}$、
+> $\tau_0=2Q/\omega_0$，所以 APF 是 $\Delta(\varphi)=\tau_0\,\tilde\Lambda(\varphi)=(\tau_0/q_{max,0})\cos\varphi$（Eq.(25)），
+> 其基本波為 $\Delta_1=(\tau_0/q_{max,0})\angle0$；相位 ISF 的基本波為 $\tilde\Gamma_1=(1/q_{max,0})\angle90^\circ$（Eq.(26)），
+> 兩者相差 90°。單位檢查：$\tau_0/q_{max,0}$ 為 s/C＝$\mathrm{A^{-1}}$，與 APF 的單位一致；本頁的無因次 $\Gamma_{LC}=-\sin\theta$
+> 與 [P4] 的 $\tilde\Gamma$ 相差一個 $q_{max,0}$ 因子（$\tilde\Gamma=\Gamma/q_{max}$）。適用條件：這組式子假設
+> transconductor 只補償 $R_P$ 消耗到自由跑振幅，過量能量依阻尼 LC 的 LTI 動態衰減，所以 $d$ 是與 $\varphi$ 無關的指數；
+> 一旦 $d(t,\varphi)$ 隨 $\varphi$ 變化且不是指數（如 Fig. 6(e) 的 bipolar Colpitts），APF 就不再是純 $\cos\varphi$（Fig. 6(f)）。
 
 ## 4. AM–PM 簡述：振幅雜訊「漏」回相位的後門
 
@@ -641,7 +648,7 @@ R=10 crossover sim [MHz]     = 83.31       # -> 83.31
 - **APF $\Delta(\omega_0\tau)$（單位 $\mathrm{A^{-1}}$）是 ISF 在振幅域的對應物**；相位核是
   階梯 $u$、振幅核是 脈衝×衰減。
 - 理想 LC：$\Gamma\propto-\sin\theta$（切向）與 $\Delta\propto\cos\theta$（徑向）**互為
-  quadrature（差 90°）**——[P4] Fig. 5, p.2126。
+  quadrature（差 90°）**——[P4] Eq.(24)–(26), p.2128。
 - **AM–PM** 是振幅雜訊漏回相位的後門：$\partial\omega/\partial A\neq 0$ 時要當心。
 - 例 A：1 fC 注零交越 → 31.8 fs 永久 jitter；注波峰 → ~0 永久影響。
 - **白噪連續驅動 + 指數恢復（[P4] $\tau_0=2Q/\omega_0$）＝ OU 過程**：
@@ -650,7 +657,7 @@ R=10 crossover sim [MHz]     = 83.31       # -> 83.31
 - **量測頻譜遠端變平的第二個原因是 AM 平頂**（第一個是儀器/加性底線）：等驅動時漸近線
   交點恰在 $f_c$、AM 最多 +3 dB；AM 驅動較強（$R\gt1$）時交叉 $f_x=f_c/\sqrt{R-1}$，
   例：$R=10\to83.3$ MHz。SA 量到 AM+PM、鑑相法拒斥 AM。
-- 來源：[P4]（APF / amplitude decay / quadrature，Sec. III-D–E、Fig. 5, p.2126，已核實）；相位側來自 [P1] Eqs.(1),(10)；OU 過程為標準隨機過程數學（外部文獻 Uhlenbeck–Ornstein 1930）。
+- 來源：[P4]（quadrature＝Eq.(24)–(26), p.2128；APF／decay＝Fig. 5, p.2126，Sec. III-D–E，已核實）；相位側來自 [P1] Eqs.(1),(10)；OU 過程為標準隨機過程數學（外部文獻 Uhlenbeck–Ornstein 1930）。
 
 ## 延伸閱讀
 

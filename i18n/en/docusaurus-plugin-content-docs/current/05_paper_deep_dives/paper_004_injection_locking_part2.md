@@ -346,20 +346,27 @@ is the "[P4] Sec. VII-A: ISF shaping" section of [injection_locked_division](/06
 
 | Paper figure | Page | Content | Teaching purpose |
 |---|---|---|---|
-| Fig. 5 | 2126 | Characterizing the effect of an instantaneous charge injection on the oscillator: ISF / excess phase, the amplitude decay function, and the quadrature relation between ISF and APF (verified) | The single best figure connecting phase (ISF) and amplitude (APF) sensitivities |
+| Fig. 5 | 2126 | Effect of a single charge injection on the **amplitude deviation**: (a) decay of the excess amplitude of the charge waveform $q_0(t)[1+q_{inj}D]$, (b) decay of the excess energy (jump $[q_{inj}\tilde\Lambda(\omega_0\tau)]^2E_0(\tau)$), (c) the impulse response $h_A(t,\tau)=D\cdot u(t-\tau)$, whose area equals the APF $\Delta(\omega_0\tau)$ (caption verified) | Shows "APF = area under the amplitude-deviation decay curve" and why amplitude perturbations decay; the figure contains no phase ISF, no excess phase and no quadrature drawing |
+| Fig. 6 | 2127 | Bipolar Colpitts ($L=6$ nH, $C=8$ pF, $Q=15$, $f_0\approx1$ GHz, $I_{bias}=10$ mA): (d) amplitude ISF $\tilde\Lambda$, (e) decay function $d(t,\varphi)$ for 20 values of $\varphi$, (f) APF $\Delta$ (caption verified) | The only figure in the paper that plots the amplitude ISF, the decay function and the APF side by side; it is not an ideal LC, and the ideal-LC quadrature exists only as the analytic Eq.(24)–(26), p.2128 |
 | Fig. 11 | 2130 | Superharmonic sinusoidal lock characteristic simulations: 1-mA and 2-mA second-harmonic injections into the **tail** of a differential LC ($I_{tail}=1$ mA), and a 5-mA third-harmonic injection into an ideal Bose oscillator (caption verified) | ÷2/÷3 lock characteristics against Eq.(30); injecting at the tail for ÷2 bypasses the $c_2\approx0$ of the differential nodes |
 | Fig. 12 | 2131 | Superharmonic lock range measurements: Bose relaxation ($N=2..5$), 17-stage ring ($N=2,5$), various oscillators ($N=3$), differential LC tail ($N=2$) (caption verified) | Experimental verification of $\omega_L=I_{inj}\vert\tilde\Gamma_N\vert/2$: linear in $I_{inj}$ |
 | Fig. 15 | 2133 | Time-domain view under an $N=2$ sinusoidal injection: (a) a half-wave-symmetric ISF — the phase kicks of consecutive injection cycles cancel; (b) an asymmetric waveform — a net phase accrues (caption verified) | The pictorial version of footnotes 14/15; this site's toy reproduction is in [injection_locked_division](/06_design_insights/injection_locked_division) |
 | Fig. 16 | 2134 | Simulated free-running waveform and ISF of a 1-GHz 17-stage single-ended ring for (a) fairly symmetric, (b) PFET-dominant, (c) NFET-dominant inverters, with the normalized magnitudes of the first five Fourier coefficients (caption verified) | Asymmetry ⟹ $c_0,c_2,c_4$ grow together; the figure behind Table IV |
 
-This figure is the best visual for "why amplitude noise decays while phase noise does not": the perturbation associated with the APF
-is pulled back by the amplitude decay function, whereas the phase perturbation associated with the ISF remains permanently. This site uses
-the same concept in [phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) (toy comparison figure
-`limit_cycle_phase_amplitude.png`, **not transistor-level**).
+Fig. 5 draws only the "why amplitude noise decays" half: the excess amplitude and excess energy produced by the injection relax back
+according to the decay function ((a)(b)), and their total effect is given by the area under the impulse response, which is the APF (c). The other half,
+"a phase perturbation does not decay and stays forever", is **not in Fig. 5**; its phase-side counterpart is the excess-phase impulse response
+$h_\phi(t,\tau)=\tilde\Gamma(\omega_0\tau)\,u(t-\tau)$ of [P3] Fig. 4, p.2113, a **step** that never returns to zero. In
+[phase_vs_amplitude_noise](/02_foundations/phase_vs_amplitude_noise) this site puts the two halves together in the toy comparison figure below,
+`limit_cycle_phase_amplitude.png` (a sketch made for this site, **not a figure from the paper and not transistor-level**): the radial
+(amplitude) deviation is pulled back, the tangential (phase) deviation remains.
 
-> **Verified**: this figure is [P4] Fig. 5, p.2126, captioned "Characterizing the effect that an instantaneous injection of
-> charge has on an oscillator," confirmed against the rendered original PDF. (Fig. 3 p.2124 is the impulse-train↔sinusoid equivalence, and Fig. 6
-> p.2127 is the bipolar Colpitts example — neither is this figure.)
+> **Verified**: the figure discussed above is [P4] Fig. 5, p.2126, captioned "Characterizing the effect that an instantaneous injection of
+> charge has on an oscillator's amplitude deviations," confirmed against the rendered original PDF. It contains only (a) the decay of the excess amplitude of the charge waveform,
+> (b) the decay of the excess energy with its jump $[q_{inj}\tilde\Lambda(\omega_0\tau)]^2E_0(\tau)$, and (c) $h_A(t,\tau)=D(t-\tau,\omega_0\tau)\,u(t-\tau)$ with its area
+> $\Delta(\omega_0\tau)$; it has **no** phase ISF, no excess phase, and no ISF/APF quadrature drawing. The only place where the paper plots the amplitude ISF, the decay function
+> and the APF is Fig. 6(d)–(f), p.2127 (a bipolar Colpitts, not an ideal LC); the ideal-LC quadrature is given only analytically:
+> Eq.(24)–(26), p.2128. (Fig. 3 p.2124 is the impulse-train↔sinusoid equivalence.)
 
 ![Limit cycle: tangential = phase (persists), radial = amplitude (pulled back) (toy)](/figures/limit_cycle_phase_amplitude.png)
 

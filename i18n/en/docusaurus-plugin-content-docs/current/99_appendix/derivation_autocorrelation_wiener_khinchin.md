@@ -42,26 +42,38 @@ R_{\dot\phi}(t,\,t+\tau)=\big\langle\dot\phi(t)\,\dot\phi(t+\tau)\big\rangle=g(t
 $$
 
 - **Math used**: $g$ is a deterministic function (it can be pulled outside the expectation); only $i_n$ is random.
-- **The white-noise autocorrelation is a delta**: white noise at different instants is uncorrelated, $\langle i_n(t)i_n(t+\tau)\rangle=S_i\,\delta(\tau)$
-  (where $S_i=\overline{i_n^2}/\Delta f$ is its (two-sided) PSD, a constant). Substituting:
+- **The white-noise autocorrelation is a delta, with coefficient $S_i/2$**: white noise at different instants is uncorrelated, so its autocorrelation is a $\delta$.
+  On this site $S_i\equiv\overline{i_n^2}/\Delta f$ is the **single-sided PSD** — defined on $f\gt0$ only, so that
+  $\int_0^{B}S_i\,df$ is the $\overline{i_n^2}$ inside a bandwidth $B$. The Wiener-Khinchin Fourier pair is written on
+  $-\infty\lt f\lt\infty$, where the **two-sided flat level is $S_i/2$** (the same power spread over positive and negative frequencies),
+  and the coefficient of $\delta(\tau)$ equals the two-sided level:
 
 $$
-R_{\dot\phi}(t,\,t+\tau)=g(t)\,g(t+\tau)\,S_i\,\delta(\tau).
+\big\langle i_n(t)\,i_n(t+\tau)\big\rangle=\frac{S_i}{2}\,\delta(\tau).
+$$
+
+Check: for band-limited white noise of bandwidth $B$, $R(0)=\int_{-B}^{B}\tfrac{S_i}{2}df=S_iB=\overline{i_n^2}$ ✓.
+This is **the same $\tfrac12$** as in the white-noise autocorrelation [P2] Appendix A prints on the line before Eq.(43) (p.802, with a $(1/2)$ factor);
+see [p2_appendix_a_reconciliation](/99_appendix/p2_appendix_a_reconciliation) for the verbatim reconciliation.
+The "Numerical verification" section near the end of this page measures this $\tfrac12$ directly. Substituting:
+
+$$
+R_{\dot\phi}(t,\,t+\tau)=g(t)\,g(t+\tau)\,\frac{S_i}{2}\,\delta(\tau).
 $$
 
 - **Key observation (cyclostationary)**: this autocorrelation **explicitly contains the absolute time $t$** (through $g(t)g(t+\tau)$),
   and it repeats with period $T$ ($g$ is $T$-periodic) — exactly the defining feature of a **cyclostationary** process, **not** a stationary one.
   You cannot apply Wiener-Khinchin directly; you must first period-average over $t$.
-- **Unit check**: $[g]=1/\text{C}$ ($\Gamma$ dimensionless $/q_{max}$), $[g^2 S_i\delta(\tau)]=
+- **Unit check**: $[g]=1/\text{C}$ ($\Gamma$ dimensionless $/q_{max}$), $[g^2 (S_i/2)\delta(\tau)]=
   \text{C}^{-2}\cdot(\text{A}^2/\text{Hz})\cdot(1/\text{s})$. With $\delta(\tau)$ carrying $1/\text{s}$ and $\text{Hz}^{-1}=\text{s}$,
-  this reduces to $\text{C}^{-2}\text{A}^2=\text{s}^{-2}$, i.e. $[\dot\phi^2]=(\text{rad/s})^2$ ✓.
+  this reduces to $\text{C}^{-2}\text{A}^2=\text{s}^{-2}$, i.e. $[\dot\phi^2]=(\text{rad/s})^2$ ✓ (the $\tfrac12$ is dimensionless and does not affect the units).
 
 ## Step B: period-average over absolute time → stationarize the cyclostationary process
 
 The **time-averaged autocorrelation** of a cyclostationary process is defined by averaging over the absolute time $t$ over one period:
 
 $$
-\bar R_{\dot\phi}(\tau)=\frac{1}{T}\int_{0}^{T}R_{\dot\phi}(t,\,t+\tau)\,dt=\Big[\frac{1}{T}\int_{0}^{T}g(t)\,g(t+\tau)\,dt\Big]\,S_i\,\delta(\tau).
+\bar R_{\dot\phi}(\tau)=\frac{1}{T}\int_{0}^{T}R_{\dot\phi}(t,\,t+\tau)\,dt=\Big[\frac{1}{T}\int_{0}^{T}g(t)\,g(t+\tau)\,dt\Big]\,\frac{S_i}{2}\,\delta(\tau).
 $$
 
 The bracketed quantity is the **(deterministic, periodic) autocorrelation** of the weighting kernel $g$; denote it
@@ -73,7 +85,7 @@ $$
 Because $\delta(\tau)$ is nonzero only at $\tau=0$, we **only need $\bar g(0)$**:
 
 $$
-\bar R_{\dot\phi}(\tau)=\bar g(0)\,S_i\,\delta(\tau),\qquad\bar g(0)=\frac{1}{q_{max}^2}\cdot\frac{1}{T}\int_{0}^{T}\Gamma^2(\omega_0 t)\,dt.
+\bar R_{\dot\phi}(\tau)=\bar g(0)\,\frac{S_i}{2}\,\delta(\tau),\qquad\bar g(0)=\frac{1}{q_{max}^2}\cdot\frac{1}{T}\int_{0}^{T}\Gamma^2(\omega_0 t)\,dt.
 $$
 
 - **Physics/math used**: averaging away the absolute time is the same as averaging the oscillator's sensitivity "at every phase within one period" —
@@ -96,15 +108,19 @@ $$
 \frac{1}{2\pi}\int_{0}^{2\pi}\Gamma^2(x)\,dx=\Big(\frac{c_0}{2}\Big)^2+\sum_{n=1}^{\infty}\frac{c_n^2}{2}=\frac{c_0^2}{4}+\frac12\sum_{n=1}^{\infty}c_n^2.
 $$
 
-Writing the DC part as the $n=0$ term and arranging it into "half of $\sum_{n\ge0}c_n^2$" form (the same bookkeeping as [P1] Eq.(20):
-the $c_0$ term carries coefficient $\tfrac14$, which equals $\tfrac12\cdot\tfrac12$ — i.e. $c_0^2$ is also folded into the $\tfrac12\sum$ with the
-DC half-weight restored), we get:
+The left-hand side is precisely the **definition** of $\Gamma_{rms}^2$ (the mean square of the ISF). Factoring $\tfrac12$ out of the right-hand side, the DC coefficient
+$\tfrac14=\tfrac12\cdot\tfrac12$ becomes an explicit identity:
 
 $$
-\frac{1}{2\pi}\int_{0}^{2\pi}\Gamma^2(x)\,dx=\Gamma_{rms}^2,\qquad\text{where}\quad\Gamma_{rms}^2\equiv\frac{1}{2\pi}\int_0^{2\pi}\Gamma^2(x)\,dx.
+\Gamma_{rms}^2\equiv\frac{1}{2\pi}\int_{0}^{2\pi}\Gamma^2(x)\,dx=\frac{c_0^2}{4}+\frac12\sum_{n=1}^{\infty}c_n^2=\frac12\Big[\frac{c_0^2}{2}+\sum_{n=1}^{\infty}c_n^2\Big]
+\quad\Longrightarrow\quad
+2\,\Gamma_{rms}^2=\frac{c_0^2}{2}+\sum_{n=1}^{\infty}c_n^2.
 $$
 
-This is precisely the **definition** of $\Gamma_{rms}$. Now compare with the Parseval relation of [P1] Eq.(20) (note it uses $\tfrac1\pi$ rather than $\tfrac1{2\pi}$):
+In words: **the DC term enters as $c_0^2/2$ (half weight), while each $n\ge1$ term enters as the full $c_n^2$**. The half weight has a single origin —
+the DC term of the series is written $\tfrac{c_0}{2}$ rather than $c_0$, so its mean square is $(c_0/2)^2=c_0^2/4$, whereas each harmonic's mean square is
+$c_n^2/2$; after factoring out $\tfrac12$ from both, the DC term leaves $c_0^2/2$ and each harmonic leaves $c_n^2$. [P1] Eq.(20) abbreviates this right-hand sum as
+$\sum_{n=0}^{\infty}c_n^2$ (note it uses $\tfrac1\pi$ rather than $\tfrac1{2\pi}$):
 
 $$
 \sum_{n=0}^{\infty}c_n^2=\frac{1}{\pi}\int_0^{2\pi}\Gamma^2(x)\,dx=2\cdot\frac{1}{2\pi}\int_0^{2\pi}\Gamma^2(x)\,dx=\boxed{\,2\,\Gamma_{rms}^2\,}.
@@ -129,22 +145,44 @@ $$
 
 ## Step D: Wiener-Khinchin → phase spectrum $S_\phi\propto1/\Delta\omega^2$
 
-Now $\bar R_{\dot\phi}(\tau)=\dfrac{\Gamma_{rms}^2}{q_{max}^2}S_i\,\delta(\tau)$ is a stationary autocorrelation **depending only on $\tau$**,
-so we may safely apply **Wiener-Khinchin** (Fourier transform of the autocorrelation $=$ PSD):
+Inserting $\bar g(0)=\Gamma_{rms}^2/q_{max}^2$ from Step C, $\bar R_{\dot\phi}(\tau)=\dfrac{\Gamma_{rms}^2}{q_{max}^2}\cdot\dfrac{S_i}{2}\,\delta(\tau)$ is now a stationary autocorrelation **depending only on $\tau$**,
+so we may safely apply **Wiener-Khinchin** (Fourier transform of the autocorrelation $=$ PSD).
+**Convention flag**: this transform integrates over $\tau\in(-\infty,\infty)$ and yields a
+**two-sided PSD** defined on **both positive and negative frequencies**, marked with the superscript $DS$:
 
 $$
-S_{\dot\phi}(\Delta\omega)=\int_{-\infty}^{\infty}\bar R_{\dot\phi}(\tau)\,e^{-j\Delta\omega\tau}\,d\tau=\frac{\Gamma_{rms}^2}{q_{max}^2}\,S_i\int_{-\infty}^{\infty}\delta(\tau)e^{-j\Delta\omega\tau}d\tau=\frac{\Gamma_{rms}^2}{q_{max}^2}\,S_i.
+S_{\dot\phi}^{DS}(\Delta\omega)=\int_{-\infty}^{\infty}\bar R_{\dot\phi}(\tau)\,e^{-j\Delta\omega\tau}\,d\tau=\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{S_i}{2}\int_{-\infty}^{\infty}\delta(\tau)e^{-j\Delta\omega\tau}d\tau=\frac{\Gamma_{rms}^2\,S_i}{2\,q_{max}^2},\qquad-\infty\lt\Delta\omega\lt\infty.
 $$
 
-The Fourier transform of $\delta$ is the constant $1$ — so **the spectrum of $\dot\phi$ (the instantaneous frequency perturbation) is white**, with strength
-$\Gamma_{rms}^2 S_i/q_{max}^2$. Final step: phase is the integral of frequency, and **integration in the frequency domain is division by $j\Delta\omega$**,
-so the power spectrum divides by $\Delta\omega^2$:
+The Fourier transform of $\delta$ is the constant $1$ — so **the spectrum of $\dot\phi$ (the instantaneous frequency perturbation) is white**, with two-sided level
+$\Gamma_{rms}^2 S_i/(2q_{max}^2)$. This number is the **phase**-variance growth rate of [P2] Eq.(11), p.793
+($\sigma_{\Delta\phi}^2=\Gamma_{rms}^2S_i\,\Delta T/(2q_{max}^2)$; this site writes it $\kappa^2$, in $\text{rad}^2/\text{s}$.
+Note that [P2]'s own $\kappa$ (Eq.(12)) is the **timing**-jitter constant $\sigma_{\Delta T}=\kappa\sqrt{\Delta T}$; the two differ by a factor $\omega_0$,
+see [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary) for the conversion), and also equals $2D$ ($D=\Gamma_{rms}^2S_i/(4q_{max}^2)$);
+the canonical value is $0.25\times10^{-24}/(2\times10^{-24})=0.125\ \text{rad}^2/\text{s}$.
+Units: $\text{C}^{-2}\cdot\text{A}^2/\text{Hz}=\text{s}^{-2}\cdot\text{s}=\text{rad}^2/\text{s}$,
+i.e. $(\text{rad/s})^2/\text{Hz}$ ✓ (the density is per Hz of $f=\Delta\omega/2\pi$; $\Delta\omega$ merely labels the abscissa).
+
+Next: phase is the integral of frequency, and **integration in the frequency domain is division by $j\Delta\omega$**, so the power spectrum divides by $\Delta\omega^2$:
 
 $$
-S_\phi(\Delta\omega)=\frac{S_{\dot\phi}(\Delta\omega)}{\Delta\omega^2}=\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{S_i}{\Delta\omega^2}\qquad[\text{rad}^2/\text{Hz}].
+S_\phi^{DS}(\Delta\omega)=\frac{S_{\dot\phi}^{DS}(\Delta\omega)}{\Delta\omega^2}=\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{S_i}{2\,\Delta\omega^2}\qquad[\text{rad}^2/\text{Hz}],\quad-\infty\lt\Delta\omega\lt\infty.
 $$
 
-This is **verbatim identical** to [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)'s "clean time-domain version" (the one in the factor-of-2 note), $S_\phi=\Gamma_{rms}^2S_i/(q_{max}^2(2\pi f)^2)$
+**Last step: two-sided → single-sided.** On this site (and on measurement instruments) $S_\phi$ is always the **single-sided** spectrum: only $\Delta\omega\gt0$ is shown,
+and the power of the negative-frequency half is folded onto the positive side. $S_\phi^{DS}$ is even, so folding is a multiplication by 2:
+
+$$
+S_\phi(\Delta\omega)=2\,S_\phi^{DS}(\Delta\omega)=\frac{\Gamma_{rms}^2}{q_{max}^2}\cdot\frac{S_i}{\Delta\omega^2}\qquad[\text{rad}^2/\text{Hz}],\quad\Delta\omega\gt0.
+$$
+
+**Accounting for the two 2s**: the $\tfrac12$ of Step A (single-sided $S_i$ → two-sided level $S_i/2$) and the $2$ here (two-sided $S_\phi^{DS}$ →
+single-sided $S_\phi$) go **one in, one out, and cancel exactly** — the "single-sided input PSD → single-sided output PSD" conversion gain carries no 2 at all;
+the $\tfrac12$ is visible only in the intermediate autocorrelation and two-sided spectra. If you mislabel $S_i$ as two-sided (writing $R=S_i\delta$) and also forget
+the final folding, the two errors cancel and give the same answer, but every intermediate line is off by 2; commit only one of them and
+$S_\phi$ is off by a factor of 2 ($3$ dB).
+
+The single-sided result is therefore **verbatim identical** to [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)'s "clean time-domain version" (the one in the factor-of-2 note), $S_\phi=\Gamma_{rms}^2S_i/(q_{max}^2(2\pi f)^2)$
 (with $\Delta\omega=2\pi f$).
 
 - **The rigorous origin of $1/f^2$**: this $1/\Delta\omega^2$ comes **entirely from "the one integration $\dot\phi\to\phi$"**
@@ -163,22 +201,97 @@ This is **verbatim identical** to [white_noise_to_phase_noise](/03_isf_core_theo
 | $\sum c_n^2=2\Gamma_{rms}^2$ | applied externally | falls out of the autocorrelation $\bar g(0)$ |
 | Origin of $1/\Delta\omega^2$ | the $1/\Delta\omega^2$ of single-tone sidebands | the $1/(j\Delta\omega)$ of the $\dot\phi\to\phi$ integration |
 | Obtaining the spectrum | accumulating sideband powers | Wiener-Khinchin (FT of the autocorrelation) |
-| factor-of-2 | SSB bookkeeping ($/4$) | clean time-domain ($/2$); same factor-2 gap as noted |
+| factor-of-2 | SSB bookkeeping (the $/4$ of $\mathcal{L}$) | single-sided $S_i$ → $\tfrac{S_i}{2}\delta$ → two-sided $S_\phi^{DS}$ → $\times2$ → single-sided $S_\phi$; $\mathcal{L}=S_\phi/2$ gives $/2$, the same factor-2 gap from $/4$ as noted |
 
 > **Summary**: the rigorous version wields three tools — "cyclostationary autocorrelation → period average → Wiener-Khinchin" — turning both $\Gamma_{rms}$
 > and $1/f^2$ into **mechanical inevitabilities**. $\sum c_n^2=2\Gamma_{rms}^2$ is no coincidence, but the Parseval incarnation of the
 > ISF's mean square. This autocorrelation machinery is also precisely the entry point of the next page, [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth):
 > there, "$\dot\phi$ white ⇒ $\phi$ is a random walk" is pushed to its conclusion, yielding the **carrier autocorrelation
 > $R_x(\tau)=\tfrac12\cos(\omega_0\tau)e^{-D|\tau|}$**, and Wiener-Khinchin then produces the **Lorentzian** —
-> resolving the spurious divergence of $1/f^2$ as $\Delta\omega\to0$. The $S_\phi=\Gamma_{rms}^2S_i/(q_{max}^2\Delta\omega^2)$ computed on this page
+> resolving the spurious divergence of $1/f^2$ as $\Delta\omega\to0$. The **single-sided** $S_\phi=\Gamma_{rms}^2S_i/(q_{max}^2\Delta\omega^2)$ computed on this page
 > is exactly the source of $D=\Gamma_{rms}^2S_i/(4q_{max}^2)$ there (this site's single-sided bookkeeping is $S_\phi=4D/\Delta\omega^2$, two-sided
-> $2D/\Delta\omega^2$; corrected in v5, reconciliation in [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)).
+> $2D/\Delta\omega^2$, i.e. the $S_\phi^{DS}$ of Step D on this page; reconciliation in [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)).
+
+## Numerical verification: measuring that $\tfrac12$ directly
+
+The block below draws no figure; it does four things. Generate a record of band-limited white noise with **single-sided PSD $=S_i$** (sample rate $f_s$, bandwidth $f_s/2$), then
+(1) confirm with Welch that its single-sided PSD really is $S_i$; (2) compute the autocorrelation numerically and take its area over $\tau$,
+$\int R(\tau)d\tau\approx\sum_kR[k]\,\Delta t$ — the coefficient of the $\delta$ is this area, and should be $S_i/2$;
+(3) multiply by the ISF weight $g(t)$ to get $\dot\phi$, whose autocorrelation area is the two-sided $S_{\dot\phi}^{DS}$;
+(4) the Welch **single-sided** PSD of the same $\dot\phi$ record should be twice the two-sided level. Canonical Example B and the Step C identity are checked at the end.
+
+```python
+import numpy as np
+from simulations.common.isf_utils import gamma_lc_ideal
+from simulations.common.noise_utils import white_noise, estimate_psd
+
+F0 = 5e9
+W0 = 2 * np.pi * F0
+QMAX, SI, GRMS = 1e-12, 1e-24, 0.5        # canonical parameters
+FS = 64 * F0                              # sample rate: 64 points per period (noise bandwidth fs/2 = 160 GHz)
+DT = 1 / FS
+N = 2**20                                 # = 16384 whole periods
+rng = np.random.default_rng(12)
+
+i_n = white_noise(N, SI, FS, rng)         # band-limited white noise with single-sided PSD = S_i
+
+# (1) Welch single-sided PSD: confirm the input really is "single-sided S_i"
+f, pxx = estimate_psd(i_n, FS, nperseg=4096)
+print(f"{np.mean(pxx[1:-1])/SI:.2f}")     # -> 1.00 (single-sided PSD / S_i)
+
+# (2) autocorrelation area ∫R(τ)dτ ≈ Σ_k R[k]·dt: the delta coefficient should be S_i/2
+K = 20
+def acorr_area(x):
+    r = [np.mean(x[:N - k] * x[k:]) for k in range(K + 1)]
+    return (r[0] + 2 * sum(r[1:])) * DT
+
+print(f"{acorr_area(i_n)/SI:.2f}")        # -> 0.50 (autocorrelation area / S_i: this is the 1/2)
+
+# (3) ISF-weighted φ̇ = g(t) i_n(t): autocorrelation area = two-sided S_φ̇ level
+t = np.arange(N) * DT
+g = np.sqrt(2.0) * GRMS * gamma_lc_ideal(W0 * t) / QMAX
+phidot = g * i_n
+s_ds = acorr_area(phidot)
+print(f"{s_ds:.3f}")                      # -> 0.126 rad^2/s (two-sided S_φ̇, theory κ² = 0.125)
+print(f"{s_ds/(GRMS**2*SI/QMAX**2):.2f}") # -> 0.50 (two-sided level / [Γrms² S_i/q_max²])
+
+# (4) Welch single-sided PSD of the same φ̇ record (flat low-frequency region)
+f, pxx = estimate_psd(phidot, FS, nperseg=4096)
+s_ss = np.mean(pxx[(f > 0) & (f < 0.4 * F0)])
+print(f"{s_ss:.3f}")                      # -> 0.254 rad^2/s (single-sided S_φ̇, theory 0.25)
+print(f"{s_ss/s_ds:.2f}")                 # -> 2.02 (single-sided / two-sided, theory 2)
+
+# (5) canonical Example B: single-sided S_φ(1 MHz) and the two L families
+dw = 2 * np.pi * 1e6
+s_phi = GRMS**2 * SI / (QMAX**2 * dw**2)
+print(f"{s_phi:.3e}")                     # -> 6.333e-15 rad^2/Hz (single-sided S_φ @ 1 MHz)
+print(f"{10*np.log10(s_phi/2):.1f}")      # -> -145.0 dBc/Hz (L = S_φ/2, the "/2" family)
+print(f"{10*np.log10(s_phi/4):.1f}")      # -> -148.0 dBc/Hz (the "/4" family of [P1] Eq.(21))
+
+# (6) the DC half-weight identity of Step C: Γ = c0/2 + c1 cos x
+x = np.linspace(0, 2 * np.pi, 100000, endpoint=False)
+c0, c1 = 0.6, 1.0
+gam = c0 / 2 + c1 * np.cos(x)
+print(f"{np.mean(gam**2):.3f}")           # -> 0.590 (direct numerical mean square Γrms²)
+print(f"{0.5*(c0**2/2 + c1**2):.3f}")     # -> 0.590 ((1/2)[c0²/2 + c1²]: DC at half weight, matches)
+print(f"{0.5*(c0**2 + c1**2):.3f}")       # -> 0.680 ((1/2)[c0² + c1²]: DC wrongly at full weight, too large by c0²/4 = 0.09)
+```
+
+- **How to read it**: (1) prints 1.00 and (2) prints 0.50 — for one and the same record the single-sided PSD is $S_i$ and the $\delta$ coefficient of the autocorrelation is $S_i/2$;
+  that is the $\tfrac12$ of Step A. The 0.126 of (3) matches $\kappa^2=0.125\ \text{rad}^2/\text{s}$ (two-sided);
+  the 0.254 of (4) matches $0.25$ (single-sided), and the ratio 2.02 matches 2. The $-145.0$ / $-148.0$ dBc/Hz of (5) are this site's canonical
+  "$/2$" and "$/4$" families — the bookkeeping on this page changes no final number.
+- **Honest limitations**: these are finite-record ($2^{20}$ samples) statistical estimates, so (3) and (4) carry roughly 1–2% sampling error (0.126, 0.254, 2.02 rather than
+  0.125, 0.250, 2.00). The discrete-time "$\delta$" is one bin of width $\Delta t$, so the noise is white only up to $f_s/2=160$ GHz (band-limited);
+  ideal continuous-time white noise is the $f_s\to\infty$ limit. $\dot\phi$ is cyclostationary, and Welch's averaging over absolute time
+  plays exactly the role of Step B's period average; only the flat region $f\lt0.4f_0$ is used here. This check validates the **bookkeeping** (the single-/two-sided 2),
+  not a transistor-level oscillator.
 
 ## Applicability and failure conditions
 
 | Condition | When it holds | What happens when it fails |
 |---|---|---|
-| $i_n(t)$ is (approximately) white, $\langle i_n(t)i_n(t+\tau)\rangle=S_i\delta(\tau)$ | Step A's delta autocorrelation holds, so later steps can take only $\bar g(0)$ | If the noise is colored (e.g. flicker), the autocorrelation is not a delta; Step B cannot look only at $\tau=0$ and needs separate treatment (see [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)) |
+| $i_n(t)$ is (approximately) white, $\langle i_n(t)i_n(t+\tau)\rangle=\tfrac{S_i}{2}\delta(\tau)$ | Step A's delta autocorrelation holds, so later steps can take only $\bar g(0)$ | If the noise is colored (e.g. flicker), the autocorrelation is not a delta; Step B cannot look only at $\tau=0$ and needs separate treatment (see [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)) |
 | $g(t)=\Gamma(\omega_0t)/q_{max}$ is a deterministic function with period $T$ (cyclostationary) | Step B's period average "stationarizes" the process so Wiener-Khinchin applies | A non-periodic or randomly modulated weight (e.g. an oscillator with frequency dithering) needs a more general time-varying spectral analysis; this page's result does not directly apply |
 | Small perturbation, phase linear in the noise ([P1] Eq.(11) holds) | The linear relation $\dot\phi=g(t)i_n(t)$ holds | Large injection perturbs the ISF itself, breaking linear superposition |
 | Only the stationarized autocorrelation of $\dot\phi$ matters (not the $\tau\neq0$ details) | Step D only needs $\bar g(0)$; $S_{\dot\phi}$ is white | For the precise near-carrier ($\Delta\omega\to0$) lineshape, the random-walk statistics of the phase itself must be kept — see [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth) |
@@ -188,6 +301,9 @@ This is **verbatim identical** to [white_noise_to_phase_noise](/03_isf_core_theo
 - Starting point: the LTV phase integral [P1] Eq.(11), p.182; the ISF Fourier series [P1] Eq.(12), p.183.
 - Parseval bookkeeping compared against: [P1] Eq.(20), p.185 (Step C on this page re-derives the same $2\Gamma_{rms}^2$, but via the autocorrelation route rather than the single-tone summation).
 - The final result is equivalent to the heuristic version's [P1] Eq.(19)→(21) (p.185); see [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise).
+- The $\tfrac12$ of the white-noise autocorrelation in Step A: [P2] Appendix A, the line before Eq.(43) and Eq.(43)–(44), p.802 (checked against the rendered PDF page);
+  the two-sided level $\Gamma_{rms}^2S_i/(2q_{max}^2)$ (written $\kappa^2$ on this site) corresponds to the phase-variance growth rate of [P2] Eq.(11), p.793. Verbatim reconciliation in
+  [p2_appendix_a_reconciliation](/99_appendix/p2_appendix_a_reconciliation).
 - The Wiener-Khinchin theorem itself is a standard signals-and-systems result, not from the 5 PDFs; this page only uses it as a tool and does not change [P1]'s physical conclusions.
 
 ## Key takeaways
@@ -198,7 +314,9 @@ This is **verbatim identical** to [white_noise_to_phase_noise](/03_isf_core_theo
   you must period-average over $t$ to "stationarize" it before applying Wiener-Khinchin.
 - $\sum c_n^2=2\Gamma_{rms}^2$ is **not** a Parseval relation plugged in externally — it is the natural result of the period-average integral
   $\tfrac1{2\pi}\int_0^{2\pi}\Gamma^2(x)dx$.
-- The result is word-for-word identical to the heuristic version: $S_\phi(\Delta\omega)=\dfrac{\Gamma_{rms}^2}{q_{max}^2}\cdot\dfrac{S_i}{\Delta\omega^2}$,
+- **Single-/two-sided bookkeeping**: $S_i$ is a single-sided PSD and the white-noise autocorrelation is $\tfrac{S_i}{2}\delta(\tau)$; Wiener-Khinchin delivers the
+  **two-sided** $S_\phi^{DS}=\Gamma_{rms}^2S_i/(2q_{max}^2\Delta\omega^2)$, and the single-sided $S_\phi=2S_\phi^{DS}$.
+- The single-sided result is word-for-word identical to the heuristic version: $S_\phi(\Delta\omega)=\dfrac{\Gamma_{rms}^2}{q_{max}^2}\cdot\dfrac{S_i}{\Delta\omega^2}$,
   with $1/\Delta\omega^2$ coming entirely from the one integration $\dot\phi\to\phi$.
 - This page is the entry point of [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth): there the same autocorrelation machinery is applied
   to the phase itself (rather than $\dot\phi$), resolving the spurious divergence of $1/f^2$ at the carrier.
@@ -207,6 +325,7 @@ This is **verbatim identical** to [white_noise_to_phase_noise](/03_isf_core_theo
 
 - The full heuristic version (including canonical Example B and the factor-of-2 note): [white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise)
 - Full discussion of $\Gamma_{rms}$ and Parseval: [rms_isf](/03_isf_core_theory/rms_isf)
+- Where the same $\tfrac12$ appears in [P2] Appendix A, with factor-by-factor reconciliation: [p2_appendix_a_reconciliation](/99_appendix/p2_appendix_a_reconciliation)
 - Near-carrier Lorentzian, linewidth $D/\pi$: [lorentzian_linewidth](/03_isf_core_theory/lorentzian_linewidth)
 - Reconciling the diffusion constant $D$ across pages' bookkeeping conventions: [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)
 - Close-in $1/f^3$ upconversion: [flicker_noise_upconversion](/03_isf_core_theory/flicker_noise_upconversion)

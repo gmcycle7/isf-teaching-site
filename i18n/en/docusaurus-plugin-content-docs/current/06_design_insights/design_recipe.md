@@ -111,14 +111,20 @@ Compare $\mathrm{FOM}_{req}$ with the ceiling family of [fom_limit](/06_design_i
 
 | Candidate topology | $F_{eff}$ | $\mathrm{FOM}_{max}$ | vs $\mathrm{FOM}_{req}=187.0$ | Verdict |
 |---|---|---|---|---|
-| ring ([P2] Eq.(25) bound: $V_T=0$, $\gamma=2/3$, $\eta=1$) | $16\gamma/(3\eta)=3.56$ | $168.32$ dB | $168.32-186.99=-18.67$ dB | **Infeasible** — even the ideal limit falls 18.7 dB short |
+| ring ([P2] Eq.(25) bound: $V_T=0$, $\gamma=2/3$, $\eta=1$; **/2 family**, collected from [P2] Eq.(6)) | $16\gamma/(3\eta)=3.56$ | $168.32$ dB | $168.32-186.99=-18.67$ dB | **Infeasible** — even the ideal limit falls 18.7 dB short |
+| Same ring, in the /4 bookkeeping of [P1] Eq.(21) | $8\gamma/(3\eta)=1.78$ | $171.33$ dB | $171.33-186.99=-15.66$ dB | **Still infeasible** — even the most optimistic bookkeeping falls 15.7 dB short |
 | LC, $Q=10$ ([P1] Eq.(21) SSB /4; $F=1+\gamma$, $\gamma=2/3$, $\Gamma_{rms}^2=\tfrac12$, $\eta_P=1$) | $4.17\times10^{-3}$ | $197.63$ dB | $197.63-186.99=+10.64$ dB | **Feasible**, ideal margin 10.6 dB |
-| Same, time-domain /2 convention | $8.33\times10^{-3}$ | $194.62$ dB | $+7.63$ dB | Same physics, 3.01 dB more conservative bookkeeping |
+| Same LC, time-domain /2 convention | $8.33\times10^{-3}$ | $194.62$ dB | $+7.63$ dB | Same physics, 3.01 dB more conservative bookkeeping |
+
+- ⚠️ **Convention flag (do not compare across families)**: [P2] Eq.(25) is collected from $N\times$[P2] Eq.(6), p.792 (denominator $8\pi^2f_{off}^2=2\Delta\omega^2$),
+  i.e. the **/2 family**; [P1] Eq.(21) is the **/4 family**, and the two differ by $10\log_{10}2=3.01$ dB. The same-family pairings are
+  "ring $168.32$ ↔ LC $194.62$" (/2) or "ring $171.33$ ↔ LC $197.63$" (/4); in either pairing the ring ceiling sits $26.30$ dB below the $Q=10$ LC ceiling.
+  **The verdict does not flip with the convention**: the ring is infeasible in both bookkeepings (short by $18.67$ / $15.66$ dB) and LC is feasible in both (margin $7.63$ / $10.64$ dB).
 
 - **Decision rule**: $\mathrm{FOM}_{max}-\mathrm{FOM}_{req}$ is the "**ideal margin**".
   [fom_limit](/06_design_insights/fom_limit) notes that good published LC designs sit about $5\sim10$ dB below their own $Q$ ceiling
   ($\eta_P\lt1$, $F\gt1+\gamma$, varactor loss), so **an ideal margin of at least 5 dB is needed before going further**;
-  10.6 dB is comfortable. The ring is 18.7 dB short — no choice of $N$, swing or power can recover that
+  10.6 dB is comfortable. The ring is 18.7 dB short (/2 family; still 15.7 dB short in /4 bookkeeping) — no choice of $N$, swing or power can recover that
   ([P2] N-independence; FOM is already normalized to $P$).
 - **Conclusion: choose LC, and the process must deliver a tank with $Q\approx10$**. If the process only gives $Q=5$, the ceiling
   drops $6$ dB to $191.6$ dB and the margin shrinks to 4.6 dB — which lands you in the iteration at the end of this page.
@@ -130,10 +136,13 @@ Cref = -10*np.log10(kB*T*1.0/1e-3)                        # 173.83 dB (fom_limit
 FOM_req = 186.99
 gamma = 2/3
 FOM_ring = Cref - 10*np.log10(16*gamma/3)                 # [P2] Eq.(25) bound
-print(round(FOM_ring, 2), round(FOM_ring - FOM_req, 2))   # -> 168.32 -18.67 (ring ceiling, gap: infeasible)
+print(round(FOM_ring, 2), round(FOM_ring - FOM_req, 2))   # -> 168.32 -18.67 (ring ceiling, gap: infeasible; /2 family)
+FOM_ring4 = FOM_ring + 10*np.log10(2)                     # the same ring in the /4 bookkeeping of [P1] Eq.(21)
+print(round(FOM_ring4, 2), round(FOM_ring4 - FOM_req, 2)) # -> 171.33 -15.66 (/4 bookkeeping: still infeasible)
 FOM_lc10 = Cref - 10*np.log10((1+gamma)*0.5/(2*10**2))    # [P1] Eq.(21) /4 convention, Q=10
 print(round(FOM_lc10, 2), round(FOM_lc10 - FOM_req, 2))   # -> 197.63 10.64 (LC Q=10 ceiling, ideal margin)
 print(round(FOM_lc10 - 10*np.log10(2) - FOM_req, 2))      # -> 7.63 (margin under the time-domain /2 convention)
+print(round(FOM_lc10 - FOM_ring4, 2), round(FOM_lc10 - 10*np.log10(2) - FOM_ring, 2))   # -> 26.3 26.3 (same-family LC minus ring ceiling: /4, /2)
 FOM_lc5 = Cref - 10*np.log10((1+gamma)*0.5/(2*5**2))
 print(round(FOM_lc5, 2), round(FOM_lc5 - FOM_req, 2))     # -> 191.61 4.62 (Q=5 ceiling, ideal margin)
 print(round(-10*np.log10(310/300), 2))                    # -> -0.14 (change of C_ref per +10 K, dB)
@@ -258,6 +267,8 @@ $$
 - **Compared with the canonical example B, $S_i=10^{-24}$**: this is 100 times larger ($+20$ dB). Example B's $10^{-24}$ corresponds
   to $R_p=16.6$ kΩ, $Q\approx521$ (the "FOM catches it" point in [fom_limit](/06_design_insights/fom_limit) step 3);
   **the noise current of a real $Q=10$ tank is of order $10^{-22}$** — the biggest difference between this page and the teaching examples.
+- **Reconciling with example B ($-148.0$ dBc/Hz)**: example B uses $\Gamma_{rms}^2=0.25$ (the representative value), whereas Step 6 of this page uses the true-LC $\Gamma_{rms}^2=1/2$ ($+3.01$ dB);
+  add the $104\times$ larger $S_i$ ($+20.17$ dB) and $-148.0+20.17+3.01=-124.8$ dBc/Hz, matching Step 6 (same [P1] Eq.(21) SSB "/4" family).
 - **Where $F$ fails**: an unfiltered tail (2× upconversion through $c_0$, $c_2$; [real_oscillator_topologies](/06_design_insights/real_oscillator_topologies)),
   flicker in the bias current source, and AM-PM on the varactor all push $F$ above $1+\gamma$; late in the design, account for each
   source with the method of [device_noise_mapping](/06_design_insights/device_noise_mapping).
@@ -270,6 +281,7 @@ print(f"{Si_tank:.3e}")                           # -> 5.205e-23 (the tank's own
 print(f"{Si:.3e}")                                # -> 1.041e-22 (total S_i after F=1+γ=2)
 Rp_B = 4*kB*T/1e-24
 print(round(Rp_B/1e3, 1), round(Rp_B/31.83))      # -> 16.6 521 (R_p in kΩ and Q implied by example B's S_i=1e-24)
+print(round(10*np.log10(Si/1e-24), 2), round(10*np.log10(0.5/0.25), 2), round(-148.0 + 10*np.log10(Si/1e-24) + 10*np.log10(0.5/0.25), 1))  # -> 20.17 3.01 -124.8 (dB: S_i ratio, Gamma^2 ratio, example B carried to Step 6)
 ```
 
 ## Step 6: Sign-off — $\mathcal{L}(1\ \text{MHz})$ from [P1] Eq.(21)
@@ -388,7 +400,7 @@ so the effect of each knob on $\mathcal{L}$, $P$ and FOM can be tabulated at onc
   (2) then push the swing to the headroom limit ($-6$ dB per doubling, but 4× power and it hits $V_{DD}$);
   (3) only then use $C$ (or, equivalently, current) to **trade power budget for dB at constant FOM** — the limit of that step is $P_{max}$.
 - **The constant-FOM "power for dB" limit**: at $Q=10$, $\mathrm{FOM}=194.9$ dB, the lowest $\mathcal{L}$ the full 5 mW budget can buy is
-  $-\mathrm{FOM}+73.98-10\log_{10}(5)=-194.88+73.98+6.99=-127.9$ dBc/Hz. **Any spec tighter than $-127.9$ at $Q=10$ and 5 mW must come from $Q$, $F$, $\Gamma_{rms}$ (or a relaxed power budget).**
+  $-\mathrm{FOM}+73.98-10\log_{10}(5)=-194.88+73.98-6.99=-127.89$ dBc/Hz. **Any spec tighter than $-127.9$ at $Q=10$ and 5 mW must come from $Q$, $F$, $\Gamma_{rms}$ (or a relaxed power budget).**
 - **One concrete iteration**: if the spec becomes $-127$ dBc/Hz (the current design's margin is $-2.2$ dB): raise $C$ to 2 pF ($L=0.507$ nH,
   $R_p=159$ Ω, $q_{max}=2$ pC, $S_i=2.08\times10^{-22}$) → $\mathcal{L}=-127.8$ dBc/Hz (margin 0.8 dB), $I_{bias}=4.93$ mA, $P_{DC}=4.93$ mW
   (still $\le5$ mW, but the budget is now fully used). This is exactly the table's "$C\times2$: $-3$ dB, 2× power, FOM unchanged" row in action.
@@ -453,7 +465,7 @@ print(round(FOM + 20*np.log10(10/10), 2), round(FOM + 20*np.log10(20/10), 2))   
 ## Key takeaways
 
 - **7 steps**: spec → $\mathrm{FOM}_{req}$ → topology against the ceilings → $C\to L,R_p$ → $V_{max}\to q_{max},I_{bias},P$ → $S_i=F\cdot4kT/R_p$ → [P1] Eq.(21) sign-off → $\sigma_t$ hand-off.
-- This example: $\mathrm{FOM}_{req}=187.0$ dB; the ring ceiling 168.3 is 18.7 dB short, infeasible; the LC $Q=10$ ceiling 197.6 leaves 10.6 dB.
+- This example: $\mathrm{FOM}_{req}=187.0$ dB; the ring ceiling 168.3 (/2 family; 171.3 in /4 bookkeeping) is 18.7 dB short (/4: 15.7 dB), infeasible; the LC $Q=10$ ceiling 197.6 (/4; 194.6 in /2 bookkeeping) leaves 10.6 dB (/2: 7.6 dB).
 - $C=1$ pF → $L=1.013$ nH, $R_p=318$ Ω; $V_{max}=1$ V → $q_{max}=1$ pC (the site's canonical value), $I_{bias}=2.47$ mA, $P=2.47$ mW, $\eta_P=2/\pi$.
 - $S_i=2\times4kT/R_p=1.04\times10^{-22}$ A²/Hz (20 dB above example B's $10^{-24}$ — the order of magnitude of a real $Q=10$ tank).
 - $\mathcal{L}(1\ \text{MHz})=-124.8$ dBc/Hz (/4; /2 gives $-121.8$), margin 4.8 dB; $\mathrm{FOM}=194.9$ dB, 2.75 dB below the ceiling $=0.79$ ($F$) $+1.96$ ($\eta_P$).

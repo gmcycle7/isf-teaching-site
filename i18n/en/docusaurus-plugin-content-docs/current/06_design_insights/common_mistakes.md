@@ -43,7 +43,7 @@ work through each entry.
 ## 1. Treating κ² as D — linewidth comes out 2× too large
 
 **❌ Wrong practice**: compute the phase-variance growth rate
-$\kappa^2=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$ ([P2] Eq.(11)/(12), p.793),
+$\kappa^2=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$ ([P2] Eq.(11), p.793; the printed Eq.(12) is the time version $\kappa_t=\kappa/\omega_0$),
 call this number **directly** the diffusion constant $D$, then plug it into Demir's
 linewidth formula $\Delta f_{3\mathrm{dB}}=D/\pi$. (This site's v3 spec made exactly
 this mistake; v5 fixed it by Monte-Carlo adjudication.)
@@ -435,7 +435,7 @@ from simulations.common.noise_utils import leeson_one_over_f2, integrate_rms_jit
 
 # --- Mistake 1: κ² mistaken for D (linewidth 2×) ---
 GRMS, QMAX, SI = 0.5, 1e-12, 1e-24
-k2 = GRMS**2 * SI / (2 * QMAX**2)                 # [P2] Eq.(11)/(12)
+k2 = GRMS**2 * SI / (2 * QMAX**2)                 # [P2] Eq.(11); Eq.(12) is kappa_t
 print(round(k2, 3))                               # -> 0.125 (κ², rad²/s)
 print(round(k2 / (2*np.pi) * 1e3, 1))             # -> 19.9 (correct FWHM, mHz)
 print(round(k2 / np.pi * 1e3, 1))                 # -> 39.8 (κ² plugged into D/π, the 2x wrong value)

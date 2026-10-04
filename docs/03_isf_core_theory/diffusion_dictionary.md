@@ -1,6 +1,6 @@
 ---
 title: 擴散常數字典：κ、D、線寬、ADEV、1/f² 係數是同一個數字
-description: 以相位方差成長率 κ²=Γrms²·Si/(2qmax²)（[P2] Eq.11/12）為主角，逐步推導它換上五件衣服——ring jitter 常數 κ、相位擴散常數 D（兩種慣例）、Lorentzian 3-dB 線寬 κ²/(2π)、1/f² phase PSD 係數 2κ²、white-FM Allan deviation κ/(2πf₀√τ)——並把每個 factor-of-2 慣例（單邊/雙邊、Var=D|t| vs 2D|t|、SSB /2 vs /4）逐一對帳，用 lab_23 一次模擬五路驗證，canonical κ²=0.125 rad²/s。
+description: 以相位方差成長率 κ²=Γrms²·Si/(2qmax²)（[P2] Eq.(11)）為主角，逐步推導它換上五件衣服——ring jitter 常數 κ、相位擴散常數 D（兩種慣例）、Lorentzian 3-dB 線寬 κ²/(2π)、1/f² phase PSD 係數 2κ²、white-FM Allan deviation κ/(2πf₀√τ)——並把每個 factor-of-2 慣例（單邊/雙邊、Var=D|t| vs 2D|t|、SSB /2 vs /4）逐一對帳，用 lab_23 一次模擬五路驗證，canonical κ²=0.125 rad²/s。
 ---
 
 import NumericQuiz from "@site/src/components/NumericQuiz";
@@ -380,7 +380,7 @@ $f_0^{\text{sim}}=16$ Hz——線寬**不吃 $f_0$**，只有 ADEV 吃，其 $f_
 |---|---|---|
 | 模型 | toy / illustrative（非 transistor-level） | [P1] Eq.(11) 離散積分，Wiener 相位 |
 | $\Gamma_{rms},q_{max},S_i$ | $0.5$、$1$ pC、$10^{-24}\ \text{A}^2/\text{Hz}$ | canonical 例 B 真值 |
-| 理論 $\kappa^2$ | $0.125\ \text{rad}^2/\text{s}$ | [P2] Eq.(11)/(12) |
+| 理論 $\kappa^2$ | $0.125\ \text{rad}^2/\text{s}$ | [P2] Eq.(11), p.793（Eq.(12) 是時間版 $\kappa_t$） |
 | (a) 方差斜率 | $0.1252$ | 落在 $\kappa^2\tau$，**不在** $2\times0.125\,\tau$（紅點線被否證） |
 | (b) 線寬 | 擬合 $20.0$ mHz、半高直讀 $20.3$ mHz | 理論 $\kappa^2/2\pi=19.9$ mHz |
 | (c) ADEV | $\hat\kappa^2=0.1254$；斜率 $-1/2$ | $\sigma_y=\kappa/(2\pi f_0^{\text{sim}}\sqrt\tau)$ |
@@ -401,7 +401,7 @@ import numpy as np
 from simulations.common.noise_utils import white_noise
 
 GAMMA_RMS, QMAX, SI, F0_REAL = 0.5, 1e-12, 1e-24, 5e9
-KAPPA2 = GAMMA_RMS**2 * SI / (2 * QMAX**2)      # [P2] Eq.(11)/(12)
+KAPPA2 = GAMMA_RMS**2 * SI / (2 * QMAX**2)      # [P2] Eq.(11); Eq.(12) is kappa_t
 print(f"{KAPPA2:.4f}")  # -> 0.1250
 
 FS, N, F0_SIM = 64.0, 2**23, 16.0
@@ -494,7 +494,7 @@ print(round(k2,4), round(k2/(2*np.pi)*1e3,1), round(10*np.log10(k2/dw**2),1),
 ## 重點回顧
 
 - 白噪相位擴散只有**一個**自由參數：$\kappa^2=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$
-  （[P2] Eq.(11)/(12)；canonical $0.125\ \text{rad}^2/\text{s}$、真 LC $0.25$）。
+  （[P2] Eq.(11), p.793；印刷 Eq.(12) 是時間版 $\kappa_t=\kappa/\omega_0$；canonical $0.125\ \text{rad}^2/\text{s}$、真 LC $0.25$）。
 - 五件衣服：$\kappa=\sqrt{\kappa^2}$（rad/√s；時間版 $\kappa_t=\kappa/\omega_0$）、
   $D_{\text{甲}}=\kappa^2$／$D_{\text{乙}}=\kappa^2/2$、$\Delta f_{3\mathrm{dB}}=\kappa^2/2\pi=19.9$ mHz、
   $S_\phi=2\kappa^2/\Delta\omega^2$（$\mathcal{L}$：$-145.0$ ($/2$)／$-148.0$ ($/4$) dBc/Hz@1MHz）、

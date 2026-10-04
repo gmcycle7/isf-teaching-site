@@ -373,8 +373,8 @@ $$
 \kappa^2=\mathcal{L}_{/2}\cdot\Delta\omega^2=3.17\times10^{-15}\times3.948\times10^{13}=0.125\ \text{rad}^2/\text{s}.
 $$
 
-**Cross-check** (directly from the definition, [P2] Eq.(11)/(12), p.793, without going
-through $\mathcal{L}$):
+**Cross-check** (directly from the definition, [P2] Eq.(11), p.793 (the phase version; the printed Eq.(12)
+is the time version $\kappa_t=\kappa/\omega_0$), without going through $\mathcal{L}$):
 
 $$
 \kappa^2=\frac{\Gamma_{rms}^2}{2\,q_{max}^2}\cdot\frac{\overline{i_n^2}}{\Delta f}=\frac{0.25}{2\times10^{-24}}\times10^{-24}=0.125\ \text{rad}^2/\text{s}\ \checkmark
@@ -621,8 +621,8 @@ $\mathcal{L}(1\,\text{MHz})$.
   answer={-151.47}
   tol={0.01}
   unit="dBc/Hz"
-  hint="Two steps: ÷2 is −20log₁₀2=−6.02 dB → −148−6.02=−154.02; then power-sum with the floor: 10log₁₀(10^(−154.02/10)+10^(−155/10)). Note: it is NOT the floor value −155 — the two are only 0.98 dB apart, so the power sum lands below both."
-  solutionNote="The signal (−154.02) and the floor (−155) are only 0.98 dB apart — both matter, so the power sum comes out ≈ −151.47 dBc/Hz, about 3 dB below either alone (close to the equal-power 3 dB penalty). See the full solution below; the floor-dominated 10 MHz case is worked as part (b)."
+  hint="Two steps: ÷2 is −20log₁₀2=−6.02 dB → −148−6.02=−154.02; then power-sum with the floor: 10log₁₀(10^(−154.02/10)+10^(−155/10)). Note: it is NOT the floor value −155 — the two are only 0.98 dB apart, so the sum of uncorrelated noise powers can only be larger: the answer lands above both (about 2.55 dB above −154.02 and 3.53 dB above −155)."
+  solutionNote="The signal (−154.02) and the floor (−155) are only 0.98 dB apart — both matter, so the power sum comes out ≈ −151.47 dBc/Hz — higher than both: 2.55 dB above the signal (−154.02) and 3.53 dB above the floor (−155), because uncorrelated noise powers add and the total can only grow (with the two terms less than 1 dB apart it is close to the equal-power +3 dB). See the full solution below; the floor-dominated 10 MHz case is worked as part (b)."
 />
 
 <details>
@@ -645,15 +645,22 @@ $$
 
 **Result**: $-151.47$ dBc/Hz — the signal ($-154.02$) and the floor ($-155$) are only
 $0.98$ dB apart, so **both are the same order of magnitude and both contribute** (neither
-one dominates); the power sum pushes the output about 3 dB below either. This is
+one dominates); the power sum puts the output **above both**: $-151.47$ is $2.55$ dB above the signal ($-154.02$)
+and $3.53$ dB above the floor ($-155$), because uncorrelated noise powers add and the total can only grow. This is
 deliberately built so you cannot just retype the given floor value $-155$ and get lucky: if
 the floor genuinely dominated (see (b)) the answer would land close to the floor itself, but
 here the two terms are comparable and the only way to get it right is to actually do the
 power addition.
 
-**Convention flag**: $/2$ vs $/4$ bookkeeping only shifts input and output together, and
-$\pm20\log_{10}N$ plus power addition are ratio/additive operations — the conclusion "both
-terms matter, powers must add" is unchanged.
+**Convention flag**: the $/2$ vs $/4$ bookkeeping shifts only the **VCO term** and does **not**
+shift the buffer floor $-155$ (the floor is a separate measured/specified number, not set by the
+$\mathcal{L}=S_\phi/4$ or $/2$ bookkeeping), so input and output do **not** move together.
+In the $/2$ reading the VCO term is $-145-6.02=-151.02$, and power-adding $-155$ gives
+$-149.56$ dBc/Hz — the VCO term moves by $+3.01$ dB but the output moves only $+1.91$ dB, and the
+total is now just $1.46$ dB above the VCO term (the floor matters less). This site uses the $/4$
+bookkeeping of [P1] Eq.(21), hence the answer $-151.47$; $\pm20\log_{10}N$ and power addition
+are still ratio/additive operations, and the conclusion "both terms matter, powers must add"
+holds in either reading.
 
 **Dimension check**: all dB operations act on dimensionless power ratios ✓.
 
@@ -662,6 +669,12 @@ import numpy as np
 L_div = -148.0 - 20*np.log10(2)
 print(round(L_div, 2))                                            # -> -154.02
 print(round(10*np.log10(10**(L_div/10) + 10**(-155.0/10)), 2))    # -> -151.47
+# Convention flag: the /2 reading shifts only the VCO term; the -155 floor stays put
+L_div_h = -145.0 - 20*np.log10(2)
+print(round(L_div_h, 2))                                          # -> -151.02
+L_out_h = 10*np.log10(10**(L_div_h/10) + 10**(-155.0/10))
+print(round(L_out_h, 2))                                          # -> -149.56
+print(round(L_out_h - (-151.47), 2))                              # -> 1.91
 ```
 
 **(b) 10 MHz offset (the floor-dominated comparison case)**
@@ -695,10 +708,12 @@ buffer ruins it: those 19 dB of margin are voided outright — the core lesson o
 [clock_chain_budget](/06_design_insights/clock_chain_budget) (same numbers as that page's
 worked chain: $-168\to-174.02\to-154.95$).
 
-**Convention flag**: $\pm20\log_{10}N$ and power addition are **ratio/additive operations**;
-the $/2$ vs $/4$ convention cancels between input and output — the only convention-sensitive
-item is the anchor itself ($-148$ = [P1] Eq.(21)'s $/4$; the $/2$ bookkeeping shifts the whole
-curve $+3$ dB, and the conclusion "floor takes over" stands, output still $\approx-154.9$).
+**Convention flag**: $\pm20\log_{10}N$ and power addition are **ratio/additive operations**, but the
+$/2$ vs $/4$ bookkeeping shifts only the **VCO term** and does **not** shift the buffer floor $-155$,
+so input and output do **not** move together ($-148$ = [P1] Eq.(21)'s $/4$). In the $/2$ reading the
+VCO term at 10 MHz is $-145-20-6.02=-171.02$, and power-adding $-155$ gives $-154.89$ — the VCO term
+moves by $+3.01$ dB but the output moves only $0.06$ dB ($-154.89$ vs $-154.95$). The floor dominates
+here, so the conclusion "floor takes over" stands, output still $\approx-154.9$.
 Also note the conserved quantity: an ideal ÷2 improves $\mathcal{L}$ by 6.02 dB, but the
 **$\sigma_t$ in seconds does not change by a single fs** (needed in Question 9).
 
@@ -709,6 +724,12 @@ import numpy as np
 L_div = (-148.0 - 20*np.log10(10)) - 20*np.log10(2)
 print(round(L_div, 2))                                            # -> -174.02
 print(round(10*np.log10(10**(L_div/10) + 10**(-155.0/10)), 2))    # -> -154.95
+# Convention flag: the /2 reading shifts only the VCO term; the -155 floor stays put, floor dominates -> output moves only 0.06 dB
+L_div_h = (-145.0 - 20*np.log10(10)) - 20*np.log10(2)
+print(round(L_div_h, 2))                                          # -> -171.02
+L_out_h = 10*np.log10(10**(L_div_h/10) + 10**(-155.0/10))
+print(round(L_out_h, 2))                                          # -> -154.89
+print(round(L_out_h - (-154.95), 2))                              # -> 0.06
 ```
 
 </details>
@@ -1054,6 +1075,11 @@ print(round(np.sqrt(kappa2_m/f0)/(2*np.pi*f0)*1e15, 2))     # -> 28.28  (fs)
 L_div_1m = -148.0 - 20*np.log10(2)
 print(round(L_div_1m, 2))                          # -> -154.02
 print(round(10*np.log10(10**(L_div_1m/10) + 10**(-155.0/10)), 2))  # -> -151.47
+L_sum_1m = 10*np.log10(10**(L_div_1m/10) + 10**(-155.0/10))
+print(round(L_sum_1m - L_div_1m, 2), round(L_sum_1m + 155.0, 2))    # -> 2.55 3.53
+L_div_h = -145.0 - 20*np.log10(2)                  # /2 reading: only the VCO term moves; floor -155 stays
+L_out_h = 10*np.log10(10**(L_div_h/10) + 10**(-155.0/10))
+print(round(L_div_h, 2), round(L_out_h, 2))        # -> -151.02 -149.56
 
 # --- Q7(b): same chain at 10 MHz offset (floor-dominated comparison case)
 L_div = (-148.0 - 20*np.log10(10)) - 20*np.log10(2)
@@ -1100,7 +1126,7 @@ print(round((qinj/qmax_ilcm)/(2*np.pi*N_ilcm), 6))  # -> 0.000398
 | 4 | App. B 1/f³ corner | 42.86 kHz | [P2] Eq.(57); [P1] Eq.(24) $=2\times=85.71$ kHz |
 | 5 | jitter integration 1–100 MHz | 14.07 mrad, 447.9 fs | measured SSB uses $\mathcal{L}=\tfrac12S_\phi$ |
 | 6 | period-jitter closed form | 28.3 fs | single-sided $S_\phi$ kernel prefactor $1/\omega_0^2$ |
-| 7 | ÷2 + buffer floor @1 MHz | $-151.47$ dBc/Hz | rules are ratio operations, conventions cancel; signal and floor comparable, powers must add (10 MHz floor-dominated comparison in (b): $-154.95$) |
+| 7 | ÷2 + buffer floor @1 MHz | $-151.47$ dBc/Hz | rules are ratio operations, but /2 vs /4 shifts only the VCO term, not the −155 floor (output moves 1.91 dB, not 3.01 dB); signal and floor comparable, uncorrelated powers add so the output lands above both (10 MHz floor-dominated comparison in (b): $-154.95$) |
 | 8 | type-II peaking | 2.09 dB @ $0.786f_n$ | $10\log_{10}$ of power, no SSB business |
 | 9 | aperture SNR @ 2.5 GHz | 43.05 dB (6.86 bit) | formula convention-free; $\sigma_t$ conserved through ÷2 |
 | 10 | dual-Dirac TJ@$10^{-12}$ | 7.30 ps (eye 0.82 UI) | per-Gaussian $Q^{-1}=7.034$ |

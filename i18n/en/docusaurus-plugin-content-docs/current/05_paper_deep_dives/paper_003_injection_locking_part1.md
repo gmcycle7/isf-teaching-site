@@ -572,7 +572,7 @@ footnote 23):
 |---|---|---|---|
 | 6-stage differential ring | 1.32 GHz | Fig. 14 | Same topology as Fig. 12 |
 | 3-stage single-ended inverter ring | 1.09 GHz | Fig. 14 | Each inverter output capacitively loaded; injection applied at one output |
-| 17-stage single-ended inverter ring | 1.09 GHz | Fig. 14 | Same; the long ring has a markedly narrower lock range (fractional lock range of a few percent, reaching about $+6\%/-9\%$ at $I_{inj}/I_{max}\approx5$–$7$; see the measured points in Fig. 14, p.2118) |
+| 17-stage single-ended inverter ring | 1.09 GHz | Fig. 14 | Same; the long ring has a markedly narrower lock range (fractional lock range of a few percent, reading about $+5.5\%/-7.8\%$ near $I_{inj}/I_{max}\approx5.5$ and about $+7.6\%/-11.9\%$ near $\approx7.3$, read point by point off the figure (about $\pm0.3$ percentage points); see the 17-Stage Ring panel of Fig. 14, p.2118; the lower (negative) branch of the measured points drifts progressively away from the symmetric predicted line as $I_{inj}$ grows) |
 | Bose relaxation oscillator | 11.9 MHz | Fig. 15 | Same topology as Fig. 13 (the fabricated one is a low-frequency version) |
 | Differential NMOS astable multivibrator | 874 MHz | Fig. 15 | Cross-coupled RC relaxation oscillator |
 

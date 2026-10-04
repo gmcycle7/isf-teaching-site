@@ -23,7 +23,7 @@ The V_T=0 minimum [P2] Eq.(25) is **16γ/(3η)** (NOT 16γ/3 — the η was drop
 - **Also fix the stale `−95.7` in lc_vs_ring.md (it disagrees with the page's own −89.2): set to −91.0.**
 
 ## C2 — Ring accumulated-jitter law citation: Eq.(10) → Eq.(8)  [HIGH]
-σ_Δt = κ√Δt is **[P2] Eq.(8), p.792**; the κ formula is [P2] Eq.(12), p.793.
+σ_Δt = κ√Δt is **[P2] Eq.(8), p.792**; the κ formula is [P2] Eq.(12), p.793 (time version κ_t, ω0 in the denominator, units √s; phase version κ_φ = ω0·κ_t = sqrt of Eq.(11)).
 Replace any "[P2] … Eq.(10)" for σ_Δt=κ√Δt with "[P2] Eq.(8), p.792". In lab_11 line ~167 also fix
 "Eq.(10), p.793" → "Eq.(8), p.792".
 

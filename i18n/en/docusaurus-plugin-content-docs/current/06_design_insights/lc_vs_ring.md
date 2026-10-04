@@ -438,8 +438,8 @@ $$
 $$
 
 - **Result**: $\mathcal{L}|_{1/f^2}\approx-91.0$ dBc/Hz @ 1 MHz — **identical** for N=3, N=5, N=15,
-  because at fixed $f_0$/$P$ the $N$-dependent factors cancel (claim C7). This is $\sim57$ dB worse
-  than example 2's ideal LC value ($-148$ dBc/Hz), which is reasonable order-of-magnitude: ring has no
+  because at fixed $f_0$/$P$ the $N$-dependent factors cancel (claim C7). This is $\sim54$ dB worse
+  than example 2's ideal LC value (same-family comparison: $-91.0$ is a /2-family number, and that LC example reads $-145$ dBc/Hz in the /2 family; its usual $-148$ is the /4 family of [P1] Eq.(21), see example 2 below), which is reasonable order-of-magnitude: ring has no
   high-$Q$ energy storage, small $q_{max}$, and many devices.
 - **Dimension check**: $\dfrac{[\text{J}]}{[\text{W}]}\cdot(\text{dimensionless})^2=\dfrac{[\text{J}]}{[\text{J/s}]}=[\text{s}]$,
   the per-Hz power ratio ($1/\Delta\omega^2$ already absorbed into $(\omega_0/\Delta\omega)^2$) →
@@ -475,8 +475,11 @@ $$
 \end{aligned}
 $$
 
-- **Comparison**: under ideal single-source conditions, LC $-148$ vs ring $-91$ → LC is about
-  **57 dB better**. (The two numbers come from each paper's own natural parametrization: LC uses
+- **Comparison (align the convention first)**: the ring's $-91.0$ dBc/Hz comes from [P2] Eq.(23), collected from [P2] Eq.(6), p.792 (denominator $8\pi^2f_{off}^2=2\Delta\omega^2$),
+  i.e. the **/2 family**; the $-148.0$ above is the **/4 family** of [P1] Eq.(21), so the two cannot be subtracted directly. Move the LC value to the /2 family:
+  $-148.0+10\log_{10}2=-145.0$ dBc/Hz, so under ideal single-source conditions LC $-145$ vs ring $-91$ → LC is about **54 dB better**
+  (or both in /4 bookkeeping: $-148$ vs $-94$, again 54 dB; the 57 dB obtained from $-148$ minus $-91$ contains 3 dB of pure convention).
+  The conclusion does not change — it is a "fifty-something dB" gap either way. (The two numbers come from each paper's own natural parametrization: LC uses
   $q_{max},\Gamma_{rms},S_i$, ring uses $P,\gamma,V_{DD}/V_{char}$, so this is an "order-of-magnitude
   comparison," not a same-parameter-set comparison. Real-world gaps are often 10-30 dB, because ring
   has multiple noise sources, cyclostationary effects, and flicker.) This quantifies "LC buys low
@@ -492,6 +495,8 @@ def L_lc(Grms, qmax, Si, f0, df):                 # [P1] Eq.(21)
     dw = 2*np.pi*df
     return 10*np.log10(Grms**2/qmax**2 * Si/(4*dw**2))
 print(round(L_lc(0.5, 1e-12, 1e-24, 5e9, 1e6), 1))   # -> -148.0
+L_lc_2 = L_lc(0.5, 1e-12, 1e-24, 5e9, 1e6) + 10*np.log10(2)   # the same LC in the /2 family (the bookkeeping of [P2] Eq.(6))
+print(round(L_lc_2, 1), round(L_lc_2 - (-91.0), 1))  # -> -145.0 -54.0 (/2-family LC; same-family gap to the ring's -91.0, dB)
 ```
 
 > The above [P2] constants (prefactor $8/(3\eta)$, $\Gamma_{rms}=\sqrt{2\pi^2/(3\eta^3)}\cdot N^{-1.5}$,

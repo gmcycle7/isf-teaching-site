@@ -1,6 +1,6 @@
 ---
 title: PLL 完整相位雜訊預算與最佳 loop BW
-description: 五個雜訊源（reference、PFD/charge-pump、divider、loop filter、VCO）各自的轉移與加總 S_out=(S_ref N²+S_cp)|H_lp|²+S_vco|H_hp|²，in-band vs out-of-band 切換，reference spur，並對積分 jitter 求極小得最佳 loop BW（fn≈6.9 MHz、σt≈259 fs）；加映 type-II peaking 閉式解（ζ=0.707→2.09 dB @0.786fn、級聯 0.1 dB 法則）與 fractional-N ΔΣ 量化雜訊第三項（MASH-m、+40 dB/dec 斜坡）、loop-filter 電阻雜訊閉式、以及 PLL 的 jitter–power FOM（σt=259 fs、10 mW → −241.7 dB）。
+description: 五個雜訊源（reference、PFD/charge-pump、divider、loop filter、VCO）各自的轉移與加總 S_out=(S_ref N²+S_cp)|H_lp|²+S_vco|H_hp|²，in-band vs out-of-band 切換，reference spur，並對積分 jitter 求極小得最佳 loop BW（fn≈6.9 MHz、σt≈259 fs）；加映 type-II peaking 閉式解（ζ=0.707→2.09 dB @0.786fn、級聯 0.1 dB 法則）與 fractional-N ΔΣ 量化雜訊第三項（MASH-m、+40 dB/dec 斜坡）、loop-filter 電阻雜訊閉式與疊圖（σ²=2πN·kT·K_vco/I_cp 與 fn 無關；I_cp=100 µA 時 259.5→274.9 fs）、以及 PLL 的 jitter–power FOM（σt=259 fs、10 mW → −241.7 dB）。
 ---
 
 # PLL 完整相位雜訊預算與最佳 loop BW
@@ -134,7 +134,10 @@ $$
   （$-117.4$ dBc/Hz）——比本頁 in-band 地板 $1.5\times10^{-12}$ **高 2.5 倍**，但比 ring VCO 在 $f_n$ 的
   $10^{-10}$ 低 27 倍；單獨積分 1 kHz–1 GHz 給 $\sigma_{t,R}=91$ fs（對照最佳點 259 fs）。固定 $f_n,\zeta$ 下
   $R\propto1/I_{cp}$，所以**加大 CP 電流**同時壓電阻項與 $(2\pi N/I_{cp})^2S_{i,cp}$ 的 CP 項（代價：功率、$C$ 面積）。
-  lab_20 的圖（下）未含此項（其 $I_{cp}$ 未指定，標 illustrative）；真實設計要納入。
+  lab_20 的圖（下）是不含此項的「理想 loop filter」預算（其 $I_{cp}$ 未指定，標 illustrative）；把它疊上去之後的
+  圖、積分後的閉式 $\sigma_{\phi,R}^2=2\pi N\,kT\,K_{vco}/I_{cp}$（與 $f_n$ 無關）與「$I_{cp}$ 多大才可忽略」見本頁
+  「數值驗證：把 loop-filter 電阻雜訊疊上預算」一節——在最佳 loop BW，$I_{cp}=100\ \mu$A 讓 259.5 fs 變 274.9 fs（+5.9%），
+  $I_{cp}\ge1$ mA 才降到 1% 以下。
 
 ```python
 import numpy as np
@@ -414,7 +417,7 @@ $$
 
 ## 對應模擬圖（lab_20）
 
-**lab_20**（`simulations/lab_20_pll_budget.py`）用上面的 type-II 二階預算，左圖在固定 $f_n=1$ MHz
+**lab_20**（`simulations/lab_20_pll_budget.py`）用上面的 type-II 二階預算，左圖在最佳 loop BW（$f_n\approx6.90$ MHz，即右圖紅點）
 畫出三條（ref$\times N^2$+CP 低通、VCO 高通、總和），右圖掃 $f_n$ 把 $\sigma_t(f_n)$ 畫成 U 形並標出
 最低點。
 
@@ -551,6 +554,159 @@ for fn in [0.3e6, 6.9e6, 30e6]:
     st = np.sqrt(np.trapezoid(Sout(fn), f))/(2*np.pi*f0)
     print(f"fn={fn/1e6:5.2f} MHz -> sigma_t={st*1e15:.0f} fs")  # 867 / 259 / 396 fs
 ```
+
+## 數值驗證：把 loop-filter 電阻雜訊疊上預算
+
+第 2 步給了電阻項的閉式，上面 lab_20 的圖與 259 fs 最佳點則是「理想 loop filter」（不含電阻項）
+的預算。這一節把兩者放在同一張圖上，誠實回答三個問題：**電阻項到底佔多少？它會不會移動最佳
+loop BW？$I_{cp}$ 要多大它才可忽略？** lab_20 的圖與數字**完全不動**；新腳本
+`simulations/fig_pll_rnoise.py` 直接匯入 lab_20 的 `output_psd`／`integ_jitter` 當基線，再疊上電阻項。
+
+### 推導：固定 $\omega_n,\zeta$ 時電阻項如何隨 $I_{cp}$ 縮放
+
+從 [lab_13](/04_simulation_labs/lab_13_pll_cdr_transfer) §2 的兩條設計式（`design_type2`，$K_{vco}$ 一律 rad/s/V）出發：
+
+$$
+C=\frac{I_{cp}K_{vco}}{2\pi N\,\omega_n^2}\ \propto\ I_{cp},\qquad
+R=\frac{2\zeta}{\omega_nC}=\frac{4\pi\zeta N\,\omega_n}{I_{cp}K_{vco}}\ \propto\ \frac{1}{I_{cp}} .
+$$
+
+（單位：$C$：$\text{A}\cdot(\text{rad/s/V})/(\text{rad/s})^2=\text{A·s/V}=\text{F}$ ✓；$R$：$(\text{rad/s})/(\text{A}\cdot\text{rad/s/V})=\text{V/A}=\Omega$ ✓。）
+把 $R$ 代進第 2 步的峰值式 $S_{\phi,R}(f_n)=4kTR\,K_{vco}^2/(2\zeta\omega_n)^2$：
+
+$$
+S_{\phi,R}(f_n)=\frac{4kT\,K_{vco}^2}{4\zeta^2\omega_n^2}\cdot\frac{4\pi\zeta N\omega_n}{I_{cp}K_{vco}}
+=\frac{4\pi kT\,N\,K_{vco}}{\zeta\,\omega_n\,I_{cp}}\quad[\text{rad}^2/\text{Hz}] .
+$$
+
+整條 $S_{\phi,R}(f)$ 的形狀只由 $\omega_n,\zeta$ 決定、高度正比於 $R$，所以**固定 $\omega_n,\zeta$ 時電阻項的
+PSD 整條隨 $1/I_{cp}$ 下降**：$I_{cp}\times10$ → $-10$ dB、jitter $\div\sqrt{10}$。
+
+再對全頻積分。令 $x=\omega/\omega_n$，用 $\int_0^\infty\dfrac{x^2\,dx}{(1-x^2)^2+4\zeta^2x^2}=\dfrac{\pi}{4\zeta}$
+（標準二階帶通積分；下方 python 數值核對到 0.9999）：
+
+$$
+\begin{aligned}
+\sigma_{\phi,R}^2&=\int_0^\infty S_{\phi,R}\,df
+=\frac{4kTR\,K_{vco}^2}{2\pi}\int_0^\infty\frac{\omega^2\,d\omega}{(\omega_n^2-\omega^2)^2+(2\zeta\omega_n\omega)^2}
+=\frac{4kTR\,K_{vco}^2}{2\pi}\cdot\frac{\pi}{4\zeta\omega_n}\\
+&=\frac{kTR\,K_{vco}^2}{2\zeta\,\omega_n}
+=\frac{kT}{C}\Big(\frac{K_{vco}}{\omega_n}\Big)^2
+=\frac{2\pi N\,kT\,K_{vco}}{I_{cp}}\quad[\text{rad}^2] .
+\end{aligned}
+$$
+
+（第二行依序代入 $R=2\zeta/(\omega_nC)$ 與 $C=I_{cp}K_{vco}/(2\pi N\omega_n^2)$。）
+
+- **物理意義**：中間那個形式是「$V_{ctrl}$ 上的 $kT/C$ 雜訊 $\times$ 增益 $(K_{vco}/\omega_n)^2$」——電阻值本身消掉了，
+  與所有 $kT/C$ 結果同一個道理。
+- **最後一個形式不含 $f_n$ 也不含 $\zeta$**：給定 $N$、$K_{vco}$、$I_{cp}$，電阻項的積分 jitter 是個**常數**
+  （loop BW 加寬 → $R\propto\omega_n$ 變大、但峰值 $\propto1/\omega_n$ 變矮、帶寬 $\propto\omega_n$ 變寬，三者相消）。
+  所以它把整條 U 形**等量墊高**（方差相加），**不移動最佳 $f_n$**。
+- **Dimension check**：$kT$ [J = V·A·s] $\times K_{vco}$ [rad/(s·V)] $/I_{cp}$ [A] $=\text{rad}$（無因次）→ $\text{rad}^2$ ✓。
+- **慣例 flag（因子 4 與 2）**：$4kTR$ 是**單邊**電壓 PSD（V²/Hz），配本站**單邊** $S_\phi$，積分從 0 到 $\infty$；
+  若用雙邊 $2kTR$ 就要對 $\pm f$ 積分，結果相同。換 dBc/Hz 時仍是 $\mathcal{L}=\tfrac12S_\phi$。$K_{vco}$ 若誤用 Hz/V
+  會差 $(2\pi)^2$（PSD）或 $2\pi$（閉式方差）。
+
+代 lab_13 的例子（$N=100$、$K_{vco}=2\pi\times50$ MHz/V、$I_{cp}=100\ \mu$A、$T=300$ K）：
+$\sigma_{\phi,R}^2=2\pi\times100\times4.142\times10^{-21}\times3.1416\times10^{8}/10^{-4}=8.18\times10^{-6}\ \text{rad}^2$，
+$\sigma_{\phi,R}=2.86$ mrad，$\sigma_{t,R}=\sigma_{\phi,R}/(2\pi f_0)=91.0$ fs——與第 2 步數值積分的 91 fs 一致。
+
+### 圖與數字
+
+![loop-filter 電阻雜訊疊在 lab_20 的 PLL 預算上：(a) f_n=1 MHz 的 lab_13 設計、(b) 最佳 loop BW 6.9 MHz，三條電阻項曲線對應 I_cp=100 µA、1 mA、10 mA；(c) 積分 jitter 對 loop BW，含與不含電阻項](/figures/pll_budget_rnoise.png)
+
+**參數**：基線 = lab_20 的預算（上節參數表，$f_0=5$ GHz、$N=100$、$\zeta=0.707$、積分 1 kHz–1 GHz）；
+電阻項用 $K_{vco}=50$ MHz/V、$T=300$ K，$R$ 在每個 $f_n$ 由 `design_type2` 重新設計。完整 script：
+`simulations/fig_pll_rnoise.py`。
+
+| $f_n$ | $I_{cp}$ | $R$ | $C$ | $S_{\phi,R}(f_n)$ [rad²/Hz] | $\sigma_{t,R}$（單獨） | $\sigma_t$ 不含 → 含電阻項 |
+|---|---|---|---|---|---|---|
+| 1 MHz（lab_13 設計） | 100 µA | 178 kΩ | 1.27 pF | $3.68\times10^{-12}$ | 91.0 fs | 479.6 → 488.2 fs（+1.8%） |
+| 1 MHz | 1 mA | 17.8 kΩ | 12.7 pF | $3.68\times10^{-13}$ | 28.8 fs | 479.6 → 480.5 fs（+0.2%） |
+| 1 MHz | 10 mA | 1.78 kΩ | 127 pF | $3.68\times10^{-14}$ | 9.1 fs | 479.6 → 479.7 fs |
+| 6.9 MHz（最佳點） | 100 µA | 1.23 MΩ | 0.027 pF | $5.33\times10^{-13}$ | 90.7 fs | 259.5 → 274.9 fs（+5.9%） |
+| 6.9 MHz | 1 mA | 123 kΩ | 0.27 pF | $5.33\times10^{-14}$ | 28.7 fs | 259.5 → 261.0 fs（+0.6%） |
+| 6.9 MHz | 10 mA | 12.3 kΩ | 2.66 pF | $5.33\times10^{-15}$ | 9.1 fs | 259.5 → 259.6 fs |
+
+**如何解讀：**
+
+- **(a) lab_13 的環（$f_n=1$ MHz、$I_{cp}=100\ \mu$A）**：橘線（電阻項）在 $f_n$ 的峰 $3.68\times10^{-12}$ 比藍點線的
+  in-band 地板 $1.5\times10^{-12}$ **高 2.5 倍**——在 in-band 源之間它是最大的；但同一點 ring VCO 的高通項是
+  $10^{-10}$，高 27 倍，所以黑線（無電阻項）與灰虛線（含電阻項）幾乎重疊：**電阻項不主宰這顆 ring-PLL 的總
+  jitter**（479.6 → 488.2 fs，+1.8%）。老實話：它「蓋過 in-band 地板」但「被 VCO 蓋過」。
+- **(b) 最佳 loop BW**：$f_n$ 加寬 6.9 倍，電阻項峰值降 6.9 倍（$\propto1/\omega_n$），但積分仍是 ~91 fs。這時 VCO
+  已被壓下來（總和 259.5 fs），同樣的 91 fs 就變得看得見：$\sqrt{259.5^2+90.7^2}=274.9$ fs，**+5.9%**。
+- **(c) U 形**：三條虛線都只是把黑線以方差相加的方式墊高一個常數，最低點仍在 $f_n^\*\approx6.90$ MHz——
+  印證「與 $f_n$ 無關」的閉式。
+
+```python
+import numpy as np
+from simulations.common.pll_utils import design_type2, H_lowpass_mag2, H_highpass_mag2
+
+kT, f0, N, zeta, Kvco = 1.380649e-23*300, 5e9, 100, 0.707, 50e6   # J, Hz, -, -, Hz/V
+kv = 2*np.pi*Kvco                                                # rad/s/V
+f = np.logspace(3, 9, 3000)                                      # lab_20 grid, Hz
+def S_budget(fn):                                                # lab_20 budget (no resistor)
+    lp, hp = H_lowpass_mag2(f, fn, zeta), H_highpass_mag2(f, fn, zeta)
+    return ((1e-16 + 1e-18*(1e6/f))*N**2 + 5e-13)*lp + 2e-10*(1e6/f)**2*hp
+def S_R(fn, Icp):                                                # resistor term, rad^2/Hz
+    R, C = design_type2(fn, zeta, N, Kvco, Icp)
+    return 4*kT*R*kv**2/(2*np.pi*f)**2*H_highpass_mag2(f, fn, zeta), R, C
+sig = lambda S: np.sqrt(np.trapezoid(S, f))/(2*np.pi*f0)*1e15    # fs
+
+x = np.linspace(1e-4, 1e4, 20_000_001)                           # x = f/f_n
+print(round(np.trapezoid(x**2/((1 - x**2)**2 + (2*zeta*x)**2), x)*4*zeta/np.pi, 4))
+# -> 0.9999
+var = 2*np.pi*N*kT*kv/100e-6                                     # closed form, rad^2
+print(f"{var:.3e}", round(np.sqrt(var)*1e3, 2), round(np.sqrt(var)/(2*np.pi*f0)*1e15, 1))
+# -> 8.176e-06 2.86 91.0
+for fn in (1e6, 6.9e6):
+    out = [round(sig(S_budget(fn)), 1)]
+    for Icp in (100e-6, 1e-3, 10e-3):
+        SR, R, C = S_R(fn, Icp)
+        out += [round(sig(SR), 1), round(sig(S_budget(fn) + SR), 1)]
+    print(fn/1e6, *out)
+# -> 1.0 479.6 91.0 488.2 28.8 480.5 9.1 479.7
+# -> 6.9 259.5 90.7 274.9 28.7 261.0 9.1 259.6
+for Icp in (100e-6, 1e-3, 10e-3):
+    R, C = design_type2(6.9e6, zeta, N, Kvco, Icp)
+    print(round(R/1e3, 1), round(C*1e12, 3), f"{S_R(6.9e6, Icp)[0][np.argmin(abs(f - 6.9e6))]:.2e}")
+# -> 1226.1 0.027 5.33e-13
+# -> 122.6 0.266 5.33e-14
+# -> 12.3 2.66 5.33e-15
+s_opt = sig(S_budget(6.9e6))
+print(round(s_opt*np.sqrt(1.01**2 - 1), 1), round(100*(91.02/(s_opt*np.sqrt(1.01**2 - 1)))**2))
+# -> 36.8 612
+print(round(3.681e-12/1.5e-12*100), round(4*np.pi*kT*N*kv/(zeta*2*np.pi*6.9e6*1.5e-12)*1e6))
+# -> 245 36
+```
+
+### 設計教訓
+
+1. **lab_13 的 $I_{cp}=100\ \mu$A 例子**：電阻項（91 fs）**不是**這顆 ring-PLL 的主角，但也**不是可以略去的零**——
+   在最佳 loop BW 它讓 $\sigma_t$ 從 259.5 fs 變 274.9 fs。本站其他頁引用的「$\sigma_t\approx259$ fs」應讀作
+   **理想 loop filter（或 $I_{cp}$ 夠大）**的值。
+2. **多大才可忽略**：以「在最佳點讓 $\sigma_t$ 增加不到 1%」為準，需要 $\sigma_{t,R}\lt36.8$ fs，即
+   $I_{cp}\gt100\ \mu\text{A}\times(91.0/36.8)^2\approx0.61$ mA。**$I_{cp}=1$ mA 就夠**（+0.6%）；10 mA（+0.06%）已是
+   過度設計。若改用「峰值低於 in-band 地板 $1.5\times10^{-12}$」為準：$f_n=1$ MHz 要 $I_{cp}\gt245\ \mu$A，
+   $f_n=6.9$ MHz 只要 $\gt36\ \mu$A（峰值 $\propto1/\omega_n$）——兩種判據不同，先講清楚你用哪一個。
+3. **換成安靜的 VCO 時結論會反轉**：$\sigma_{t,R}^2\propto N K_{vco}/I_{cp}$ 與 VCO 無關。若把 ring 換成 LC、其餘
+   項降到 100 fs 量級，同樣的 91 fs 就成了**主要**貢獻。低雜訊 PLL 因此要嘛加大 $I_{cp}$、要嘛**降 $K_{vco}$**
+   （粗調／細調分段，見 [varactor_tuning_supply_pushing](/06_design_insights/varactor_tuning_supply_pushing)）、要嘛降 $N$。
+4. **代價**：$C\propto I_{cp}$。$f_n=1$ MHz 下 10 mA 要 127 pF（面積），外加 CP 本身的功耗；這與
+   $\mathrm{FOM}_{jitter}$ 的「每一項 $\propto1/P$」是同一筆帳。
+
+**限制與誠實聲明：**
+
+- 理想串聯 $R$–$C$、無第三極 $C_3$。真實環路的 $C_3$ 會對電阻雜訊再做一次低通（$f_{p3}$ 以上），並改變
+  $\lvert H_{hp}\rvert^2$ 在 $f_n$ 附近的形狀；「與 $f_n,\zeta$ 無關」只在理想二階環嚴格成立。
+- 掃 $I_{cp}$ 時 lab_20 的 $S_{cp}=5\times10^{-13}$ **保持不變**（lab_20 沒有把 $S_{cp}$ 綁到 $I_{cp}$）；真實設計裡
+  CP 項也隨 $I_{cp}$ 改變，這裡只隔離出電阻項。
+- 表中 $f_n=6.9$ MHz、$I_{cp}=100\ \mu$A 的 $C=0.027$ pF、$R=1.23$ MΩ 小於一般寄生電容——那一列是公式的機械結果，
+  不是可實作的濾波器；在該 loop BW 下實務上本來就得用更大的 $I_{cp}$（或更小的 $K_{vco}$）。
+- 只算電阻的熱雜訊（$T=300$ K），未含 CP 漏電、開關電荷注入與 varactor 的 AM-PM；積分頻帶 1 kHz–1 GHz
+  下數值積分是閉式的 0.999 倍（帶外尾巴）。全部為 illustrative 等級、非特定製程。
 
 ## fractional-N 的第三項：ΔΣ 量化雜訊
 
@@ -884,7 +1040,7 @@ $\propto1/P$ 假設在 flicker 主導或數位功耗（[ADPLL](/06_design_insigh
 | 各源不相關 | 功率直接相加（本頁加總式） | 若 CP 與 divider 相關，需含交叉項 |
 | 線性 PLL（小相位誤差） | type-II 二階閉環有效 | 大失鎖/slew → 非線性，轉移函數不成立 |
 | VCO 為 $1/f^2$（白噪上轉） | $S_{vco}=k/f^2$，本頁 U 形 | 含 flicker（$1/f^3$ close-in）→ 最佳 BW 偏移、要重積分 |
-| 忽略 loop-filter 與 spur | toy 預算夠用（lab_20 圖） | $S_{lf}$ 已有閉式（第 2 步；小 $I_{cp}$ 時可比 in-band 地板高）、reference spur、fractional 雜散都要納入 |
+| 忽略 loop-filter 與 spur | toy 預算夠用（lab_20 圖） | $S_{lf}$ 已有閉式（第 2 步）與疊圖（「數值驗證」節：$I_{cp}=100\ \mu$A 時 $\sigma_t$ 259.5→274.9 fs，$\ge1$ mA 才 $\lt1\%$）、reference spur、fractional 雜散都要納入 |
 | 整數-N | reference $\times N^2$ | fractional-N：ΔΣ 量化雜訊第三項（本頁「fractional-N 的第三項」節已補） |
 
 ## 重點回顧
@@ -898,7 +1054,9 @@ $\propto1/P$ 假設在 flicker 主導或數位功耗（[ADPLL](/06_design_insigh
 - 這顆 ring-PLL U 形左臂比右臂陡 → 偏好稍大的 loop BW。
 - loop-filter 電阻項有閉式 $S_{\phi,R}=4kTR\,K_{vco}^2/(2\pi f)^2\cdot\lvert H_{hp}\rvert^2$（帶通、峰在 $f_n$）；
   lab_13 的 worked design（$R=178$ kΩ）給 $-117.4$ dBc/Hz @1 MHz、$\sigma_{t,R}=91$ fs——「略去」不總是成立，
-  加大 $I_{cp}$ 同時壓它與 CP 項。
+  加大 $I_{cp}$ 同時壓它與 CP 項。積分後 $\sigma_{\phi,R}^2=2\pi N\,kT\,K_{vco}/I_{cp}$——**與 $f_n,\zeta$ 無關**，
+  只把 U 形等量墊高、不移動最佳 $f_n$：$I_{cp}=100\ \mu$A 時最佳點 259.5→274.9 fs（+5.9%），1 mA 時 261.0 fs（+0.6%），
+  所以「259 fs」是理想 loop filter 的值。
 - type-II 帶零點**必有 peaking**：$f_{pk}=f_n\sqrt{2/(s+1)}$、
   $\lvert H_{lp}\rvert^2_{max}=(s+1)^2/[(s-1)(s+3)]$，$s=\sqrt{1+8\zeta^2}$；
   $\zeta=0.707\to2.09$ dB @ $0.786f_n$（峰值恰為黃金比例 $\varphi$）。級聯時峰值 dB 相加 →

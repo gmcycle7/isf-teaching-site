@@ -384,7 +384,7 @@ $$
 
 **結果**：單級 $\approx-136$ dBc/Hz、5 級總和 $\approx-129$ dBc/Hz @ 1 MHz（量級）。
 
-- **手感**：比 (a) 的 LC VCO（$\Gamma_{rms}=0.707$、單源 $\sim-148$ dBc/Hz）差很多——但注意 ring 的
+- **手感**：比 (a) 的 LC VCO（$\Gamma_{rms}=0.5$（代表值，$\Gamma_{rms}^2=0.25$）、單源 $\sim-148$ dBc/Hz）差很多——但注意 ring 的
   $\Gamma_{rms}$ 已被 $N^{-3/2}$ 壓低了，**真正吃虧的是多級疊加 + 無 tank 蓄能**（這裡只示範了多級疊加的
   $+7$ dB）。
 - **Dimension check**：同 [P1] Eq.(21)，括號內化簡為 $\text{s}$（per-Hz）✓。
@@ -463,7 +463,7 @@ $$
 $$
 
 這就是 Mazzanti–Andreani 摘要裡的「theoretical 3.9 dB phase noise improvement」（同電流消耗）。
-套到例 B（$f_0=5$ GHz、$\Gamma_{rms}=1/\sqrt2$、$q_{max}=1$ pC、$S_i=10^{-24}$ A²/Hz、[P1] Eq.(21) SSB「/4」→ $-148.0$ dBc/Hz @ 1 MHz）：
+套到例 B（$f_0=5$ GHz、$\Gamma_{rms}=0.5$（代表值，$\Gamma_{rms}^2=0.25$）、$q_{max}=1$ pC、$S_i=10^{-24}$ A²/Hz、[P1] Eq.(21) SSB「/4」→ $-148.0$ dBc/Hz @ 1 MHz）：
 class-C 同偏壓 $\to-148.0-3.92=-151.9$ dBc/Hz；若用時域「/2」慣例（$-145.0$）則為 $-148.9$ dBc/Hz——
 **兩種慣例差的那顆 2 與本節無關，$-3.92$ dB 的差值兩邊一樣**。
 

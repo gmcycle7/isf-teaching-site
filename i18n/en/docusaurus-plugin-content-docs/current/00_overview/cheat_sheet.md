@@ -33,7 +33,7 @@ one page. Every entry links back to its full derivation page.
 | SSB↔PSD | $\mathcal{L}(\Delta f)\approx\tfrac12 S_\phi(\Delta f)$ | [psd](/02_foundations/psd_phase_noise_jitter) |
 | phase→time | $\Delta t=\dfrac{\Delta\phi}{2\pi f_0}$ | standard |
 | rms jitter | $\sigma_t=\dfrac{1}{2\pi f_0}\sqrt{\displaystyle\int_{f_1}^{f_2}S_\phi\,df}$ | [serdes](/06_design_insights/serdes_clocking_connection) |
-| Accumulated jitter | $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$, $\kappa=\dfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ | [P2] Eq.(8)(12) |
+| Accumulated jitter | $\sigma_{\Delta t}=\kappa_t\sqrt{\Delta t}$, $\kappa_t=\dfrac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ $[\sqrt{\text{s}}]$; phase version $\kappa=\omega_0\kappa_t$ $[\text{rad}/\sqrt{\text{s}}]$ | [P2] Eq.(8)(10)(12), p.792–793 |
 | Ring frequency | $f_0=\dfrac{1}{2N\tau_D}$ | [P2] Eq.(15) |
 | Ring $\Gamma_{rms}$ | $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}\Rightarrow\Gamma_{rms}\propto N^{-3/2}$ (at $\eta=0.75$, $\approx4/N^{1.5}$, the solid line in [P2] Fig.8; the radical covers only the constant) | [P2] Eq.(16) |
 | Ring FOM | $\mathcal{L}=\dfrac{8}{3\eta}\dfrac{kT}{P}\dfrac{V_{DD}}{V_{char}}\Big(\dfrac{f_0}{\Delta f}\Big)^2$ (no $N$!) | [P2] Eq.(23) |
@@ -47,7 +47,7 @@ one page. Every entry links back to its full derivation page.
 | A: impulse→time | $q_{max}=1$ pC, $\Delta q=1$ fC, $\Gamma=0.5$, $f_0=5$ GHz | $\Delta\phi=5\times10^{-4}$ rad, $\Delta t=15.9$ fs |
 | B: white-noise $\mathcal{L}$ | $\Gamma_{rms}=0.5$, $q_{max}=1$ pC, $S_i=10^{-24}$ A²/Hz, $\Delta f=1$ MHz | $\mathcal{L}=-148$ dBc/Hz |
 | C: jitter integral | $\mathcal{L}(1\text{MHz})=-100$ dBc/Hz, 1/f², 1→100 MHz, 5 GHz | $\sigma_t=447.9$ fs |
-| Ring FOM | $\gamma=2/3$, $V_{DD}/V_{char}=3$, $P=1$ mW, others as above | $\mathcal{L}\approx-91$ dBc/Hz |
+| Ring FOM | $\gamma=2/3$, $V_{DD}/V_{char}=3$, $P=1$ mW, others as above | $\mathcal{L}\approx-91$ dBc/Hz (**/2 family**: [P2] Eq.(23) is collected from [P2] Eq.(6); in the /4 bookkeeping of [P1] Eq.(21) used by example B it reads $-94$) |
 
 > Want to sweep the parameters yourself? Use the [interactive calculator](/04_simulation_labs/interactive_calculator).
 
@@ -75,14 +75,14 @@ Rule for this block: every entry is copied verbatim from its source page, conven
 | Kernel | Formula (one-sided $S_\phi$, $\int_0^\infty$ convention) | White-FM closed form |
 |---|---|---|
 | TIE (0th order) | $\sigma_{TIE}^2=\dfrac{1}{\omega_0^2}\displaystyle\int_{f_1}^{f_2}S_\phi\,df$ | — |
-| N-period (1st-order difference) | $\sigma_P^2(N)=\dfrac{1}{\omega_0^2}\displaystyle\int_0^\infty S_\phi\,4\sin^2(\pi fNT)\,df$ | $=\kappa^2NT$ (exact match to [P2] Eq.(8)) |
-| Cycle-to-cycle (2nd-order difference) | $\sigma_{c2c}^2=\dfrac{1}{\omega_0^2}\displaystyle\int_0^\infty S_\phi\,16\sin^4(\pi fT)\,df$ | $=2\kappa^2T\Rightarrow\sigma_{c2c}=\sqrt2\,\sigma_P(1)$ |
+| N-period (1st-order difference) | $\sigma_P^2(N)=\dfrac{1}{\omega_0^2}\displaystyle\int_0^\infty S_\phi\,4\sin^2(\pi fNT)\,df$ | $=\kappa_t^2NT$ (exact match to [P2] Eq.(8); $\kappa_t=\kappa/\omega_0$) |
+| Cycle-to-cycle (2nd-order difference) | $\sigma_{c2c}^2=\dfrac{1}{\omega_0^2}\displaystyle\int_0^\infty S_\phi\,16\sin^4(\pi fT)\,df$ | $=2\kappa_t^2T\Rightarrow\sigma_{c2c}=\sqrt2\,\sigma_P(1)$ |
 
 > The prefactor is $1/\omega_0^2$, **not** $2/\omega_0^2$ (that 2 belongs to the double-sided-spectrum or $\mathcal{L}=\tfrac12S_\phi$ bookkeeping).
 
 ### κ↔D↔linewidth↔ADEV↔$S_\phi$ dictionary (with the 19.9/39.8 mHz canonical numbers) — [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)
 
-Lead quantity: $\kappa^2=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$ ([P2] Eq.(11)/(12)); canonical ($\Gamma_{rms}=0.5$) gives $\kappa^2=0.125$ rad²/s, true LC ($\Gamma_{rms}=1/\sqrt2$) gives $0.25$.
+Lead quantity: $\kappa^2=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$ ([P2] Eq.(11), p.793; the printed Eq.(12) is the time version $\kappa_t=\kappa/\omega_0$); canonical ($\Gamma_{rms}=0.5$) gives $\kappa^2=0.125$ rad²/s, true LC ($\Gamma_{rms}=1/\sqrt2$) gives $0.25$.
 
 | "Outfit" | Formula | Canonical value |
 |---|---|---|

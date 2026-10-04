@@ -107,7 +107,7 @@ plt.rcParams["axes.unicode_minus"] = False
 #   lab_06_white_noise_phase_noise.py
 #   lab_07_flicker_noise.py
 #   lab_08_jitter_integration.py
-#   ...52 lab_*.py / fig_*.py scripts total (42 lab_*, 10 fig_*); full list in figure_index
+#   ...55 lab_*.py / fig_*.py scripts total (44 lab_*, 11 fig_*); full list in figure_index
 # scripts/
 #   run_all_sims.py           # regenerate all lab_*.py + fig_*.py figures with one command
 # static/figures/             # generated .png files (site references them as /figures/<name>.png)
@@ -133,12 +133,12 @@ plt.rcParams["axes.unicode_minus"] = False
 `scripts/run_all_sims.py` uses `glob.glob` to collect every `simulations/lab_*.py` and
 `simulations/fig_*.py` (`scripts/run_all_sims.py:24–25`), runs each in its own subprocess in
 sequence, and regenerates every figure into `static/figures/`; one script failing does not abort
-the rest, and a pass/fail summary table is printed at the end. There are currently **52 scripts**
-(42 `lab_*.py` + 10 `fig_*.py`) → **60 PNGs**. To reproduce any figure on the site, this one
+the rest, and a pass/fail summary table is printed at the end. There are currently **55 scripts**
+(44 `lab_*.py` + 11 `fig_*.py`) → **63 PNGs**. To reproduce any figure on the site, this one
 command suffices.
 
 The table below is the **lab_01–08 demo subset** (the 8 most foundational labs, matching the
-one-line check in section 7 and canonical examples A/B/C); the full 52-script × 60-figure mapping
+one-line check in section 7 and canonical examples A/B/C); the full 55-script × 63-figure mapping
 is in [figure_index](/01_paper_map/figure_index).
 
 | Figure file | script | function |
@@ -353,8 +353,8 @@ as in section 1, `pip install numpy scipy matplotlib`, plus `pip install jupyter
 - The seven `common/` modules (`isf_utils`, `noise_utils`, `oscillator_models`, `pll_utils`,
   `serdes_utils`, `signal_utils`, `plot_utils`) hold the authoritative implementation; each lab
   only sets parameters.
-- `python scripts/run_all_sims.py` regenerates all **60 figures** into `static/figures/` in one
-  command (from 52 `lab_*.py`/`fig_*.py` scripts).
+- `python scripts/run_all_sims.py` regenerates all **63 figures** into `static/figures/` in one
+  command (from 55 `lab_*.py`/`fig_*.py` scripts).
 - Everything is a toy model; a fixed `default_rng(seed)` guarantees bit-identical reproducibility.
 - The seven mainline labs have downloadable Jupyter notebooks (section 8), automatically produced
   as generated snapshots by `scripts/make_notebooks.py`.

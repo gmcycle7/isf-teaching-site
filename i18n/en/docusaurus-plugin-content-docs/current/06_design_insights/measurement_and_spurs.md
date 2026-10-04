@@ -562,7 +562,7 @@ the $1/f^2$ tail ($-140$ dBc/Hz) and a $-150$ dBc/Hz floor ($10^{-14}+10^{-15}=1
 dBc/Hz) — the table uses a real mixed value, not an idealized single power law, which is exactly why you must
 compute $m$ **segment by segment** rather than assuming $m=-2$ throughout.
 
-**Integrating the SONET/OC-192-style $12$ kHz–$20$ MHz band** (the first segment spans four sub-segments:
+**Integrating the OC-48 / clock-chip-datasheet $12$ kHz–$20$ MHz band** (the source of this band is given in the table at the end of this section; the first segment spans four sub-segments:
 $12$ kHz–$100$ kHz, $100$ kHz–$1$ MHz, $1$–$10$ MHz, $10$–$20$ MHz):
 
 ```python
@@ -605,12 +605,32 @@ print(f"integral = {total:.4e}")        # -> 3.5217e-02
 print(f"sigma_phi = {sigma_phi*1e3:.1f} mrad")  # -> 265.4
 print(f"sigma_t = {sigma_t*1e12:.2f} ps")       # -> 8.45
 print(f"frac from 12k-100k 1/f^3 segment = {seg[0][3]/total*100:.1f}%")  # -> 97.2
+
+# independent cross-check: np.trapezoid on a dense log-spaced grid
+# (linear-in-dB interpolation vs log f = the same piecewise power law)
+logf = np.log10([p[0] for p in table]); Ls = [p[1] for p in table]
+fgrid = np.logspace(np.log10(12e3), np.log10(20e6), 400_000)
+Lgrid = np.interp(np.log10(fgrid), logf, Ls)
+I_trap = np.trapezoid(10**(Lgrid/10), fgrid)
+sigma_t_trap = np.sqrt(2*I_trap) / (2*np.pi*f0)
+print(f"integral (trapezoid) = {I_trap:.4e}")           # -> 3.5217e-02
+print(f"sigma_t (trapezoid) = {sigma_t_trap*1e12:.2f} ps")  # -> 8.45
+print(f"relative difference = {abs(I_trap/total-1)*100:.1e} %")  # -> 3.4e-08
 ```
 
 **Result**: $12$ kHz–$20$ MHz integrates to $\sigma_\phi=265.4$ mrad, $\sigma_t=8.45$ ps, of which **$97.2\%$
 of the variance comes from the closest-in $12$ kHz–$100$ kHz $1/f^3$ segment** (the steeper the slope and the
 closer to the carrier, the bigger the contribution — this is the quantitative version of the "close-in
 dominates" point in the 3.2 checklist).
+
+**Independent numerical cross-check.** The $8.45$ ps above comes from the piecewise log–log **closed form**. The
+cross-check uses a completely different algorithm: take $400{,}000$ log-spaced points over $12$ kHz–$20$ MHz,
+interpolate the table linearly in dB against $\log f$ (equivalent to the same piecewise power law), and integrate
+directly with `np.trapezoid`. The integral agrees with the closed-form value $3.5217\times10^{-2}$ to a relative
+difference of $3.4\times10^{-8}\%$ (far inside $0.1\%$), and $\sigma_t$ is again $8.45$ ps. The two methods
+cross-validate the segment slopes and endpoint handling of the closed form. (Caveat: both consume the same table
+and the same "straight line between table points" assumption, so this verifies the integration arithmetic, not the
+physics of the table.)
 
 **The same table integrated over $1$–$100$ MHz** (Example C's band):
 
@@ -673,9 +693,12 @@ five source PDFs — check the specific numbers against the latest relevant spec
 
 | Application | Common integration band | Notes |
 |---|---|---|
-| SONET/SDH OC-192 (telecom reference clock) | $12$ kHz–$20$ MHz | Industry-standard lower bound; **the exact clause is not verified here** (Telcordia GR-253-CORE family; this site has not checked it clause by clause — see the same honesty note in [pll_noise_budget](/06_design_insights/pll_noise_budget)) |
+| SONET/SDH OC-48 (telecom reference clock) / clock-chip datasheets | $12$ kHz–$20$ MHz | The band used in this site's worked example. For OC-48, the Telcordia GR-253 jitter-generation spec is measured with a $12$ kHz high-pass and a $20$ MHz low-pass filter (Schmitt & Grant, *Lightwave*; see the citation after this table — **external literature, not among the site's five PDFs**); many clock-chip datasheets quote RMS jitter over the same band. **The GR-253-CORE text itself was not available to this site, so clause numbers have not been checked** (same disclaimer as in [pll_noise_budget](/06_design_insights/pll_noise_budget)) |
+| SONET/SDH OC-192 / STM-64 | $20$ kHz–$80$ MHz (also seen as $4$–$80$ MHz) | The OC-192 upper edge is $80$ MHz, **not** $20$ MHz; as relayed by trade literature on GR-253 / ITU-T O.172 (external literature, not among the site's five PDFs). The worked-example table stops at $100$ MHz and no $\sigma_t$ is computed over this band, so the $8.45$ ps figure does **not** apply to an OC-192 measurement. Clause numbers are likewise unverified |
 | PCIe / OIF-CEI-family SerDes | Not a fixed band — jitter is passed through a CDR jitter-transfer filter first, then integrated | "Integration" becomes "filtering + integration" — see the dual-Dirac/CDR-filtered jitter discussion in [dj_dual_dirac](/06_design_insights/dj_dual_dirac) |
 | ADC/DAC sampling clock | Lower bound $\sim10$–$100$ Hz (set by the measurement system itself), upper bound $f_s/2$ (Nyquist) | See the aperture-jitter and sample-rate discussion in [adc_aperture_jitter](/06_design_insights/adc_aperture_jitter); the exact lower bound depends on the datasheet |
+
+> **Source (external literature, not among the site's five PDFs)**: N. Schmitt and D. Grant (Agilent Technologies), "SONET/SDH jitter measurements of high-speed OC-48 optical transceivers," *Lightwave*, 14 Jun 2002 — it states that the Telcordia GR-253 jitter-generation spec at OC-48 is measured with a $12$ kHz high-pass and a $20$ MHz low-pass filter. The OC-192 bands of $20$ kHz–$80$ MHz / $4$–$80$ MHz come from vendor white papers and seminar material (Viavi, Anritsu) relaying GR-253 and ITU-T O.172; this site read only these secondary descriptions and **did not read GR-253 or O.172 itself**, so check the band and clause numbers against the current standard.
 
 > **Interactive exercise**: the `PhaseNoiseCalculator` component embedded in this site's interactive
 > calculator page ([interactive_calculator](/04_simulation_labs/interactive_calculator)) provides a
@@ -719,7 +742,7 @@ import numpy as np
 L_dbc, gamma_rms, qmax = -148.0, 0.5, 1e-12
 dw = 2*np.pi*1e6
 Si = 10**(L_dbc/10) * (4*dw**2*qmax**2) / gamma_rms**2
-print(f"{Si:.3e} A^2/Hz")   # -> 1.000e-24 A^2/Hz
+print(f"{Si:.3e} A^2/Hz")   # -> 1.001e-24 A^2/Hz
 ```
 
 > **Example 2 (back-solving ISF symmetry $c_0/c_1$ from the $1/f^3$ corner)**: the plot reads a device

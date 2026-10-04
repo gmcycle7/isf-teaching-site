@@ -117,7 +117,7 @@
       "concept": "accumulated (ring) jitter random walk",
       "latex": "\\sigma_{\\Delta t} = \\kappa\\,\\sqrt{\\Delta t}",
       "final_or_step": "final",
-      "source_paper": "paper_002, Eq. (8), p.792 (kappa via Eq.(12), p.793)",
+      "source_paper": "paper_002, Eq. (8), p.792 (timing jitter; time-version kappa_t via Eq.(12), p.793, omega_0 in the denominator)",
       "derivation_page": "04_simulation_labs/lab_03_ring_oscillator_toy_model",
       "manual_verification_needed": false
     },
@@ -179,9 +179,9 @@
     },
     {
       "concept": "ring kappa (jitter rate)",
-      "latex": "\\kappa=\\dfrac{\\Gamma_{rms}}{q_{max}}\\sqrt{\\dfrac{1}{2}\\dfrac{\\overline{i_n^2}}{\\Delta f}}\\quad(\\sigma_{\\Delta t}=\\kappa\\sqrt{\\Delta t})",
+      "latex": "\\kappa_t=\\dfrac{\\Gamma_{rms}}{q_{max}\\,\\omega_0}\\sqrt{\\dfrac{1}{2}\\dfrac{\\overline{i_n^2}}{\\Delta f}}\\ [\\sqrt{\\text{s}}]\\quad(\\sigma_{\\Delta t}=\\kappa_t\\sqrt{\\Delta t};\\ \\kappa_\\phi=\\omega_0\\kappa_t)",
       "final_or_step": "final (verified)",
-      "source_paper": "paper_002, Eq. (12), p.793 (verified verbatim)",
+      "source_paper": "paper_002, Eq. (12), p.793 (printed form carries omega_0 in the denominator, re-verified on the rendered page; phase version kappa_phi = sqrt of Eq.(11))",
       "derivation_page": "04_simulation_labs/lab_03_ring_oscillator_toy_model",
       "manual_verification_needed": false
     },

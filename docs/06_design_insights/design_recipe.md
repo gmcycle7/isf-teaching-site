@@ -104,14 +104,20 @@ print(round(FOM_req, 2))                                  # -> 186.99 （所需 
 
 | 候選拓樸 | $F_{eff}$ | $\mathrm{FOM}_{max}$ | 對 $\mathrm{FOM}_{req}=187.0$ | 判定 |
 |---|---|---|---|---|
-| ring（[P2] Eq.(25) 下限：$V_T=0$、$\gamma=2/3$、$\eta=1$） | $16\gamma/(3\eta)=3.56$ | $168.32$ dB | $168.32-186.99=-18.67$ dB | **不可行**——連理想極限都差 18.7 dB |
+| ring（[P2] Eq.(25) 下限：$V_T=0$、$\gamma=2/3$、$\eta=1$；**/2 族**，由 [P2] Eq.(6) 收成） | $16\gamma/(3\eta)=3.56$ | $168.32$ dB | $168.32-186.99=-18.67$ dB | **不可行**——連理想極限都差 18.7 dB |
+| 同上 ring、換成 [P1] Eq.(21) 的 /4 記帳 | $8\gamma/(3\eta)=1.78$ | $171.33$ dB | $171.33-186.99=-15.66$ dB | **仍不可行**——最樂觀的記帳也差 15.7 dB |
 | LC、$Q=10$（[P1] Eq.(21) SSB /4；$F=1+\gamma$、$\gamma=2/3$、$\Gamma_{rms}^2=\tfrac12$、$\eta_P=1$） | $4.17\times10^{-3}$ | $197.63$ dB | $197.63-186.99=+10.64$ dB | **可行**，理想餘裕 10.6 dB |
-| 同上、時域 /2 慣例 | $8.33\times10^{-3}$ | $194.62$ dB | $+7.63$ dB | 同一物理、記帳保守 3.01 dB |
+| 同上 LC、時域 /2 慣例 | $8.33\times10^{-3}$ | $194.62$ dB | $+7.63$ dB | 同一物理、記帳保守 3.01 dB |
+
+- ⚠️ **慣例 flag（別跨族比較）**：[P2] Eq.(25) 由 $N\times$[P2] Eq.(6), p.792（分母 $8\pi^2f_{off}^2=2\Delta\omega^2$）收成，
+  是 **/2 族**；[P1] Eq.(21) 是 **/4 族**，兩族差 $10\log_{10}2=3.01$ dB。同族配對是
+  「ring $168.32$ ↔ LC $194.62$」（/2）或「ring $171.33$ ↔ LC $197.63$」（/4），兩種配對下 ring 天花板都比 $Q=10$ 的 LC 低 $26.30$ dB。
+  **判定不因慣例翻轉**：ring 在兩種記帳下都不可行（差 $18.67$／$15.66$ dB），LC 在兩種記帳下都可行（餘裕 $7.63$／$10.64$ dB）。
 
 - **判定規則**：$\mathrm{FOM}_{max}-\mathrm{FOM}_{req}$ 是「**理想餘裕**」。
   [fom_limit](/06_design_insights/fom_limit) 說好的發表 LC 離自己的 $Q$ 天花板約 $5\sim10$ dB
   （$\eta_P\lt1$、$F\gt1+\gamma$、varactor 損耗），所以**理想餘裕至少要 5 dB 以上才敢往下做**；
-  10.6 dB 是舒服的。ring 差了 18.7 dB——沒有任何 $N$、swing 或功率調整救得回來
+  10.6 dB 是舒服的。ring 差了 18.7 dB（/2 族；換成 /4 記帳也還差 15.7 dB）——沒有任何 $N$、swing 或功率調整救得回來
   （[P2] N-independence；FOM 對 $P$ 已歸一化）。
 - **結論：選 LC，且製程要給得出 $Q\approx10$ 的 tank**。若製程只有 $Q=5$，天花板降 $6$ dB 到 $191.6$ dB，
   餘裕只剩 4.6 dB——就會進入本頁末的迭代。
@@ -123,10 +129,13 @@ Cref = -10*np.log10(kB*T*1.0/1e-3)                        # 173.83 dB（fom_limi
 FOM_req = 186.99
 gamma = 2/3
 FOM_ring = Cref - 10*np.log10(16*gamma/3)                 # [P2] Eq.(25) 下限
-print(round(FOM_ring, 2), round(FOM_ring - FOM_req, 2))   # -> 168.32 -18.67 （ring 天花板、差距：不可行）
+print(round(FOM_ring, 2), round(FOM_ring - FOM_req, 2))   # -> 168.32 -18.67 （ring 天花板、差距：不可行；/2 族）
+FOM_ring4 = FOM_ring + 10*np.log10(2)                     # 同一顆 ring 換成 [P1] Eq.(21) 的 /4 記帳
+print(round(FOM_ring4, 2), round(FOM_ring4 - FOM_req, 2)) # -> 171.33 -15.66 （/4 記帳：仍不可行）
 FOM_lc10 = Cref - 10*np.log10((1+gamma)*0.5/(2*10**2))    # [P1] Eq.(21) /4 慣例，Q=10
 print(round(FOM_lc10, 2), round(FOM_lc10 - FOM_req, 2))   # -> 197.63 10.64 （LC Q=10 天花板、理想餘裕）
 print(round(FOM_lc10 - 10*np.log10(2) - FOM_req, 2))      # -> 7.63 （時域 /2 慣例下的餘裕）
+print(round(FOM_lc10 - FOM_ring4, 2), round(FOM_lc10 - 10*np.log10(2) - FOM_ring, 2))   # -> 26.3 26.3 （同族 LC−ring 天花板差：/4、/2）
 FOM_lc5 = Cref - 10*np.log10((1+gamma)*0.5/(2*5**2))
 print(round(FOM_lc5, 2), round(FOM_lc5 - FOM_req, 2))     # -> 191.61 4.62 （Q=5 天花板、理想餘裕）
 print(round(-10*np.log10(310/300), 2))                    # -> -0.14 （C_ref 每 +10 K 的變化，dB）
@@ -245,6 +254,8 @@ $$
 - **跟 canonical 例 B 的 $S_i=10^{-24}$ 比**：這裡大了 100 倍（$+20$ dB）。例 B 的 $10^{-24}$ 對應
   $R_p=16.6$ kΩ、$Q\approx521$（[fom_limit](/06_design_insights/fom_limit) 第 3 步的「FOM 會抓包」）；
   **真實 $Q=10$ tank 的雜訊電流就是 $10^{-22}$ 量級**——這是本頁跟教學例最大的差別。
+- **跟例 B（$-148.0$ dBc/Hz）的帳要對得上**：例 B 用 $\Gamma_{rms}^2=0.25$（代表值），本頁 Step 6 用 true LC 的 $\Gamma_{rms}^2=1/2$（$+3.01$ dB），
+  再加上 $S_i$ 大 $104$ 倍（$+20.17$ dB），所以 $-148.0+20.17+3.01=-124.8$ dBc/Hz，與 Step 6 一致（同為 [P1] Eq.(21) SSB「/4」）。
 - **$F$ 的失效面**：tail 沒濾（$c_0$、$c_2$ 的 2× upconversion，[real_oscillator_topologies](/06_design_insights/real_oscillator_topologies)）、
   bias 電流源 flicker、varactor 上的 AM-PM，都讓 $F$ 高於 $1+\gamma$；設計後期要用 [device_noise_mapping](/06_design_insights/device_noise_mapping)
   的方法逐源核算。
@@ -257,6 +268,7 @@ print(f"{Si_tank:.3e}")                           # -> 5.205e-23 （tank 自己�
 print(f"{Si:.3e}")                                # -> 1.041e-22 （F=1+γ=2 折算後的總 S_i）
 Rp_B = 4*kB*T/1e-24
 print(round(Rp_B/1e3, 1), round(Rp_B/31.83))      # -> 16.6 521 （例 B 的 S_i=1e-24 對應的 R_p kΩ 與 Q）
+print(round(10*np.log10(Si/1e-24), 2), round(10*np.log10(0.5/0.25), 2), round(-148.0 + 10*np.log10(Si/1e-24) + 10*np.log10(0.5/0.25), 1))  # -> 20.17 3.01 -124.8 （dB：S_i 倍率、Γ² 倍率、例 B 換算到 Step 6）
 ```
 
 ## Step 6：驗收——[P1] Eq.(21) 算 $\mathcal{L}(1\ \text{MHz})$
@@ -372,7 +384,7 @@ Step 6 若得到**負餘裕**（或 Step 2 的理想餘裕不足 5 dB），不�
 - **迭代順序**：(1) 先問製程還有沒有 $Q$（每加倍 $-3$ dB 且省一半電）；(2) 再把 swing 推到 headroom 上限（$-6$ dB／加倍，但功率四倍且撞 $V_{DD}$）；
   (3) 最後才用 $C$（或等價地用電流）在 FOM 不變下**拿功率預算換 dB**——這一步的極限是 $P_{max}$。
 - **FOM 不變的「功率換 dB」極限**：在 $Q=10$、$\mathrm{FOM}=194.9$ dB 下，把 5 mW 預算用滿能買到的最低 $\mathcal{L}$ 是
-  $-\mathrm{FOM}+73.98-10\log_{10}(5)=-194.88+73.98+6.99=-127.9$ dBc/Hz。**任何比 $-127.9$ 更嚴的規格，在 $Q=10$、5 mW 下都要靠 $Q$、$F$、$\Gamma_{rms}$（或放寬功率）。**
+  $-\mathrm{FOM}+73.98-10\log_{10}(5)=-194.88+73.98-6.99=-127.89$ dBc/Hz。**任何比 $-127.9$ 更嚴的規格，在 $Q=10$、5 mW 下都要靠 $Q$、$F$、$\Gamma_{rms}$（或放寬功率）。**
 - **一次具體迭代**：若規格改成 $-127$ dBc/Hz（現行設計餘裕 $-2.2$ dB）：把 $C$ 提到 2 pF（$L=0.507$ nH、$R_p=159$ Ω、$q_{max}=2$ pC、$S_i=2.08\times10^{-22}$）
   → $\mathcal{L}=-127.8$ dBc/Hz（餘裕 0.8 dB）、$I_{bias}=4.93$ mA、$P_{DC}=4.93$ mW（仍 $\le5$ mW，但已用滿）。
   這正是表中「$C\times2$：$-3$ dB、功率 $\times2$、FOM 不動」的實例。
@@ -435,7 +447,7 @@ print(round(FOM + 20*np.log10(10/10), 2), round(FOM + 20*np.log10(20/10), 2))   
 ## 重點回顧
 
 - **7 步**：spec → $\mathrm{FOM}_{req}$ → 對天花板選拓樸 → $C\to L,R_p$ → $V_{max}\to q_{max},I_{bias},P$ → $S_i=F\cdot4kT/R_p$ → [P1] Eq.(21) 驗收 → $\sigma_t$ 交棒。
-- 本例：$\mathrm{FOM}_{req}=187.0$ dB；ring 天花板 168.3 差 18.7 dB 不可行；LC $Q=10$ 天花板 197.6 餘裕 10.6 dB。
+- 本例：$\mathrm{FOM}_{req}=187.0$ dB；ring 天花板 168.3（/2 族；/4 記帳 171.3）差 18.7 dB（/4：15.7 dB）不可行；LC $Q=10$ 天花板 197.6（/4；/2 記帳 194.6）餘裕 10.6 dB（/2：7.6 dB）。
 - $C=1$ pF → $L=1.013$ nH、$R_p=318$ Ω；$V_{max}=1$ V → $q_{max}=1$ pC（站台 canonical）、$I_{bias}=2.47$ mA、$P=2.47$ mW、$\eta_P=2/\pi$。
 - $S_i=2\times4kT/R_p=1.04\times10^{-22}$ A²/Hz（比例 B 的 $10^{-24}$ 大 20 dB——真實 $Q=10$ tank 的量級）。
 - $\mathcal{L}(1\ \text{MHz})=-124.8$ dBc/Hz（/4；/2 給 $-121.8$），餘裕 4.8 dB；$\mathrm{FOM}=194.9$ dB，距天花板 2.75 dB $=0.79$（$F$）$+1.96$（$\eta_P$）。

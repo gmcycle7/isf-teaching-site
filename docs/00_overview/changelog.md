@@ -13,6 +13,20 @@ description: v1 → v8 的完整版本演進紀錄，含每一版新增內容、
 
 ---
 
+## v12（第一輪）：P0／P1 修正、檢查型 CI、延後項補齊
+
+**退回點**：`v11-stable`（`f1c343d`，v12 施工前）／備份分支 `backup/v11-stable`／v11 線上 gh-pages `b1dd49875`／本機 `backups/isf-teaching-site_v11-stable_2026-10-05.tgz`。計劃全文：`extracted/_REVIEW_v12_PLAN.md`——四篇論文的每一條引用公式對照渲染頁重驗、新頁初學者審查、外部文獻查證、v11 新數字跨頁一致性，共 68 項經反證的發現；本輪做 P0＋P1（15 項）與 v11 延後項，其餘 53 項 P2 待後續。
+
+- **κ 歸屬收尾（v11 的漏網）**：v11 更正了「[P2] Eq.(12) 印刷式含 $\omega_0$」，但當時用特定措辭 grep 來證明「全站已無」，漏掉措辭不同的地方。這次改用**公式**掃描，修正 23 處（中英各一份）：[dj_dual_dirac](/06_design_insights/dj_dual_dirac)（仍寫「Eq.(8) 是相位 jitter、式中沒有 $\omega_0$」）、cheat_sheet、equation_index 第 15／23 列與其來源 JSON、common_mistakes、diffusion_dictionary、jitter_kernels、lab_03（「Eq.10」→ Eq.(8)，Sec. III 在 p.792）、lab_36、build_report、final_exam。數值不變（$\kappa_\phi^2=0.125$ rad²/s、$\kappa_t=1.125\times10^{-11}\ \sqrt{\text{s}}$）。
+- **幽靈 3 dB**：ring 的數字（164.80／168.32 dB、$-91.0$ dBc/Hz）屬 [P2] 的 /2 族，LC 的數字（197.63 dB、$-148.0$ dBc/Hz）屬 [P1] Eq.(21) 的 /4 族，先前直接相減。現在一律在同一族內比較：[fom_limit](/06_design_insights/fom_limit)「ring 落後 LC」表由 32.83 改為 **29.82 dB**（列項重推：100／3／8/3／6/5，合計 960）；[lc_vs_ring](/06_design_insights/lc_vs_ring) 的「好 57 dB」改為 **54 dB**；design_recipe 與 cheat_sheet 加族別旗標與 /4 記帳等值（ring 天花板 171.33 dB、例 167.81 dB、$-94.0$ dBc/Hz）。結論方向不變。
+- **期末題 7**：功率相加的結果是「比兩者都**高**」（$-151.47$ 比 $-154.02$ 高 2.55 dB、比 $-155$ 高 3.53 dB），原文寫成「都低」；慣例旗標更正為「量測給定的床不隨 /2、/4 記帳平移」，clock_chain_budget 的同類措辭一併修。
+- **bang-bang CDR 頁**：Alexander PD 的 early／late 判斷原本寫反，已更正並補真值表與迴路極性說明；Step 3–5 改為同一個迴路——比例路徑的 slew 線在 30 kHz 只有 259 UI，低於 SSC 需求 521 UI，要靠積分路徑把速度限制換成加速度限制。新增 lab_45（Monte-Carlo：PD 斜率對 $K_{bb}$、hunting、JTOL、SSC 追蹤）與互動元件 BbCdrExplorer。
+- **ADPLL 頁**：例 3 重做——ΔΣ 整形雜訊由**實體單位電容的頻率步階**決定（40 aF → 100 kHz、1 fF → 2.5 MHz），不是 dither 後的等效解析度；1 fF 單元用一階 dither，在 1 MHz 仍比 LC 熱雜訊高 17.3 dB。新增 lab_44（TDC／DCO 量化雜訊的時域模擬）。Staszewski 引用更正為 IEEE JSSC vol. 40, no. 12, pp. 2469–2482, Dec. 2005。
+- **其他 P1**：design_recipe 一行算式的 $+6.99$ 改為 $-6.99$，並補上與例 B 的對帳；例 B 的 $\Gamma_{rms}$ 標示由 $1/\sqrt2$ 更正為 0.5（對應 $-148.0$ dBc/Hz）；Wiener–Khinchin 附錄與 stochastic_noise_basics 的白噪自相關改為 $(S_i/2)\,\delta(\tau)$（$S_i$ 為單邊 PSD）；[P3] 的 ISF 自變數更正為 $\omega_{inj}t+\theta$（$\theta$ 是相對注入的相位，Eq.(4)）；[P4] Fig. 5 的描述更正（畫的是振幅偏差衰減與 APF 面積，不含 ISF 與 quadrature；理想 LC 的 quadrature 只有解析式 Eq.(24)–(26)）；12 kHz–20 MHz 是 OC-48 的積分頻帶（OC-192 為 20 kHz–80 MHz）。
+- **v11 延後項**：互動元件 CoupledQvcoExplorer；loop-filter 電阻雜訊的定量（$I_{cp}=100\,\mu$A 時最佳點 $\sigma_t$ 由 259.5 變 274.9 fs，$I_{cp}\ge0.61$ mA 才低於 1%）；量測頁主例補 `np.trapezoid` 對照；paper_003 Fig. 14 讀值、jitter_kernels 測驗外洩、clock_chain 規則／步驟編號說明。
+- **檢查型 CI**：GitHub Actions 在每次 push 與 PR 自動跑 MDX 編譯、front matter、中英結構平價、側欄覆蓋、例題數值驗證與雙語 build；部署仍用 `scripts/deploy.sh`。新增 `requirements.txt`、`scripts/check_front_matter.py`、`scripts/check_sidebar.js`。
+- 規模：**102 頁×2 語系、63 圖、55 模擬、23 互動元件、219 可驗證例題（0 錯）**。
+
 ## v11：審查驅動的 46 項改善（P0 修正、論文段落補齊、系統層新頁、動線與英文版收尾）
 
 **退回點**：`v10-stable`（`3f28eb5`，v11 施工前）／備份分支 `backup/v10-stable`／v10 線上 gh-pages `37daa1ad1`／本機 `backups/isf-teaching-site_v10-stable_2026-09-12.tgz`；中間點 `v11-w2`（`f379e16`，wave 1+2 完成）。計劃全文：`extracted/_REVIEW_v11_PLAN.md`（15 個角度掃描 → 68 項逐一反證 → 43 項＋施工中追加 3 項）。
@@ -128,7 +142,7 @@ Eq.(23) FOM 的 N-independence、$8/(3\eta)$、$\kappa$、Eq.(15) $f_0$、Eq.(17
 關鍵成果（皆對照原始 PDF 核實）：
 
 - **環形 FOM 前置係數 `8/(3γ)→8/(3η)` 再更正**（v2 曾誤改並誤標「逐字核實」；γ 僅透過
-  `V_char=ΔV/γ` 進入），worked 例題 `−89.2→−91.0 dBc/Hz`、與理想 LC 差 57 dB。
+  `V_char=ΔV/γ` 進入），worked 例題 `−89.2→−91.0 dBc/Hz`、與理想 LC 差 57 dB。（v12 註：$-148$ 與 $-91$ 分屬 /4 與 /2 兩族，同族差為 54 dB。）
 - **`[P4]` ISF／APF 圖 `Fig.3→Fig.5, p.2126`**；APF 定義 Eq.(18)–(22)、理想 LC quadrature
   Eq.(26) p.2128（非舊標的「Eq.25/26/27」）。
 - 引用頁碼／式號更正：`Fig.17 p.800→p.802`、`Sec.VIII p.1163→p.2135`、`Fig.4 p.182→p.181`、
@@ -138,7 +152,7 @@ Eq.(23) FOM 的 N-independence、$8/(3\eta)$、$\kappa$、Eq.(15) $f_0$、Eq.(17
 - 程式 bug：lab_05 Parseval DC 重複計（`c₀²→c₀²/2`，修後 = `2Γ²rms`）、`accumulated_jitter_curve`
   壞掉的呼叫簽章；lab_06/07/15 加數值一致性指標；lab_10/20 圖修正；`verify_examples` 收緊正規式。
 - **誠實擋下一個假修正**：稽核宣稱「κ Eq.(12) 漏了 ω₀」，放大原始 PDF p.793 確認 Eq.(12) 本來就
-  沒有 ω₀——κ√Δt 是**相位** jitter `σ_Δφ`（Eq.11），**時間** jitter 才 `÷ω₀`（Eq.10）；未亂改。
+  沒有 ω₀——κ√Δt 是**相位** jitter `σ_Δφ`（Eq.11），**時間** jitter 才 `÷ω₀`（Eq.10）；未亂改。（**此條已於 v11 推翻**：重看 p.793 渲染頁，Eq.(12) 印刷式的分母含 ω₀，Eq.(8) 是時間 jitter；見上方 v11、v12 條目。）
 - 外部文獻補上經 CrossRef 查證 DOI：Leeson 1966（10.1109/PROC.1966.4682）、Demir PPV 2000
   （10.1109/81.847872）、Kärtner 1990（10.1002/cta.4490180505）、Adler 1946（10.1109/JRPROC.1946.229930）。
 

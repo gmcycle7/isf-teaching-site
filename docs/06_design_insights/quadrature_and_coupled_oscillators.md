@@ -4,6 +4,7 @@ description: 三種 quadrature（I/Q 正交）產生法（parallel/series couple
 ---
 
 import NumericQuiz from "@site/src/components/NumericQuiz";
+import CoupledQvcoExplorer from '@site/src/components/CoupledQvcoExplorer';
 
 # Quadrature 產生與 coupled-oscillator phase noise
 
@@ -389,11 +390,11 @@ $2\omega$ 漣波正是 [P3] Eq.(30) 時間平均所濾掉的快項——它是 p
 **不是**真正的 I/Q 誤差。**單位檢查**：$\Delta\omega_0/(2\omega_L)=$ (rad/s)/(rad/s) $=$ 無因次 $=$ rad ✓；
 $1/(2\omega_L)=$ 1/(rad/s) $=$ s ✓。
 
-> **這個 lab 沒做、留給讀者／v12 的**：(1) 耦合 device 自身雜訊經 $\tilde\Gamma$ 的 phase-noise 貢獻（第 2 節 (ii)）；
+> **這個 lab 沒做、留給讀者的**：(1) 耦合 device 自身雜訊經 $\tilde\Gamma$ 的 phase-noise 貢獻（第 2 節 (ii)）；
 > (2) 頻率拉移降 $Q$——本模型只算得出拉移量：陽春 parallel QVCO（$\phi_c=0$）在 $\psi=\pm90^\circ$ 時每顆被拉離 tank peak
 > $\omega_L=m\omega_0/(2Q)$，即 $m=0.3$、$Q=10$ 時 $1.5\%=75$ MHz；對齊耦合（$\phi_c=90^\circ$）則兩顆只各移 $\mp\Delta\omega_0/2=\mp2.5$ MHz
 > 到共同的平均頻率，幾乎不離 peak——這正是 [E-Romano-QVCO] 「phase-shift 耦合 PN 較佳」的 phase-only 版本。
-> $Q$ 降多少、PN 抬多少，要 [P4] 的振幅通道，本頁不做。(3) $m\sim0.2$–$0.5$ 甜蜜點的全掃描與互動 widget。
+> $Q$ 降多少、PN 抬多少，要 [P4] 的振幅通道，本頁不做。(3) $m\sim0.2$–$0.5$ 甜蜜點的 phase-noise 掃描（需要外部資料；下方 widget 只掃 I/Q 誤差）。
 > 三角權衡本身的量化依據仍是 [E-Andreani-QVCO]／[E-Romano-QVCO]（外部文獻，非本站 5 篇 PDF）。
 
 <NumericQuiz
@@ -404,6 +405,63 @@ $1/(2\omega_L)=$ 1/(rad/s) $=$ s ✓。
   hint="Δφ_IQ ≈ (Q/m)(Δω₀/ω₀) = (10/0.3)×0.001 rad；1 rad = 57.30°。"
   solutionNote="(10/0.3)×0.001 = 0.03333 rad = 1.910°；精確 arcsin(0.03333) = 1.9102°，線性近似誤差只有 −0.019%。lab_42 的數值積分給 1.9102°（平均後）／1.9128°（未平均、週期平均）。"
 />
+
+### 互動：自己撥 $m$、$Q$、失諧，看鎖定軌跡與 $\Delta\phi_{IQ}$
+
+下面這個 widget 跑的就是上一小節**同一組**平均後互注入方程
+$d\psi/dt=\Delta\omega_0-2\omega_L\cos\psi$（$\phi_c=90^\circ$，$\omega_L=m\omega_0/(2Q)$，$f_0=5$ GHz 固定），沒有另加任何物理。
+預設值就是本頁 worked example（$m=0.3$、$Q=10$、$\Delta\omega_0/\omega_0=0.1\%$）：讀數應是 $\Delta\phi_{IQ}=1.9102^\circ$（精確）／$1.9099^\circ$（線性）、
+$1/(2\omega_L)=1.061$ ns（5.3 週期）、失鎖界 $m/Q=3.0\%$。
+
+<CoupledQvcoExplorer />
+
+**怎麼玩**：
+
+- **左圖 $\psi(t)$**：不管 $\psi_0$ 從哪裡出發，只要有鎖定解就收斂到紅虛線 $-90^\circ+\Delta\phi_{IQ}$（從 $\psi_0$ 大於約 $+90^\circ$ 出發的會繞過 $\pm180^\circ$ 邊界，圖上看起來像折回）。垂直虛線是 $1/(2\omega_L)$。
+  把 $m$ 拉小或把失諧拉大，收斂變慢、最後的 $\Delta\phi_{IQ}$ 變大；一旦 $\Delta\omega_0/\omega_0>m/Q$（例：$m=0.05$、$Q=30$、失諧 $1\%$），
+  右側「是否有鎖定解」變成「無」，$\psi$ 持續滑相，平均滑相率（拍頻）$\sqrt{\Delta\omega_0^2-(2\omega_L)^2}\,/\,(2\pi)$（此例約 49.3 MHz；根號內為 rad/s，除以 $2\pi$ 後才是 Hz）。
+- **右圖 $\Delta\phi_{IQ}$ vs $m$**：實線是精確 $\arcsin$、虛線是 $(Q/m)(\Delta\omega_0/\omega_0)$。小誤差時兩者重合；往左（$m$ 變小）逼近紅色虛線的失鎖界 $m=Q\,\Delta\omega_0/\omega_0$ 時，
+  $\arcsin$ 在 $90^\circ$ 垂直起飛，線性近似就開始偏低。紅點是目前的設定。
+- **鎖定時間常數**：卡片主值是頁面引用的 $1/(2\omega_L)$；下方另列線性化的 $1/(2\omega_L\cos\delta)$。兩者在 $\delta\ll1$ 時一致，接近失鎖界時後者發散（鎖定越來越慢）。
+
+> **這個 widget 沒有的**：它是 phase-only 的 toy model，**不給任何 phase noise 數字**，也不含拉頻降低有效 $Q$ 的效應；
+> 因此看不出 $m\sim0.2$–$0.5$ 的最佳點在哪——那需要 [P4] 的振幅通道與外部量測資料（[E-Andreani-QVCO]／[E-Romano-QVCO]）。
+> 滑鎖後（無鎖定解）的行為在實體電路中還會被振幅動態改變，這裡只畫 phase-only 的結果。
+
+<NumericQuiz
+  prompt="用上面的 widget 換一組設定（或直接算）：m = 0.5、Q = 25、tank 失諧 Δω₀/ω₀ = 1%，phase-only 互注入 Adler 對給的 I/Q 相位誤差 Δφ_IQ（精確 arcsin 解）＝ ？（以度作答）"
+  answer={30}
+  tol={0.02}
+  unit="deg"
+  hint="先算 arcsin 的引數 (Q/m)(Δω₀/ω₀) = (25/0.5)×0.01。這次引數不小，線性近似會有幾個百分點的偏差，要用 arcsin。"
+  solutionNote="(25/0.5)×0.01 = 0.5，arcsin(0.5) = 30.000°；線性近似 0.5 rad = 28.648°，低估 4.5%。失鎖界 m/Q = 2.0%，此設定離失鎖界還有 2 倍餘裕，但鎖定時間常數 1/(2ω_L cosδ) 已從 1.592 ns 拉長到 1.838 ns。"
+/>
+
+<details>
+<summary>展開看答案怎麼算（含 Python 驗證）</summary>
+
+用的就是上一小節的公式：$\omega_L=m\omega_0/(2Q)$，$\sin\delta=\Delta\omega_0/(2\omega_L)=(Q/m)(\Delta\omega_0/\omega_0)$。
+**單位檢查**：$\Delta\omega_0/(2\omega_L)=$ (rad/s)/(rad/s) $=$ 無因次 $=$ rad ✓。
+
+```python
+import numpy as np
+from simulations.lab_42_coupled_qvco import omega_lock, steady_state_iq_error
+f0, Q, m, det = 5e9, 25.0, 0.5, 1e-2          # quiz setting: Q=25, m=0.5, Δω0/ω0=1%
+w0 = 2*np.pi*f0
+wL = omega_lock(m, Q, w0)                     # ω_L = mω0/(2Q)
+print(f"{wL/2/np.pi/1e6:.1f}")                # -> 50.0 (MHz; f_L = ω_L/2π)
+print(f"{det*w0/(2*wL):.4f}")                 # -> 0.5000 (= Δω0/(2ω_L) = (Q/m)(Δω0/ω0), dimensionless)
+d_num, d_ex, d_lin = steady_state_iq_error(m, det, Q=Q, omega0=w0)
+print(f"{np.degrees(d_ex):.4f}")              # -> 30.0000 (deg; exact arcsin[Δω0/(2ω_L)])
+print(f"{np.degrees(d_num):.4f}")             # -> 30.0000 (deg; Adler 對數值積分穩態)
+print(f"{np.degrees(d_lin):.4f}")             # -> 28.6479 (deg; linear approximation (Q/m)(Δω0/ω0))
+print(f"{100*(d_lin-d_ex)/d_ex:.2f}")         # -> -4.51 (%; linear approximation relative to exact)
+print(f"{100*m/Q:.1f}")                       # -> 2.0 (%; unlock boundary Δω0/ω0 = m/Q)
+print(f"{1e9/(2*wL):.3f}")                    # -> 1.592 (ns; small-δ time constant 1/(2ω_L))
+print(f"{1e9/(2*wL*np.cos(d_ex)):.3f}")       # -> 1.838 (ns; linearized 1/(2ω_L cosδ))
+```
+
+</details>
 
 ---
 

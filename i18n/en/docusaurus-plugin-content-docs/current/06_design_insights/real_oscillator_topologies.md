@@ -311,7 +311,7 @@ $$
 
 **Result**: single stage $\approx-136$ dBc/Hz; 5-stage total $\approx-129$ dBc/Hz @ 1 MHz (order of magnitude).
 
-- **Intuition**: much worse than (a)'s LC VCO ($\Gamma_{rms}=0.707$, single source $\sim-148$ dBc/Hz) — but note the ring's $\Gamma_{rms}$ has already been suppressed by $N^{-3/2}$; **the real penalty comes from summing over stages plus the lack of tank energy storage** (only the $+7$ dB multi-stage-summing part is demonstrated here).
+- **Intuition**: much worse than (a)'s LC VCO ($\Gamma_{rms}=0.5$ (representative value, $\Gamma_{rms}^2=0.25$), single source $\sim-148$ dBc/Hz) — but note the ring's $\Gamma_{rms}$ has already been suppressed by $N^{-3/2}$; **the real penalty comes from summing over stages plus the lack of tank energy storage** (only the $+7$ dB multi-stage-summing part is demonstrated here).
 - **Dimension check**: same as [P1] Eq.(21) — the bracket reduces to $\text{s}$ (per-Hz) ✓.
 
 ```python
@@ -376,7 +376,7 @@ $$
 $$
 
 This is the "theoretical 3.9 dB phase noise improvement" of the Mazzanti–Andreani abstract (at the same current consumption).
-Applied to example B ($f_0=5$ GHz, $\Gamma_{rms}=1/\sqrt2$, $q_{max}=1$ pC, $S_i=10^{-24}$ A²/Hz, [P1] Eq.(21) SSB "/4" → $-148.0$ dBc/Hz @ 1 MHz):
+Applied to example B ($f_0=5$ GHz, $\Gamma_{rms}=0.5$ (representative value, $\Gamma_{rms}^2=0.25$), $q_{max}=1$ pC, $S_i=10^{-24}$ A²/Hz, [P1] Eq.(21) SSB "/4" → $-148.0$ dBc/Hz @ 1 MHz):
 class-C at the same bias $\to-148.0-3.92=-151.9$ dBc/Hz; with the time-domain "/2" convention ($-145.0$) it is $-148.9$ dBc/Hz —
 **the factor of 2 between the two conventions has nothing to do with this section; the $-3.92$ dB difference is the same on both sides**.
 

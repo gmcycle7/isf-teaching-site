@@ -90,7 +90,7 @@ export default function PhaseNoiseCalculator() {
 
   // --- segment-table mode state (measurement_and_spurs.md Sec.3.3) ---
   const [table, setTable] = useState(DEFAULT_TABLE);
-  const [f1_tbl_Hz, setF1Tbl] = useState(12e3);   // default: SONET/OC-192-style 12 kHz
+  const [f1_tbl_Hz, setF1Tbl] = useState(12e3);   // default: OC-48 / clock-datasheet-style 12 kHz
   const [f2_tbl_Hz, setF2Tbl] = useState(20e6);   // default: 20 MHz
   const [f0_tbl_GHz, setF0Tbl] = useState(5.0);
 

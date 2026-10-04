@@ -25,11 +25,10 @@ except ImportError:
 # ---------------------------------------------------------------------------
 def white_noise(n, psd, fs, rng=None):
     """
-    Generate white noise samples with two-sided PSD `psd` [units^2/Hz] at
-    sample rate `fs`. Variance = psd * fs / 2 ... we use the standard relation
-    var = psd * (fs/2) for a one-sided PSD interpretation; here we set the
-    sample variance so that welch() with scaling='density' recovers `psd`
-    as a one-sided density: var = psd * (fs/2).
+    Generate white noise samples whose ONE-SIDED PSD is `psd` [units^2/Hz] at
+    sample rate `fs` (the two-sided level is psd/2). The sample variance is
+    var = psd * (fs/2), so that welch() with scaling='density' recovers `psd`
+    as a one-sided density.
 
     Returns an array of length n.
     """

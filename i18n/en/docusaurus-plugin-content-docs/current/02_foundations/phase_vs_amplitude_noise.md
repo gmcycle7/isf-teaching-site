@@ -277,8 +277,10 @@ Putting the ISF and the APF side by side, condensing the whole page cell by cell
 
 ## 3. Ideal LC: ISF and APF in quadrature (90° apart)
 
-[P4] Fig. 5, p.2126 plots, for the ideal LC oscillator, the **ISF, APF, amplitude decay function,
-and how the three relate**; the most elegant conclusion is:
+In [P4] the ISF and APF of the ideal LC are given as **analytic expressions** (Eq.(24)–(26), p.2128); the paper does **not** draw this quadrature relation as a figure:
+the APF definition and "APF = area under the amplitude-deviation impulse response $h_A(t,\tau)$" are in [P4] Eq.(19) and Fig. 5(c), p.2126 (Fig. 5 shows the decay of the
+excess amplitude and excess energy after an injection); the only figure that plots the amplitude ISF, the decay function $d(t,\varphi)$ and the APF side by side is Fig. 6(d)–(f), p.2127,
+and that is a bipolar Colpitts oscillator, not an ideal LC. The most elegant conclusion is:
 
 > **In the ideal LC oscillator, the ISF and the APF are in quadrature (90° apart).**
 
@@ -300,10 +302,14 @@ $$
   quadrature refers to the **phase (angle) relation**, not equal dimensions. "90° apart" means
   that, as periodic functions of $\theta$, one is a $\sin$ and the other a $\cos$ in Fourier terms.
 
-> **Verified ([P4] Eq.(26), p.2128)**: the **proportionality constant** in
-> $\Delta_{LC}\propto\cos\theta$ above and the exact normalization of the APF must be checked
-> against PDF Fig. 5, p.2126. This page only claims the qualitative **quadrature** relation
-> (stated explicitly by [P4]) and does not pin down the amplitude constant.
+> **Verified ([P4] Eq.(24)–(26), p.2128)**: the phase variable $\varphi$ of [P4] is this page's $\theta$. For the ideal LC the amplitude ISF is
+> $\tilde\Lambda(\varphi)=\cos\varphi/q_{max,0}$ (Eq.(24)) and the decay function is $d(t,\varphi)=e^{-t/\tau_0}$ with
+> $\tau_0=2Q/\omega_0$, so the APF is $\Delta(\varphi)=\tau_0\,\tilde\Lambda(\varphi)=(\tau_0/q_{max,0})\cos\varphi$ (Eq.(25)),
+> with fundamental $\Delta_1=(\tau_0/q_{max,0})\angle0$; the fundamental of the phase ISF is $\tilde\Gamma_1=(1/q_{max,0})\angle90^\circ$ (Eq.(26)),
+> so the two are 90° apart. Unit check: $\tau_0/q_{max,0}$ is s/C = $\mathrm{A^{-1}}$, matching the unit of the APF; this page's dimensionless $\Gamma_{LC}=-\sin\theta$
+> differs from the $\tilde\Gamma$ of [P4] by a factor $q_{max,0}$ ($\tilde\Gamma=\Gamma/q_{max}$). Applicability: these expressions assume that the
+> transconductor only compensates the current drawn by $R_P$ up to the free-running amplitude, so that excess energy decays with the LTI dynamics of the damped LC and $d$ is an exponential independent of $\varphi$;
+> as soon as $d(t,\varphi)$ depends on $\varphi$ and is not an exponential (as for the bipolar Colpitts in Fig. 6(e)), the APF is no longer a pure $\cos\varphi$ (Fig. 6(f)).
 
 ## 4. AM–PM in brief: the back door through which amplitude noise leaks into phase
 
@@ -736,7 +742,7 @@ R=10 crossover sim [MHz]     = 83.31       # -> 83.31
 - **The APF $\Delta(\omega_0\tau)$ (units $\mathrm{A^{-1}}$) is the amplitude-domain counterpart of the ISF**; the phase kernel is
   a step $u$, the amplitude kernel is impulse × decay.
 - Ideal LC: $\Gamma\propto-\sin\theta$ (tangential) and $\Delta\propto\cos\theta$ (radial) are
-  **in quadrature (90° apart)** — [P4] Fig. 5, p.2126.
+  **in quadrature (90° apart)** — [P4] Eq.(24)–(26), p.2128.
 - **AM–PM** is the back door through which amplitude noise leaks back into phase: beware when $\partial\omega/\partial A\neq 0$.
 - Example A: 1 fC injected at the zero crossing → 31.8 fs of permanent jitter; at the peak → ~0 permanent effect.
 - **Continuous white-noise drive + exponential restoration ([P4] $\tau_0=2Q/\omega_0$) = an OU process**:
@@ -746,7 +752,7 @@ R=10 crossover sim [MHz]     = 83.31       # -> 83.31
   instrument/additive floor): under equal drive the asymptotes intersect exactly at $f_c$ and AM
   adds at most +3 dB; with stronger AM drive ($R\gt1$) the crossover is $f_x=f_c/\sqrt{R-1}$,
   e.g. $R=10\to83.3$ MHz. An SA measures AM+PM; phase-detector methods reject AM.
-- Sources: [P4] (APF / amplitude decay / quadrature, Sec. III-D–E, Fig. 5, p.2126, verified); the phase side from [P1] Eqs.(1),(10); the OU process is standard stochastic-process mathematics (external literature, Uhlenbeck–Ornstein 1930).
+- Sources: [P4] (quadrature = Eq.(24)–(26), p.2128; APF / decay = Fig. 5, p.2126, Sec. III-D–E, verified); the phase side from [P1] Eqs.(1),(10); the OU process is standard stochastic-process mathematics (external literature, Uhlenbeck–Ornstein 1930).
 
 ## Further reading
 

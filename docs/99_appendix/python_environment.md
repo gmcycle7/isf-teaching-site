@@ -94,7 +94,7 @@ plt.rcParams["axes.unicode_minus"] = False
 #   lab_06_white_noise_phase_noise.py
 #   lab_07_flicker_noise.py
 #   lab_08_jitter_integration.py
-#   …共 52 個 lab_*.py / fig_*.py（42 個 lab_*、10 個 fig_*），完整清單見 figure_index
+#   …共 55 個 lab_*.py / fig_*.py（44 個 lab_*、11 個 fig_*），完整清單見 figure_index
 # scripts/
 #   run_all_sims.py           # 一鍵重跑全部 lab_*.py + fig_*.py，產生所有圖
 # static/figures/             # 產出的 .png（網站用 /figures/<name>.png 引用）
@@ -119,11 +119,11 @@ plt.rcParams["axes.unicode_minus"] = False
 `scripts/run_all_sims.py` 用 `glob.glob` 抓齊 `simulations/lab_*.py` 與 `simulations/fig_*.py`
 （`scripts/run_all_sims.py:24–25`），依序在各自的 subprocess 中執行，把全部圖重新產生到
 `static/figures/`；某一支腳本失敗不會中斷其他腳本，最後印出成敗總表。目前共
-**52 支**腳本（42 個 `lab_*.py` + 10 個 `fig_*.py`）→ **60 張** PNG。要重現網站上的任何一張圖，
+**55 支**腳本（44 個 `lab_*.py` + 11 個 `fig_*.py`）→ **63 張** PNG。要重現網站上的任何一張圖，
 這一行就夠。
 
 下表是 **lab_01–08 示範子集**（8 個最基礎的 lab，對應第 7 節一行驗算與 canonical 例 A/B/C）；
-完整 52 支腳本 × 60 張圖的對照見 [figure_index](/01_paper_map/figure_index)。
+完整 55 支腳本 × 63 張圖的對照見 [figure_index](/01_paper_map/figure_index)。
 
 | 圖檔 | script | function |
 |---|---|---|
@@ -329,8 +329,8 @@ repo 目錄樹內任何位置執行（每本 notebook 的 setup cell 會自動�
   自動偵測（找不到就降級為 `DejaVu Sans`），並關閉 `unicode_minus`。
 - `common/` 七模組（`isf_utils`、`noise_utils`、`oscillator_models`、`pll_utils`、`serdes_utils`、
   `signal_utils`、`plot_utils`）放權威實作；各 lab 只擺參數。
-- `python scripts/run_all_sims.py` 一鍵重產全部 **60 張**圖到 `static/figures/`
-  （來自 52 支 `lab_*.py`/`fig_*.py`）。
+- `python scripts/run_all_sims.py` 一鍵重產全部 **63 張**圖到 `static/figures/`
+  （來自 55 支 `lab_*.py`/`fig_*.py`）。
 - 全部是 toy model；用固定 `default_rng(seed)` 保證逐位元可重現。
 - 七個主線 lab 有可下載的 Jupyter notebook（第 8 節），由 `scripts/make_notebooks.py`
   自動產生（generated snapshot）。

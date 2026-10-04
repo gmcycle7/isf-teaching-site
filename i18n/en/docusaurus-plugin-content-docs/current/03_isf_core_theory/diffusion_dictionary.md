@@ -1,6 +1,6 @@
 ---
 title: "Diffusion-Constant Dictionary: κ, D, Linewidth, ADEV, and the 1/f² Coefficient Are One and the Same Number"
-description: "Starring the phase-variance growth rate κ²=Γrms²·Si/(2qmax²) ([P2] Eq.11/12), this page derives step by step its five outfits — the ring jitter constant κ, the phase diffusion constant D (two conventions), the Lorentzian 3-dB linewidth κ²/(2π), the 1/f² phase-PSD coefficient 2κ², and the white-FM Allan deviation κ/(2πf₀√τ) — reconciles every factor-of-2 convention (single/double-sided, Var=D|t| vs 2D|t|, SSB /2 vs /4) one by one, and verifies with lab_23's single simulation extracted five ways; canonical κ²=0.125 rad²/s."
+description: "Starring the phase-variance growth rate κ²=Γrms²·Si/(2qmax²) ([P2] Eq.(11)), this page derives step by step its five outfits — the ring jitter constant κ, the phase diffusion constant D (two conventions), the Lorentzian 3-dB linewidth κ²/(2π), the 1/f² phase-PSD coefficient 2κ², and the white-FM Allan deviation κ/(2πf₀√τ) — reconciles every factor-of-2 convention (single/double-sided, Var=D|t| vs 2D|t|, SSB /2 vs /4) one by one, and verifies with lab_23's single simulation extracted five ways; canonical κ²=0.125 rad²/s."
 ---
 
 import NumericQuiz from "@site/src/components/NumericQuiz";
@@ -384,7 +384,7 @@ self-verified inside the simulation before being converted analytically to 5 GHz
 |---|---|---|
 | Model | toy / illustrative (not transistor-level) | [P1] Eq.(11) discrete integration, Wiener phase |
 | $\Gamma_{rms},q_{max},S_i$ | $0.5$, $1$ pC, $10^{-24}\ \text{A}^2/\text{Hz}$ | canonical Example B true values |
-| Theory $\kappa^2$ | $0.125\ \text{rad}^2/\text{s}$ | [P2] Eq.(11)/(12) |
+| Theory $\kappa^2$ | $0.125\ \text{rad}^2/\text{s}$ | [P2] Eq.(11), p.793 (Eq.(12) is the time version $\kappa_t$) |
 | (a) Variance slope | $0.1252$ | lands on $\kappa^2\tau$, **not** on $2\times0.125\,\tau$ (the red dotted line is falsified) |
 | (b) Linewidth | fit $20.0$ mHz, direct half-power readout $20.3$ mHz | theory $\kappa^2/2\pi=19.9$ mHz |
 | (c) ADEV | $\hat\kappa^2=0.1254$; slope $-1/2$ | $\sigma_y=\kappa/(2\pi f_0^{\text{sim}}\sqrt\tau)$ |
@@ -405,7 +405,7 @@ import numpy as np
 from simulations.common.noise_utils import white_noise
 
 GAMMA_RMS, QMAX, SI, F0_REAL = 0.5, 1e-12, 1e-24, 5e9
-KAPPA2 = GAMMA_RMS**2 * SI / (2 * QMAX**2)      # [P2] Eq.(11)/(12)
+KAPPA2 = GAMMA_RMS**2 * SI / (2 * QMAX**2)      # [P2] Eq.(11); Eq.(12) is kappa_t
 print(f"{KAPPA2:.4f}")  # -> 0.1250
 
 FS, N, F0_SIM = 64.0, 2**23, 16.0
@@ -498,7 +498,7 @@ print(round(k2,4), round(k2/(2*np.pi)*1e3,1), round(10*np.log10(k2/dw**2),1),
 ## Key takeaways
 
 - White-noise phase diffusion has only **one** free parameter: $\kappa^2=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$
-  ([P2] Eq.(11)/(12); canonical $0.125\ \text{rad}^2/\text{s}$, true LC $0.25$).
+  ([P2] Eq.(11), p.793; the printed Eq.(12) is the time version $\kappa_t=\kappa/\omega_0$; canonical $0.125\ \text{rad}^2/\text{s}$, true LC $0.25$).
 - The five outfits: $\kappa=\sqrt{\kappa^2}$ (rad/√s; time version $\kappa_t=\kappa/\omega_0$),
   $D_{\text{甲}}=\kappa^2$ / $D_{\text{乙}}=\kappa^2/2$, $\Delta f_{3\mathrm{dB}}=\kappa^2/2\pi=19.9$ mHz,
   $S_\phi=2\kappa^2/\Delta\omega^2$ ($\mathcal{L}$: $-145.0$ ($/2$) / $-148.0$ ($/4$) dBc/Hz@1MHz),

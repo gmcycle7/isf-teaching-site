@@ -37,7 +37,7 @@ description: 13 個 phase-noise / jitter 工作中真實、可驗證的常見錯
 ## 1. 把 κ² 當 D——線寬直接大 2 倍
 
 **❌ 錯誤做法**：算出相位方差成長率
-$\kappa^2=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$（[P2] Eq.(11)/(12), p.793），
+$\kappa^2=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$（[P2] Eq.(11), p.793；印刷 Eq.(12) 是時間版 $\kappa_t=\kappa/\omega_0$），
 把這個數字**直接**叫做 diffusion constant $D$，再套 Demir 慣例的線寬公式
 $\Delta f_{3\mathrm{dB}}=D/\pi$。（本站 v3 規範曾犯此錯，v5 以 Monte-Carlo 裁決修正。）
 
@@ -357,7 +357,7 @@ from simulations.common.noise_utils import leeson_one_over_f2, integrate_rms_jit
 
 # --- 錯誤 1：κ² 誤當 D（線寬 2×）---
 GRMS, QMAX, SI = 0.5, 1e-12, 1e-24
-k2 = GRMS**2 * SI / (2 * QMAX**2)                 # [P2] Eq.(11)/(12)
+k2 = GRMS**2 * SI / (2 * QMAX**2)                 # [P2] Eq.(11); Eq.(12) is kappa_t
 print(round(k2, 3))                               # -> 0.125 （κ², rad²/s）
 print(round(k2 / (2*np.pi) * 1e3, 1))             # -> 19.9 （正確 FWHM，mHz）
 print(round(k2 / np.pi * 1e3, 1))                 # -> 39.8 （κ² 塞進 D/π 的 2× 錯值）

@@ -4,6 +4,7 @@ description: Phase-noise cost of the three quadrature (I/Q) generation methods (
 ---
 
 import NumericQuiz from "@site/src/components/NumericQuiz";
+import CoupledQvcoExplorer from '@site/src/components/CoupledQvcoExplorer';
 
 > **β**: This English translation is in beta — the Traditional-Chinese original is the authoritative version.
 
@@ -401,11 +402,11 @@ $2\omega$ ripple riding on it is precisely the fast term filtered out by the [P3
 it is **not** a real I/Q error. **Unit check**: $\Delta\omega_0/(2\omega_L)=$ (rad/s)/(rad/s) $=$ dimensionless $=$ rad ✓;
 $1/(2\omega_L)=$ 1/(rad/s) $=$ s ✓.
 
-> **What this lab does not do (left to the reader / v12)**: (1) the phase-noise contribution of the coupling device's own noise through $\tilde\Gamma$ (Section 2 (ii));
+> **What this lab does not do (left to the reader)**: (1) the phase-noise contribution of the coupling device's own noise through $\tilde\Gamma$ (Section 2 (ii));
 > (2) the $Q$ drop from frequency pulling — this model only yields the pull itself: the plain parallel QVCO ($\phi_c=0$) at $\psi=\pm90^\circ$ has each oscillator pulled off the tank peak by
 > $\omega_L=m\omega_0/(2Q)$, i.e. $1.5\%=75$ MHz for $m=0.3$, $Q=10$; with aligned coupling ($\phi_c=90^\circ$) the two only move by $\mp\Delta\omega_0/2=\mp2.5$ MHz
 > to the common mean frequency, barely leaving the peak — this is the phase-only version of [E-Romano-QVCO]'s "phase-shift coupling has better PN".
-> How much $Q$ drops and how much PN rises needs the amplitude channel of [P4], which this page does not do. (3) The full sweep of the $m\sim0.2$–$0.5$ sweet spot and an interactive widget.
+> How much $Q$ drops and how much PN rises needs the amplitude channel of [P4], which this page does not do. (3) A phase-noise sweep of the $m\sim0.2$–$0.5$ sweet spot (needs external data; the widget below sweeps only the I/Q error).
 > The quantitative basis of the triangular trade-off itself remains [E-Andreani-QVCO] / [E-Romano-QVCO] (external literature, not among the five source PDFs).
 
 <NumericQuiz
@@ -416,6 +417,63 @@ $1/(2\omega_L)=$ 1/(rad/s) $=$ s ✓.
   hint="Δφ_IQ ≈ (Q/m)(Δω₀/ω₀) = (10/0.3)×0.001 rad; 1 rad = 57.30°."
   solutionNote="(10/0.3)×0.001 = 0.03333 rad = 1.910°; exact arcsin(0.03333) = 1.9102°, the linear approximation is off by only −0.019%. The lab_42 numerical integration gives 1.9102° (averaged) / 1.9128° (unaveraged, cycle-averaged)."
 />
+
+### Interactive: dial $m$, $Q$ and detuning, and watch the lock-in trajectory and $\Delta\phi_{IQ}$
+
+The widget below runs the **same** averaged mutual-injection equation as the previous subsection,
+$d\psi/dt=\Delta\omega_0-2\omega_L\cos\psi$ ($\phi_c=90^\circ$, $\omega_L=m\omega_0/(2Q)$, $f_0=5$ GHz fixed), with no extra physics.
+Its defaults are the worked example of this page ($m=0.3$, $Q=10$, $\Delta\omega_0/\omega_0=0.1\%$): the readouts should be $\Delta\phi_{IQ}=1.9102^\circ$ (exact) / $1.9099^\circ$ (linear),
+$1/(2\omega_L)=1.061$ ns (5.3 cycles) and an unlock limit $m/Q=3.0\%$.
+
+<CoupledQvcoExplorer />
+
+**How to use it**:
+
+- **Left plot, $\psi(t)$**: wherever $\psi_0$ starts, the trajectory converges to the red dashed line $-90^\circ+\Delta\phi_{IQ}$ as long as a lock exists (a start above about $+90^\circ$ travels across the $\pm180^\circ$ boundary, which looks like a wrap-around in the plot). The vertical dashed line is $1/(2\omega_L)$.
+  Shrinking $m$ or raising the detuning slows the convergence and enlarges the final $\Delta\phi_{IQ}$; once $\Delta\omega_0/\omega_0>m/Q$ (for example $m=0.05$, $Q=30$, detuning $1\%$),
+  the "lock exists?" card turns to "No" and $\psi$ slips continuously at the mean rate (beat frequency) $\sqrt{\Delta\omega_0^2-(2\omega_L)^2}\,/\,(2\pi)$ (about 49.3 MHz in this example; the square root is in rad/s, and dividing by $2\pi$ gives Hz).
+- **Right plot, $\Delta\phi_{IQ}$ vs $m$**: the solid line is the exact $\arcsin$, the dashed line is $(Q/m)(\Delta\omega_0/\omega_0)$. At small error they coincide; moving left (smaller $m$) toward the red dashed unlock limit $m=Q\,\Delta\omega_0/\omega_0$,
+  the $\arcsin$ shoots up vertically at $90^\circ$ and the linear approximation starts to under-estimate. The red dot is the current setting.
+- **Lock time constant**: the main value on the card is the $1/(2\omega_L)$ quoted on this page; the line below lists the linearized $1/(2\omega_L\cos\delta)$. They agree for $\delta\ll1$, and the latter diverges near the unlock limit (locking gets slower and slower).
+
+> **What this widget does not have**: it is a phase-only toy model and **gives no phase-noise number**; it also omits the frequency pull that lowers the effective $Q$.
+> It therefore cannot show where the $m\sim0.2$–$0.5$ optimum lies — that needs the amplitude channel of [P4] and external measured data ([E-Andreani-QVCO] / [E-Romano-QVCO]).
+> The behavior past the unlock limit (no lock) would also be altered by amplitude dynamics in a real circuit; only the phase-only result is drawn here.
+
+<NumericQuiz
+  prompt="Use the widget above at a different setting (or just compute): m = 0.5, Q = 25, tank detuning Δω₀/ω₀ = 1%; what I/Q phase error Δφ_IQ (the exact arcsin solution) does the phase-only mutually injecting Adler pair give? (answer in degrees)"
+  answer={30}
+  tol={0.02}
+  unit="deg"
+  hint="First compute the arcsin argument (Q/m)(Δω₀/ω₀) = (25/0.5)×0.01. This time the argument is not small, so the linear approximation is off by several percent; use the arcsin."
+  solutionNote="(25/0.5)×0.01 = 0.5, arcsin(0.5) = 30.000°; the linear approximation 0.5 rad = 28.648° under-estimates by 4.5%. The unlock limit is m/Q = 2.0%, so this setting still has a 2× margin, but the lock time constant 1/(2ω_L cosδ) has already stretched from 1.592 ns to 1.838 ns."
+/>
+
+<details>
+<summary>Show how the answer is computed (with Python check)</summary>
+
+This uses the formulas of the previous subsection: $\omega_L=m\omega_0/(2Q)$, $\sin\delta=\Delta\omega_0/(2\omega_L)=(Q/m)(\Delta\omega_0/\omega_0)$.
+**Unit check**: $\Delta\omega_0/(2\omega_L)=$ (rad/s)/(rad/s) $=$ dimensionless $=$ rad ✓.
+
+```python
+import numpy as np
+from simulations.lab_42_coupled_qvco import omega_lock, steady_state_iq_error
+f0, Q, m, det = 5e9, 25.0, 0.5, 1e-2          # quiz setting: Q=25, m=0.5, Δω0/ω0=1%
+w0 = 2*np.pi*f0
+wL = omega_lock(m, Q, w0)                     # ω_L = mω0/(2Q)
+print(f"{wL/2/np.pi/1e6:.1f}")                # -> 50.0 (MHz; f_L = ω_L/2π)
+print(f"{det*w0/(2*wL):.4f}")                 # -> 0.5000 (= Δω0/(2ω_L) = (Q/m)(Δω0/ω0), dimensionless)
+d_num, d_ex, d_lin = steady_state_iq_error(m, det, Q=Q, omega0=w0)
+print(f"{np.degrees(d_ex):.4f}")              # -> 30.0000 (deg; exact arcsin[Δω0/(2ω_L)])
+print(f"{np.degrees(d_num):.4f}")             # -> 30.0000 (deg; numerically integrated steady state of the Adler pair)
+print(f"{np.degrees(d_lin):.4f}")             # -> 28.6479 (deg; linear approximation (Q/m)(Δω0/ω0))
+print(f"{100*(d_lin-d_ex)/d_ex:.2f}")         # -> -4.51 (%; linear approximation relative to exact)
+print(f"{100*m/Q:.1f}")                       # -> 2.0 (%; unlock boundary Δω0/ω0 = m/Q)
+print(f"{1e9/(2*wL):.3f}")                    # -> 1.592 (ns; small-δ time constant 1/(2ω_L))
+print(f"{1e9/(2*wL*np.cos(d_ex)):.3f}")       # -> 1.838 (ns; linearized 1/(2ω_L cosδ))
+```
+
+</details>
 
 ---
 

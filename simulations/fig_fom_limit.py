@@ -23,6 +23,11 @@ Support docs/06_design_insights/fom_limit.md with *checkable* numbers:
       (0.2 dB gap traced to that page's rounded kT = 4.0e-21 J, which is
       actually the 290 K value).
       VT=0 bound ([P2] Eq.(25)): F_eff >= 16*gamma/(3*eta) -> ring ceiling.
+      FAMILY FLAG: Eq.(23)/(25) are collected from N x [P2] Eq.(6), p.792,
+      whose denominator 8*pi^2*f_off^2 = 2*dw^2 is the "/2" family. So the
+      ring numbers 164.80 / 168.32 dB and -91.0 dBc/Hz are /2-family values;
+      in the [P1] Eq.(21) "/4" bookkeeping they read 167.81 / 171.33 dB and
+      -94.0 dBc/Hz. Ring-vs-LC comparisons must use ONE family (section [4]).
 
   (4) LC from [P1] Eq.(21), p.185 (single white source, SSB "/4" convention):
       with Si = F*4kT/Rp, qmax = C*Vmax, Ptank = Vmax^2/(2*Rp), Q = w0*Rp*C:
@@ -143,6 +148,11 @@ def main():
     print(f"ring ceiling FOM_max [dB]               : {fom_from_feff(feff_ring_min):.2f}")
     print(f"ring example distance to ring ceiling   : "
           f"{fom_from_feff(feff_ring_min)-fom_from_feff(feff_ring):.2f} dB")
+    d_conv = 10*np.log10(2.0)            # /2 family -> /4 family shift
+    print("family flag: [P2] Eq.(23)/(25) come from N x Eq.(6) (denominator 2*dw^2) -> /2 family")
+    print(f"ring ceiling in /4 bookkeeping [dB]     : {fom_from_feff(feff_ring_min)+d_conv:.2f}")
+    print(f"ring example in /4 bookkeeping [dB]     : {fom_from_feff(feff_ring)+d_conv:.2f}")
+    print(f"ring example L in /4 bookkeeping [dBc/Hz]: {L_site-d_conv:.2f}")
 
     print()
     print("=== [3] LC：[P1] Eq.(21) → F_eff = F*Grms^2/(2*Q^2*eta_P) ===")
@@ -178,19 +188,39 @@ def main():
               f"{fom2:.2f} dB (/2 conv, Leeson 2FkT)")
 
     print()
-    print("=== [4] ring 落後 LC 天花板的分解（Q=10 ideal） ===")
+    print("=== [4] ring 落後 LC 天花板的分解（Q=10 ideal；同一族才能相減） ===")
+    # Same-family comparison. Native ring family is /2 ([P2] Eq.(6) line):
+    #   F_eff,/2(ring) = (8/(3*eta))*(VDD/Vchar) = 8
+    #   F_eff,/2(LC)   = 2 * F*Grms^2/(2*Q^2*eta_P) = F*Grms^2/Q^2
+    fom_lc4 = fom_from_feff(feff_lc(F_ideal, grms2_lc, 10.0))      # [P1] /4 family
+    fom_lc2 = fom_lc4 - d_conv                                     # /2 family
+    fom_ring2 = fom_from_feff(feff_ring)                           # /2 family (native)
+    fom_ring4 = fom_ring2 + d_conv                                 # /4 bookkeeping
     d_pref = 10*np.log10(8.0/3.0)
     d_vchar = 10*np.log10(3.0)
-    d_store = 10*np.log10(2.0*10.0**2)
+    d_store = 10*np.log10(10.0**2)
     d_wave = -10*np.log10(F_ideal*grms2_lc)
     total = d_pref + d_vchar + d_store + d_wave
-    gap = fom_from_feff(feff_lc(F_ideal, grms2_lc, 10.0)) - fom_from_feff(feff_ring)
-    print(f"prefactor 8/3      [dB] : {d_pref:.2f}")
+    gap2 = fom_lc2 - fom_ring2
+    print("-- /2 family (ring native): LC %.2f dB vs ring %.2f dB" % (fom_lc2, fom_ring2))
+    print(f"storage Q^2 (Q=10) [dB] : {d_store:.2f}")
     print(f"VDD/Vchar = 3      [dB] : {d_vchar:.2f}")
-    print(f"storage 2Q^2 (Q=10)[dB] : {d_store:.2f}")
-    print(f"waveform (1+g)G^2  [dB] : {d_wave:.2f}")
+    print(f"prefactor 8/3      [dB] : {d_pref:.2f}")
+    print(f"waveform 1/((1+g)G^2) [dB] : {d_wave:.2f}")
     print(f"sum of terms       [dB] : {total:.2f}")
-    print(f"direct FOM gap     [dB] : {gap:.2f}   (must equal the sum)")
+    print(f"direct FOM gap     [dB] : {gap2:.2f}   (must equal the sum; |diff| = {abs(gap2-total):.1e})")
+    # /4 family: the factor 2 moves from the prefactor row to the storage row.
+    d_store4 = 10*np.log10(2.0*10.0**2)
+    d_pref4 = 10*np.log10(4.0/3.0)
+    total4 = d_pref4 + d_vchar + d_store4 + d_wave
+    gap4 = fom_lc4 - fom_ring4
+    print("-- /4 family: LC %.2f dB vs ring %.2f dB" % (fom_lc4, fom_ring4))
+    print(f"storage 2Q^2 [dB] : {d_store4:.2f} | prefactor 4/3 [dB] : {d_pref4:.2f} | "
+          f"sum : {total4:.2f} | direct gap : {gap4:.2f}")
+    print(f"same-family ceiling gap LC(Q=10) - ring ceiling [dB] : "
+          f"{fom_lc2 - fom_from_feff(feff_ring_min):.2f}")
+    print(f"MIXED families (/4 LC - /2 ring) [dB]   : {fom_lc4 - fom_ring2:.2f}   "
+          f"<- contains a ghost {d_conv:.2f} dB; do not use")
 
     print()
     print("=== [5] 反推 worked example（L=-125 dBc/Hz @1MHz, f0=5GHz, P=10mW） ===")
@@ -211,12 +241,12 @@ def main():
     T = np.linspace(250, 400, 301)
     families = [
         (1.0, r"$F_{eff}=1$（$kT$ 參考線）", "tab:blue", "-"),
-        (feff_ring_min, r"ring 天花板 $F_{eff}=16\gamma/3\approx3.56$", "tab:red", "-"),
-        (feff_ring, r"ring 例 $F_{eff}=8$（$V_{DD}/V_{char}=3$）", "tab:orange", "--"),
+        (feff_ring_min, r"ring 天花板 $F_{eff}=16\gamma/3\approx3.56$（/2 族）", "tab:red", "-"),
+        (feff_ring, r"ring 例 $F_{eff}=8$（$V_{DD}/V_{char}=3$，/2 族）", "tab:orange", "--"),
         (feff_lc(F_ideal, grms2_lc, 10.0),
-         r"LC 理想天花板 $Q=10$（$F=1+\gamma$）", "tab:green", "-"),
+         r"LC 理想天花板 $Q=10$（$F=1+\gamma$，/4 族）", "tab:green", "-"),
         (feff_lc(F_ideal, grms2_lc, 30.0),
-         r"LC 理想天花板 $Q=30$", "tab:green", "--"),
+         r"LC 理想天花板 $Q=30$（/4 族）", "tab:green", "--"),
     ]
     for fe, lab, col, ls in families:
         ax1.plot(T, [fom_from_feff(fe, t) for t in T], color=col, ls=ls, label=lab)
@@ -237,9 +267,9 @@ def main():
     ax2.axhline(c_ref_db(300.0), color="tab:blue", lw=1.2,
                 label=r"$F_{eff}=1$：173.8 dB")
     ax2.axhline(fom_from_feff(feff_ring_min), color="tab:red", lw=1.2,
-                label=r"ring 天花板（[P2] Eq.(25)）：168.3 dB")
+                label=r"ring 天花板（[P2] Eq.(25)，/2 族）：168.3 dB")
     ax2.axhline(fom_from_feff(feff_ring), color="tab:orange", lw=1.0, ls="--",
-                label=r"本站 ring 例：164.8 dB（與 $Q$ 無關）")
+                label=r"本站 ring 例（/2 族）：164.8 dB（與 $Q$ 無關）")
     ax2.plot([Q_implied], [fom_ex2], "o", color="tab:purple", ms=7,
              label=f"本頁例 2 反推：FOM=189.0 dB, Q≈{Q_implied:.1f}")
     ax2.plot([10.0], [fom_from_feff(feff_lc(F_ideal, grms2_lc, 10.0))], "s",

@@ -67,16 +67,16 @@
     {
       "id": "C10",
       "claim": "The same ISF that governs phase noise also governs injection locking/pulling; a single first-order (generalized Adler) equation built from the ISF predicts lock range, locked phase, and stability for arbitrary oscillators and injection waveforms.",
-      "source_paper": "paper_003 (Hong Part I 2019)",
-      "confidence": "medium (abstract & section text read; equation form flagged)",
-      "manual_verification_needed": true
+      "source_paper": "paper_003 (Hong Part I 2019), Eq.(30), p.2113",
+      "confidence": "high (equation verified against the rendered PDF page)",
+      "manual_verification_needed": false
     },
     {
       "id": "C11",
       "claim": "Amplitude effects under injection are captured by the Amplitude Perturbation Function (APF), the amplitude-domain analog of the ISF (units 1/Ampere); for an ideal LC oscillator the ISF and APF are in quadrature.",
-      "source_paper": "paper_004 (Hong Part II 2019), Sec. III-D",
-      "confidence": "medium",
-      "manual_verification_needed": true
+      "source_paper": "paper_004 (Hong Part II 2019), APF Eq.(19) and Fig. 5(c), p.2126; ideal-LC quadrature Eqs.(24)-(26), p.2128 (analytic only; no ideal-LC ISF/APF figure)",
+      "confidence": "high (equations verified against the rendered PDF pages)",
+      "manual_verification_needed": false
     },
     {
       "id": "C12",

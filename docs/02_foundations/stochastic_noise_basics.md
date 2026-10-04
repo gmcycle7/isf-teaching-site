@@ -100,7 +100,10 @@ $$
 
 - **單位**：$\text{A}^2$（兩個電流相乘的期望值）。
 - **Wiener–Khinchin 定理**：autocorrelation 與 PSD 是傅立葉對。白噪的 PSD 平坦，
-  對應 autocorrelation 是一根 delta：$R_i(\tau)=\dfrac{\overline{i_n^2}}{\Delta f}\,\delta(\tau)$。
+  對應 autocorrelation 是一根 delta：$R_i(\tau)=\dfrac12\,\dfrac{\overline{i_n^2}}{\Delta f}\,\delta(\tau)$。
+  那顆 $\tfrac12$ 是因為本站的 $\overline{i_n^2}/\Delta f$ 是**單邊** PSD（只算 $f\gt0$），而 Wiener–Khinchin 的傅立葉對
+  用的是**雙邊**譜（$-\infty\lt f\lt\infty$），同樣的功率攤到正負頻兩半，位準減半（[P2] Appendix A, p.802 印的也是這顆 $\tfrac12$；
+  逐步推導見 [derivation_autocorrelation_wiener_khinchin](/99_appendix/derivation_autocorrelation_wiener_khinchin) 第 A 步）。
 - **直覺**：白噪「現在的值」與「下一瞬間的值」**完全無關**（記憶為零）。這正是為什麼
   在 [P1] Eq.(11) 的相位積分裡，可以把不同時刻的 noise 貢獻當成獨立疊加——它讓
   phase variance 的計算變成「逐項平方相加」而不必處理交叉相關項。

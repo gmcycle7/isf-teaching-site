@@ -162,7 +162,7 @@ printing slips listed honestly)**:
 | Eq.(45)–(47) | WSS expansion: variance of a difference $=2[R_\phi(0)-R_\phi(\Delta T)]$ | Route A, step 1 (same equation) | **the 2 of Eq.(47)** = the "variance of a difference" 2 |
 | Eq.(48) | Khinchin theorem (two-sided spectrum, $\int_{-\infty}^{\infty}$) | Route A, step 2 (one-sided cosine version) | $S_\phi^{DS}=S_\phi/2$ |
 | Eq.(49) | $\dfrac{8}{\omega_0^2}\displaystyle\int_0^\infty S_\phi^{DS}\sin^2(\pi f\tau)\,df$ | kernel (b)'s $\dfrac{1}{\omega_0^2}\displaystyle\int_0^\infty S_\phi\,4\sin^2 df$ | **8 = 2 (two-sided→one-sided) × 4 (difference kernel)**, $1/\omega_0^2$ = phase→time — a literal reprise of the Step 0 table's second column |
-| Eq.(50) | reads $\kappa\leftarrow\mathcal{L}$ off the main text's (6)+(12) | 4.5 (the negative exponent = the "dB below carrier" reading, per the v5 note) | takes the $/2$-convention $\mathcal{L}$ |
+| Eq.(50) | reads $\kappa\leftarrow\mathcal{L}$ off the main text's (6)+(12) | 4.5 (the negative exponent = the "dB below carrier" reading) | takes the $/2$-convention $\mathcal{L}$ |
 | Eq.(51) | $\sigma_{CTC}=\kappa\sqrt T$ (one-period version) | end note of 4.4 (adjacent-difference definition multiplies by another $\sqrt2$) | printed numerator $f$ should read $\Delta f$ |
 
 ## A.4 Who skips what (honest bookkeeping in both directions)
@@ -178,7 +178,7 @@ printing slips listed honestly)**:
 - **No convention declared**: not one sentence in the paper says whether
   $S_\phi$ is one- or two-sided; only the integration limits of Eq.(48) give
   it away. That page's three-column table in Step 0 lays that out in the open
-  (v5 used exactly those limits to infer "two-sided" and reconcile the
+  (exactly those limits are what let one infer "two-sided" and reconcile the
   literature's "coefficient-8 version" with the one-sided $4\sin^2$ kernel).
 - **The two routes are never interlocked in the paper**: Eq.(44) stops in the
   time domain, Eq.(49) stops in the frequency domain; the paper never

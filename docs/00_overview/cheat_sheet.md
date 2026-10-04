@@ -28,7 +28,7 @@ description: 一頁速查：核心公式、canonical 數值、單位換算、設
 | SSB↔PSD | $\mathcal{L}(\Delta f)\approx\tfrac12 S_\phi(\Delta f)$ | [psd](/02_foundations/psd_phase_noise_jitter) |
 | phase→time | $\Delta t=\dfrac{\Delta\phi}{2\pi f_0}$ | 標準 |
 | rms jitter | $\sigma_t=\dfrac{1}{2\pi f_0}\sqrt{\displaystyle\int_{f_1}^{f_2}S_\phi\,df}$ | [serdes](/06_design_insights/serdes_clocking_connection) |
-| 累積 jitter | $\sigma_{\Delta t}=\kappa\sqrt{\Delta t}$，$\kappa=\dfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ | [P2] Eq.(8)(12) |
+| 累積 jitter | $\sigma_{\Delta t}=\kappa_t\sqrt{\Delta t}$，$\kappa_t=\dfrac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\tfrac12\tfrac{\overline{i_n^2}}{\Delta f}}$ $[\sqrt{\text{s}}]$；相位版 $\kappa=\omega_0\kappa_t$ $[\text{rad}/\sqrt{\text{s}}]$ | [P2] Eq.(8)(10)(12), p.792–793 |
 | ring 頻率 | $f_0=\dfrac{1}{2N\tau_D}$ | [P2] Eq.(15) |
 | ring $\Gamma_{rms}$ | $\Gamma_{rms}=\sqrt{\dfrac{2\pi^2}{3\eta^3}}\;\dfrac{1}{N^{1.5}}\Rightarrow\Gamma_{rms}\propto N^{-3/2}$（$\eta=0.75$ 時 $\approx4/N^{1.5}$，即 [P2] Fig.8 實線；根號只含常數） | [P2] Eq.(16) |
 | ring FOM | $\mathcal{L}=\dfrac{8}{3\eta}\dfrac{kT}{P}\dfrac{V_{DD}}{V_{char}}\Big(\dfrac{f_0}{\Delta f}\Big)^2$（無 $N$！） | [P2] Eq.(23) |
@@ -42,7 +42,7 @@ description: 一頁速查：核心公式、canonical 數值、單位換算、設
 | A：impulse→time | $q_{max}=1$ pC、$\Delta q=1$ fC、$\Gamma=0.5$、$f_0=5$ GHz | $\Delta\phi=5\times10^{-4}$ rad、$\Delta t=15.9$ fs |
 | B：白噪 $\mathcal{L}$ | $\Gamma_{rms}=0.5$、$q_{max}=1$ pC、$S_i=10^{-24}$ A²/Hz、$\Delta f=1$ MHz | $\mathcal{L}=-148$ dBc/Hz |
 | C：jitter 積分 | $\mathcal{L}(1\text{MHz})=-100$ dBc/Hz、1/f²、1→100 MHz、5 GHz | $\sigma_t=447.9$ fs |
-| ring FOM | $\gamma=2/3$、$V_{DD}/V_{char}=3$、$P=1$ mW、其餘同上 | $\mathcal{L}\approx-91$ dBc/Hz |
+| ring FOM | $\gamma=2/3$、$V_{DD}/V_{char}=3$、$P=1$ mW、其餘同上 | $\mathcal{L}\approx-91$ dBc/Hz（**/2 族**：[P2] Eq.(23) 由 [P2] Eq.(6) 收成；換成例 B 所用 [P1] Eq.(21) 的 /4 記帳為 $-94$） |
 
 > 想自己掃參數？用 [互動計算器](/04_simulation_labs/interactive_calculator)。
 
@@ -70,14 +70,14 @@ description: 一頁速查：核心公式、canonical 數值、單位換算、設
 | 核 | 公式（單邊 $S_\phi$、$\int_0^\infty$ 慣例） | 白噪 FM 閉式 |
 |---|---|---|
 | TIE（0 階） | $\sigma_{TIE}^2=\dfrac{1}{\omega_0^2}\displaystyle\int_{f_1}^{f_2}S_\phi\,df$ | — |
-| N-period（1 階差分） | $\sigma_P^2(N)=\dfrac{1}{\omega_0^2}\displaystyle\int_0^\infty S_\phi\,4\sin^2(\pi fNT)\,df$ | $=\kappa^2NT$（精確＝[P2] Eq.(8)） |
-| cycle-to-cycle（2 階差分） | $\sigma_{c2c}^2=\dfrac{1}{\omega_0^2}\displaystyle\int_0^\infty S_\phi\,16\sin^4(\pi fT)\,df$ | $=2\kappa^2T\Rightarrow\sigma_{c2c}=\sqrt2\,\sigma_P(1)$ |
+| N-period（1 階差分） | $\sigma_P^2(N)=\dfrac{1}{\omega_0^2}\displaystyle\int_0^\infty S_\phi\,4\sin^2(\pi fNT)\,df$ | $=\kappa_t^2NT$（精確＝[P2] Eq.(8)；$\kappa_t=\kappa/\omega_0$） |
+| cycle-to-cycle（2 階差分） | $\sigma_{c2c}^2=\dfrac{1}{\omega_0^2}\displaystyle\int_0^\infty S_\phi\,16\sin^4(\pi fT)\,df$ | $=2\kappa_t^2T\Rightarrow\sigma_{c2c}=\sqrt2\,\sigma_P(1)$ |
 
 > 前置常數是 $1/\omega_0^2$，**不是** $2/\omega_0^2$（那個 2 屬雙邊譜或 $\mathcal{L}=\tfrac12S_\phi$ 記帳）。
 
 ### κ↔D↔線寬↔ADEV↔$S_\phi$ 字典（含 19.9/39.8 mHz canonical）— [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)
 
-主角：$\kappa^2=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$（[P2] Eq.(11)/(12)）；canonical（$\Gamma_{rms}=0.5$）$\kappa^2=0.125$ rad²/s，真 LC（$\Gamma_{rms}=1/\sqrt2$）$=0.25$。
+主角：$\kappa^2=\dfrac{\Gamma_{rms}^2}{2q_{max}^2}\dfrac{\overline{i_n^2}}{\Delta f}$（[P2] Eq.(11), p.793；印刷 Eq.(12) 是時間版 $\kappa_t=\kappa/\omega_0$）；canonical（$\Gamma_{rms}=0.5$）$\kappa^2=0.125$ rad²/s，真 LC（$\Gamma_{rms}=1/\sqrt2$）$=0.25$。
 
 | 衣服 | 公式 | canonical 值 |
 |---|---|---|

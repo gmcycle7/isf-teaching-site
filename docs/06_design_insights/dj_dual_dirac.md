@@ -37,10 +37,14 @@ RJ 就是本站前六章建立的整條鏈的終點，逐步回顧（每步有�
 2. **phase noise 積分 → rms jitter**：$\sigma_t=\frac{1}{2\pi f_0}\sqrt{\int_{f_1}^{f_2}S_\phi(f)\,df}$
    （單位 s；canonical 例 C：$f_0=5$ GHz、$\mathcal{L}(1\text{MHz})=-100$ dBc/Hz、1/f²、積 1→100 MHz
    → $\sigma_t=447.9$ fs）。詳見 [lab_08](/04_simulation_labs/lab_08_jitter_integration)。
-3. **時域觀點——隨機漫步**：[P2] Eq.(8), p.792 給累積**相位** jitter
-   $\sigma_{\Delta\phi}=\kappa\sqrt{\Delta t}$（$\kappa$ 單位 $1/\sqrt{\text{s}}$，由 [P2]
-   Eq.(11)/(12), p.793 $\kappa=\tfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\overline{i_n^2}/\Delta f}$；
-   注意式中**沒有** $\omega_0$——換成時間版要再除 $\omega_0$）。
+3. **時域觀點——隨機漫步**：[P2] Eq.(8), p.792 給累積**時間** jitter
+   $\sigma_{\Delta t}=\kappa_t\sqrt{\Delta t}$（$\kappa_t$ 單位 $\sqrt{\text{s}}$；p.793 印刷的 Eq.(12) 是
+   $\kappa_t=\tfrac{\Gamma_{rms}}{q_{max}\,\omega_0}\sqrt{\tfrac12\overline{i_n^2}/\Delta f}$，分母**含** $\omega_0$）。
+   **相位版** $\sigma_{\Delta\phi}=\kappa_\phi\sqrt{\Delta t}$、
+   $\kappa_\phi=\omega_0\kappa_t=\tfrac{\Gamma_{rms}}{q_{max}}\sqrt{\tfrac12\overline{i_n^2}/\Delta f}$（單位 rad/$\sqrt{\text{s}}$）
+   是 [P2] Eq.(11), p.793 開根號；兩版只差 Eq.(10), p.793 的換算 $\sigma_{\Delta\phi}=\omega_0\sigma_{\Delta t}$。
+   canonical 值 $\kappa_\phi^2=0.125$ rad²/s、$\kappa_t=1.125\times10^{-11}\ \sqrt{\text{s}}$
+   （逐步推導與數值見 [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)）。
 4. **為什麼是高斯**：每個週期振盪器吃進大量**彼此獨立**的微小雜訊踢擊，總相位誤差是
    獨立增量之和 → 中央極限定理 → 高斯。[lab_11](/04_simulation_labs/lab_11_monte_carlo_jitter)
    用 Monte-Carlo 直接驗證了直方圖是高斯、$\sigma\propto\sqrt{\Delta N}$。

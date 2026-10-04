@@ -514,7 +514,7 @@ $\mathrm{floor}((\theta-\theta_u)/2\pi)$ is the cleanest method (constant inside
   ([white_noise_to_phase_noise](/03_isf_core_theory/white_noise_to_phase_noise));
   the $D=S_n/4$ bookkeeping is audited in
   [diffusion_dictionary](/03_isf_core_theory/diffusion_dictionary)
-  (the $\kappa^2=2D$ of [P2] Eq.(11)/(12)).
+  (the $\kappa^2=2D$ of [P2] Eq.(11), p.793; the printed Eq.(12) is the time version $\kappa_t=\kappa/\omega_0$).
 
 ## 11. Limitations and approximations
 

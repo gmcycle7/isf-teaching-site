@@ -236,26 +236,26 @@
       "key_terms": ["injection locking", "injection pulling", "Adler's equation", "ISF", "lock range", "time-synchronous model", "injection waveform design"],
       "important_equations": [
         {
-          "equation_number": "(Adler, classic)",
+          "equation_number": "(15)",
           "page": 2111,
-          "latex": "\\frac{d\\phi}{dt} = -\\omega_L \\sin\\phi + \\Delta\\omega_{inj}",
-          "meaning": "Classical Adler equation for the phase difference of an injection-locked oscillator; the Hong model reduces to this in the weak-injection sinusoidal limit.",
+          "latex": "\\frac{d\\theta}{dt} = \\omega_0 - \\omega_{inj} - \\frac{\\omega_0}{2Q}\\,\\frac{I_{inj}}{I_{osc}}\\,\\sin\\theta",
+          "meaning": "Classical Adler equation as printed in Sec. III for an LC oscillator under sinusoidal injection: theta is the relative phase of the oscillator with respect to the injection (Eq.(4), p.2110), valid for weak injection I_inj << I_osc. The Hong model reduces to this in the weak-injection sinusoidal limit.",
           "depends_on": [],
-          "manual_verification_needed": true,
-          "todo": "TODO: confirm exact symbol set and equation number for Adler's equation as printed (Sec. II)."
+          "manual_verification_needed": false
         },
         {
-          "equation_number": "(generalized Adler)",
+          "equation_number": "(30)",
           "page": 2113,
-          "latex": "\\frac{d\\phi}{dt} = \\Delta\\omega - \\frac{1}{q_{max}}\\,\\big\\langle \\Gamma(\\theta+\\phi)\\, i_{inj}(\\theta)\\big\\rangle",
-          "meaning": "A single first-order differential equation, built from the ISF Gamma and the injection waveform, that predicts lock range, locked phase, and mode stability for an ARBITRARY oscillator and injection shape.",
+          "latex": "\\frac{d\\theta}{dt} = \\omega_0 - \\omega_{inj} + \\frac{1}{T_{inj}}\\int_{T_{inj}} \\tilde{\\Gamma}(\\omega_{inj}t+\\theta)\\, i_{inj}(t)\\, dt",
+          "meaning": "Generalized Adler equation (time-averaged pulling equation, plus sign in front of the averaged term). theta is the oscillator's phase relative to the injection (total phase = omega_inj*t + theta = omega_0*t + phi, Eqs.(3)-(4), p.2110) and is treated as a constant inside the averaging integral; the ISF argument is the total phase omega_inj*t + theta. Gamma_tilde = Gamma/q_max (Eq.(26), p.2113) has units 1/C. A single first-order equation built from the ISF and the injection waveform that predicts lock range, locked phase, and mode stability for an ARBITRARY oscillator and injection shape.",
           "depends_on": [],
-          "manual_verification_needed": true,
-          "todo": "TODO: confirm exact form of the generalized phase equation (averaging operator and sign) from PDF pages 2112-2114."
+          "manual_verification_needed": false
         }
       ],
       "important_figures": [
-        {"figure_number": "Fig. 1-3", "page": 2110, "caption": "Time-synchronous injection model and ISF-based formulation.", "teaching_use": "Context for how the ISF generalizes beyond phase noise into injection phenomena.", "manual_verification_needed": true}
+        {"figure_number": "Fig. 1", "page": 2110, "caption": "(a) Basic setup and notation for modeling an oscillator under injection. (b) Free-running and injection frames of reference. (c) Intra-period variations in the relative phase theta of an injection-locked oscillator.", "teaching_use": "Defines the two reference frames: excess phase phi in the free-running frame and relative phase theta in the injection frame.", "manual_verification_needed": false},
+        {"figure_number": "Fig. 2", "page": 2111, "caption": "Schematic of an LC oscillator under sinusoidal injection used in deriving Adler's equation.", "teaching_use": "Circuit behind the classical Adler equation (15).", "manual_verification_needed": false},
+        {"figure_number": "Fig. 3", "page": 2112, "caption": "Injection locking an ideal LC oscillator to a current impulse train. (a) Circuit schematic. (b) Injections that increase the oscillation frequency. (c) Injections that decrease the oscillation frequency.", "teaching_use": "State-space picture of how impulse injections shift the oscillator phase and hence its frequency.", "manual_verification_needed": false}
       ],
       "main_contribution": "Shows that the ISF — originally a phase-noise tool — also yields a fully general, topology-independent theory of injection locking/pulling, generalizing Adler's 1946 equation and enabling injection-waveform optimization of the lock range.",
       "assumptions": [
@@ -280,17 +280,17 @@
       "key_terms": ["amplitude perturbation function", "APF", "ISF", "amplitude modulation", "injection-locked frequency divider", "ILFD", "dual-modulus prescaler", "lock characteristic"],
       "important_equations": [
         {
-          "equation_number": "(APF definition)",
-          "page": 2127,
-          "latex": "\\Lambda(\\phi)\\;\\text{[units: } \\mathrm{A^{-1}}\\text{]} = \\frac{\\text{area under the amplitude-deviation impulse response}}{\\cdots}",
-          "meaning": "The APF Lambda(phi) is to amplitude what the ISF Gamma is to phase: it projects an injected current impulse onto the amplitude (radial) direction of the limit cycle. Units of 1/Ampere. For an ideal LC oscillator the ISF and APF are in quadrature.",
+          "equation_number": "(19)",
+          "page": 2126,
+          "latex": "\\Delta(\\varphi) := \\int_0^{\\infty} D(\\tau,\\varphi)\\,d\\tau = \\tilde{\\Lambda}(\\varphi)\\int_0^{\\infty} d(\\tau,\\varphi)\\,d\\tau",
+          "meaning": "The APF Delta(varphi) (units 1/Ampere) is the area under the decay function D(tau,varphi) = Lambda_tilde(varphi)*d(tau,varphi) (Eq.(18)); Lambda_tilde is the amplitude ISF. Fig. 5(c), p.2126 shows the APF as the area under the amplitude-deviation impulse response h_A(t,tau). For an ideal LC oscillator the ISF and APF are in quadrature: analytic only, Eqs.(24)-(26), p.2128 (Gamma_tilde = -sin(varphi)/q_max,0; Lambda_tilde = cos(varphi)/q_max,0; Delta = tau_0*Lambda_tilde with tau_0 = 2Q/omega_0).",
           "depends_on": [],
-          "manual_verification_needed": true,
-          "todo": "TODO: confirm exact APF definition and its Fourier expansion (Sec. III-D, eqs around p.2127) from the PDF."
+          "manual_verification_needed": false
         }
       ],
       "important_figures": [
-        {"figure_number": "Fig. 3", "page": 2128, "caption": "ISF and APF of an ideal LC oscillator, the amplitude decay function, and their relationship (ISF and APF in quadrature).", "teaching_use": "Best single picture linking the phase (ISF) and amplitude (APF) sensitivities — used in phase_vs_amplitude_noise.md to motivate why amplitude noise decays.", "manual_verification_needed": true}
+        {"figure_number": "Fig. 5", "page": 2126, "caption": "Characterizing the effect that an instantaneous injection of charge has on an oscillator's amplitude deviations. (a) Decay of the excess amplitude of the charge waveform after an injection. (b) Decay of the excess energy stored in the oscillator after an injection. (c) Relating the time-varying impulse response for amplitude deviations to the APF.", "teaching_use": "Shows how a single charge injection produces an amplitude deviation that decays, and that the APF is the area under the amplitude-deviation impulse response h_A(t,tau). It contains no phase ISF, no excess phase and no ISF/APF quadrature drawing; used in phase_vs_amplitude_noise.md to motivate why amplitude noise decays.", "manual_verification_needed": false},
+        {"figure_number": "Fig. 6", "page": 2127, "caption": "Bipolar Colpitts oscillator. (a) Schematic, L = 6 nH, C = 8 pF, Q = 15, f0 around 1 GHz, I_bias = 10 mA. (b) Oscillation voltage and inductor current. (c) Tank energy over a single cycle. (d) Amplitude ISF. (e) Decay function for 20 different values of varphi, equally distributed across [0, 2*pi). (f) APF.", "teaching_use": "The only plotted amplitude ISF, decay function d(t,varphi) and APF side by side (panels d-f), for a bipolar Colpitts oscillator rather than an ideal LC. The ideal-LC ISF/APF quadrature is given analytically in Eqs.(24)-(26), p.2128, not drawn.", "manual_verification_needed": false}
       ],
       "main_contribution": "Completes the injection framework by adding the amplitude dimension via the APF, explaining amplitude modulation in LC oscillators under injection, transient locking, and frequency division (ILFD/prescaler) design.",
       "assumptions": [
